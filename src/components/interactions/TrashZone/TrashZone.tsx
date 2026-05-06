@@ -53,8 +53,8 @@ export const TrashZone = memo(function TrashZone({
     <div
       ref={drop as any}
       className={`
-        flex items-center justify-center gap-2 px-4 py-2.5
-        rounded-lg border-2 border-dashed
+        flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5
+        rounded-lg border-2 border-dashed overflow-hidden
         transition-all duration-200
         ${isOver && canDrop ? 'bg-error/30 border-error text-error shadow-lg shadow-error/30' : canDrop ? 'bg-surface-elevated/50 border-warning/40 hover:border-warning/60 text-text-muted hover:text-warning' : 'bg-surface-elevated/30 border-border/30 text-text-muted'}
         ${className}
@@ -63,7 +63,7 @@ export const TrashZone = memo(function TrashZone({
       aria-label="Drop here to remove piece"
     >
       <svg
-        className={`w-5 h-5 transition-colors duration-200`}
+        className={`w-5 h-5 flex-shrink-0 transition-colors duration-200`}
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -76,7 +76,7 @@ export const TrashZone = memo(function TrashZone({
         />
       </svg>
       <span
-        className={`text-sm font-semibold whitespace-nowrap transition-colors duration-200`}
+        className={`text-sm font-semibold truncate transition-colors duration-200`}
       >
         {isOver && canDrop ? 'Release to remove' : 'Drop to remove'}
       </span>

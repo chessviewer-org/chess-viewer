@@ -28,7 +28,8 @@ function DndProvider({ children }) {
     const touchBackendOptions = {
       enableMouseEvents: true,
       enableTouchEvents: true,
-      delayTouchStart: 150,
+      delayTouchStart: 200,
+      touchSlop: 10,
       ignoreContextMenu: true
     };
 

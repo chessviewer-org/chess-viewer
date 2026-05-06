@@ -14,14 +14,15 @@ const BASE_BOARD_SIZE = 400;
 
 function getBoardSize() {
   if (typeof window === 'undefined') return BASE_BOARD_SIZE;
-  if (window.innerWidth < 640) return Math.min(280, window.innerWidth * 0.9);
-  if (window.innerWidth < 768) return Math.min(320, window.innerWidth * 0.85);
+  if (window.innerWidth < 400) return Math.min(280, window.innerWidth * 0.9);
+  if (window.innerWidth < 640) return Math.min(320, window.innerWidth * 0.9);
+  if (window.innerWidth < 768) return Math.min(340, window.innerWidth * 0.85);
   if (window.innerWidth < 1024) return Math.min(360, window.innerWidth * 0.55);
   if (window.innerWidth < 1280) return Math.min(400, window.innerWidth * 0.45);
   return Math.min(400, window.innerWidth * 0.35);
 }
 
-function getGutterSize(boardSize) {
+function getGutterSize(boardSize: number) {
   return Math.round(boardSize / 16);
 }
 
@@ -74,7 +75,7 @@ export const ChessEditor = memo(function ChessEditor({
   }, [pieceImages, onPieceImagesChange]);
 
   const handleTrashDrop = useCallback(
-    (row, col) => {
+    (row: number, col: number) => {
       handlePieceRemove(row, col);
     },
     [handlePieceRemove]
@@ -124,18 +125,20 @@ export const ChessEditor = memo(function ChessEditor({
   };
 
   return (
-    <div className={`flex flex-col gap-4 w-full h-full ${className}`}>
+    <div className={`flex flex-col gap-6 w-full max-w-[100vw] overflow-x-hidden ${className}`}>
       <CustomDragLayer pieceImages={pieceImages} boardSize={boardSize} />
-      <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start w-full min-h-0 flex-1">
-        <div className="flex-shrink-0 flex justify-center w-full sm:w-auto max-w-full">
+      
+      <div className="flex flex-col lg:flex-row gap-6 items-center lg:items-start w-full min-h-0 flex-1">
+        
+        {/* Board Container */}
+        <div className="flex-shrink-0 flex justify-center w-full lg:w-auto max-w-full overflow-hidden">
           <div
-            className="relative flex flex-col"
+            className="relative flex flex-col items-center justify-center max-w-full"
             style={{
-              width: showCoords ? boardSize + gutterSize : boardSize,
-              maxWidth: '100%'
+              width: showCoords ? boardSize + gutterSize : boardSize
             }}
           >
-            <div className="flex">
+            <div className="flex max-w-full">
               {showCoords && renderRankCoordinates()}
               <div
                 style={{
@@ -174,7 +177,7 @@ export const ChessEditor = memo(function ChessEditor({
                     <div className="absolute inset-0 rounded-full border-4 border-border"></div>
                     <div className="absolute inset-0 rounded-full border-4 border-accent border-t-transparent animate-spin"></div>
                   </div>
-                  <div className="text-text-primary text-sm font-semibold animate-pulse">
+                  <div className="text-text-primary text-sm font-semibold animate-pulse text-center px-4 break-words">
                     Loading pieces {loadProgress}%
                   </div>
                 </div>
@@ -183,20 +186,19 @@ export const ChessEditor = memo(function ChessEditor({
           </div>
         </div>
 
-        <div
-          className="flex flex-col justify-between gap-4 flex-1 w-full sm:w-auto min-w-0"
-          style={{ minHeight: `${boardSize}px` }}
-        >
-          <div className="flex-1">
+        {/* Tools and Actions Container */}
+        <div className="flex flex-col gap-6 flex-1 w-full lg:w-auto min-w-0">
+          
+          <div className="flex-1 w-full max-w-full overflow-hidden rounded-xl border border-border/40 bg-surface/30">
             <PiecePalette
               pieceImages={pieceImages}
               isLoading={isLoading}
-              className="w-full"
+              className="w-full h-full p-2 sm:p-4"
             />
           </div>
 
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex gap-3 flex-1">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 w-full">
+            <div className="flex flex-col sm:flex-row gap-3 flex-1 w-full">
               <button
                 type="button"
                 onClick={(e) => {
@@ -204,16 +206,19 @@ export const ChessEditor = memo(function ChessEditor({
                   resetBoard();
                 }}
                 className="
-                    flex-1 flex items-center justify-center gap-2 px-4 py-2.5
-                    text-sm font-semibold text-bg
+                    flex-1 flex items-center justify-center gap-2 px-4 py-3 min-h-[44px]
+                    text-base sm:text-sm font-semibold text-bg
                     bg-accent hover:bg-accent-hover
                     border border-accent/20
                     rounded-lg transition-colors duration-200 shadow-sm
                     hover:shadow-md hover:shadow-accent/25
+                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg
+                    active:scale-[0.98]
                   "
                 title="Reset to starting position"
+                aria-label="Reset to starting position"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="w-5 h-5 sm:w-4 sm:h-4" />
                 <span>Reset</span>
               </button>
               <button
@@ -223,24 +228,28 @@ export const ChessEditor = memo(function ChessEditor({
                   clearBoard();
                 }}
                 className="
-                    flex-1 flex items-center justify-center gap-2 px-4 py-2.5
-                    text-sm font-semibold text-text-secondary
+                    flex-1 flex items-center justify-center gap-2 px-4 py-3 min-h-[44px]
+                    text-base sm:text-sm font-semibold text-text-secondary
                     bg-surface-elevated hover:bg-surface-hover
                     border border-border hover:border-error/40
                     rounded-lg transition-colors duration-200 shadow-sm
                     hover:text-error
+                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2 focus-visible:ring-offset-bg
+                    active:scale-[0.98]
                   "
                 title="Clear all pieces"
+                aria-label="Clear all pieces"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5 sm:w-4 sm:h-4" />
                 <span>Clear</span>
               </button>
             </div>
 
-            <div className="flex-shrink-0">
-              <TrashZone onDrop={handleTrashDrop} className="h-full w-full" />
+            <div className="flex-shrink-0 w-full sm:w-auto h-16 sm:h-auto min-h-[44px]">
+              <TrashZone onDrop={handleTrashDrop} className="h-full w-full rounded-lg" />
             </div>
           </div>
+          
         </div>
       </div>
     </div>

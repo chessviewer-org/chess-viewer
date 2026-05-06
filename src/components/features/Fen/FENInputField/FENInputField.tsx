@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useState, ChangeEvent, useRef } from 'react';
 
 import {
   AlertCircle,
@@ -16,19 +16,40 @@ import { validateFEN } from '@/utils';
 import { logger } from '@/utils/logger';
 import { MAX_FEN_LENGTH, safeJSONParse } from '@/utils/validation';
 
+export type NotificationType = 'success' | 'error' | 'warning' | 'info';
+
+export interface FENInputFieldProps {
+  /** Current FEN string value */
+  fen: string;
+  /** Called on every keystroke or when a value is selected from history */
+  onChange: (e: { target: { value: string } }) => void;
+  /** Called when the field loses focus */
+  onBlur?: () => void;
+  /** Validation error message */
+  error?: string;
+  /** Copies the FEN to clipboard */
+  onCopy?: () => Promise<void> | void;
+  /** Pastes FEN from clipboard */
+  onPaste?: () => void;
+  /** Briefly true after a successful copy */
+  copySuccess?: boolean;
+  /** Navigates to the advanced FEN input page */
+  onAdvancedClick?: () => void;
+  /** Called with `(message, type)` to surface a toast */
+  onNotification?: (message: string, type: NotificationType) => void;
+}
+
+export interface FENHistoryEntry {
+  fen: string;
+  timestamp: number;
+}
+
+function isRecord(val: unknown): val is Record<string, unknown> {
+  return typeof val === 'object' && val !== null && !Array.isArray(val);
+}
+
 /**
  * FEN string input field with copy, paste, batch-add, favorites, and clipboard history actions.
- * @param {Object} props
- * @param {string} props.fen - Current FEN string value
- * @param {Function} props.onChange - Called on every keystroke
- * @param {Function} [props.onBlur] - Called when the field loses focus
- * @param {string} [props.error] - Validation error message
- * @param {Function} [props.onCopy] - Copies the FEN to clipboard
- * @param {Function} [props.onPaste] - Pastes FEN from clipboard
- * @param {boolean} [props.copySuccess] - Briefly true after a successful copy
- * @param {Function} [props.onAdvancedClick] - Navigates to the advanced FEN input page
- * @param {Function} [props.onNotification] - Called with `(message, type)` to surface a toast
- * @returns {JSX.Element}
  */
 const FENInputField = memo(
   function FENInputField({
@@ -41,18 +62,40 @@ const FENInputField = memo(
     copySuccess,
     onAdvancedClick,
     onNotification
-  }: any) {
-    const [isFavorite, setIsFavorite] = useState(false);
-    const [isClipboardOpen, setIsClipboardOpen] = useState(false);
+  }: FENInputFieldProps) {
+    const [isFavorite, setIsFavorite] = useState<boolean>(false);
+    const [isClipboardOpen, setIsClipboardOpen] = useState<boolean>(false);
     const { addToBatch } = useFENBatch();
+
+    // PERFORMANCE OPTIMIZATION: Local state for smooth typing without triggering global re-renders
+    const [localFen, setLocalFen] = useState<string>(fen);
+    const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    // Sync local state when external prop changes (e.g. board drop)
+    useEffect(() => {
+      setLocalFen(fen);
+    }, [fen]);
+
+    // Clean up timeout on unmount
+    useEffect(() => {
+      return () => {
+        if (debounceTimeoutRef.current) {
+          clearTimeout(debounceTimeoutRef.current);
+        }
+      };
+    }, []);
 
     useEffect(() => {
       try {
-        const favorites = safeJSONParse(
+        const rawFavorites = safeJSONParse(
           localStorage.getItem('favoriteFens'),
           {}
         );
-        setIsFavorite(!!favorites[fen]);
+        if (isRecord(rawFavorites)) {
+          setIsFavorite(!!rawFavorites[fen]);
+        } else {
+          setIsFavorite(false);
+        }
       } catch {
         setIsFavorite(false);
       }
@@ -62,21 +105,29 @@ const FENInputField = memo(
       if (onCopy) {
         await onCopy();
 
-        if (fen && validateFEN(fen.trim())) {
+        const currentFen = localFen.trim();
+        if (currentFen && validateFEN(currentFen)) {
           try {
-            const history = safeJSONParse(
+            const rawHistory = safeJSONParse(
               localStorage.getItem('fenClipboardHistory'),
               []
             );
+            
+            const history: FENHistoryEntry[] = Array.isArray(rawHistory)
+              ? rawHistory.filter(
+                  (item): item is FENHistoryEntry =>
+                    isRecord(item) && typeof item.fen === 'string' && typeof item.timestamp === 'number'
+                )
+              : [];
 
-            const newEntry = {
-              fen: fen.trim(),
+            const newEntry: FENHistoryEntry = {
+              fen: currentFen,
               timestamp: Date.now()
             };
 
             const updatedHistory = [
               newEntry,
-              ...history.filter((item) => item.fen !== fen.trim())
+              ...history.filter((item) => item.fen !== currentFen)
             ].slice(0, 50);
 
             localStorage.setItem(
@@ -88,36 +139,36 @@ const FENInputField = memo(
           }
         }
       }
-    }, [fen, onCopy]);
+    }, [localFen, onCopy]);
 
     const handleAddToBatch = useCallback(() => {
-      if (!fen || !fen.trim()) {
+      const currentFen = localFen.trim();
+      if (!currentFen) {
         onNotification?.('FEN is empty', 'error');
         return;
       }
 
-      const trimmedFen = fen.trim();
-      if (!validateFEN(trimmedFen)) {
+      if (!validateFEN(currentFen)) {
         onNotification?.('Invalid FEN - cannot add to batch', 'error');
         return;
       }
 
-      const success = addToBatch(trimmedFen);
+      const success = addToBatch(currentFen);
       if (success) {
         onNotification?.('Added to batch', 'success');
       } else {
         onNotification?.('FEN already in batch', 'warning');
       }
-    }, [fen, addToBatch, onNotification]);
+    }, [localFen, addToBatch, onNotification]);
 
     const handleToggleFavorite = useCallback(() => {
-      if (!fen || !fen.trim()) {
+      const currentFen = localFen.trim();
+      if (!currentFen) {
         onNotification?.('FEN is empty', 'error');
         return;
       }
 
-      const trimmedFen = fen.trim();
-      if (!validateFEN(trimmedFen)) {
+      if (!validateFEN(currentFen)) {
         onNotification?.('Invalid FEN - cannot favorite', 'error');
         return;
       }
@@ -127,18 +178,22 @@ const FENInputField = memo(
           localStorage.getItem('favoriteFens'),
           {}
         );
-        const favorites =
-          rawFavorites &&
-          typeof rawFavorites === 'object' &&
-          !Array.isArray(rawFavorites)
-            ? rawFavorites
-            : {};
-        const newFavoriteState = !favorites[trimmedFen];
+        
+        const favorites: Record<string, boolean> = {};
+        if (isRecord(rawFavorites)) {
+          for (const key in rawFavorites) {
+            if (Object.prototype.hasOwnProperty.call(rawFavorites, key)) {
+              favorites[key] = Boolean(rawFavorites[key]);
+            }
+          }
+        }
+        
+        const newFavoriteState = !favorites[currentFen];
 
         if (newFavoriteState) {
-          favorites[trimmedFen] = true;
+          favorites[currentFen] = true;
         } else {
-          delete favorites[trimmedFen];
+          delete favorites[currentFen];
         }
 
         localStorage.setItem('favoriteFens', JSON.stringify(favorites));
@@ -150,10 +205,11 @@ const FENInputField = memo(
       } catch {
         onNotification?.('Failed to update favorites', 'error');
       }
-    }, [fen, onNotification]);
+    }, [localFen, onNotification]);
 
     const handleSelectFromClipboard = useCallback(
-      (selectedFen) => {
+      (selectedFen: string) => {
+        setLocalFen(selectedFen);
         if (onChange) {
           onChange({ target: { value: selectedFen } });
           onNotification?.('FEN loaded from clipboard history', 'success');
@@ -162,14 +218,32 @@ const FENInputField = memo(
       [onChange, onNotification]
     );
 
+    const handleTextareaChange = useCallback(
+      (e: ChangeEvent<HTMLTextAreaElement>) => {
+        const newValue = e.target.value;
+        // 1. Instantly update local UI
+        setLocalFen(newValue);
+        
+        // 2. Debounce sync to global state (stops board from freezing during fast typing)
+        if (debounceTimeoutRef.current) {
+          clearTimeout(debounceTimeoutRef.current);
+        }
+        
+        debounceTimeoutRef.current = setTimeout(() => {
+          onChange({ target: { value: newValue } } as any);
+        }, 300);
+      },
+      [onChange]
+    );
+
     return (
       <>
         <div className="space-y-2">
-          <div className="bg-surface/50 border border-border rounded-lg overflow-hidden">
-            <div className="flex flex-wrap items-center gap-2 px-3 py-2 bg-surface-elevated border-b border-border">
+          <div className="bg-surface/50 border border-border rounded-lg overflow-hidden transition duration-300 ease-out">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-surface-elevated border-b border-border">
               <button
                 onClick={() => setIsClipboardOpen(true)}
-                className="p-2 rounded-md transition-all bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                className="p-1.5 sm:p-2 rounded-md transition duration-150 ease-out active:scale-95 hover:bg-opacity-80 bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-[36px] sm:min-h-[40px]"
                 title="View clipboard history"
                 aria-label="View clipboard history"
                 type="button"
@@ -183,7 +257,7 @@ const FENInputField = memo(
 
               <button
                 onClick={onPaste}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md transition-all bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-accent text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md transition duration-150 ease-out active:scale-95 hover:bg-opacity-80 bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-accent text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-[36px] sm:min-h-[40px]"
                 title="Paste FEN from clipboard"
                 aria-label="Paste FEN from clipboard"
                 type="button"
@@ -193,12 +267,12 @@ const FENInputField = memo(
                   strokeWidth={2.5}
                   aria-hidden="true"
                 />
-                <span>Paste</span>
+                <span className="hidden sm:inline">Paste</span>
               </button>
 
               <button
                 onClick={handleCopyWithHistory}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md transition-all text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md transition duration-150 ease-out active:scale-95 hover:bg-opacity-80 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-[36px] sm:min-h-[40px] ${
                   copySuccess
                     ? 'bg-success/20 text-success border border-success/30'
                     : 'bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-accent'
@@ -214,11 +288,11 @@ const FENInputField = memo(
                 {copySuccess ? (
                   <>
                     <CheckCircle
-                      className="w-3.5 h-3.5"
+                      className="w-3.5 h-3.5 animate-in zoom-in-50 duration-200 ease-out"
                       strokeWidth={2.5}
                       aria-hidden="true"
                     />
-                    <span>Copied</span>
+                    <span className="hidden sm:inline animate-in fade-in duration-200 ease-out">Copied</span>
                   </>
                 ) : (
                   <>
@@ -227,14 +301,14 @@ const FENInputField = memo(
                       strokeWidth={2.5}
                       aria-hidden="true"
                     />
-                    <span>Copy</span>
+                    <span className="hidden sm:inline">Copy</span>
                   </>
                 )}
               </button>
 
               <button
                 onClick={handleAddToBatch}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md transition-all bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-accent text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md transition duration-150 ease-out active:scale-95 hover:bg-opacity-80 bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-accent text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-[36px] sm:min-h-[40px]"
                 title="Add to batch (no redirect)"
                 aria-label="Add to batch"
                 type="button"
@@ -244,12 +318,12 @@ const FENInputField = memo(
                   strokeWidth={2.5}
                   aria-hidden="true"
                 />
-                <span>Add</span>
+                <span className="hidden sm:inline">Add</span>
               </button>
 
               <button
                 onClick={handleToggleFavorite}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md transition-all text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md transition duration-150 ease-out active:scale-95 hover:bg-opacity-80 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-[36px] sm:min-h-[40px] ${
                   isFavorite
                     ? 'bg-error/20 text-error border border-error/30'
                     : 'bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-error'
@@ -263,7 +337,7 @@ const FENInputField = memo(
                 type="button"
               >
                 <Heart
-                  className="w-3.5 h-3.5"
+                  className={`w-3.5 h-3.5 transition duration-200 ease-out ${isFavorite ? 'scale-110' : 'scale-100'}`}
                   strokeWidth={2.5}
                   fill={isFavorite ? 'currentColor' : 'none'}
                   aria-hidden="true"
@@ -273,18 +347,18 @@ const FENInputField = memo(
 
             <div className="relative">
               <textarea
-                value={fen}
-                onChange={onChange}
+                value={localFen}
+                onChange={handleTextareaChange}
                 onBlur={onBlur}
                 aria-label="FEN notation input"
                 aria-describedby={error ? 'fen-error' : undefined}
                 aria-invalid={error ? 'true' : 'false'}
                 className={`
-                  w-full px-3 py-2 pb-8
+                  w-full px-2 sm:px-3 py-1.5 sm:py-2 pb-7 sm:pb-8
                   bg-surface/50 text-text-primary 
-                  font-mono text-[12px] leading-tight resize-none min-h-[80px]
+                  font-mono text-base sm:text-[12px] leading-tight resize-none min-h-[50px] sm:min-h-[80px]
                   focus-visible:outline-none focus:outline-none outline-none 
-                  transition-all border-0
+                  transition duration-200 ease-out border-0
                   ${error ? 'text-error' : ''}
                 `}
                 placeholder="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -295,7 +369,7 @@ const FENInputField = memo(
 
               <button
                 onClick={onAdvancedClick}
-                className="absolute bottom-2 right-2 text-[12px] text-accent/80 hover:text-accent font-semibold transition-colors underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-1"
+                className="absolute bottom-1.5 right-1.5 text-[11px] sm:text-[12px] text-accent/80 hover:text-accent font-semibold transition duration-150 ease-out hover:bg-opacity-80 active:scale-95 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-1"
                 type="button"
                 aria-label="Open advanced FEN input modal"
               >
@@ -307,7 +381,7 @@ const FENInputField = memo(
           {error && (
             <div
               id="fen-error"
-              className="flex items-center gap-2 text-error text-xs mt-1"
+              className="flex items-center gap-2 text-error text-xs mt-1 animate-in fade-in zoom-in-95 duration-200 ease-out"
               role="alert"
             >
               <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
@@ -324,7 +398,7 @@ const FENInputField = memo(
       </>
     );
   },
-  (prevProps: any, nextProps: any) => {
+  (prevProps: FENInputFieldProps, nextProps: FENInputFieldProps) => {
     return (
       prevProps.fen === nextProps.fen &&
       prevProps.error === nextProps.error &&
