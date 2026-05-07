@@ -5,6 +5,16 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 
 import { getPieceImageKey, ItemTypes } from '@/constants';
 
+export interface DraggablePieceProps {
+  piece: string;
+  pieceImage: HTMLImageElement | null;
+  row?: number;
+  col?: number;
+  isFromPalette?: boolean;
+  size?: string;
+  disabled?: boolean;
+}
+
 /**
  * @param {Object} props
  * @returns {JSX.Element}
@@ -17,8 +27,8 @@ export const DraggablePiece = memo(function DraggablePiece({
   isFromPalette = false,
   size = '85%',
   disabled = false
-}: any) {
-  const pieceRef = useRef(null);
+}: DraggablePieceProps) {
+  const pieceRef = useRef<HTMLDivElement | null>(null);
   const pieceKey = getPieceImageKey(piece);
   const [{ isDragging }, drag, preview] = useDrag(
     () => ({
