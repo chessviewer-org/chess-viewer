@@ -63,6 +63,7 @@ Only the piece placement field is required. Others default to standard values.
 
 - **PNG** - Lossless, transparent background
 - **JPEG** - Smaller file size, no transparency
+- **SVG** - Vector export (currently available in Advanced FEN page export actions)
 
 ### Resolution
 
@@ -89,7 +90,7 @@ Print mode resolutions depend on board size selection (4 cm, 6 cm, 8 cm):
 
 ### Themes
 
-12+ preset board themes available. Custom hex colors supported via color picker.
+20+ preset board themes available. Custom hex colors supported via color picker.
 
 ### Piece Sets
 
@@ -106,7 +107,7 @@ Print mode resolutions depend on board size selection (4 cm, 6 cm, 8 cm):
 ## Known Limitations
 
 - **No keyboard shortcuts** — Planned for future
-- **No SVG export** — PNG/JPEG only
+- **Home page has no SVG button** — SVG export is in Advanced FEN flow
 - **No PGN import** — FEN only
 - **No arrow/highlight annotations**
 - **Safari memory limits** — 24×/32× Social exports may fail on Safari/iOS
@@ -161,5 +162,5 @@ MIT License - Commercial use, modification, distribution allowed.
 
 ---
 
-**Last Updated:** March 3, 2026  
+**Last Updated:** May 6, 2026  
 **Version:** 5.0.0
