@@ -1,14 +1,37 @@
 import { memo, useCallback } from 'react';
 
-import { useDrop } from 'react-dnd';
+import { useDrop, ConnectDropTarget } from 'react-dnd';
 
 import { DraggablePiece } from '@/components/interactions';
 import { ItemTypes } from '@/constants';
 
-/**
- * @param {Object} props
- * @returns {JSX.Element}
- */
+export interface DragItem {
+  piece: string;
+  pieceKey?: string;
+  fromRow: number;
+  fromCol: number;
+  isFromPalette: boolean;
+}
+
+export interface DroppableSquareProps {
+  row: number;
+  col: number;
+  piece: string | null;
+  isLight: boolean;
+  lightColor: string;
+  darkColor: string;
+  pieceImage: string | null;
+  onDrop?: (
+    piece: string,
+    fromRow: number,
+    fromCol: number,
+    toRow: number,
+    toCol: number,
+    isFromPalette: boolean
+  ) => void;
+  isLoading: boolean;
+}
+
 export const DroppableSquare = memo(
   function DroppableSquare({
     row,
@@ -20,10 +43,11 @@ export const DroppableSquare = memo(
     pieceImage,
     onDrop,
     isLoading
-  }: any) {
+  }: DroppableSquareProps) {
     const bgColor = isLight ? lightColor : darkColor;
+
     const handleDrop = useCallback(
-      (item) => {
+      (item: DragItem) => {
         if (onDrop) {
           onDrop(
             item.piece,
@@ -37,7 +61,12 @@ export const DroppableSquare = memo(
       },
       [onDrop, row, col]
     );
-    const [{ isOver }, drop] = useDrop(
+
+    const [{ isOver }, drop] = useDrop<
+      DragItem,
+      void,
+      { isOver: boolean }
+    >(
       () => ({
         accept: ItemTypes.PIECE,
         drop: handleDrop,
@@ -50,9 +79,12 @@ export const DroppableSquare = memo(
       }),
       [handleDrop]
     );
+
     return (
       <div
-        ref={drop as any}
+        ref={(node) => {
+          if (node) drop(node);
+        }}
         className="w-full h-full flex items-center justify-center relative"
         style={{
           backgroundColor: bgColor,
@@ -94,5 +126,6 @@ export const DroppableSquare = memo(
     );
   }
 );
+
 DroppableSquare.displayName = 'DroppableSquare';
 export default DroppableSquare;
