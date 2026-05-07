@@ -73,8 +73,8 @@ chessviewer/
 │   └── sitemap.xml
 │
 ├── src/
-│   ├── App.jsx                # Root component — light/dark theme & layout
-│   ├── index.jsx              # Application entry point
+│   ├── App.tsx                # Root component — light/dark theme & layout
+│   ├── index.tsx              # Application entry point
 │   ├── index.css              # Global styles
 │   │
 │   ├── routes/
@@ -87,8 +87,7 @@ chessviewer/
 │   │   ├── SupportPage.jsx    # Help & support
 │   │   ├── SettingsPage.jsx   # Application settings
 │   │   ├── FENHistoryPage.jsx # FEN history browser
-│   │   ├── AdvancedFENInputPage.jsx # Multi-FEN batch editor
-│   │   ├── ThemeCustomizerPage.jsx  # Full-page theme editor
+│   │   ├── AdvancedFENInputPage/AdvancedFENInputPage.jsx # Multi-FEN batch editor
 │   │   ├── NotFoundPage.jsx   # 404 page
 │   │   ├── index.js
 │   │   └── settings/
@@ -201,7 +200,7 @@ chessviewer/
 │   │   ├── coordinateCalculations.js
 │   │   ├── errorHandler.js
 │   │   ├── eventUtils.js
-│   │   ├── fenParser.js
+│   │   ├── fenParser.ts
 │   │   ├── historyUtils.js
 │   │   ├── imageOptimizer.js
 │   │   ├── logger.js
@@ -282,7 +281,7 @@ import { ChessBoard } from '@/components/board';
 
 ## Core Components
 
-### App.jsx
+### App.tsx
 
 Root application component. Responsibilities:
 
@@ -409,5 +408,5 @@ See [EXPORT_PIPELINE.md](EXPORT_PIPELINE.md) for the full technical reference.
 
 ---
 
-**Last Updated:** March 3, 2026  
+**Last Updated:** May 6, 2026  
 **Version:** 5.0.0
