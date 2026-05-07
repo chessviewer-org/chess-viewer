@@ -330,7 +330,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
 
 ---
 
-**Last Updated:** January 18, 2026  
+**Last Updated:** May 6, 2026  
 **Status:** ⚠️ Limited accessibility - NOT WCAG compliant  
 **Recent Improvements (v3.5.2):** Basic ARIA labels, focus trap in modals
 **Accessibility Level:** Partial - some ARIA attributes added
