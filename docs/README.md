@@ -52,9 +52,10 @@ Technical documentation for FENForsty Pro v5.0.0.
 ### What Works
 
 - FEN parsing and validation
-- Canvas board rendering with 23+ piece sets and 12+ themes
+- Canvas board rendering with 23+ piece sets and 20+ themes
 - Interactive drag-and-drop board editor
 - PNG/JPEG export up to 24,192×24,192 px (Social 32×)
+- SVG export (Advanced FEN page single + batch export)
 - Print mode with physical dimension accuracy (DPI-correct output)
 - Batch export of multiple FEN positions
 - FEN history with archive, filtering, and favorites
@@ -68,8 +69,8 @@ Technical documentation for FENForsty Pro v5.0.0.
 - No WCAG accessibility compliance for canvas content (screen readers cannot access board)
 - 24×/32× Social exports may fail on Safari/iOS (canvas area limit)
 - No keyboard shortcuts for board actions
-- No SVG export
-- No unit or integration test coverage
+- Home page export toolbar has PNG/JPEG only (SVG is currently in Advanced FEN flow)
+- Automated tests are minimal and currently failing in the Node test runner
 - `export/` and `Export/` (and similar pairs) directories duplicated in `features/` due to case-insensitive filesystem
 
 ---
@@ -82,5 +83,5 @@ Technical documentation for FENForsty Pro v5.0.0.
 
 ---
 
-**Last Updated:** March 3, 2026  
+**Last Updated:** May 6, 2026  
 **Version:** 5.0.0
