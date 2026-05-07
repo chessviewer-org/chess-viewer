@@ -308,8 +308,8 @@ html[data-theme-transition='to-dark'] {
   h5,
   h6 {
     font-family: var(--font-ui);
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-weight: 600;
+    letter-spacing: -0.025em;
   }
 
   code,
@@ -326,7 +326,7 @@ html[data-theme-transition='to-dark'] {
   .fen-notation {
     font-size: 0.875rem;
     line-height: 1.6;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.025em;
     font-variant-numeric: tabular-nums;
   }
 
