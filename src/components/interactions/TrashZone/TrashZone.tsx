@@ -3,20 +3,27 @@ import { memo } from 'react';
 import { useDrop } from 'react-dnd';
 
 import { ItemTypes } from '@/constants';
+import type { DragItem } from '@/components/interactions/DroppableSquare/DroppableSquare';
 
-/**
- * @param {Object} props
- * @returns {JSX.Element}
- */
+export interface TrashZoneProps {
+  onDrop?: (fromRow: number, fromCol: number) => void;
+  className?: string;
+  minimal?: boolean;
+}
+
 export const TrashZone = memo(function TrashZone({
   onDrop,
   className = '',
   minimal = false
-}: any) {
-  const [{ isOver, canDrop }, drop] = useDrop(
+}: TrashZoneProps) {
+  const [{ isOver, canDrop }, drop] = useDrop<
+    DragItem,
+    void,
+    { isOver: boolean; canDrop: boolean }
+  >(
     () => ({
       accept: ItemTypes.PIECE,
-      drop: (item: any) => {
+      drop: (item: DragItem) => {
         if (
           !item.isFromPalette &&
           item.fromRow !== undefined &&
@@ -27,7 +34,7 @@ export const TrashZone = memo(function TrashZone({
           }
         }
       },
-      canDrop: (item: any) => !item.isFromPalette,
+      canDrop: (item: DragItem) => !item.isFromPalette,
       collect: (monitor) => ({
         isOver: monitor.isOver(),
         canDrop: monitor.canDrop()
@@ -39,7 +46,9 @@ export const TrashZone = memo(function TrashZone({
   if (minimal) {
     return (
       <div
-        ref={drop as any}
+        ref={(node) => {
+          if (node) drop(node);
+        }}
         className={`
           transition-all duration-200
           ${isOver && canDrop ? 'bg-error/20 border-error' : canDrop ? 'bg-surface-elevated/50 border-border/50' : 'bg-transparent border-transparent'}
@@ -51,7 +60,9 @@ export const TrashZone = memo(function TrashZone({
   
   return (
     <div
-      ref={drop as any}
+      ref={(node) => {
+        if (node) drop(node);
+      }}
       className={`
         flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5
         rounded-lg border-2 border-dashed overflow-hidden
