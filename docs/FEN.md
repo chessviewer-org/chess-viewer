@@ -608,7 +608,7 @@ rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3
 
 ## Parser Implementation
 
-**Source files:** `src/utils/fenParser.js` (parse) and `src/utils/boardUtils.js` (board-to-FEN).
+**Source files:** `src/utils/fenParser.ts` (parse) and `src/utils/boardUtils.js` (board-to-FEN).
 
 ### Parse FEN to Board Array
 
@@ -616,7 +616,7 @@ The actual implementation uses **empty string** `''` for empty squares (not `nul
 Valid piece characters are stored in a `Set` for O(1) lookup, and valid digit characters in another `Set`.
 
 ```javascript
-// src/utils/fenParser.js
+// src/utils/fenParser.ts
 export function parseFEN(fenString) {
   const parts = fenString.trim().split(/\s+/);
   const position = parts[0];
@@ -758,6 +758,6 @@ Used by `useInteractiveBoard` to convert the drag-and-drop board state back to a
 
 ---
 
-**Last Updated:** March 3, 2026  
+**Last Updated:** May 6, 2026  
 **Version:** 5.0.0  
 **Maintainer:** [@BilgeGates](https://github.com/BilgeGates)
