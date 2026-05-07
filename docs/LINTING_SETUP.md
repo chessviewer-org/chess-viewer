@@ -61,10 +61,10 @@ Add these scripts to your `package.json`:
 ```json
 {
   "scripts": {
-    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "lint:fix": "eslint . --ext js,jsx --fix",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write \"src/**/*.{js,jsx,json,css,md}\"",
-    "format:check": "prettier --check \"src/**/*.{js,jsx,json,css,md}\"",
+    "format:check": "prettier . --check",
     "prepare": "husky install"
   }
 }
@@ -78,32 +78,32 @@ Add these scripts to your `package.json`:
 
 ```bash
 # Check for linting errors
-npm run lint
+pnpm lint
 
 # Fix linting errors automatically
-npm run lint:fix
+pnpm lint:fix
 
 # Lint specific file
-npx eslint src/App.jsx
+pnpm eslint src/App.tsx
 
 # Lint and fix specific file
-npx eslint src/App.jsx --fix
+pnpm eslint src/App.tsx --fix
 ```
 
 ### Prettier
 
 ```bash
 # Format all files
-npm run format
+pnpm format
 
 # Check formatting without changing files
-npm run format:check
+pnpm format:check
 
 # Format specific file
-npx prettier --write src/App.jsx
+pnpm prettier --write src/App.tsx
 
 # Format specific folder
-npx prettier --write src/components/**/*.jsx
+pnpm prettier --write "src/components/**/*.jsx"
 ```
 
 ### Husky (Automatic)
@@ -476,16 +476,16 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Run ESLint
-        run: npm run lint
+        run: pnpm lint
 
       - name: Check Prettier formatting
-        run: npm run format:check
+        run: pnpm format:check
 ```
 
 ---
 
-**Last Updated:** January 5, 2026  
+**Last Updated:** May 6, 2026  
 **Maintainer:** [@BilgeGates](https://github.com/BilgeGates)
