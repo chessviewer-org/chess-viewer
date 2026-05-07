@@ -13,13 +13,14 @@ Potential future features and known technical debt. No timeline commitments.
 - Interactive drag-and-drop board editor (ChessEditor, React DnD)
 - Board flip and coordinate toggle
 - 23+ piece sets
-- 12+ board theme presets
+- 20+ board theme presets
 - Custom board color picker (HSV/RGB/HEX)
 - Multiple color picker views (main, advanced, settings)
 
 ### Export
 
 - PNG and JPEG export
+- SVG export (Advanced FEN page: single and batch)
 - 4 quality levels: 8× (Print), 16× (Print), 24× (Social), 32× (Social)
 - Board size selection (4 cm, 6 cm, 8 cm) for print mode
 - Physical dimension accuracy (DPI-correct output)
@@ -52,6 +53,7 @@ Potential future features and known technical debt. No timeline commitments.
 ### App & UI
 
 - Light / dark color-scheme toggle with `prefers-color-scheme` fallback
+- Theme customization (preset themes + custom light/dark square colors)
 - Skip-to-main-content link (keyboard accessibility)
 - Navbar hidden on tool pages for distraction-free experience
 - ErrorBoundary wrapping the full app
@@ -91,17 +93,25 @@ Potential future features and known technical debt. No timeline commitments.
 
 ## Not Yet Implemented
 
+## Priority Roadmap Items
+
+1. **SVG export parity:** add SVG action to Home page export controls (Advanced FEN already supports SVG).
+2. **Site theme change improvements:** extend theme system with clearer global presets/workflows and reduce split behaviour between Home and Settings.
+3. **Direct game import from external sources:** support pasting/reading Lichess or Chess.com game URLs (or PGN text) and converting to position list/FEN.
+
+---
+
 ### Low Effort
 
 - [ ] URL-based position sharing (`?fen=...`)
 - [ ] Keyboard shortcuts for board actions
-- [ ] SVG export format
 
 ### Medium Effort
 
 - [ ] Undo/redo for interactive board edits
 - [ ] Arrow and highlight annotations on squares
 - [ ] PGN import
+- [ ] Direct game import from Lichess/Chess.com URL or PGN text
 - [ ] Custom piece set upload
 - [ ] Export to ZIP archive (batch download as single file)
 
@@ -117,7 +127,7 @@ Potential future features and known technical debt. No timeline commitments.
 ## Known Technical Debt
 
 - Canvas is not accessible to screen readers — no DOM alternative for board position
-- No unit or integration test coverage
+- Automated test coverage is limited and current Node test import path is broken
 - Export at 24×/32× Social may crash on iOS/Safari (canvas memory limit)
 - No Lighthouse CI in build pipeline
 - No bundle size tracking (vite-bundle-visualizer only on demand)
@@ -136,5 +146,5 @@ Potential future features and known technical debt. No timeline commitments.
 
 ---
 
-**Last Updated:** March 3, 2026  
+**Last Updated:** May 6, 2026  
 **Version:** 5.0.0
