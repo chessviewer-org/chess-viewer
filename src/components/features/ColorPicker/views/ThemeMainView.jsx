@@ -333,7 +333,25 @@ const ThemeMainView = memo(function ThemeMainView({
                   width={280}
                   height={200}
                   onClick={handleCanvasClick}
-                  className="w-full rounded-lg cursor-crosshair shadow-inner"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      const canvas = canvasRef.current;
+                      if (!canvas) return;
+                      const rect = canvas.getBoundingClientRect();
+                      handleCanvasClick({
+                        clientX: rect.left + rect.width / 2,
+                        clientY: rect.top + rect.height / 2
+                      });
+                    }
+                  }}
+                  role="slider"
+                  tabIndex={0}
+                  aria-label="Saturation and Lightness Picker"
+                  aria-valuenow={50}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  className="w-full rounded-lg cursor-crosshair shadow-inner focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 />
               </div>
 

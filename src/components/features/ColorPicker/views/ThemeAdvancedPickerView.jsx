@@ -206,13 +206,31 @@ const ThemeAdvancedPickerView = memo(
                 ))}
               </div>
 
-              <div className="bg-surface rounded-xl border border-border p-3 mb-3">
+              <div className="bg-surface rounded-xl border border-border p-3">
                 <canvas
                   ref={canvasRef}
-                  width={180}
-                  height={280}
+                  width={280}
+                  height={200}
                   onClick={handleCanvasClick}
-                  className="w-full rounded-lg cursor-crosshair border border-border shadow-inner"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      const canvas = canvasRef.current;
+                      if (!canvas) return;
+                      const rect = canvas.getBoundingClientRect();
+                      handleCanvasClick({
+                        clientX: rect.left + rect.width / 2,
+                        clientY: rect.top + rect.height / 2
+                      });
+                    }
+                  }}
+                  role="slider"
+                  tabIndex={0}
+                  aria-label="Advanced Saturation and Lightness Picker"
+                  aria-valuenow={50}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  className="w-full rounded-lg cursor-crosshair shadow-inner focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 />
               </div>
 

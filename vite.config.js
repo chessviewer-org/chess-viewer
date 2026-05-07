@@ -48,19 +48,28 @@ export default defineConfig({
 
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-icons': ['lucide-react', 'react-icons'],
-          'vendor-motion': ['framer-motion'],
-          'vendor-dnd': [
-            'react-dnd',
-            'react-dnd-html5-backend',
-            'react-dnd-touch-backend'
-          ],
-          'vendor-virtualization': [
-            'react-window',
-            'react-window-infinite-loader'
-          ]
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (
+              id.includes('react') ||
+              id.includes('react-dom') ||
+              id.includes('react-router-dom')
+            ) {
+              return 'vendor-react';
+            }
+            if (id.includes('lucide-react') || id.includes('react-icons')) {
+              return 'vendor-icons';
+            }
+            if (id.includes('framer-motion')) {
+              return 'vendor-motion';
+            }
+            if (id.includes('react-dnd')) {
+              return 'vendor-dnd';
+            }
+            if (id.includes('react-window')) {
+              return 'vendor-virtualization';
+            }
+          }
         },
 
         chunkFileNames: 'static/js/[name]-[hash].js',

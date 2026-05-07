@@ -205,7 +205,7 @@ const ChessBoard = React.forwardRef(function ChessBoard(props, ref) {
         className="transition-all duration-300 w-full h-auto"
         style={{
           display: 'block',
-          imageRendering: 'crisp-edges',
+          imageRendering: 'auto',
           background: 'transparent'
         }}
         aria-hidden="true"
@@ -217,7 +217,7 @@ const ChessBoard = React.forwardRef(function ChessBoard(props, ref) {
           aria-live="polite"
         >
           <div className="flex flex-col items-center gap-4">
-            <div className="relative w-16 h-16">
+            <div className="relative w-12 h-12 sm:w-16 sm:h-16">
               <div className="absolute inset-0 rounded-full border-4 border-border"></div>
               <div className="absolute inset-0 rounded-full border-4 border-accent border-t-transparent animate-spin"></div>
             </div>

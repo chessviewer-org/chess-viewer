@@ -3,6 +3,19 @@ import { memo, useCallback } from 'react';
 import { DraggablePiece } from '@/components/interactions';
 import { getPieceImageKey, PALETTE_PIECES } from '@/constants';
 
+export interface PiecePaletteProps {
+  pieceImages: Record<string, HTMLImageElement | null>;
+  isLoading: boolean;
+  className?: string;
+}
+
+interface PalettePiece {
+  id: string;
+  piece: string;
+  color: 'w' | 'b';
+  name: string;
+}
+
 /**
  * Sidebar palette of all 12 draggable chess pieces (6 white, 6 black).
  * @param {Object} props
@@ -15,12 +28,12 @@ export const PiecePalette = memo(function PiecePalette({
   pieceImages,
   isLoading,
   className = ''
-}: any) {
-  const whitePieces = PALETTE_PIECES.filter((p) => p.color === 'w');
-  const blackPieces = PALETTE_PIECES.filter((p) => p.color === 'b');
+}: PiecePaletteProps) {
+  const whitePieces = PALETTE_PIECES.filter((p: PalettePiece) => p.color === 'w');
+  const blackPieces = PALETTE_PIECES.filter((p: PalettePiece) => p.color === 'b');
 
   const renderPieceGroup = useCallback(
-    (pieces, label) => (
+    (pieces: PalettePiece[], label: string) => (
       <div className="space-y-2 sm:space-y-2.5">
         <h3 className="text-[11px] sm:text-xs font-bold uppercase tracking-wide text-center py-2 rounded-md text-white bg-accent border border-accent-hover">
           {label}

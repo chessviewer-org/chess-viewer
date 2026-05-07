@@ -96,7 +96,7 @@ const ThemeCustomization = memo(function ThemeCustomization({
 
   const handleEnableEditMode = useCallback(
     function handleEnableEditMode() {
-      setPresetsBackup(JSON.parse(JSON.stringify(presets)));
+      setPresetsBackup(structuredClone(presets));
       setEditMode(true);
       setEditingPresetId(null);
       setIsAddingNew(false);

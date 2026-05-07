@@ -8,23 +8,30 @@ import { FENBatchProvider, ThemeSettingsProvider } from '@/contexts';
 import Routes from '@/routes/Router';
 import { logger } from '@/utils/logger';
 
+declare global {
+  interface Window {
+    __INITIAL_THEME__?: string;
+  }
+}
+
 /**
  * Tool pages where navbar should be hidden for distraction-free experience.
  */
-const TOOL_PAGES = ['/settings', '/fen-history', '/advanced-fen'];
+const TOOL_PAGES: string[] = ['/settings', '/fen-history', '/advanced-fen'];
 
-/** @type {ReadonlySet<string>} */
-const VALID_THEMES = new Set(['light', 'dark']);
+const VALID_THEMES = new Set<string>(['light', 'dark']);
+
+type Theme = 'light' | 'dark';
 
 const THEME_REVEAL_DEFAULT_OFFSET = 24;
 
 /**
  * Sets CSS variables for circular reveal animation.
  *
- * @param {number} x - Reveal origin X in viewport
- * @param {number} y - Reveal origin Y in viewport
+ * @param x - Reveal origin X in viewport
+ * @param y - Reveal origin Y in viewport
  */
-function setThemeRevealVars(x, y) {
+function setThemeRevealVars(x: number, y: number): void {
   const clampedX = Math.min(Math.max(x, 0), window.innerWidth);
   const clampedY = Math.min(Math.max(y, 0), window.innerHeight);
   const maxDx = Math.max(clampedX, window.innerWidth - clampedX);
@@ -49,21 +56,21 @@ function setThemeRevealVars(x, y) {
  * Retrieves the initial theme from various sources.
  * Priority: window variable > localStorage > system preference.
  *
- * @returns {'light'|'dark'} Theme value
+ * @returns Theme value
  */
-function getInitialTheme() {
+function getInitialTheme(): Theme {
   if (
     typeof window !== 'undefined' &&
-    typeof (window as any).__INITIAL_THEME__ === 'string' &&
-    VALID_THEMES.has((window as any).__INITIAL_THEME__)
+    typeof window.__INITIAL_THEME__ === 'string' &&
+    VALID_THEMES.has(window.__INITIAL_THEME__)
   ) {
-    return (window as any).__INITIAL_THEME__;
+    return window.__INITIAL_THEME__ as Theme;
   }
 
   try {
     const saved = localStorage.getItem('chess-theme');
     if (saved && VALID_THEMES.has(saved)) {
-      return saved;
+      return saved as Theme;
     }
   } catch (error) {
     logger.warn('localStorage access blocked:', error);
@@ -78,9 +85,9 @@ function getInitialTheme() {
 /**
  * Saves theme to localStorage safely.
  *
- * @param {string} theme - Theme value to save
+ * @param theme - Theme value to save
  */
-function saveTheme(theme) {
+function saveTheme(theme: Theme): void {
   try {
     localStorage.setItem('chess-theme', theme);
   } catch (error) {
@@ -92,11 +99,11 @@ function saveTheme(theme) {
  * Main application component.
  * Handles theme management, routing, and layout structure.
  *
- * @returns {JSX.Element} Application root
+ * @returns Application root
  */
 function App() {
   const location = useLocation();
-  const [theme, setTheme] = useState(getInitialTheme);
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
   const isToolPage = TOOL_PAGES.includes(location.pathname);
 
@@ -108,7 +115,7 @@ function App() {
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-    function handleMediaChange(event) {
+    function handleMediaChange(event: MediaQueryListEvent) {
       try {
         const manualOverride = localStorage.getItem('chess-theme');
         if (!manualOverride) {
@@ -125,7 +132,7 @@ function App() {
 
   const toggleTheme = useCallback(
     (event?: React.SyntheticEvent | Event) => {
-      const nextTheme = theme === 'dark' ? 'light' : 'dark';
+      const nextTheme: Theme = theme === 'dark' ? 'light' : 'dark';
       const prefersReducedMotion = window.matchMedia?.(
         '(prefers-reduced-motion: reduce)'
       ).matches;

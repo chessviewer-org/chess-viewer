@@ -1,22 +1,29 @@
 import { memo, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useDragLayer } from 'react-dnd';
+import { useDragLayer, DragLayerMonitor } from 'react-dnd';
 import { ItemTypes } from '@/constants';
 
-const selectDragState = (monitor) => ({
-  item: monitor.getItem(),
+import { DragItem } from '@/components/interactions/DroppableSquare/DroppableSquare';
+
+const selectDragState = (monitor: DragLayerMonitor) => ({
+  item: monitor.getItem() as DragItem | null,
   itemType: monitor.getItemType(),
   currentOffset: monitor.getClientOffset(),
   isDragging: monitor.isDragging()
 });
 
+export interface CustomDragLayerProps {
+  pieceImages: Record<string, HTMLImageElement | null>;
+  boardSize?: number;
+}
+
 const CustomDragLayer = memo(function CustomDragLayer({
   pieceImages,
   boardSize = 400
-}: any) {
+}: CustomDragLayerProps) {
   const collected = useDragLayer(selectDragState);
-  const rafRef = useRef(null);
-  const divRef = useRef(null);
+  const rafRef = useRef<number | null>(null);
+  const divRef = useRef<HTMLDivElement | null>(null);
 
   const pieceSize = Math.round((boardSize / 8) * 0.85);
   const { itemType, isDragging, item, currentOffset } = collected;
@@ -46,7 +53,7 @@ const CustomDragLayer = memo(function CustomDragLayer({
     return null;
   }
 
-  const pieceImage = pieceImages[item?.pieceKey];
+  const pieceImage = item?.pieceKey ? pieceImages[item.pieceKey] : null;
   if (!pieceImage) return null;
 
   if (!currentOffset) return null;

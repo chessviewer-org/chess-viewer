@@ -2,6 +2,27 @@ import { memo } from 'react';
 
 import { ChevronLeft, ChevronRight, Pause, Play, Star } from 'lucide-react';
 
+export interface BoardPreviewProps {
+  validFens: string[];
+  currentIndex: number;
+  currentFen: string;
+  boardState: string[][];
+  currentTheme: { light: string; dark: string };
+  pieceImages: Record<string, HTMLImageElement | null>;
+  imagesLoading: boolean;
+  favorites: Record<string, boolean>;
+  isPlaying: boolean;
+  interval: number;
+  intervalOptions: { label: string; value: number }[];
+  showIntervalMenu: boolean;
+  onSetInterval: (value: number) => void;
+  onToggleIntervalMenu: () => void;
+  onTogglePlay: () => void;
+  onPrevious: () => void;
+  onNext: () => void;
+  onSetIndex: (index: number) => void;
+}
+
 /**
  * @param {Object} props
  * @returns {JSX.Element}
@@ -25,7 +46,7 @@ const BoardPreview = memo(function BoardPreview({
   onPrevious,
   onNext,
   onSetIndex
-}: any) {
+}: BoardPreviewProps) {
   if (validFens.length === 0) {
     return null;
   }

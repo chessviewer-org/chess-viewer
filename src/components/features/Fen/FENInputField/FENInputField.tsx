@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState, ChangeEvent, useRef } from 'react';
+import { memo, useCallback, useEffect, useState, ChangeEvent } from 'react';
 
 import {
   AlertCircle,
@@ -22,7 +22,7 @@ export interface FENInputFieldProps {
   /** Current FEN string value */
   fen: string;
   /** Called on every keystroke or when a value is selected from history */
-  onChange: (e: { target: { value: string } }) => void;
+  onChange: (fen: string) => void;
   /** Called when the field loses focus */
   onBlur?: () => void;
   /** Validation error message */
@@ -69,21 +69,13 @@ const FENInputField = memo(
 
     // PERFORMANCE OPTIMIZATION: Local state for smooth typing without triggering global re-renders
     const [localFen, setLocalFen] = useState<string>(fen);
-    const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     // Sync local state when external prop changes (e.g. board drop)
     useEffect(() => {
-      setLocalFen(fen);
+      if (fen !== localFen) {
+        setLocalFen(fen);
+      }
     }, [fen]);
-
-    // Clean up timeout on unmount
-    useEffect(() => {
-      return () => {
-        if (debounceTimeoutRef.current) {
-          clearTimeout(debounceTimeoutRef.current);
-        }
-      };
-    }, []);
 
     useEffect(() => {
       try {
@@ -211,7 +203,7 @@ const FENInputField = memo(
       (selectedFen: string) => {
         setLocalFen(selectedFen);
         if (onChange) {
-          onChange({ target: { value: selectedFen } });
+          onChange(selectedFen);
           onNotification?.('FEN loaded from clipboard history', 'success');
         }
       },
@@ -220,20 +212,30 @@ const FENInputField = memo(
 
     const handleTextareaChange = useCallback(
       (e: ChangeEvent<HTMLTextAreaElement>) => {
-        const newValue = e.target.value;
-        // 1. Instantly update local UI
-        setLocalFen(newValue);
-        
-        // 2. Debounce sync to global state (stops board from freezing during fast typing)
-        if (debounceTimeoutRef.current) {
-          clearTimeout(debounceTimeoutRef.current);
-        }
-        
-        debounceTimeoutRef.current = setTimeout(() => {
-          onChange({ target: { value: newValue } } as any);
-        }, 300);
+        // Instantly update local UI only
+        setLocalFen(e.target.value);
       },
-      [onChange]
+      []
+    );
+
+    const handleBlur = useCallback(() => {
+      // Sync local state to global state on blur to prevent lag during typing
+      if (localFen !== fen) {
+        onChange(localFen);
+      }
+      if (onBlur) {
+        onBlur();
+      }
+    }, [localFen, fen, onChange, onBlur]);
+
+    const handleKeyDown = useCallback(
+      (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          e.currentTarget.blur();
+        }
+      },
+      []
     );
 
     return (
@@ -349,7 +351,8 @@ const FENInputField = memo(
               <textarea
                 value={localFen}
                 onChange={handleTextareaChange}
-                onBlur={onBlur}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
                 aria-label="FEN notation input"
                 aria-describedby={error ? 'fen-error' : undefined}
                 aria-invalid={error ? 'true' : 'false'}
@@ -390,11 +393,13 @@ const FENInputField = memo(
           )}
         </div>
 
-        <ClipboardHistory
-          isOpen={isClipboardOpen}
-          onClose={() => setIsClipboardOpen(false)}
-          onSelectFen={handleSelectFromClipboard}
-        />
+        {isClipboardOpen && (
+          <ClipboardHistory
+            isOpen={isClipboardOpen}
+            onClose={() => setIsClipboardOpen(false)}
+            onSelectFen={handleSelectFromClipboard}
+          />
+        )}
       </>
     );
   },

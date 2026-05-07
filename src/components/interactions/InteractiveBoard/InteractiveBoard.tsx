@@ -5,6 +5,23 @@ import { useDrop } from 'react-dnd';
 import { DroppableSquare } from '@/components/interactions';
 import { ItemTypes } from '@/constants';
 
+export interface InteractiveBoardProps {
+  board: string[][];
+  lightSquare: string;
+  darkSquare: string;
+  pieceImages: Record<string, HTMLImageElement | null>;
+  isLoading: boolean;
+  flipped: boolean;
+  onPieceDrop?: (
+    piece: string,
+    fromRow: number,
+    fromCol: number,
+    toRow: number,
+    toCol: number,
+    isFromPalette: boolean
+  ) => void;
+}
+
 /**
  * @param {Object} props
  * @returns {JSX.Element}
@@ -17,10 +34,10 @@ export const InteractiveBoard = memo(function InteractiveBoard({
   isLoading,
   flipped,
   onPieceDrop
-}: any) {
-  const boardRef = useRef(null);
+}: InteractiveBoardProps) {
+  const boardRef = useRef<HTMLDivElement | null>(null);
   const handleDrop = useCallback(
-    (piece, fromRow, fromCol, toRow, toCol, isFromPalette) => {
+    (piece: string, fromRow: number, fromCol: number, toRow: number, toCol: number, isFromPalette: boolean) => {
       if (onPieceDrop) {
         onPieceDrop(piece, fromRow, fromCol, toRow, toCol, isFromPalette);
       }
@@ -34,7 +51,7 @@ export const InteractiveBoard = memo(function InteractiveBoard({
     []
   );
   const setRefs = useCallback(
-    (node) => {
+    (node: HTMLDivElement | null) => {
       boardRef.current = node;
       boardDropRef(node);
     },

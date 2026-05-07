@@ -4,6 +4,20 @@ import { AlertCircle, Check, Clipboard, Star, Trash2 } from 'lucide-react';
 
 import { validateFEN } from '@/utils';
 
+export interface FENInputRowProps {
+  index: number;
+  fen: string;
+  error?: string;
+  isDuplicate: boolean;
+  isFavorite: boolean;
+  isPasted: boolean;
+  canDelete: boolean;
+  onUpdate: (index: number, value: string) => void;
+  onPaste: (index: number) => void;
+  onToggleFavorite: (fen: string) => void;
+  onDelete: (index: number) => void;
+}
+
 /**
  * @param {Object} props
  * @returns {JSX.Element}
@@ -20,9 +34,9 @@ const FENInputRow = memo(function FENInputRow({
   onPaste,
   onToggleFavorite,
   onDelete
-}: any) {
+}: FENInputRowProps) {
   const handleInputChange = useCallback(
-    (e) => {
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       onUpdate(index, e.target.value);
     },
     [index, onUpdate]
@@ -112,6 +126,20 @@ const FENInputRow = memo(function FENInputRow({
   );
 });
 FENInputRow.displayName = 'FENInputRow';
+export interface FENInputListProps {
+  fens: string[];
+  maxFens: number;
+  fenErrors: string[];
+  duplicateWarning: number | null;
+  favorites: Record<string, boolean>;
+  pastedIndex: number | null;
+  onUpdateFen: (index: number, value: string) => void;
+  onAddFen: () => void;
+  onRemoveFen: (index: number) => void;
+  onToggleFavorite: (fen: string) => void;
+  onPaste: (index: number) => void;
+}
+
 /**
  * @param {Object} props
  * @returns {JSX.Element}
@@ -128,7 +156,7 @@ const FENInputList = memo(function FENInputList({
   onRemoveFen,
   onToggleFavorite,
   onPaste
-}: any) {
+}: FENInputListProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">

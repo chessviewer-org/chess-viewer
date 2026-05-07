@@ -15,6 +15,7 @@ export function LayoutProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useLayout() {
   return useContext(LayoutContext);
 }

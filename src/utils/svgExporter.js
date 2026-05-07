@@ -1,10 +1,11 @@
 import { parseFEN } from './fenParser';
 import { shouldForceCoordinateBorder } from './imageOptimizer';
 import { logger } from './logger';
-import { sanitizeFileName } from './validation';
+import { sanitizeFileName, sanitizeInput } from './validation';
 
 const SVG_BOARD_PX = 800;
 const SVG_COORD_BORDER_RATIO = 0.05;
+
 /**
  * @param {string} fenPiece - FEN piece character
  * @returns {string|null} Image key (e.g. 'wK') or null if empty
@@ -14,6 +15,15 @@ function getPieceKey(fenPiece) {
   const isWhite = fenPiece === fenPiece.toUpperCase();
   return (isWhite ? 'w' : 'b') + fenPiece.toUpperCase();
 }
+
+/**
+ * Converts an image element to a base64 PNG data URL.
+ * Redrawing on canvas effectively "sanitizes" the image data by
+ * flattening any potential SVG-based vectors or scripts into pixels.
+ *
+ * @param {HTMLImageElement} img
+ * @returns {Promise<string>}
+ */
 async function imageToDataURL(img) {
   return new Promise((resolve) => {
     try {
@@ -31,13 +41,6 @@ async function imageToDataURL(img) {
   });
 }
 
-function escapeXml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
 /**
  * Generates an SVG string representing the full chess board with pieces.
  *
@@ -98,7 +101,9 @@ export async function generateBoardSVG(config) {
   parts.push(
     `<svg xmlns="http://www.w3.org/2000/svg" ` +
       `viewBox="0 0 ${totalWidth} ${totalHeight}" ` +
-      `width="${totalWidth}" height="${totalHeight}">`
+      `width="${totalWidth}" height="${totalHeight}" ` +
+      `role="img" aria-label="Chess Board Position">` +
+      `<title>Chess Board Position</title>`
   );
   if (withBorder) {
     parts.push(
@@ -133,17 +138,20 @@ export async function generateBoardSVG(config) {
       const y = boardY + visRow * squarePx;
       parts.push(
         `<rect x="${x}" y="${y}" width="${squarePx}" height="${squarePx}" ` +
-          `fill="${escapeXml(color)}"/>`
+          `fill="${sanitizeInput(color)}"/>`
       );
     }
   }
+
   for (let row = 0; row < 8; row++) {
     for (let col = 0; col < 8; col++) {
       const fenPiece = board[row]?.[col];
       if (!fenPiece) continue;
+
       const key = getPieceKey(fenPiece);
       const dataURL = key ? pieceDataURLs[key] : null;
       if (!dataURL) continue;
+
       const visRow = flipped ? 7 - row : row;
       const visCol = flipped ? 7 - col : col;
       const x = boardX + visCol * squarePx;
@@ -155,6 +163,7 @@ export async function generateBoardSVG(config) {
       );
     }
   }
+
   if (withCoords) {
     const files = flipped
       ? ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a']
@@ -162,18 +171,25 @@ export async function generateBoardSVG(config) {
     const ranks = flipped
       ? ['1', '2', '3', '4', '5', '6', '7', '8']
       : ['8', '7', '6', '5', '4', '3', '2', '1'];
+
     const textAttrs =
-      `font-family="${escapeXml(fontFamily)}" font-size="${fontSize}" ` +
-      `font-weight="600" fill="${escapeXml(coordTextColor)}" text-anchor="middle"`;
+      `font-family="${sanitizeInput(fontFamily)}" font-size="${fontSize}" ` +
+      `font-weight="600" fill="${sanitizeInput(coordTextColor)}" text-anchor="middle"`;
+
     for (let col = 0; col < 8; col++) {
       const x = boardX + col * squarePx + squarePx / 2;
       const y = boardY + boardPx + borderPx * 0.7;
-      parts.push(`<text x="${x}" y="${y}" ${textAttrs}>${files[col]}</text>`);
+      parts.push(
+        `<text x="${x}" y="${y}" ${textAttrs}>${sanitizeInput(files[col])}</text>`
+      );
     }
+
     for (let row = 0; row < 8; row++) {
       const x = boardX - borderPx * 0.5;
       const y = boardY + row * squarePx + squarePx / 2 + fontSize * 0.35;
-      parts.push(`<text x="${x}" y="${y}" ${textAttrs}>${ranks[row]}</text>`);
+      parts.push(
+        `<text x="${x}" y="${y}" ${textAttrs}>${sanitizeInput(ranks[row])}</text>`
+      );
     }
   }
   parts.push('</svg>');

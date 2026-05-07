@@ -14,16 +14,35 @@ const BASE_BOARD_SIZE = 400;
 
 function getBoardSize() {
   if (typeof window === 'undefined') return BASE_BOARD_SIZE;
-  if (window.innerWidth < 400) return Math.min(280, window.innerWidth * 0.9);
-  if (window.innerWidth < 640) return Math.min(320, window.innerWidth * 0.9);
-  if (window.innerWidth < 768) return Math.min(340, window.innerWidth * 0.85);
-  if (window.innerWidth < 1024) return Math.min(360, window.innerWidth * 0.55);
-  if (window.innerWidth < 1280) return Math.min(400, window.innerWidth * 0.45);
+  const padding = 32; // Total horizontal padding
+  const availableWidth = window.innerWidth - padding;
+  
+  if (window.innerWidth < 768) {
+    return Math.min(availableWidth, 400);
+  }
+  if (window.innerWidth < 1024) {
+    return Math.min(360, window.innerWidth * 0.55);
+  }
+  if (window.innerWidth < 1280) {
+    return Math.min(400, window.innerWidth * 0.45);
+  }
   return Math.min(400, window.innerWidth * 0.35);
 }
 
 function getGutterSize(boardSize: number) {
   return Math.round(boardSize / 16);
+}
+
+export interface ChessEditorProps {
+  fen: string;
+  onFenChange: (fen: string) => void;
+  pieceStyle: string;
+  showCoords: boolean;
+  lightSquare: string;
+  darkSquare: string;
+  flipped: boolean;
+  onPieceImagesChange?: (images: Record<string, HTMLImageElement | null>) => void;
+  className?: string;
 }
 
 export const ChessEditor = memo(function ChessEditor({
@@ -36,7 +55,7 @@ export const ChessEditor = memo(function ChessEditor({
   flipped,
   onPieceImagesChange,
   className = ''
-}: any) {
+}: ChessEditorProps) {
   const { pieceImages, isLoading, loadProgress } = usePieceImages(pieceStyle);
   const [boardSize, setBoardSize] = useState(() => getBoardSize());
   const [gutterSize, setGutterSize] = useState(() => getGutterSize(boardSize));
