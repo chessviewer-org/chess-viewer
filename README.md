@@ -218,7 +218,7 @@ git push origin feature/your-feature
 ## Author
 
 <p>
-  <a href="https://github.com/BilgeGates">
+  <a href="https://github.com/BilgeGates/chess_viewer/graphs/contributors">
     <img src="https://github.com/BilgeGates.png?size=100" width="80" height="80" style="border-radius:50%;" alt="BilgeGates" />
   </a>
 </p>  
@@ -226,11 +226,11 @@ git push origin feature/your-feature
 ## Contributors
 
 <p>
-  <a href="https://github.com/vektorhub">
+  <a href="https://github.com/vektorhub/chess_viewer/graphs/contributors">
     <img src="https://github.com/vektorhub.png?size=100" width="80" height="80" style="border-radius:50%;" alt="Vektor Hub" />
   </a>
     &nbsp;
-  <a href="https://github.com/yu102118">
+  <a href="https://github.com/yu102118/chess_viewer/graphs/contributors">
       <img src="https://github.com/yu102118.png?size=100" width="80" height="80" style="border-radius:50%;" alt="yu102118" />
   </a>
 </p>
