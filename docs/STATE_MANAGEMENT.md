@@ -294,7 +294,7 @@ All persistence uses `localStorage`. On pages that also support an optional `win
 
 | localStorage Key      | Owner Hook / Context   | Data                             |
 | --------------------- | ---------------------- | -------------------------------- |
-| `chess-theme`         | `App.jsx`              | `'light'` or `'dark'`            |
+| `chess-theme`         | `App.tsx`              | `'light'` or `'dark'`            |
 | `chess-light-square`  | `useTheme`             | Hex color string                 |
 | `chess-dark-square`   | `useTheme`             | Hex color string                 |
 | `themeSettings`       | `ThemeSettingsContext` | Settings object (JSON)           |
@@ -345,5 +345,5 @@ const rgb = useMemo(() => hexToRgb(hex), [hex]);
 
 ---
 
-**Last Updated:** March 3, 2026  
+**Last Updated:** May 6, 2026  
 **Version:** 5.0.0
