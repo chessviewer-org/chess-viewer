@@ -39,7 +39,7 @@ Currently tracking **0** high priority issues.
 > - `vercel.json` updated: added `Strict-Transport-Security`, `Cross-Origin-Opener-Policy`,
 >   `Cross-Origin-Resource-Policy`, `base-uri 'self'`, `form-action 'self'`, and an
 >   immutable asset-cache header; removed `'unsafe-inline'` from `script-src`.
-> - `isValidFENFormat` now rejects inputs exceeding `MAX_FEN_LENGTH` (256 chars)
+> - `isValidFENFormat` now rejects inputs exceeding `MAX_FEN_LENGTH` (93 chars)
 >   before any parsing begins.
 > - `sanitizeHexColor` now applied consistently before any hex color value is
 >   used from localStorage, preventing CSS injection via stored colour strings.
@@ -354,18 +354,17 @@ KKKKKKKK/8/8/8/8/8/8/kkkkkkkk w - - 0 1
 
 ---
 
-### 4. No SVG Export (Yet)
+### 4. SVG Export Is Not Available in Home Toolbar
 
-**Limitation:** Can only export PNG and JPEG, not SVG.
+**Limitation:** SVG export is currently exposed in the Advanced FEN page, not in the Home page action toolbar.
 
-**Reason:** Complex to implement with current Canvas-based architecture.
+**Reason:** Export UX is split between Home (quick actions) and Advanced FEN (extended actions).
 
-**Status:** ⏳ Not yet implemented
+**Status:** 🟡 Open - UX consistency task
 
 **Workaround:**
 
-- Export ultra-HD PNG for print quality
-- Use vector graphics software to trace if needed
+- Use Advanced FEN page for SVG export (single or batch)
 
 ---
 
@@ -534,7 +533,7 @@ Statistics are not actively tracked. See sections above for current open issues.
 
 ## Recently Fixed Issues
 
-### v5.0.0 (2026-02-13)
+### v5.0.0 (2026-04-17)
 
 ✅ **Fixed:** Export dimension bug — board size selection now produces correct physical dimensions  
 ✅ **Fixed:** Coordinate system positioning — labels now scale proportionally  
@@ -566,7 +565,7 @@ Issues planned for upcoming releases:
 
 - [ ] Fix mobile keyboard overlap with controls
 - [ ] Add history limit notification
-- [ ] SVG export format
+- [ ] Add SVG action to Home page export controls
 - [ ] URL-based position sharing (`?fen=...`)
 
 ### Long-term
@@ -611,7 +610,7 @@ Found a bug? Want to fix it?
 
 ---
 
-**Last Updated:** March 3, 2026  
+**Last Updated:** May 6, 2026  
 **Version:** 5.0.0  
 **Maintainer:** [@BilgeGates](https://github.com/BilgeGates)
 
