@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug or issue with FENForsty Pro
+description: Report a bug or issue with Chess Vision
 title: '[Bug]: '
 labels: ['bug', 'needs-triage']
 assignees:
@@ -11,11 +11,11 @@ body:
       value: |
         ## 🐛 Thanks for reporting a bug!
 
-        Your feedback helps us improve FENForsty Pro. Please provide detailed information about the issue you encountered.
+        Your feedback helps us improve Chess Vision. Please provide detailed information about the issue you encountered.
 
         **Before submitting:**
         - Search existing issues to avoid duplicates
-        - Try the latest version at [chess-viewer-site.vercel.app](https://chess-viewer-site.vercel.app)
+        - Try the latest version at [chess-vision-site.vercel.app](https://chess-vision-site.vercel.app)
         - Check browser console for errors (F12 → Console tab)
 
   - type: textarea
@@ -216,7 +216,7 @@ body:
       options:
         - label: I have searched existing issues and this is not a duplicate
           required: true
-        - label: I have tested on the latest version (https://chess-viewer-site.vercel.app)
+        - label: I have tested on the latest version (https://chess-vision-site.vercel.app)
           required: true
         - label: I have provided detailed steps to reproduce
           required: true

@@ -1,5 +1,5 @@
 name: Feature Request
-description: Suggest a new feature or enhancement for FENForsty Pro
+description: Suggest a new feature or enhancement for Chess Vision
 title: '[Feature]: '
 labels: ['enhancement', 'needs-review']
 assignees:
@@ -11,11 +11,11 @@ body:
       value: |
         ## 💡 Thanks for suggesting a feature!
 
-        Your ideas help shape the future of FENForsty Pro. Please provide detailed information about your feature request.
+        Your ideas help shape the future of Chess Vision. Please provide detailed information about your feature request.
 
         **Before submitting:**
         - Check existing feature requests to avoid duplicates
-        - Review the [project roadmap](https://github.com/BilgeGates/chess_viewer/issues) if available
+        - Review the [project roadmap](https://github.com/BilgeGates/chess-vision/issues) if available
         - Consider if this aligns with the project's goals (chess diagram generation and export)
 
   - type: textarea
@@ -205,7 +205,7 @@ body:
       options:
         - label: I have searched existing feature requests to avoid duplicates
           required: true
-        - label: This feature aligns with FENForsty Pro's core purpose
+        - label: This feature aligns with Chess Vision's core purpose
           required: true
         - label: I have provided sufficient detail for the feature to be understood
           required: true
