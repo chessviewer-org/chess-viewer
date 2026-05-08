@@ -215,4 +215,4 @@ git push origin feature/your-feature
 
 ---
 
-&copy; 2026 Khatai Huseynzada, Non-Commercial Open Source License
+&copy; 2026 Khatai Huseynzada, AGPLv3 License 
