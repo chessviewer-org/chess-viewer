@@ -215,29 +215,4 @@ git push origin feature/your-feature
 
 ---
 
-## Author
-
-<p>
-  <a href="https://github.com/BilgeGates">
-    <img src="https://github.com/BilgeGates.png?size=100" width="80" height="80" style="border-radius:50%;" alt="BilgeGates" />
-  </a>
-</p>  
-
-## Contributors
-
-<p>
-  <a href="https://github.com/vektorhub">
-    <img src="https://github.com/vektorhub.png?size=100" width="80" height="80" style="border-radius:50%;" alt="Vektor Hub" />
-  </a>
-    &nbsp;
-  <a href="https://github.com/yu102118">
-      <img src="https://github.com/yu102118.png?size=100" width="80" height="80" style="border-radius:50%;" alt="yu102118" />
-  </a>
-</p>
-
-<h3>Thank you for your support!</h2>
-
-
----
-
-&copy; 2026 Khatai Huseynzada, Non-Commercial Open Source License
+&copy; 2026 Khatai Huseynzada, AGPL-3.0 License
