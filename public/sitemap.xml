@@ -3,7 +3,7 @@
   
   <!-- Home Page -->
   <url>
-    <loc>https://chess-viewer-site.vercel.app/</loc>
+    <loc>https://chess-vision-site.vercel.app/</loc>
     <lastmod>2026-01-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
@@ -11,7 +11,7 @@
   
   <!-- About Page -->
   <url>
-    <loc>https://chess-viewer-site.vercel.app/about</loc>
+    <loc>https://chess-vision-site.vercel.app/about</loc>
     <lastmod>2026-01-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -19,7 +19,7 @@
   
   <!-- Download Page -->
   <url>
-    <loc>https://chess-viewer-site.vercel.app/download</loc>
+    <loc>https://chess-vision-site.vercel.app/download</loc>
     <lastmod>2026-01-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -27,7 +27,7 @@
   
   <!-- Support Page -->
   <url>
-    <loc>https://chess-viewer-site.vercel.app/support</loc>
+    <loc>https://chess-vision-site.vercel.app/support</loc>
     <lastmod>2026-01-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

@@ -1,5 +1,5 @@
-# FENForsty Pro - Professional FENForsty Pro
-# https://chess-viewer-site.vercel.app
+# Chess Vision - Professional Chess Vision
+# https://chess-vision-site.vercel.app
 
 User-agent: *
 Allow: /
@@ -8,4 +8,4 @@ Allow: /
 Crawl-delay: 1
 
 # Sitemap location
-Sitemap: https://chess-viewer-site.vercel.app/sitemap.xml
+Sitemap: https://chess-vision-site.vercel.app/sitemap.xml
