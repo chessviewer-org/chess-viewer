@@ -65,11 +65,16 @@ const ExportProgress = memo(function ExportProgress({
 
         {exportInfo && (
           <div className="text-xs text-text-muted bg-surface-elevated border border-border rounded-lg px-3 py-2 space-y-1">
-            <div>Size: {exportInfo.displaySize}</div>
-            <div>Memory estimate: {exportInfo.memoryEstimateMB} MB</div>
+            <div>Resolution: {exportInfo.displaySize}</div>
+            <div>
+              File size estimate:{' '}
+              {exportInfo.fileSizeEstimate[format] ||
+                exportInfo.fileSizeEstimate.png}
+            </div>
             {exportInfo.isLargeExport && (
-              <div className="text-warning">
-                Large export. It may take longer on low-memory devices.
+              <div className="text-warning mt-1">
+                Large export (RAM: {exportInfo.memoryEstimateMB} MB). May take
+                longer.
               </div>
             )}
           </div>
