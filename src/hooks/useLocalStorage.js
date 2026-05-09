@@ -35,7 +35,6 @@ export function useLocalStorage(key, initialValue) {
         try {
           window.localStorage.setItem(key, JSON.stringify(value));
           pendingValueRef.current = null;
-          window.dispatchEvent(new Event('storage'));
         } catch (storageError) {
           if (storageError.name === 'QuotaExceededError') {
             logger.warn(
@@ -46,7 +45,6 @@ export function useLocalStorage(key, initialValue) {
               if (keys.length > 0) {
                 window.localStorage.removeItem(keys[0]);
                 window.localStorage.setItem(key, JSON.stringify(value));
-                window.dispatchEvent(new Event('storage'));
               }
             } catch (retryError) {
               logger.error(
