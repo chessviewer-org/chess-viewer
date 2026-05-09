@@ -29,8 +29,12 @@ export const PiecePalette = memo(function PiecePalette({
   isLoading,
   className = ''
 }: PiecePaletteProps) {
-  const whitePieces = PALETTE_PIECES.filter((p: PalettePiece) => p.color === 'w');
-  const blackPieces = PALETTE_PIECES.filter((p: PalettePiece) => p.color === 'b');
+  const whitePieces = PALETTE_PIECES.filter(
+    (p: PalettePiece) => p.color === 'w'
+  );
+  const blackPieces = PALETTE_PIECES.filter(
+    (p: PalettePiece) => p.color === 'b'
+  );
 
   const renderPieceGroup = useCallback(
     (pieces: PalettePiece[], label: string) => (
