@@ -26,5 +26,6 @@
             "cn\\(([^)]*)\\)",
             "[\"'`]([^\"'`]*).*?[\"'`]"
         ]
-    ]
+    ],
+    "tailwindCSS.lint.unknownClass": "ignore"
 }
