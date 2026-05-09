@@ -1,11 +1,16 @@
 import { SearchableSelect } from '@/components/ui';
 import { PIECE_SETS } from '@/constants';
 
+interface PieceSelectorProps {
+  pieceStyle: string;
+  setPieceStyle: (style: string) => void;
+}
+
 /**
- * @param {Object} props
+ * @param {PieceSelectorProps} props
  * @returns {JSX.Element}
  */
-function PieceSelector({ pieceStyle, setPieceStyle }) {
+function PieceSelector({ pieceStyle, setPieceStyle }: PieceSelectorProps) {
   return (
     <SearchableSelect
       options={PIECE_SETS}
