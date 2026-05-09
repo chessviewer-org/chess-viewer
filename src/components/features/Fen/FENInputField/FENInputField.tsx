@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState, ChangeEvent } from 'react';
+import { memo, useCallback, useEffect, useRef, useState, ChangeEvent } from 'react';
 
 import {
   AlertCircle,
@@ -12,6 +12,7 @@ import {
 
 import ClipboardHistory from '@/components/features/ClipboardHistory';
 import { useFENBatch } from '@/contexts';
+import { useDebouncedFENValidation } from '@/hooks/useDebouncedFENValidation';
 import { validateFEN } from '@/utils';
 import { logger } from '@/utils/logger';
 import { MAX_FEN_LENGTH, safeJSONParse } from '@/utils/validation';
@@ -21,11 +22,11 @@ export type NotificationType = 'success' | 'error' | 'warning' | 'info';
 export interface FENInputFieldProps {
   /** Current FEN string value */
   fen: string;
-  /** Called on every keystroke or when a value is selected from history */
+  /** Called when the field value should sync to the global state */
   onChange: (fen: string) => void;
   /** Called when the field loses focus */
   onBlur?: () => void;
-  /** Validation error message */
+  /** LEGACY: External error prop — still honoured if supplied */
   error?: string;
   /** Copies the FEN to clipboard */
   onCopy?: () => Promise<void> | void;
@@ -50,13 +51,17 @@ function isRecord(val: unknown): val is Record<string, unknown> {
 
 /**
  * FEN string input field with copy, paste, batch-add, favorites, and clipboard history actions.
+ *
+ * Validation is **debounced at 500 ms** so that errors appear only after the
+ * user pauses typing.  Board sync is debounced at 200 ms and only fires when
+ * the FEN is fully valid.
  */
 const FENInputField = memo(
   function FENInputField({
     fen,
     onChange,
     onBlur,
-    error,
+    error: externalError,
     onCopy,
     onPaste,
     copySuccess,
@@ -67,16 +72,39 @@ const FENInputField = memo(
     const [isClipboardOpen, setIsClipboardOpen] = useState<boolean>(false);
     const { addToBatch } = useFENBatch();
 
-    // PERFORMANCE OPTIMIZATION: Local state for smooth typing without triggering global re-renders
+    // ── Local state for instant, lag-free typing ──
     const [localFen, setLocalFen] = useState<string>(fen);
+    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+    const lastEmittedFenRef = useRef<string>(fen);
 
-    // Sync local state when external prop changes (e.g. board drop)
+    // Sync local state when external prop changes (e.g. board drag, paste)
+    // but NOT if the change is just the parent reflecting what we just emitted.
     useEffect(() => {
-      if (fen !== localFen) {
+      if (fen !== localFen && fen !== lastEmittedFenRef.current) {
         setLocalFen(fen);
+        lastEmittedFenRef.current = fen;
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fen]);
 
+    // ── Debounced validation + board sync ──
+    const handleValidFenSync = useCallback(
+      (validFen: string) => {
+        lastEmittedFenRef.current = validFen;
+        onChange(validFen);
+      },
+      [onChange]
+    );
+
+    const { debouncedError, isValid } = useDebouncedFENValidation(
+      localFen,
+      handleValidFenSync
+    );
+
+    // Combine internal debounced error with any external error
+    const visibleError = debouncedError || externalError || '';
+
+    // ── Favorites check ──
     useEffect(() => {
       try {
         const rawFavorites = safeJSONParse(
@@ -104,11 +132,13 @@ const FENInputField = memo(
               localStorage.getItem('fenClipboardHistory'),
               []
             );
-            
+
             const history: FENHistoryEntry[] = Array.isArray(rawHistory)
               ? rawHistory.filter(
                   (item): item is FENHistoryEntry =>
-                    isRecord(item) && typeof item.fen === 'string' && typeof item.timestamp === 'number'
+                    isRecord(item) &&
+                    typeof item.fen === 'string' &&
+                    typeof item.timestamp === 'number'
                 )
               : [];
 
@@ -170,7 +200,7 @@ const FENInputField = memo(
           localStorage.getItem('favoriteFens'),
           {}
         );
-        
+
         const favorites: Record<string, boolean> = {};
         if (isRecord(rawFavorites)) {
           for (const key in rawFavorites) {
@@ -179,7 +209,7 @@ const FENInputField = memo(
             }
           }
         }
-        
+
         const newFavoriteState = !favorites[currentFen];
 
         if (newFavoriteState) {
@@ -210,16 +240,17 @@ const FENInputField = memo(
       [onChange, onNotification]
     );
 
+    // ── Textarea handlers ──
     const handleTextareaChange = useCallback(
       (e: ChangeEvent<HTMLTextAreaElement>) => {
-        // Instantly update local UI only
+        // Instantly update local UI only — debounce handles the rest
         setLocalFen(e.target.value);
       },
       []
     );
 
     const handleBlur = useCallback(() => {
-      // Sync local state to global state on blur to prevent lag during typing
+      // On blur, always sync the current local value to global state
       if (localFen !== fen) {
         onChange(localFen);
       }
@@ -238,10 +269,15 @@ const FENInputField = memo(
       []
     );
 
+    // ── Border color logic ──
+    const borderColorClass = visibleError ? 'border-error/50' : 'border-border';
+
     return (
       <>
         <div className="space-y-2">
-          <div className="bg-surface/50 border border-border rounded-lg overflow-hidden transition duration-300 ease-out">
+          <div
+            className={`bg-surface/50 border rounded-lg overflow-hidden transition-all duration-300 ease-out ${borderColorClass}`}
+          >
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-surface-elevated border-b border-border">
               <button
                 onClick={() => setIsClipboardOpen(true)}
@@ -294,7 +330,9 @@ const FENInputField = memo(
                       strokeWidth={2.5}
                       aria-hidden="true"
                     />
-                    <span className="hidden sm:inline animate-in fade-in duration-200 ease-out">Copied</span>
+                    <span className="hidden sm:inline animate-in fade-in duration-200 ease-out">
+                      Copied
+                    </span>
                   </>
                 ) : (
                   <>
@@ -349,20 +387,21 @@ const FENInputField = memo(
 
             <div className="relative">
               <textarea
+                ref={textareaRef}
                 value={localFen}
                 onChange={handleTextareaChange}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
                 aria-label="FEN notation input"
-                aria-describedby={error ? 'fen-error' : undefined}
-                aria-invalid={error ? 'true' : 'false'}
+                aria-describedby={visibleError ? 'fen-error' : undefined}
+                aria-invalid={visibleError ? 'true' : 'false'}
                 className={`
                   w-full px-2 sm:px-3 py-1.5 sm:py-2 pb-7 sm:pb-8
                   bg-surface/50 text-text-primary 
                   font-mono text-base sm:text-[12px] leading-tight resize-none min-h-[50px] sm:min-h-[80px]
                   focus-visible:outline-none focus:outline-none outline-none 
                   transition duration-200 ease-out border-0
-                  ${error ? 'text-error' : ''}
+                  ${visibleError ? 'text-error' : ''}
                 `}
                 placeholder="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
                 maxLength={MAX_FEN_LENGTH}
@@ -381,16 +420,25 @@ const FENInputField = memo(
             </div>
           </div>
 
-          {error && (
-            <div
-              id="fen-error"
-              className="flex items-center gap-2 text-error text-xs mt-1 animate-in fade-in zoom-in-95 duration-200 ease-out"
-              role="alert"
-            >
-              <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" />
-              <span>{error}</span>
+          {/* Error message — slides in smoothly */}
+          <div
+            className={`
+              grid transition-all duration-300 ease-out
+              ${visibleError ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}
+            `}
+          >
+            <div className="overflow-hidden">
+              <div
+                id="fen-error"
+                className="flex items-center gap-2 text-error text-xs mt-1"
+                role="alert"
+              >
+                <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
+                <span>{visibleError}</span>
+              </div>
             </div>
-          )}
+          </div>
+
         </div>
 
         {isClipboardOpen && (
