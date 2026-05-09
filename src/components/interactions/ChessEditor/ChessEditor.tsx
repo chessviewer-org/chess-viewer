@@ -16,7 +16,7 @@ function getBoardSize() {
   if (typeof window === 'undefined') return BASE_BOARD_SIZE;
   const padding = 32; // Total horizontal padding
   const availableWidth = window.innerWidth - padding;
-  
+
   if (window.innerWidth < 768) {
     return Math.min(availableWidth, 400);
   }
@@ -41,7 +41,9 @@ export interface ChessEditorProps {
   lightSquare: string;
   darkSquare: string;
   flipped: boolean;
-  onPieceImagesChange?: (images: Record<string, HTMLImageElement | null>) => void;
+  onPieceImagesChange?: (
+    images: Record<string, HTMLImageElement | null>
+  ) => void;
   className?: string;
 }
 
@@ -144,11 +146,12 @@ export const ChessEditor = memo(function ChessEditor({
   };
 
   return (
-    <div className={`flex flex-col gap-6 w-full max-w-[100vw] overflow-x-hidden ${className}`}>
+    <div
+      className={`flex flex-col gap-6 w-full max-w-[100vw] overflow-x-hidden ${className}`}
+    >
       <CustomDragLayer pieceImages={pieceImages} boardSize={boardSize} />
-      
+
       <div className="flex flex-col lg:flex-row gap-6 items-center lg:items-start w-full min-h-0 flex-1">
-        
         {/* Board Container */}
         <div className="flex-shrink-0 flex justify-center w-full lg:w-auto max-w-full overflow-hidden">
           <div
@@ -207,7 +210,6 @@ export const ChessEditor = memo(function ChessEditor({
 
         {/* Tools and Actions Container */}
         <div className="flex flex-col gap-6 flex-1 w-full lg:w-auto min-w-0">
-          
           <div className="flex-1 w-full max-w-full overflow-hidden rounded-xl border border-border/40 bg-surface/30">
             <PiecePalette
               pieceImages={pieceImages}
@@ -265,10 +267,12 @@ export const ChessEditor = memo(function ChessEditor({
             </div>
 
             <div className="flex-shrink-0 w-full sm:w-auto h-16 sm:h-auto min-h-[44px]">
-              <TrashZone onDrop={handleTrashDrop} className="h-full w-full rounded-lg" />
+              <TrashZone
+                onDrop={handleTrashDrop}
+                className="h-full w-full rounded-lg"
+              />
             </div>
           </div>
-          
         </div>
       </div>
     </div>
