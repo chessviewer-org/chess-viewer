@@ -1,6 +1,6 @@
 import { memo, useCallback } from 'react';
 
-import { useDrop, ConnectDropTarget } from 'react-dnd';
+import { useDrop } from 'react-dnd';
 
 import { DraggablePiece } from '@/components/interactions';
 import { ItemTypes } from '@/constants';
@@ -62,11 +62,7 @@ export const DroppableSquare = memo(
       [onDrop, row, col]
     );
 
-    const [{ isOver }, drop] = useDrop<
-      DragItem,
-      void,
-      { isOver: boolean }
-    >(
+    const [{ isOver }, drop] = useDrop<DragItem, void, { isOver: boolean }>(
       () => ({
         accept: ItemTypes.PIECE,
         drop: handleDrop,
@@ -100,14 +96,19 @@ export const DroppableSquare = memo(
         data-col={col}
       >
         {piece && pieceImage && !isLoading && (
-          <DraggablePiece
-            piece={piece}
-            pieceImage={pieceImage}
-            row={row}
-            col={col}
-            isFromPalette={false}
-            size="85%"
-          />
+          <div
+            className="w-full h-full flex items-center justify-center animate-piece-enter"
+            style={{ contain: 'layout style' }}
+          >
+            <DraggablePiece
+              piece={piece}
+              pieceImage={pieceImage}
+              row={row}
+              col={col}
+              isFromPalette={false}
+              size="85%"
+            />
+          </div>
         )}
       </div>
     );
