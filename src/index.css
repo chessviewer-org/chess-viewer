@@ -1193,6 +1193,36 @@ html {
   animation: slideUp 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ===== CHESS PIECE ENTRANCE ===== */
+@keyframes pieceEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-piece-enter {
+  animation: pieceEnter 280ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* ===== SVG LIQUID FILL HOVER EFFECT ===== */
+.liquid-fill-stop {
+  offset: 0%;
+  transition: offset 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.group:hover .liquid-fill-stop {
+  offset: 100%;
+}
+
 /* ===== PERFORMANCE - Reduce motion ===== */
 @media (prefers-reduced-motion: reduce) {
   *,
