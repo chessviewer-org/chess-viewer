@@ -37,7 +37,14 @@ export const InteractiveBoard = memo(function InteractiveBoard({
 }: InteractiveBoardProps) {
   const boardRef = useRef<HTMLDivElement | null>(null);
   const handleDrop = useCallback(
-    (piece: string, fromRow: number, fromCol: number, toRow: number, toCol: number, isFromPalette: boolean) => {
+    (
+      piece: string,
+      fromRow: number,
+      fromCol: number,
+      toRow: number,
+      toCol: number,
+      isFromPalette: boolean
+    ) => {
       if (onPieceDrop) {
         onPieceDrop(piece, fromRow, fromCol, toRow, toCol, isFromPalette);
       }
