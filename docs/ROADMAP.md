@@ -1,4 +1,4 @@
-# Chess Vision — Roadmap
+# ChessVision — Roadmap
 
 Potential future features and known technical debt. No timeline commitments.
 
