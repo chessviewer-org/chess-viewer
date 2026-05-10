@@ -31,7 +31,7 @@ function AboutPage() {
             About
           </h1>
           <p className="text-text-secondary text-lg max-w-2xl mx-auto leading-relaxed">
-            Professional Chess Vision for players, coaches, and content creators
+            Professional ChessVision for players, coaches, and content creators
           </p>
         </div>
 
