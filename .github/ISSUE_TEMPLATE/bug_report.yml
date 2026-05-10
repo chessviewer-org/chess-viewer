@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug or issue with Chess Vision
+description: Report a bug or issue with ChessVision
 title: '[Bug]: '
 labels: ['bug', 'needs-triage']
 assignees:
@@ -11,7 +11,7 @@ body:
       value: |
         ## 🐛 Thanks for reporting a bug!
 
-        Your feedback helps us improve Chess Vision. Please provide detailed information about the issue you encountered.
+        Your feedback helps us improve ChessVision. Please provide detailed information about the issue you encountered.
 
         **Before submitting:**
         - Search existing issues to avoid duplicates
