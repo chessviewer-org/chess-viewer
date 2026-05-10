@@ -1,4 +1,4 @@
-# Chess Vision — Architecture Documentation
+# ChessVision — Architecture Documentation
 
 ## Table of Contents
 
