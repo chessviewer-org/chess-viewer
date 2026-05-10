@@ -2,7 +2,7 @@
 
 ## 🔐 Supported Versions
 
-The following versions of **Chess Vision** are currently supported with security updates:
+The following versions of **ChessVision** are currently supported with security updates:
 
 | Version | Support Status | Security Updates | End of Life |
 | ------- | -------------- | ---------------- | ----------- |
@@ -10,11 +10,11 @@ The following versions of **Chess Vision** are currently supported with security
 | v4.x.x  | ⚠️ Limited     | ⚠️ Critical Only | 2026-12-31  |
 | < v4.0  | ❌ Unsupported | ❌ No            | N/A         |
 
-> **Note:** As this is a client-side only tool, we strongly recommend always using the latest version available on [chess-vision.vercel.app](https://chess-vision.vercel.app).
+> **Note:** As this is a client-side only tool, we strongly recommend always using the latest version available on [chess-vision-site.vercel.app](https://chess-vision-site.vercel.app).
 
 ## 🛡️ Security Architecture
 
-Chess Vision follows a **zero-backend, client-side-only architecture**. This design inherently minimizes the attack surface.
+ChessVision follows a **zero-backend, client-side-only architecture**. This design inherently minimizes the attack surface.
 
 ### Privacy-First Design
 
