@@ -1,4 +1,4 @@
-# Contributing to Chess Vision
+# Contributing to ChessVision
 
 Contributions of any kind are welcome: bug reports, feature requests, documentation improvements, and code changes.
 
@@ -54,8 +54,8 @@ When submitting a feature request, include:
 
 ```bash
 # Fork the repository on GitHub, then:
-git clone https://github.com/YOUR_USERNAME/chess_viewer.git
-cd chess_viewer
+git clone https://github.com/YOUR_USERNAME/chess-vision.git
+cd chess-vision
 pnpm install
 pnpm dev
 ```
