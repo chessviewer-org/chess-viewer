@@ -1,4 +1,4 @@
-# Chess Vision - Professional Chess Vision
+# ChessVision - Professional ChessVision
 # https://chess-vision-site.vercel.app
 
 User-agent: *
