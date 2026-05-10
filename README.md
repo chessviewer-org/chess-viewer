@@ -1,4 +1,4 @@
-# Chess Vision
+# ChessVision
 
 **Professional chess position visualizer with ultra-HD export capabilities.**
 
@@ -28,7 +28,7 @@
 
 ## Overview
 
-Chess Vision parses FEN notation and renders chess positions as high-resolution raster or vector images. It is designed for chess players, coaches, authors, and developers who need precise, customizable board diagrams without a backend dependency.
+ChessVision parses FEN notation and renders chess positions as high-resolution raster or vector images. It is designed for chess players, coaches, authors, and developers who need precise, customizable board diagrams without a backend dependency.
 
 All processing happens in the browser. No data leaves the user's device.
 
@@ -72,7 +72,7 @@ All processing happens in the browser. No data leaves the user's device.
 
 ```bash
 git clone https://github.com/BilgeGates/chess-vision.git
-cd chess_viewer
+cd chess-vision
 pnpm install
 pnpm dev
 ```
@@ -187,7 +187,7 @@ Required browser APIs: Canvas API, Clipboard API (optional), localStorage, ES202
 
 ## Security and Privacy
 
-Chess Vision has no backend. All computation runs client-side.
+ChessVision has no backend. All computation runs client-side.
 
 - No server-side data storage
 - No cookies, trackers, or telemetry
