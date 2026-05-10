@@ -1,6 +1,6 @@
-# Chess Vision — Documentation
+# ChessVision — Documentation
 
-Technical documentation for Chess Vision v5.0.0.
+Technical documentation for ChessVision v5.0.0.
 
 ---
 
