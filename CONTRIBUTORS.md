@@ -1,6 +1,6 @@
 # Contributors
 
-Thank you to everyone who has helped improve Chess Vision. This file recognizes the people who have contributed code, fixes, and improvements to the project.
+Thank you to everyone who has helped improve ChessVision. This file recognizes the people who have contributed code, fixes, and improvements to the project.
 
 ---
 
@@ -98,4 +98,4 @@ A maximum length constraint was added to the FEN input field to prevent excessiv
 
 ---
 
-_To contribute to Chess Vision, please read [CONTRIBUTING.md](CONTRIBUTING.md) and open a pull request._
+_To contribute to ChessVision, please read [CONTRIBUTING.md](CONTRIBUTING.md) and open a pull request._
