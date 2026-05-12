@@ -24,6 +24,12 @@ export function useInteractiveBoard(initialFen, onFenChange) {
   });
   const lastGeneratedFenRef = useRef('');
   const lastExternalFenRef = useRef(initialFen);
+
+  /**
+   * Syncs the board state from a given FEN string.
+   *
+   * @param {string} fen - The FEN string to sync from
+   */
   const syncFromFen = useCallback((fen) => {
     if (fen === lastGeneratedFenRef.current) {
       return;
@@ -47,6 +53,11 @@ export function useInteractiveBoard(initialFen, onFenChange) {
       logger.error('Failed to sync from FEN:', err);
     }
   }, []);
+  /**
+   * Notifies the external listener when the FEN changes.
+   *
+   * @param {string[][]} newBoard - The new board matrix
+   */
   const notifyFenChange = useCallback(
     (newBoard) => {
       const positionFen = boardToFEN(newBoard);
@@ -58,6 +69,16 @@ export function useInteractiveBoard(initialFen, onFenChange) {
     },
     [onFenChange]
   );
+  /**
+   * Handles dropping a piece onto a square.
+   *
+   * @param {string} piece - The piece character
+   * @param {number} fromRow - The origin row (if moving)
+   * @param {number} fromCol - The origin column (if moving)
+   * @param {number} toRow - The destination row
+   * @param {number} toCol - The destination column
+   * @param {boolean} isFromPalette - Whether the piece came from the palette
+   */
   const handlePieceDrop = useCallback(
     (piece, fromRow, fromCol, toRow, toCol, isFromPalette) => {
       setBoard((prevBoard) => {
@@ -66,13 +87,19 @@ export function useInteractiveBoard(initialFen, onFenChange) {
           newBoard[fromRow][fromCol] = '';
         }
         newBoard[toRow][toCol] = piece;
-        pendingBoardRef.current = newBoard; // signal, no side effect
+        pendingBoardRef.current = newBoard;
         return newBoard;
       });
     },
     []
   );
 
+  /**
+   * Removes a piece from the board.
+   *
+   * @param {number} row - The row to remove from
+   * @param {number} col - The column to remove from
+   */
   const handlePieceRemove = useCallback((row, col) => {
     setBoard((prevBoard) => {
       const newBoard = prevBoard.map((r) => [...r]);
@@ -90,6 +117,9 @@ export function useInteractiveBoard(initialFen, onFenChange) {
     }
   }, [board, notifyFenChange]);
 
+  /**
+   * Clears all pieces from the board.
+   */
   const clearBoard = useCallback(() => {
     setBoard((prevBoard) => {
       if (isBoardEmpty(prevBoard)) {
@@ -105,6 +135,10 @@ export function useInteractiveBoard(initialFen, onFenChange) {
       return emptyBoard;
     });
   }, [onFenChange]);
+
+  /**
+   * Resets the board to the standard starting position.
+   */
   const resetBoard = useCallback(() => {
     const startingFen =
       'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
@@ -116,6 +150,14 @@ export function useInteractiveBoard(initialFen, onFenChange) {
       onFenChange(startingFen);
     }
   }, [onFenChange]);
+
+  /**
+   * Sets a specific piece at a given row and column.
+   *
+   * @param {number} row - The target row
+   * @param {number} col - The target column
+   * @param {string} piece - The piece character
+   */
   const setPiece = useCallback(
     (row, col, piece) => {
       setBoard((prevBoard) => {
