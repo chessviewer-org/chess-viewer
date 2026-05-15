@@ -58,43 +58,27 @@ const CONTENT = {
     sections: [
       {
         title: 'Interactive Board Editor',
-        content: `Drag and drop pieces to create any chess position. Click and drag pieces from the piece palette on the left to place them on the board. Move pieces already on the board by dragging them to a new square. Remove pieces by dragging them off the board or to the trash area.`
+        content: `Drag and drop pieces to create any chess position. Click and drag pieces from the piece palette to place them on the board, move existing pieces to new squares, or remove them effortlessly. The editor is optimized with strict React Hooks rules and heavy memoization for smooth performance.`
       },
       {
-        title: 'FEN Notation Support',
-        content: `Full support for Forsyth-Edwards Notation (FEN). Paste any valid FEN string to instantly load that position on the board. Copy the current position as FEN to share or save. The FEN input field provides real-time validation and error feedback.`
+        title: 'Advanced FEN Parser',
+        content: `Seamlessly paste any valid Forsyth-Edwards Notation (FEN) string to instantly load a position. The FEN input field features real-time validation, error feedback, and history state management ensuring your data remains secure and stable.`
       },
       {
-        title: 'Export Options',
-        content: `Export your chess diagrams in multiple formats: PNG for high-quality images with transparency support, JPEG for smaller file sizes, and SVG for scalable vector graphics (coming soon). Configure export resolution, board size, and quality settings.`
+        title: 'Ultra-High-Res Export Pipeline',
+        content: `Export chess diagrams using a highly optimized HTML5 Canvas and SVG engine. Support for PNG, JPEG, and SVG formats with DPI-accurate print mode and fixed social media mode. Enjoy ultra-high-resolution scaling up to 32x quality.`
       },
       {
-        title: 'Batch Export',
-        content: `Export multiple positions at once. Add positions to your batch list using the Add button, then navigate to the Advanced FEN page to export all positions simultaneously in your chosen format. Perfect for creating study materials or position databases.`
+        title: 'Batch Position Management',
+        content: `Add multiple positions to a batch list and navigate to the Advanced FEN Input page to orchestrate batch exports. Perfect for authors and coaches creating study materials or position databases.`
       },
       {
-        title: 'Favorites System',
-        content: `Save frequently used positions as favorites. Click the heart icon to add the current position to your favorites. Access your saved positions from the FEN History page. Organize and manage your position library.`
+        title: 'Tailwind CSS Customization',
+        content: `Style your board using our fully themeable CSS variables engine built on Tailwind CSS. Choose from various piece styles, customize dark and light squares natively, toggle coordinates, and switch between modern light and dark modes.`
       },
       {
-        title: 'Customization Options',
-        content: `Customize every aspect of your chess diagrams: Choose from multiple piece styles (CBurnett, Merida, Alpha, etc.), customize square colors with the color picker, toggle coordinate display, adjust board orientation, and configure export quality settings.`
-      },
-      {
-        title: 'Theme System',
-        content: `Switch between light and dark themes, or create your own custom theme. Adjust colors, contrast, and visual elements to match your preferences or brand requirements. Themes are automatically saved to your browser.`
-      },
-      {
-        title: 'Board Controls',
-        content: `Flip the board to view from black's perspective. Reset to the starting position with one click. Copy positions to clipboard as images or FEN notation. All controls are keyboard accessible.`
-      },
-      {
-        title: 'History Tracking',
-        content: `Automatic history of all positions you create. Browse through previously created diagrams. Filter history by date or FEN notation. Export your entire history for backup purposes.`
-      },
-      {
-        title: 'Responsive Design',
-        content: `Fully responsive interface works on desktop, tablet, and mobile devices. Touch-friendly controls for mobile users. Optimized performance across all screen sizes.`
+        title: 'Account Security & Sync',
+        content: `Protected by robust authentication powered by Supabase, including Two-Factor Authentication (MFA) capabilities to keep your profile secure while storing UI states safely in local storage.`
       }
     ]
   },
@@ -103,19 +87,19 @@ const CONTENT = {
     sections: [
       {
         title: 'Our Mission',
-        content: `ChessVision is a professional tool designed for chess players, coaches, authors, and enthusiasts who need to create high-quality chess diagrams quickly and easily. Our mission is to provide the most intuitive and powerful chess diagram creation tool available, completely free and open-source.`
+        content: `ChessVision is a Full-Stack SaaS chess diagram generator designed for chess players, coaches, authors, and enthusiasts. Our mission is to provide the most intuitive, high-performance tool for rendering canvas boards and exporting ultra-high-res images.`
       },
       {
-        title: 'Technology',
-        content: `Built with modern web technologies including React, Vite, and Tailwind CSS. Uses HTML5 Canvas for high-quality rendering and export. Optimized for performance with efficient state management and lazy loading. Progressive Web App (PWA) support for offline functionality.`
+        title: 'Technology Stack',
+        content: `Built with React 19, Vite, and Tailwind CSS. The platform leverages heavy memoization and context-based state management to guarantee zero-warning ESLint production builds and blazing-fast client rendering.`
+      },
+      {
+        title: 'Official Platform',
+        content: `You can securely access the latest official version of ChessVision directly via our domain: chess-vision-site.vercel.app`
       },
       {
         title: 'Open Source',
-        content: `This project is open-source and available on GitHub. We welcome contributions, bug reports, and feature requests from the community. Released under a non-commercial open-source license to ensure it remains free for everyone.`
-      },
-      {
-        title: 'Version Information',
-        content: `Current Version: v2.0.0. Last Updated: February 2026. Regular updates with new features, improvements, and bug fixes. View the full changelog in our documentation.`
+        content: `ChessVision is developed as an open-source project following Conventional Commits. We welcome community contributions. View the official repository at: github.com/BilgeGates/chess-vision`
       }
     ]
   },
@@ -123,24 +107,16 @@ const CONTENT = {
     title: 'Support & Contact',
     sections: [
       {
-        title: 'Getting Help',
-        content: `If you encounter any issues or have questions about using ChessVision, we're here to help. Check the FAQ section first for quick answers to common questions.`
-      },
-      {
-        title: 'Contact Information',
-        content: `Email: chessvision@protonmail.com - For support requests, bug reports, and feature suggestions. We typically respond within 24-48 hours.`
+        title: 'Official Support',
+        content: `For any inquiries, technical assistance, or account help, please reach out to our official support team at: chessvision@protonmail.com. We typically respond within 24-48 hours.`
       },
       {
         title: 'Bug Reports',
-        content: `Found a bug? Please report it on our GitHub Issues page or email us with details including: what you were trying to do, what happened instead, your browser and operating system, and any error messages you received.`
+        content: `If you encounter unexpected behavior, please report the bug on our official GitHub Issues page (github.com/BilgeGates/chess-vision). Include details such as your browser version and steps to reproduce the issue.`
       },
       {
         title: 'Feature Requests',
-        content: `Have an idea for a new feature? We'd love to hear from you! Submit feature requests through GitHub or email us. Please describe the feature, explain why it would be useful, and provide any relevant examples.`
-      },
-      {
-        title: 'GitHub Repository',
-        content: `View source code, contribute, and stay updated: github.com/chess-vision - Star the repository to show your support and watch for updates.`
+        content: `We are continuously improving ChessVision. Share your ideas and feature requests by emailing our support team or opening a discussion on our official repository.`
       }
     ]
   },
@@ -148,36 +124,20 @@ const CONTENT = {
     title: 'Frequently Asked Questions',
     sections: [
       {
+        title: 'Is there an official domain?',
+        content: `Yes, always ensure you are using the official platform at: chess-vision-site.vercel.app for the most secure and up-to-date experience.`
+      },
+      {
+        title: 'Where is my data saved?',
+        content: `Your history, FEN batches, recent colors, and theme settings are safely persisted in your browser's local storage (e.g., chess-theme, themeSettings, fen-history). Account authentication uses Supabase.`
+      },
+      {
         title: 'What browsers are supported?',
-        content: `ChessVision works on all modern browsers including Google Chrome, Mozilla Firefox, Safari, Microsoft Edge, and Opera. We recommend using the latest version of your browser for the best experience.`
+        content: `ChessVision is fully responsive and supports all modern browsers. Note that extreme export scaling (24x/32x) may occasionally exceed hardware-accelerated canvas limits on Safari.`
       },
       {
-        title: 'Is my data saved?',
-        content: `Yes, all your positions, favorites, and settings are automatically saved in your browser's local storage. Your data stays on your device and is never sent to any server. Clearing your browser data will remove saved positions.`
-      },
-      {
-        title: 'Can I use this offline?',
-        content: `Yes! ChessVision is a Progressive Web App (PWA). Once loaded, basic functionality works offline. Install it to your device for a native app-like experience.`
-      },
-      {
-        title: 'What is FEN notation?',
-        content: `FEN (Forsyth-Edwards Notation) is a standard notation for describing chess positions. It's a compact text format that represents the entire board state. Learn more in our FEN documentation.`
-      },
-      {
-        title: 'How do I export high-resolution images?',
-        content: `Adjust the export quality setting in the Control Panel. Higher quality values (up to 16x) produce larger, sharper images. For print quality, we recommend using 8x or higher.`
-      },
-      {
-        title: 'Can I use exported images commercially?',
-        content: `Yes, images you create and export are your own content. You can use them for any purpose including commercial projects. The piece artwork is licensed appropriately for such use.`
-      },
-      {
-        title: 'How do I contribute to the project?',
-        content: `We welcome contributions! Check our GitHub repository for contribution guidelines. You can submit bug reports, feature requests, code contributions, documentation improvements, or translations.`
-      },
-      {
-        title: 'Is there a mobile app?',
-        content: `The web app is fully responsive and works great on mobile devices. You can also install it as a PWA on your phone for an app-like experience. No separate native app is needed.`
+        title: 'Can I export diagrams in batch?',
+        content: `Yes. Navigate to the Advanced FEN Input page to process, render, and export multiple FEN positions simultaneously.`
       }
     ]
   },
@@ -185,24 +145,16 @@ const CONTENT = {
     title: 'Privacy Policy',
     sections: [
       {
-        title: 'Data Collection',
-        content: `ChessVision does not collect, store, or transmit any personal data to external servers. All data processing happens locally in your browser.`
+        title: 'Data Collection & Storage',
+        content: `Authentication is handled securely via Supabase. Operational states such as your board preferences, FEN history, and color choices are saved locally in your browser's local storage using safe JSON parsing.`
       },
       {
-        title: 'Local Storage',
-        content: `We use your browser's local storage to save your positions, favorites, preferences, and settings. This data never leaves your device and can be cleared at any time through your browser settings.`
+        title: 'Security',
+        content: `We employ strict Content Security Policy (CSP) guidelines, removal of inline scripts, and FEN length enforcements (MAX_FEN_LENGTH) to ensure a hardened and secure environment.`
       },
       {
-        title: 'Cookies',
-        content: `This application does not use cookies. We rely solely on local storage for saving your preferences and data.`
-      },
-      {
-        title: 'Analytics',
-        content: `We do not use any analytics or tracking services. Your usage of this application is completely private.`
-      },
-      {
-        title: 'Third-Party Services',
-        content: `This application does not integrate with any third-party services that could access or collect your data.`
+        title: 'Cookies & Analytics',
+        content: `ChessVision operates without intrusive third-party trackers or unnecessary analytics. Local storage is strictly utilized for core app functionality.`
       }
     ]
   },
@@ -210,28 +162,16 @@ const CONTENT = {
     title: 'Terms of Use',
     sections: [
       {
-        title: 'License',
-        content: `ChessVision is released under a non-commercial open-source license. You are free to use, modify, and distribute the software for non-commercial purposes.`
-      },
-      {
         title: 'Acceptable Use',
-        content: `This tool is provided for creating chess diagrams and educational purposes. You may use it to create diagrams for books, articles, websites, teaching materials, and personal projects.`
+        content: `ChessVision is provided for rendering chess diagrams for educational, authoring, and personal use. By using our platform (chess-vision-site.vercel.app), you agree to these terms.`
       },
       {
         title: 'Content Ownership',
-        content: `You retain full ownership of all chess diagrams and positions you create using this tool. We claim no rights to your content.`
+        content: `You retain full ownership of all chess diagrams, images, and FEN positions you create and export using ChessVision.`
       },
       {
-        title: 'Warranty Disclaimer',
-        content: `This software is provided "as is" without warranty of any kind, express or implied. We make no guarantees about its functionality, reliability, or suitability for any particular purpose.`
-      },
-      {
-        title: 'Liability Limitation',
-        content: `In no event shall the developers be liable for any damages arising from the use or inability to use this software.`
-      },
-      {
-        title: 'Modifications',
-        content: `We reserve the right to modify these terms at any time. Continued use of the application constitutes acceptance of updated terms.`
+        title: 'Disclaimer',
+        content: `The platform is provided "as is". While we strive for absolute accuracy (like DPI-accurate print modes), we do not guarantee uninterrupted access or functionality on unsupported legacy devices.`
       }
     ]
   }
