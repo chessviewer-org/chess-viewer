@@ -17,3 +17,4 @@ export * from './eventUtils';
 export * from './boardUtils';
 export * from './pieceImageCache';
 export * from './svgExporter';
+export * from './dpiEncoder';
