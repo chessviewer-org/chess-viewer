@@ -5,6 +5,7 @@ import { sanitizeFileName, sanitizeInput } from './validation';
 
 const SVG_BOARD_PX = 800;
 const SVG_COORD_BORDER_RATIO = 0.05;
+const pieceDataUrlCache = new Map();
 
 /**
  * @param {string} fenPiece - FEN piece character
@@ -32,6 +33,10 @@ async function imageToDataURL(img) {
       canvas.width = size;
       canvas.height = size;
       const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        resolve('');
+        return;
+      }
       ctx.drawImage(img, 0, 0, size, size);
       resolve(canvas.toDataURL('image/png'));
     } catch (err) {
@@ -39,6 +44,100 @@ async function imageToDataURL(img) {
       resolve('');
     }
   });
+}
+
+/**
+ * @param {HTMLImageElement} img
+ * @returns {Promise<void>}
+ */
+async function waitForPieceImage(img) {
+  if (!img || img.complete) {
+    return;
+  }
+  await new Promise((resolve) => {
+    const timeout = setTimeout(resolve, 10000);
+    const onLoad = () => {
+      clearTimeout(timeout);
+      img.removeEventListener('load', onLoad);
+      img.removeEventListener('error', onError);
+      resolve();
+    };
+    const onError = () => {
+      clearTimeout(timeout);
+      img.removeEventListener('load', onLoad);
+      img.removeEventListener('error', onError);
+      resolve();
+    };
+    img.addEventListener('load', onLoad, {
+      once: true
+    });
+    img.addEventListener('error', onError, {
+      once: true
+    });
+  });
+}
+
+/**
+ * Converts UTF-8 text into a base64 data URL payload.
+ *
+ * @param {string} text
+ * @returns {string}
+ */
+function toBase64Utf8(text) {
+  const utf8 = new TextEncoder().encode(text);
+  let binary = '';
+  const chunkSize = 0x8000;
+  for (let i = 0; i < utf8.length; i += chunkSize) {
+    const chunk = utf8.subarray(i, i + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+  return btoa(binary);
+}
+
+/**
+ * Returns an embeddable data URL for piece assets.
+ * - SVG sources are embedded as SVG data URLs (keeps vector scalability).
+ * - Non-SVG sources fall back to PNG data URLs.
+ *
+ * @param {HTMLImageElement} img
+ * @returns {Promise<string>}
+ */
+async function imageToEmbeddableDataURL(img) {
+  if (!img) return '';
+  const src = img.currentSrc || img.src || '';
+  if (!src) return '';
+  const cached = pieceDataUrlCache.get(src);
+  if (cached) {
+    return cached;
+  }
+
+  let dataUrl = '';
+  if (src.startsWith('data:')) {
+    dataUrl = src;
+  } else {
+    const lowerSrc = src.toLowerCase();
+    const isSvgSource =
+      lowerSrc.endsWith('.svg') || lowerSrc.includes('image/svg+xml');
+    if (isSvgSource) {
+      try {
+        const response = await fetch(src, {
+          cache: 'force-cache'
+        });
+        if (response.ok) {
+          const svgText = await response.text();
+          dataUrl = `data:image/svg+xml;base64,${toBase64Utf8(svgText)}`;
+        }
+      } catch (err) {
+        logger.warn('SVG export: failed to inline vector piece source:', err);
+      }
+    }
+  }
+
+  if (!dataUrl) {
+    dataUrl = await imageToDataURL(img);
+  }
+  pieceDataUrlCache.set(src, dataUrl);
+  return dataUrl;
 }
 
 /**
@@ -56,6 +155,7 @@ async function imageToDataURL(img) {
  */
 export async function generateBoardSVG(config) {
   const {
+    boardSize,
     lightSquare,
     darkSquare,
     flipped,
@@ -88,9 +188,12 @@ export async function generateBoardSVG(config) {
   }
   const pieceDataURLs = {};
   await Promise.all(
+    Object.values(pieceImages).map((img) => waitForPieceImage(img))
+  );
+  await Promise.all(
     Object.entries(pieceImages).map(async ([key, img]) => {
       if (img && img.complete && img.naturalWidth > 0) {
-        pieceDataURLs[key] = await imageToDataURL(img);
+        pieceDataURLs[key] = await imageToEmbeddableDataURL(img);
       }
     })
   );
@@ -98,10 +201,14 @@ export async function generateBoardSVG(config) {
   const fontFamily = "system-ui, -apple-system, 'Segoe UI', sans-serif";
   const coordTextColor = '#000000';
   const parts = [];
+
+  const physicalWidthCm = boardSize * (totalWidth / boardPx);
+  const physicalHeightCm = boardSize * (totalHeight / boardPx);
+
   parts.push(
     `<svg xmlns="http://www.w3.org/2000/svg" ` +
       `viewBox="0 0 ${totalWidth} ${totalHeight}" ` +
-      `width="${totalWidth}" height="${totalHeight}" ` +
+      `width="${physicalWidthCm}cm" height="${physicalHeightCm}cm" ` +
       `role="img" aria-label="Chess Board Position">` +
       `<title>Chess Board Position</title>`
   );
