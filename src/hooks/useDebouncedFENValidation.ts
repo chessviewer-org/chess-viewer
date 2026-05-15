@@ -24,13 +24,6 @@ export interface DebouncedFENState {
 /**
  * Debounces FEN validation (500 ms) and board synchronisation (200 ms).
  *
- * - While the user types, no validation feedback is shown.
- * - After 500 ms of inactivity the *first* error is surfaced.
- * - Once the user fixes that error, the next one appears on the following
- *   idle cycle — errors are never stacked.
- * - When the FEN is fully valid AND the user has been idle for 200 ms,
- *   `onValidFen` fires to push the value to the board.
- *
  * @param localFen       The current (unsaved) value in the textarea
  * @param onValidFen     Callback fired with a valid FEN to sync to the board
  */
