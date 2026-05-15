@@ -1,4 +1,5 @@
 import { createUltraQualityCanvas } from './';
+import { calculateRenderSurfaceSize } from './imageOptimizer';
 import { logger } from './logger';
 
 /**
@@ -10,22 +11,40 @@ import { logger } from './logger';
  * @returns {Promise<void>}
  */
 export async function progressiveExport(config, fileName, format) {
-  if (format === undefined || format === null) {
-    format = 'png';
-  }
+  const outputFormat = format ?? 'png';
   const canvas = await createSmartCanvas(config);
   if (canvas.width > 8192 || canvas.height > 8192) {
-    return await chunkedExport(canvas, fileName, format);
+    return await chunkedExport(canvas, fileName, outputFormat);
   }
-  return await standardExport(canvas, fileName, format);
+  return await standardExport(canvas, fileName, outputFormat);
 }
 
 async function createSmartCanvas(config) {
   const maxSafeSize = 16384;
-  const adjustedConfig = Object.assign({}, config);
-  const projectedSize = (config.boardSize + 60) * config.exportQuality;
-  if (projectedSize > maxSafeSize) {
-    const safeQuality = Math.floor(maxSafeSize / (config.boardSize + 60));
+  const adjustedConfig = { ...config };
+  const { boardSize, showCoords, exportQuality, showThinFrame } = config;
+  const projectedSurface = calculateRenderSurfaceSize(
+    boardSize,
+    !!showCoords,
+    exportQuality,
+    !!showThinFrame
+  );
+  const maxProjectedSide = Math.max(
+    projectedSurface.canvasWidth,
+    projectedSurface.canvasHeight
+  );
+  if (maxProjectedSide > maxSafeSize) {
+    const baseSurface = calculateRenderSurfaceSize(
+      boardSize,
+      !!showCoords,
+      1,
+      !!showThinFrame
+    );
+    const maxBaseSide = Math.max(
+      baseSurface.canvasWidth,
+      baseSurface.canvasHeight
+    );
+    const safeQuality = Math.floor(maxSafeSize / Math.max(1, maxBaseSide));
     if (safeQuality < 8) {
       adjustedConfig.exportQuality = 8;
     } else {
@@ -44,6 +63,9 @@ async function chunkedExport(canvas, fileName, format) {
   smallerCanvas.width = canvas.width * scale;
   smallerCanvas.height = canvas.height * scale;
   const ctx = smallerCanvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('Failed to create 2D context for chunked export');
+  }
   ctx.drawImage(canvas, 0, 0, smallerCanvas.width, smallerCanvas.height);
   return await standardExport(smallerCanvas, fileName, format);
 }
