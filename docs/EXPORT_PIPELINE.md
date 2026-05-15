@@ -30,6 +30,8 @@ The export system converts canvas-based chess board visualisations into high-res
 - **Dynamic Scaling**: Board size controls physical print dimensions; quality controls pixel density
 - **High Resolution**: Export up to 24,192×24,192 px (Social 32×)
 - **Multiple Formats**: PNG, JPEG, and SVG (SVG currently exposed in Advanced FEN actions)
+- **Physical Size Metadata**: PNG/JPEG exports embed DPI metadata for print workflows
+- **Background Rasterization**: SVG-to-raster jobs run in a worker when supported
 - **Pause / Resume / Cancel**: Export can be paused, resumed, or cancelled mid-way
 - **Batch Processing**: Export multiple FEN positions simultaneously via `advancedExport.js`
 - **Clipboard Support**: Direct copy to system clipboard
@@ -52,9 +54,9 @@ The export system converts canvas-based chess board visualisations into high-res
 **Formula**:
 
 ```
-pixelDimensions = boardSizeCM × qualityMultiplier × DPI_CONSTANT
-DPI_CONSTANT = 300 / 2.54 ≈ 118.11 pixels per cm
-effectiveDPI = 300 × qualityMultiplier
+pixelDimensions = (boardSizeCM / 2.54) × baseDPI × qualityMultiplier
+baseDPI = 300
+effectiveDPI = baseDPI × qualityMultiplier × scaleFactor
 ```
 
 **Examples**:
@@ -144,17 +146,24 @@ validateExportConfig(config)
         │
         ▼
 getExportInfo(config)
-  - calculateExportSize(boardSize, showCoords, exportQuality)
+  - calculateRenderSurfaceSize(boardSize, showCoords, exportQuality, showThinFrame)
   - getExportMode(exportQuality) → 'print' | 'social'
   - estimateFileSizes(width, height, exportQuality)
         │
         ▼
-createUltraQualityCanvas(config)   ← utils/coordinateCalculations.js
-  - Creates off-screen <canvas> at export dimensions
-  - Draws board squares, coordinate border (if any), pieces
+generateBoardSVG(config)
         │
         ▼
-canvas.toBlob(format, quality)
+Worker raster path (preferred when supported)
+  - svgRasterWorker.js + OffscreenCanvas
+  - Produces PNG/JPEG blob off the main thread
+        │
+        ├── fallback:
+        │      createUltraQualityCanvas(config)
+        │      (main-thread canvas renderer)
+        │
+        ▼
+changeDPI(blob, effectiveDPI, format)
         │
         ▼
 Download via <a download> link  OR  navigator.clipboard.write()
@@ -201,15 +210,17 @@ Progress is reported through an `onProgress(0–100)` callback. The `simulatePro
 
 ## Resolution Calculation
 
-For Print mode, dimensions are calculated in `coordinateCalculations.js` using:
+For Print mode, dimensions are calculated in `imageOptimizer.js` using:
 
 ```
-boardPixels = boardSizeCM × qualityFactor × (300 / 2.54)
+boardPixels = (boardSizeCM / 2.54) × 300 × qualityFactor
 ```
 
 For Social mode, fixed base sizes apply regardless of `boardSizeCM`.
 
 The exported image width and height include the coordinate border region when `showCoords` is enabled (a border strip is added on the left and bottom sides whose width scales proportionally with board size).
+
+PNG exports store this density via a `pHYs` chunk, and JPEG exports store it via JFIF density fields, so placement in print tools (Word / desktop publishing / print drivers) respects physical size.
 
 **Coordinate border formulas:**
 
