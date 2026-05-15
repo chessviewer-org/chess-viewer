@@ -16,6 +16,7 @@
 - [Overview](#overview)
 - [Features](#features)
 - [Quick Start](#quick-start)
+- [Docker](#docker)
 - [Project Structure](#project-structure)
 - [Technology Stack](#technology-stack)
 - [Export System](#export-system)
@@ -85,6 +86,29 @@ The dev server starts at `http://localhost:3000`.
 pnpm build    # outputs to dist/
 pnpm preview  # serves the dist/ locally
 ```
+
+## Docker
+
+### Prerequisites
+
+- Docker
+- Docker Compose (v2)
+
+### Production (Nginx + static build)
+
+```bash
+docker compose up --build -d web
+```
+
+Application is served at `http://localhost:3000`.
+
+### Development (Vite with hot reload)
+
+```bash
+docker compose --profile dev up --build dev
+```
+
+Development server is served at `http://localhost:5173`.
 
 ---
 
