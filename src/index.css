@@ -1110,6 +1110,20 @@ html {
 
 /* ===== UTILITIES LAYER ===== */
 @layer utilities {
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-text-primary);
+    caret-color: var(--color-text-primary);
+    -webkit-box-shadow: 0 0 0 1000px var(--color-surface-elevated) inset;
+    box-shadow: 0 0 0 1000px var(--color-surface-elevated) inset;
+    border-color: var(--color-border);
+    transition: background-color 9999s ease-in-out 0s;
+  }
+
   /* Hide search input decorations */
   input[type='search']::-webkit-search-decoration,
   input[type='search']::-webkit-search-cancel-button,
