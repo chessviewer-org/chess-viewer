@@ -1,7 +1,7 @@
 import { drawCoordinates } from './coordinateCalculations';
 import { parseFEN } from './fenParser';
 import {
-  calculateExportSize,
+  calculateRenderSurfaceSize,
   shouldForceCoordinateBorder
 } from './imageOptimizer';
 import { logger } from './logger';
@@ -97,22 +97,18 @@ export async function createUltraQualityCanvas(config) {
     waitForPieceImage(pieceImages[key])
   );
   await Promise.all(imagePromises);
-  const exportSize = calculateExportSize(
+  const renderSize = calculateRenderSurfaceSize(
     boardSizeCm,
     showCoords,
-    exportQuality
+    exportQuality,
+    config.showThinFrame || false
   );
-  const finalBoardPixels = exportSize.boardPixels;
-  const borderSize = showCoords ? exportSize.borderSize : 0;
-  const showThinFrame = config.showThinFrame || false;
-  const shouldShowFrame =
-    showThinFrame && (exportQuality === 8 || exportQuality === 16);
-  const frameThickness = shouldShowFrame
-    ? Math.max(2, Math.round(finalBoardPixels * 0.003))
-    : 0;
-  const framePadding = shouldShowFrame ? frameThickness * 2 : 0;
-  const canvasWidth = Math.round(borderSize + finalBoardPixels + framePadding);
-  const canvasHeight = Math.round(finalBoardPixels + borderSize + framePadding);
+  const finalBoardPixels = renderSize.boardPixels;
+  const borderSize = renderSize.borderSize;
+  const shouldShowFrame = renderSize.shouldShowFrame;
+  const frameThickness = renderSize.frameThickness;
+  const canvasWidth = renderSize.canvasWidth;
+  const canvasHeight = renderSize.canvasHeight;
   const canvas = document.createElement('canvas');
   canvas.width = canvasWidth;
   canvas.height = canvasHeight;
@@ -149,7 +145,12 @@ export async function createUltraQualityCanvas(config) {
       centerY: (y0 + y1) / 2
     };
   }
+
+  const yieldToMain = () => new Promise((resolve) => setTimeout(resolve, 0));
+
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+  await yieldToMain();
+
   if (shouldShowFrame) {
     ctx.fillStyle = '#333333';
     ctx.fillRect(frameOffset, 0, borderSize + finalBoardPixels, frameThickness);
@@ -181,6 +182,9 @@ export async function createUltraQualityCanvas(config) {
   ctx.strokeStyle = '#000000';
   ctx.lineWidth = boardBorderWidth;
   ctx.strokeRect(boardX, boardY, finalBoardPixels, finalBoardPixels);
+
+  await yieldToMain();
+
   for (let row = 0; row < 8; row++) {
     for (let col = 0; col < 8; col++) {
       ctx.fillStyle = (row + col) % 2 === 0 ? lightSquare : darkSquare;
@@ -190,6 +194,9 @@ export async function createUltraQualityCanvas(config) {
       ctx.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
     }
   }
+
+  await yieldToMain();
+
   for (let row = 0; row < 8; row++) {
     for (let col = 0; col < 8; col++) {
       const fenPiece = board[row]?.[col];
@@ -209,7 +216,10 @@ export async function createUltraQualityCanvas(config) {
         logger.error('Failed to draw piece ' + pieceKey + ':', err);
       }
     }
+    // Yield every row of pieces
+    await yieldToMain();
   }
+
   if (showCoords) {
     drawCoordinates(
       ctx,
@@ -222,6 +232,7 @@ export async function createUltraQualityCanvas(config) {
       boardY
     );
   }
+  await yieldToMain();
   return canvas;
 }
 /**
