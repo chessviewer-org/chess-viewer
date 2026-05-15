@@ -7,6 +7,8 @@ import { ErrorBoundary } from '@/components/ui';
 import { FENBatchProvider, ThemeSettingsProvider } from '@/contexts';
 import Routes from '@/routes/Router';
 import { logger } from '@/utils/logger';
+import { useSecurityCheck } from '@/features/auth/useSecurityCheck';
+import { SecurityLockModal } from '@/features/auth/SecurityLockModal';
 
 declare global {
   interface Window {
@@ -104,6 +106,7 @@ function saveTheme(theme: Theme): void {
 function App() {
   const location = useLocation();
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
+  const { isLocked, unlock } = useSecurityCheck();
 
   const isToolPage = TOOL_PAGES.includes(location.pathname);
 
@@ -191,6 +194,7 @@ function App() {
               tabIndex={-1}
               className={`flex-1 min-h-0 overflow-x-hidden focus:outline-none ${!isToolPage ? 'mt-12' : ''}`}
             >
+              {isLocked && <SecurityLockModal onUnlock={unlock} />}
               <Routes />
             </main>
           </div>
