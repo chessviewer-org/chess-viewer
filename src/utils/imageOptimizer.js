@@ -3,8 +3,9 @@ import { QUALITY_PRESETS } from '@/constants';
 import { getCoordinateParams } from './coordinateCalculations';
 import { logger } from './logger';
 
+export const CM_PER_INCH = 2.54;
 export const PRINT_DPI = 300;
-export const CM_TO_PIXELS = PRINT_DPI / 2.54;
+export const CM_TO_PIXELS = PRINT_DPI / CM_PER_INCH;
 /**
  * Converts centimetres to pixels at PRINT_DPI.
  *
@@ -12,7 +13,7 @@ export const CM_TO_PIXELS = PRINT_DPI / 2.54;
  * @returns {number} Pixel count
  */
 export function cmToPixels(cm) {
-  return Math.round(cm * CM_TO_PIXELS);
+  return Math.round((cm / CM_PER_INCH) * PRINT_DPI);
 }
 /**
  * Converts pixels to centimetres at PRINT_DPI.
@@ -21,7 +22,26 @@ export function cmToPixels(cm) {
  * @returns {number}
  */
 export function pixelsToCm(pixels) {
-  return pixels / CM_TO_PIXELS;
+  return (pixels / PRINT_DPI) * CM_PER_INCH;
+}
+
+/**
+ * Converts physical board size + quality multiplier into board pixels.
+ *
+ * Formula:
+ *   pixels = (cm / 2.54) * baseDpi * multiplier
+ *
+ * @param {number} boardSizeCm
+ * @param {number} qualityMultiplier
+ * @param {number} [baseDpi=PRINT_DPI]
+ * @returns {number}
+ */
+export function calculateBoardPixels(
+  boardSizeCm,
+  qualityMultiplier,
+  baseDpi = PRINT_DPI
+) {
+  return Math.round((boardSizeCm / CM_PER_INCH) * baseDpi * qualityMultiplier);
 }
 let _cachedMaxCanvasSize = null;
 
@@ -85,9 +105,11 @@ function formatFileSize(bytes) {
  * @returns {Object} Export size details including width, height, borderSize, mode, etc.
  */
 export function calculateExportSize(boardSizeCm, showCoords, exportQuality) {
-  const mode = getExportMode(exportQuality);
+  const safeQuality =
+    Number.isFinite(exportQuality) && exportQuality > 0 ? exportQuality : 1;
+  const mode = getExportMode(safeQuality);
   const maxCanvasSize = getMaxCanvasSize();
-  const rawBoardPixels = cmToPixels(boardSizeCm) * exportQuality;
+  const rawBoardPixels = calculateBoardPixels(boardSizeCm, safeQuality);
   const coordParams = getCoordinateParams(rawBoardPixels);
   const rawBorder = showCoords ? coordParams.borderSize : 0;
   const rawWidth = Math.round(rawBorder + rawBoardPixels);
@@ -116,9 +138,75 @@ export function calculateExportSize(boardSizeCm, showCoords, exportQuality) {
     baseHeight: rawHeight,
     borderSize: Math.round(rawBorder * scaleFactor),
     physicalSizeCm: boardSizeCm,
-    effectiveDPI: Math.round(PRINT_DPI * exportQuality * scaleFactor),
+    effectiveDPI: Math.round(PRINT_DPI * safeQuality * scaleFactor),
     mode,
+    exportQuality: safeQuality
+  };
+}
+
+/**
+ * Calculates the final raster surface dimensions including optional frame.
+ *
+ * @param {number} boardSizeCm
+ * @param {boolean} showCoords
+ * @param {number} exportQuality
+ * @param {boolean} [showThinFrame=false]
+ * @returns {{
+ *   boardPixels: number,
+ *   borderSize: number,
+ *   shouldShowFrame: boolean,
+ *   frameThickness: number,
+ *   framePadding: number,
+ *   canvasWidth: number,
+ *   canvasHeight: number,
+ *   physicalWidthCm: number,
+ *   physicalHeightCm: number,
+ *   physicalBoardSizeCm: number,
+ *   effectiveDPI: number,
+ *   scaleFactor: number
+ * }}
+ */
+export function calculateRenderSurfaceSize(
+  boardSizeCm,
+  showCoords,
+  exportQuality,
+  showThinFrame = false
+) {
+  const exportSize = calculateExportSize(
+    boardSizeCm,
+    showCoords,
     exportQuality
+  );
+  const borderSize = showCoords ? exportSize.borderSize : 0;
+  const shouldShowFrame =
+    !!showThinFrame &&
+    (exportSize.exportQuality === 8 || exportSize.exportQuality === 16);
+  const frameThickness = shouldShowFrame
+    ? Math.max(2, Math.round(exportSize.boardPixels * 0.003))
+    : 0;
+  const framePadding = shouldShowFrame ? frameThickness * 2 : 0;
+  const canvasWidth = Math.round(
+    borderSize + exportSize.boardPixels + framePadding
+  );
+  const canvasHeight = Math.round(
+    exportSize.boardPixels + borderSize + framePadding
+  );
+  const physicalWidthCm = (canvasWidth / exportSize.effectiveDPI) * CM_PER_INCH;
+  const physicalHeightCm =
+    (canvasHeight / exportSize.effectiveDPI) * CM_PER_INCH;
+  return {
+    boardPixels: exportSize.boardPixels,
+    borderSize,
+    shouldShowFrame,
+    frameThickness,
+    framePadding,
+    canvasWidth,
+    canvasHeight,
+    physicalWidthCm,
+    physicalHeightCm,
+    physicalBoardSizeCm: boardSizeCm,
+    effectiveDPI: exportSize.effectiveDPI,
+    scaleFactor: exportSize.scaleFactor
   };
 }
 
