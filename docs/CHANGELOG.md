@@ -1,29 +1,94 @@
 # Changelog
 
-All notable changes to **Chess Vision** are documented in this file.  
+All notable changes to **ChessVision** are documented in this file.  
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
 ## [Unreleased]
 
-Recent development activity observed in commits dated **2026-05-04 → 2026-05-06**.
-
-### Added
-
-- Advanced FEN page SVG export controls (single export + batch SVG export).
-- TypeScript app entry points and config (`src/index.tsx`, `src/App.tsx`, `tsconfig*.json`).
-
-### Changed
-
-- Theme editing and customization flows in Settings and Advanced FEN page.
-- MAX_FEN_LENGTH enforcement applied in FEN input flows.
-
 ### Known Remaining Gaps
 
 - Keyboard shortcuts for board actions are still not implemented.
 
 ---
+
+## [5.5.0] - 2026-05-09
+
+### Added
+
+- TypeScript app entry points and config (`src/index.tsx`, `src/App.tsx`, `tsconfig*.json`, `vite-env.d.ts`).
+- `LayoutProvider` for centralized layout and navbar state management.
+
+### Changed
+
+- Refactored entire application entry point logic for better state flow.
+
+### Removed
+
+- Deprecated duplicate and outdated components to simplify the codebase: `DndProvider`, `CustomDragLayer`, `ChessEditor`, `FENInputList`, `BoardPreview`, `PieceSelector`, `PiecePalette`.
+- Removed standalone `fenParser.js` utility (logic centralized).
+
+---
+
+## [5.4.0] - 2026-05-07
+
+### Added
+
+- Theme editing and customization flows with apply/cancel features in `SettingsPage`.
+
+### Changed
+
+- Extensive responsive layout updates to `HomePage`, `ChessEditor`, and `AdvancedFENInputPage`.
+- Enhanced UX animations and transitions across `Navbar`, `Toast`, and `HelpCenterDrawer`.
+
+---
+
+## [5.3.0] - 2026-05-07
+
+### Added
+
+- `validateFEN` guards inside export functions to prevent exporting corrupted FEN states.
+
+### Fixed
+
+- Touch device detection allowing proper drag-and-drop fallback to `HTML5Backend` on desktops.
+- Enforced `MAX_FEN_LENGTH` in input and paste actions to eliminate infinite crash loops.
+- Drag layer `currentOffset` calculations to correctly center dragged pieces under the cursor.
+
+### Performance
+
+- Optimized piece image rendering using `useRef` to skip unnecessary re-renders.
+- Added `willReadFrequently` flag to canvas context for rendering optimization.
+
+---
+
+## [5.2.0] - 2026-05-06
+
+### Changed
+
+- Increased `MAX_TOTAL_PRESETS` to allow saving more custom board themes.
+- Re-formatted route definitions and internal component spacings for consistency.
+
+---
+
+## [5.1.0] - 2026-05-04
+
+### Changed
+
+- Improved formatting and whitespace consistency across documentation files (`ARCHITECTURE.md`, `FAQ.md`, `KNOWN_ISSUES.md`).
+- Standardized git commit message linting and pre-commit hooks to strictly use `pnpm`.
+- Adjusted `Navbar` layout to natively accept right-slot properties.
+
+---
+
+## [5.0.15] - 2026-05-04 (Patches 5.0.1 - 5.0.15)
+
+### Fixed
+
+- Series of patch updates and Dependabot version bumps for underlying dependencies (`globals`, `lucide-react`, `postcss`, `@commitlint/cli`).
+- AudioContext lifecycle management to prevent sound distortion.
+- DraggablePiece Z-index positioning issues during active interactions.
 
 ## [5.0.0] - 2026-04-17
 
