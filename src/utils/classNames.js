@@ -2,7 +2,7 @@ export const classNames = {
   button: {
     base: 'rounded-xl font-semibold transition-all duration-200 ease-smooth flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-accent/50',
     primary:
-      'bg-accent hover:bg-accent-hover text-bg shadow-sm hover:shadow-glow',
+      'bg-accent hover:bg-accent-hover text-bg shadow-sm hover:shadow-md',
     secondary: 'bg-secondary hover:bg-secondary-hover text-bg',
     success: 'bg-success hover:bg-success/90 text-bg',
     danger: 'bg-error hover:bg-error/90 text-bg',
@@ -11,7 +11,7 @@ export const classNames = {
     ghost:
       'bg-transparent hover:bg-surface-hover text-text-secondary hover:text-text-primary',
     gradient:
-      'bg-gradient-to-r from-accent to-secondary text-bg shadow-sm hover:shadow-glow',
+      'bg-gradient-to-r from-accent to-secondary text-bg shadow-sm hover:shadow-md',
     size: {
       sm: 'px-3 py-1.5 text-xs',
       md: 'px-5 py-2.5 text-sm',
@@ -30,7 +30,7 @@ export const classNames = {
     }
   },
   input: {
-    base: 'w-full px-4 py-2.5 bg-surface-hover/50 border border-border rounded-xl text-text-primary placeholder-text-muted transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent',
+    base: 'w-full px-4 py-2.5 bg-surface-hover border border-border rounded-xl text-text-primary placeholder-text-muted transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent',
     error: 'border-error focus:ring-error/50 focus:border-error',
     success: 'border-success focus:ring-success/50 focus:border-success'
   },
@@ -39,7 +39,7 @@ export const classNames = {
     container:
       'bg-surface border border-border rounded-2xl shadow-2xl w-full max-h-[90vh] overflow-y-auto relative z-10',
     header:
-      'sticky top-0 bg-surface/95 backdrop-blur-lg border-b border-border p-4 flex items-center justify-between z-10',
+      'sticky top-0 bg-surface border-b border-border p-4 flex items-center justify-between z-10',
     content: 'p-6'
   },
   text: {
