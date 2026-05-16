@@ -469,7 +469,7 @@ const ThemeCustomization = memo(function ThemeCustomization({
             </Button>
           </div>
 
-          <div className="flex items-center justify-between gap-2 mb-2 p-1 rounded-lg border border-border/60 bg-surface/60">
+          <div className="flex items-center justify-between gap-2 mb-2 p-1 rounded-lg border border-border/60 bg-surface-elevated">
             <div className="grid grid-cols-2 flex-1 gap-1">
               <button
                 onClick={() => handleChangePanelTab('main')}
@@ -566,8 +566,8 @@ const ThemeCustomization = memo(function ThemeCustomization({
                 />
               </div>
             ) : (
-              <div className="rounded-xl border border-border/50 bg-surface/50 p-3 sm:p-4">
-                <div className="flex items-center gap-2 mb-3 p-2 rounded-lg border border-border/40 bg-surface-elevated/50">
+              <div className="rounded-xl border border-border/50 bg-surface-elevated p-3 sm:p-4">
+                <div className="flex items-center gap-2 mb-3 p-2 rounded-lg border border-border/40 bg-surface">
                   <div
                     className="w-5 h-5 rounded border border-border/50"
                     style={{ backgroundColor: previewLight }}
