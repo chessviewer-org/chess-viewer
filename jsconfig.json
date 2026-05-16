@@ -13,8 +13,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "ignoreDeprecations": "6.0"
+    "noEmit": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "build", "dist", "coverage", "scripts"]
