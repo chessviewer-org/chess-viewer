@@ -21,7 +21,7 @@ const DuplicateWarningDialog = memo(function DuplicateWarningDialog({
   onCancel
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/95">
       <div className="bg-surface rounded-xl border border-border p-6 max-w-sm w-full mx-4 shadow-xl animate-scaleIn">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center">
