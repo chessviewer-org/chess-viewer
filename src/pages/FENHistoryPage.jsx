@@ -432,7 +432,7 @@ const FENHistoryPage = memo(function FENHistoryPage() {
                   className="bg-surface border border-border rounded-xl overflow-hidden hover:shadow-lg hover:shadow-accent/5 hover:border-accent/30 transition-all duration-200 group flex flex-col min-h-[200px] animate-cardReveal"
                   style={{ animationDelay: `${Math.min(index * 0.05, 0.5)}s` }}
                 >
-                  <div className="aspect-square bg-bg/30 p-2 flex-shrink-0 border-b border-border/30">
+                  <div className="aspect-square bg-bg p-2 shrink-0 border-b border-border/30">
                     <div className="w-full h-full overflow-hidden">
                       <MiniPreview
                         fen={entry.fen}
