@@ -76,7 +76,7 @@ const ActionButtons = memo(function ActionButtons({
           onClick={onDownloadPNG}
           disabled={isExporting}
           aria-label="Download PNG"
-          className="group px-3 sm:px-4 py-2.5 sm:py-3.5 min-h-[44px] rounded-xl font-semibold text-xs sm:text-sm transition-[background-color,box-shadow] duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] flex items-center justify-center gap-1.5 sm:gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-accent hover:bg-accent-hover text-bg shadow-sm hover:shadow-md"
+          className="group px-3 sm:px-4 py-2.5 sm:py-3.5 min-h-[44px] rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] flex items-center justify-center gap-1.5 sm:gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-accent hover:bg-accent-hover text-bg shadow-sm hover:shadow-md hover:scale-[1.02]"
         >
           <Download className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
           <span>PNG</span>
@@ -86,7 +86,7 @@ const ActionButtons = memo(function ActionButtons({
           onClick={onDownloadJPEG}
           disabled={isExporting}
           aria-label="Download JPEG"
-          className="group px-3 sm:px-4 py-2.5 sm:py-3.5 min-h-[44px] rounded-xl font-semibold text-xs sm:text-sm transition-[background-color,box-shadow] duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] flex items-center justify-center gap-1.5 sm:gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-accent hover:bg-accent-hover text-bg shadow-sm hover:shadow-md"
+          className="group px-3 sm:px-4 py-2.5 sm:py-3.5 min-h-[44px] rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] flex items-center justify-center gap-1.5 sm:gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-accent hover:bg-accent-hover text-bg shadow-sm hover:shadow-md hover:scale-[1.02]"
         >
           <Download className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
           <span>JPEG</span>
@@ -97,7 +97,7 @@ const ActionButtons = memo(function ActionButtons({
           disabled={isExporting}
           aria-label="Batch export"
           aria-expanded={showBatchMenu}
-          className="col-span-2 sm:col-span-1 group px-3 sm:px-4 py-2.5 sm:py-3.5 min-h-[44px] rounded-xl font-semibold text-xs sm:text-sm transition-[background-color,box-shadow,border-color,color] duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] flex items-center justify-center gap-1.5 sm:gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-surface-elevated hover:bg-surface-hover text-text-primary border border-border shadow-sm hover:shadow-md"
+          className="col-span-2 sm:col-span-1 group px-3 sm:px-4 py-2.5 sm:py-3.5 min-h-[44px] rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] flex items-center justify-center gap-1.5 sm:gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-surface-elevated hover:bg-surface-hover text-text-primary border border-border shadow-sm hover:shadow-md hover:scale-[1.02]"
         >
           <Image className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
           <span>Batch Export</span>
@@ -106,7 +106,7 @@ const ActionButtons = memo(function ActionButtons({
 
       {showBatchMenu && (
         <div
-          className="glass-card rounded-xl p-4 sm:p-5 space-y-4 animate-fadeIn border border-border"
+          className="bg-surface-elevated rounded-xl p-4 sm:p-5 space-y-4 border border-border"
           role="region"
           aria-label="Batch export options"
         >
@@ -152,7 +152,7 @@ const ActionButtons = memo(function ActionButtons({
           onClick={handleCopy}
           disabled={isExporting}
           aria-label="Copy to clipboard"
-          className="group px-2 sm:px-3 py-2 sm:py-3 min-h-[44px] rounded-lg font-medium text-xs sm:text-sm transition-[background-color,border-color,box-shadow,color] duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed bg-surface-elevated hover:bg-surface-hover text-text-primary border border-border hover:border-accent/50 hover:shadow-sm"
+          className="group px-2 sm:px-3 py-2 sm:py-3 min-h-[44px] rounded-lg font-medium text-xs sm:text-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed bg-surface-elevated hover:bg-surface-hover text-text-primary border border-border hover:border-accent/50 hover:shadow-sm hover:scale-[1.02]"
         >
           {copied ? (
             <>
@@ -171,7 +171,7 @@ const ActionButtons = memo(function ActionButtons({
           onClick={onFlip}
           disabled={isExporting}
           aria-label="Flip board"
-          className="group px-2 sm:px-3 py-2 sm:py-3 min-h-[44px] rounded-lg font-medium text-xs sm:text-sm transition-[background-color,border-color,box-shadow,color] duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed bg-surface-elevated hover:bg-surface-hover text-text-primary border border-border hover:border-accent/50 hover:shadow-sm"
+          className="group px-2 sm:px-3 py-2 sm:py-3 min-h-[44px] rounded-lg font-medium text-xs sm:text-sm transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed bg-surface-elevated hover:bg-surface-hover text-text-primary border border-border hover:border-accent/50 hover:shadow-sm hover:scale-[1.02]"
         >
           <RefreshCcw className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
           <span>Flip</span>
