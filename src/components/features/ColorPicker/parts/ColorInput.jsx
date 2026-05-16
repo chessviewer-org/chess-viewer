@@ -29,7 +29,7 @@ const ColorInput = memo(
       [value]
     );
     return (
-      <div className="flex items-center gap-2 p-2.5 bg-bg/60 rounded-xl border border-border/50 transition-all shadow-lg">
+      <div className="flex items-center gap-2 p-2.5 bg-bg rounded-xl border border-border/50 transition-all shadow-lg">
         <button
           onClick={onToggle}
           className="w-14 h-14 rounded-lg flex-shrink-0 transition-all shadow-lg hover:shadow-xl relative overflow-hidden group outline-none"
