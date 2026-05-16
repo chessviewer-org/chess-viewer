@@ -29,7 +29,7 @@ function NotFoundPage() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             to="/"
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-accent to-accent-hover text-bg rounded-xl font-bold shadow-lg hover:shadow-glow transition-shadow duration-200"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-accent to-accent-hover text-bg rounded-xl font-bold shadow-lg hover:shadow-xl transition-shadow duration-200"
           >
             <Home className="w-5 h-5" />
             Go Home
