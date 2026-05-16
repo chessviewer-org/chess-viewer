@@ -463,11 +463,9 @@ html[data-theme-transition='to-dark'] {
   }
 
   .glass-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md);
     border-radius: 1.25rem;
   }
 
@@ -512,14 +510,13 @@ html[data-theme-transition='to-dark'] {
   }
 
   .btn-primary:hover {
-    box-shadow:
-      0 5px 16px
-        color-mix(
-          in srgb,
-          var(--color-accent),
-          transparent calc(100% - 0.35 * 100%)
-        ),
-      var(--shadow-glow);
+    box-shadow: 0 6px 20px
+      color-mix(
+        in srgb,
+        var(--color-accent),
+        transparent calc(100% - 0.3 * 100%)
+      );
+    transform: scale(1.02);
   }
 
   .btn-primary:active {
