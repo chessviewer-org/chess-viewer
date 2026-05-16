@@ -102,7 +102,7 @@ function ThemeSettingsView({ onSettingsChange }) {
         <button
           key={key}
           onClick={() => handleToggle(key)}
-          className="w-full p-2 bg-bg/50 hover:bg-surface-elevated/50 rounded border border-border/40 flex items-center justify-between gap-2"
+          className="w-full p-2 bg-bg hover:bg-surface-elevated rounded border border-border/40 flex items-center justify-between gap-2"
         >
           <div className="flex items-center gap-2 min-w-0">
             <Icon className="w-4 h-4 text-text-muted shrink-0" />
