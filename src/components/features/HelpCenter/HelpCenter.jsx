@@ -298,7 +298,7 @@ const HelpCenterDrawer = memo(function HelpCenterDrawer({ isOpen, onClose }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={overlayTransition}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
+            className="fixed inset-0 bg-bg/95 z-60"
             onClick={onClose}
             aria-hidden="true"
           />
@@ -308,7 +308,7 @@ const HelpCenterDrawer = memo(function HelpCenterDrawer({ isOpen, onClose }) {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: '104%', opacity: 0.94 }}
             transition={drawerTransition}
-            className="fixed inset-y-0 right-0 z-[70] w-full md:w-[50%] lg:w-[55%] xl:w-[45%] sm:min-w-[320px] max-w-[90vw] sm:max-w-[900px] bg-bg border-l border-border shadow-2xl flex flex-col"
+            className="fixed inset-y-0 right-0 z-70 w-full md:w-[50%] lg:w-[55%] xl:w-[45%] sm:min-w-[320px] max-w-[90vw] sm:max-w-[900px] bg-bg border-l border-border shadow-2xl flex flex-col"
           >
             <div className="px-6 py-4 border-b border-border bg-surface">
               <div className="flex items-center justify-between mb-4">
