@@ -17,6 +17,7 @@
     "canvg": "^4.0.3",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.14.0",
+    "qrcode.react": "^4.2.0",
     "react": "^19.2.6",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
