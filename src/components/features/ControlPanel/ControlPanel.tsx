@@ -145,7 +145,7 @@ const ControlPanel = memo(function ControlPanel({
 
   return (
     <>
-      <div className="glass-card rounded-xl p-4 sm:p-5 lg:p-6 space-y-5 sm:space-y-6">
+      <div className="bg-surface border border-border/40 rounded-xl p-4 sm:p-5 lg:p-6 space-y-5 sm:space-y-6">
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-2">
             <label className="text-sm font-semibold text-text-primary">
