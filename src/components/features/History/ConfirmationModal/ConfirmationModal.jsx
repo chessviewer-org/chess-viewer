@@ -30,7 +30,7 @@ const ConfirmationModal = memo(function ConfirmationModal({
   };
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-bg/95"
       onClick={handleBackdropClick}
     >
       <div className="bg-surface-elevated border border-border rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-scale-in">
