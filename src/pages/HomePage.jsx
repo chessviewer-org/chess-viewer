@@ -10,6 +10,8 @@ import {
 import { ChessEditor, DndProvider } from '@/components/interactions';
 import { NotificationContainer } from '@/components/ui';
 import { useFENHistory, useLocalStorage, useNotifications } from '@/hooks';
+import { motion } from 'framer-motion';
+
 import {
   batchExport,
   cancelExport,
@@ -22,6 +24,25 @@ import {
   validateFEN
 } from '@/utils';
 import { safeJSONParse, sanitizeHexColor } from '@/utils/validation';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { ease: [0.22, 1, 0.36, 1], duration: 0.6 }
+  }
+};
 
 /**
  * Export state reducer - PERFORMANCE OPTIMIZED
@@ -382,26 +403,36 @@ function HomePage() {
 
   return (
     <DndProvider>
-      <div className="w-full pt-[4rem] sm:pt-[5rem] lg:pt-[6rem] 3xl:pt-[8rem] px-[2%] sm:px-[3%] lg:px-[4%] pb-[2rem] sm:pb-[3rem]">
-        <div className="w-[95%] max-w-[2400px] mx-auto transition-all duration-500 ease-in-out">
+      <div className="w-full pt-16 sm:pt-20 lg:pt-24 3xl:pt-32 px-[2%] sm:px-[3%] lg:px-[4%] pb-8 sm:pb-12 overflow-y-auto">
+        <motion.div
+          className="w-[95%] max-w-[2400px] mx-auto"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           <div className="flex flex-col xl:flex-row xl:items-start gap-4 lg:gap-5 xl:gap-6 min-w-0">
-            <div className="w-full xl:flex-1 space-y-3 sm:space-y-4 animate-pageEnter min-w-0 flex flex-col">
-              <div className="relative glass-card rounded-xl p-3 sm:p-4 xl:flex-1 min-w-0 animate-revealUp stagger-1">
-                <div>
-                  <ChessEditor
-                    fen={fen}
-                    onFenChange={handleEditorFenChange}
-                    pieceStyle={pieceStyle}
-                    showCoords={showCoords}
-                    lightSquare={lightSquare}
-                    darkSquare={darkSquare}
-                    flipped={flipped}
-                    onPieceImagesChange={handlePieceImagesChange}
-                  />
-                </div>
-              </div>
+            {/* Left Column — Board + Actions */}
+            <div className="w-full xl:flex-1 space-y-3 sm:space-y-4 min-w-0">
+              <motion.div
+                variants={itemVariants}
+                className="bg-surface border border-border/40 rounded-xl p-3 sm:p-4"
+              >
+                <ChessEditor
+                  fen={fen}
+                  onFenChange={handleEditorFenChange}
+                  pieceStyle={pieceStyle}
+                  showCoords={showCoords}
+                  lightSquare={lightSquare}
+                  darkSquare={darkSquare}
+                  flipped={flipped}
+                  onPieceImagesChange={handlePieceImagesChange}
+                />
+              </motion.div>
 
-              <div className="glass-card rounded-xl p-3 sm:p-4 lg:p-5 animate-revealUp stagger-3 flex-shrink-0">
+              <motion.div
+                variants={itemVariants}
+                className="bg-surface border border-border/40 rounded-xl p-3 sm:p-4 lg:p-5"
+              >
                 <ActionButtons
                   onDownloadPNG={handleDownloadPNG}
                   onDownloadJPEG={handleDownloadJPEG}
@@ -413,34 +444,36 @@ function HomePage() {
                   currentFen={fen}
                   isFavorite={isFavorite}
                 />
-              </div>
+              </motion.div>
             </div>
 
-            <div className="w-full min-w-0 xl:w-[clamp(400px,35vw,600px)] xl:flex-none xl:self-stretch animate-slideInRight stagger-2 h-full flex flex-col">
-              <div className="flex-1 overflow-y-auto pr-1">
-                <ControlPanel
-                  fen={fen}
-                  setFen={setFen}
-                  pieceStyle={pieceStyle}
-                  setPieceStyle={setPieceStyle}
-                  showCoords={showCoords}
-                  setShowCoords={setShowCoords}
-                  showCoordinateBorder={showCoordinateBorder}
-                  setShowCoordinateBorder={setShowCoordinateBorder}
-                  showThinFrame={showThinFrame}
-                  setShowThinFrame={setShowThinFrame}
-                  exportQuality={exportQuality}
-                  addToFavoritesRef={addToFavoritesRef}
-                  onFavoriteStatusChange={setIsFavorite}
-                  saveManualFen={saveManualFen}
-                  saveExportFen={saveExportFen}
-                  addCurrentToFavorites={addCurrentToFavorites}
-                  onNotification={handleNotification}
-                />
-              </div>
-            </div>
+            {/* Right Column — Settings Sidebar */}
+            <motion.div
+              variants={itemVariants}
+              className="w-full min-w-0 xl:w-[clamp(400px,35vw,600px)] xl:flex-none xl:sticky xl:top-24"
+            >
+              <ControlPanel
+                fen={fen}
+                setFen={setFen}
+                pieceStyle={pieceStyle}
+                setPieceStyle={setPieceStyle}
+                showCoords={showCoords}
+                setShowCoords={setShowCoords}
+                showCoordinateBorder={showCoordinateBorder}
+                setShowCoordinateBorder={setShowCoordinateBorder}
+                showThinFrame={showThinFrame}
+                setShowThinFrame={setShowThinFrame}
+                exportQuality={exportQuality}
+                addToFavoritesRef={addToFavoritesRef}
+                onFavoriteStatusChange={setIsFavorite}
+                saveManualFen={saveManualFen}
+                saveExportFen={saveExportFen}
+                addCurrentToFavorites={addCurrentToFavorites}
+                onNotification={handleNotification}
+              />
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
         <NotificationContainer
           notifications={notifications}
