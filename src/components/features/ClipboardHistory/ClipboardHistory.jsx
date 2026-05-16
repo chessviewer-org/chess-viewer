@@ -163,7 +163,7 @@ const ClipboardHistory = memo(function ClipboardHistory({
   return (
     <>
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300"
+        className="fixed inset-0 bg-bg/95 z-40 transition-opacity duration-300"
         onClick={onClose}
         aria-hidden="true"
       />
