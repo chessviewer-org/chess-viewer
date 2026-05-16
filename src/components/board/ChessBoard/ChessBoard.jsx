@@ -212,7 +212,7 @@ const ChessBoard = React.forwardRef(function ChessBoard(props, ref) {
       />
       {isLoading && (
         <div
-          className="absolute inset-0 flex flex-col items-center justify-center bg-surface/90 backdrop-blur-sm"
+          className="absolute inset-0 flex flex-col items-center justify-center bg-surface"
           role="status"
           aria-live="polite"
         >
@@ -229,11 +229,11 @@ const ChessBoard = React.forwardRef(function ChessBoard(props, ref) {
       )}
       {error && (
         <div
-          className="absolute inset-0 flex items-center justify-center bg-error/10 backdrop-blur-sm border-2 border-error/50"
+          className="absolute inset-0 flex items-center justify-center bg-error/10 border-2 border-error/50"
           role="alert"
           aria-live="assertive"
         >
-          <div className="text-error text-sm font-semibold px-6 py-4 bg-surface/90 rounded-lg shadow-lg text-center max-w-xs">
+          <div className="text-error text-sm font-semibold px-6 py-4 bg-surface rounded-lg shadow-lg text-center max-w-xs">
             {error}
           </div>
         </div>
