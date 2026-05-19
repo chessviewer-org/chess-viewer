@@ -20,6 +20,11 @@ import { safeJSONParse } from '@/utils/validation';
 
 const DRAG_INACTIVITY_TIMEOUT = 60000;
 
+/**
+ * Persists history to local storage and cloud.
+ *
+ * @param {Array} history - The FEN history array
+ */
 const persistHistory = (history) => {
   try {
     const jsonData = JSON.stringify(history);
@@ -34,6 +39,13 @@ const persistHistory = (history) => {
   }
 };
 
+/**
+ * Custom hook for managing FEN history and archiving.
+ *
+ * @param {string} fen - Current FEN string
+ * @param {function(boolean): void} onFavoriteStatusChange - Callback when favorite status changes
+ * @returns {Object} History state and actions
+ */
 export function useFENHistory(fen, onFavoriteStatusChange) {
   const [fenHistory, setFenHistory] = useState([]);
   const [archive, setArchive] = useState([]);
@@ -42,22 +54,18 @@ export function useFENHistory(fen, onFavoriteStatusChange) {
   const [isLoadingArchive, setIsLoadingArchive] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Refs for stability
   const dragTimerRef = useRef(null);
   const dragSessionIdRef = useRef(null);
   const latestFenRef = useRef(fen);
   const fenHistoryRef = useRef(fenHistory);
   const isMountedRef = useRef(true);
 
-  // Sync refs
   useEffect(() => {
     latestFenRef.current = fen;
   }, [fen]);
   useEffect(() => {
     fenHistoryRef.current = fenHistory;
   }, [fenHistory]);
-
-  // 1. Initial Load (Hydration) - FIXED: survives rapid remounts
   useEffect(() => {
     isMountedRef.current = true;
     const loadHistory = async () => {
@@ -88,7 +96,6 @@ export function useFENHistory(fen, onFavoriteStatusChange) {
     };
   }, []);
 
-  // 2. Optimized Persistence - serialize off the critical path via idle callback
   useEffect(() => {
     if (!isHydrated) return;
     const timeoutId = setTimeout(() => {
@@ -101,7 +108,6 @@ export function useFENHistory(fen, onFavoriteStatusChange) {
     return () => clearTimeout(timeoutId);
   }, [fenHistory, isHydrated]);
 
-  // 3. Status Change Notification - FIXED: Prevents infinite loops
   const fenIndex = useMemo(
     () => new Map(fenHistory.map((h) => [h.fen, h])),
     [fenHistory]
@@ -116,7 +122,6 @@ export function useFENHistory(fen, onFavoriteStatusChange) {
     }
   }, [currentIsFavorite, isHydrated, onFavoriteStatusChange]);
 
-  // 4. Auto-Archive - FIXED: uses proper cleanup
   useEffect(() => {
     if (!isHydrated) return;
     const runAutoArchive = async () => {
@@ -136,14 +141,12 @@ export function useFENHistory(fen, onFavoriteStatusChange) {
     return () => clearInterval(intervalId);
   }, [isHydrated]);
 
-  // Cleanup for drag timers
   useEffect(() => {
     return () => {
       if (dragTimerRef.current) clearTimeout(dragTimerRef.current);
     };
   }, []);
 
-  // Actions
   const commitToHistory = useCallback(
     (fenToSave, source, dragSessionId = null) => {
       if (!validateFEN(fenToSave)) return;
@@ -180,7 +183,6 @@ export function useFENHistory(fen, onFavoriteStatusChange) {
     }, DRAG_INACTIVITY_TIMEOUT);
   }, [commitToHistory]);
 
-  // Other methods (Simplified for brevity but kept functional)
   const toggleFavorite = useCallback((id) => {
     setFenHistory((prev) =>
       prev.map((h) => (h.id === id ? { ...h, isFavorite: !h.isFavorite } : h))

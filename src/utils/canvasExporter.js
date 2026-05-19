@@ -32,6 +32,11 @@ export function resetExportState() {
     paused: false
   };
 }
+/**
+ * Waits asynchronously while the export is paused.
+ *
+ * @returns {Promise<void>}
+ */
 async function waitWhilePaused() {
   while (exportState.paused && !exportState.cancelled) {
     await new Promise(function (resolve) {
@@ -40,17 +45,35 @@ async function waitWhilePaused() {
   }
 }
 
+/**
+ * Checks if the export was cancelled and throws an error if so.
+ */
 function checkCancellation() {
   if (exportState.cancelled) {
     throw new Error('Export cancelled');
   }
 }
+
+/**
+ * Sets the progress callback if it exists.
+ *
+ * @param {function(number, string):void} [onProgress]
+ * @param {number} value
+ * @param {string} label
+ */
 function setProgress(onProgress, value, label) {
   if (onProgress) {
     onProgress(value, label);
   }
 }
 
+/**
+ * Estimates the memory required in MB for a given width and height.
+ *
+ * @param {number} width
+ * @param {number} height
+ * @returns {number}
+ */
 function estimateMemoryMB(width, height) {
   return Math.round((width * height * 4) / 1024 / 1024);
 }
@@ -93,6 +116,11 @@ export function getExportInfo(config) {
   };
 }
 
+/**
+ * Validates the export configuration object.
+ *
+ * @param {Object} config
+ */
 function validateExportConfig(config) {
   const errors = [];
   if (!config) {

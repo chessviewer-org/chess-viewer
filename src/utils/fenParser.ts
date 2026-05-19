@@ -120,12 +120,10 @@ export function getFENValidationError(fen: string): string {
  * @returns Validation result with a detailed error message (null when valid)
  */
 export function validateFENDetailed(fen: string): { isValid: boolean; errorMessage: string | null } {
-  // Guard: empty / wrong type
   if (!fen || typeof fen !== 'string') {
     return { isValid: false, errorMessage: 'Error: FEN string is empty or has an invalid format.' };
   }
 
-  // 1. Length / DoS check
   if (fen.length > MAX_FEN_LENGTH) {
     return { isValid: false, errorMessage: 'Error: FEN string is too long.' };
   }
@@ -133,7 +131,6 @@ export function validateFENDetailed(fen: string): { isValid: boolean; errorMessa
   const trimmed = fen.trim();
   const parts = trimmed.split(/\s+/);
 
-  // 2. Structure – must have exactly 6 space-separated parts
   if (parts.length !== 6) {
     return {
       isValid: false,
@@ -143,10 +140,8 @@ export function validateFENDetailed(fen: string): { isValid: boolean; errorMessa
 
   const [position, activeColor, castling, enPassant, halfmove, fullmove] = parts;
 
-  // 3. Piece placement (Part 1)
   const rows = position.split('/');
 
-  // 3a. Must be exactly 8 ranks
   if (rows.length !== 8) {
     return {
       isValid: false,
@@ -154,7 +149,6 @@ export function validateFENDetailed(fen: string): { isValid: boolean; errorMessa
     };
   }
 
-  // 3b–3c. Validate each rank
   for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
     const row = rows[rowIndex];
     let squareCount = 0;
@@ -180,7 +174,6 @@ export function validateFENDetailed(fen: string): { isValid: boolean; errorMessa
     }
   }
 
-  // 4. Active color (Part 2)
   if (activeColor !== 'w' && activeColor !== 'b') {
     return {
       isValid: false,
@@ -188,20 +181,16 @@ export function validateFENDetailed(fen: string): { isValid: boolean; errorMessa
     };
   }
 
-  // 5. Castling availability (Part 3)
-  //    '-' or any non-repeating combination of K, Q, k, q (1-4 chars)
   if (castling !== '-') {
     if (!/^[KQkq]{1,4}$/.test(castling)) {
       return { isValid: false, errorMessage: 'Error: Castling field is invalid.' };
     }
-    // Reject duplicate letters (e.g. "KKq")
     const unique = new Set(castling);
     if (unique.size !== castling.length) {
       return { isValid: false, errorMessage: 'Error: Castling field contains duplicate characters.' };
     }
   }
 
-  // 6. En passant target square (Part 4)
   if (enPassant !== '-') {
     if (!/^[a-h][36]$/.test(enPassant)) {
       return {
@@ -211,7 +200,6 @@ export function validateFENDetailed(fen: string): { isValid: boolean; errorMessa
     }
   }
 
-  // 7. Halfmove clock & fullmove number (Parts 5 & 6)
   if (!/^\d+$/.test(halfmove) || !/^\d+$/.test(fullmove)) {
     return {
       isValid: false,
