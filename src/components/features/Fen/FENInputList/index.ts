@@ -1,1 +1,1 @@
-export { default } from './FENInputList.jsx';
+export { default } from './FENInputList';

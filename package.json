@@ -1,6 +1,6 @@
 {
   "name": "chess-vision",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.33.0",
@@ -10,11 +10,6 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.4",
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
-    "@testing-library/user-event": "^14.6.1",
-    "canvg": "^4.0.3",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.14.0",
     "qrcode.react": "^4.2.0",
@@ -23,10 +18,8 @@
     "react-dnd-html5-backend": "^16.0.1",
     "react-dnd-touch-backend": "^16.0.1",
     "react-dom": "19.2.6",
-    "react-icons": "^5.6.0",
     "react-router-dom": "^7.15.0",
-    "react-window": "^2.2.7",
-    "react-window-infinite-loader": "^2.0.1"
+    "react-window": "^2.2.7"
   },
   "scripts": {
     "dev": "vite",
@@ -36,8 +29,8 @@
     "build:analyze": "vite build && npx vite-bundle-visualizer",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
-    "lint:ci": "eslint . --max-warnings=500",
-    "test": "node --test src/utils/fenParser.test.js",
+    "lint:ci": "eslint . --max-warnings=0",
+    "test": "node --experimental-strip-types --test src/shared/utils/fenParser.test.ts",
     "format": "prettier --write \"src/**/*.{js,jsx,json,css,md}\"",
     "format:check": "prettier . --check",
     "format:ci": "prettier . --check || exit 0",
@@ -51,8 +44,8 @@
     "@types/node": "^25.6.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@types/react-window": "^2.0.0",
     "@vitejs/plugin-react": "6.0.1",
-    "@welldone-software/why-did-you-render": "^10.0.1",
     "autoprefixer": "^10.5.0",
     "esbuild": "^0.28.0",
     "eslint": "9.39.4",
@@ -64,10 +57,8 @@
     "lint-staged": "^17.0.2",
     "postcss": "^8.5.14",
     "prettier": "^3.8.3",
-    "semantic-release": "^25.0.3",
     "tailwindcss": "^4.2.4",
     "typescript": "^6.0.3",
-    "vite": "8.0.11",
-    "vite-bundle-visualizer": "^1.2.1"
+    "vite": "8.0.11"
   }
 }

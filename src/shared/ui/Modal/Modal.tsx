@@ -1,0 +1,113 @@
+import React, { memo, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { AlertTriangle, Info, XCircle, X } from 'lucide-react';
+
+export type ModalType = 'warning' | 'info' | 'danger';
+
+export interface ModalProps {
+  isOpen: boolean;
+  title: string;
+  message: string;
+  type?: ModalType;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+/**
+ * A reusable, highly animated, and theme-aware modal component.
+ * Replaces native window.alert and window.confirm.
+ */
+const Modal = memo(({
+  isOpen,
+  title,
+  message,
+  type = 'info',
+  onConfirm,
+  onCancel
+}: ModalProps) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
+  const icons = {
+    info: <Info className="w-6 h-6 text-blue-500" />,
+    warning: <AlertTriangle className="w-6 h-6 text-amber-500" />,
+    danger: <XCircle className="w-6 h-6 text-red-500" />
+  };
+
+  const buttonStyles = {
+    info: 'bg-blue-600 hover:bg-blue-700',
+    warning: 'bg-amber-600 hover:bg-amber-700',
+    danger: 'bg-red-600 hover:bg-red-700'
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onCancel}
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          />
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            className="relative w-full max-w-md bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden"
+          >
+            <div className="p-6">
+              <div className="flex items-start gap-4">
+                <div className="shrink-0 p-2 bg-surface-elevated rounded-xl">
+                  {icons[type]}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-bold text-text-primary mb-1">
+                    {title}
+                  </h3>
+                  <p className="text-sm text-text-secondary leading-relaxed">
+                    {message}
+                  </p>
+                </div>
+                <button
+                  onClick={onCancel}
+                  className="shrink-0 p-1 text-text-muted hover:text-text-primary transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="mt-8 flex items-center justify-end gap-3">
+                <button
+                  onClick={onCancel}
+                  className="px-4 py-2 text-sm font-semibold text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-lg transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={onConfirm}
+                  className={`px-6 py-2 text-sm font-bold text-white rounded-lg transition-all shadow-lg ${buttonStyles[type]}`}
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+});
+
+Modal.displayName = 'Modal';
+
+export default Modal;

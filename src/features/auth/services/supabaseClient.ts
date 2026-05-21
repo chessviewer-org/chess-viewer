@@ -1,9 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-import { logger } from '@/utils/logger';
+import { logger } from '@utils/logger';
 
-let supabaseUrl: string = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey: string = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder';
+let supabaseUrl: string = import.meta.env['VITE_SUPABASE_URL'] || '';
+const supabaseAnonKey: string = import.meta.env['VITE_SUPABASE_ANON_KEY'] || 'placeholder';
 
 // Validate that the URL is a valid HTTP/HTTPS URL, otherwise Supabase will crash on initialization.
 if (!supabaseUrl.startsWith('http://') && !supabaseUrl.startsWith('https://')) {

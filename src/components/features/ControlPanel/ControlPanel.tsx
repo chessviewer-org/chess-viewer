@@ -13,8 +13,8 @@ import { useNavigate } from 'react-router-dom';
 
 import DisplayOptions from '@/components/features/DisplayOptions';
 import { FENInputField, PieceSelector } from '@/components/features/Fen';
-import { useFENHistory } from '@/hooks';
-import { MAX_FEN_LENGTH } from '@/utils/validation';
+import { useFENHistory } from '@hooks';
+import { MAX_FEN_LENGTH } from '@utils/validation';
 import type { NotificationType } from '@/components/features/Fen/FENInputField/FENInputField';
 
 export interface ControlPanelProps {

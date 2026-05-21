@@ -15,12 +15,14 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
+      '@shared': path.resolve(__dirname, 'src/shared'),
       '@components': path.resolve(__dirname, 'src/components'),
       '@pages': path.resolve(__dirname, 'src/pages'),
-      '@hooks': path.resolve(__dirname, 'src/hooks'),
-      '@utils': path.resolve(__dirname, 'src/utils'),
+      '@hooks': path.resolve(__dirname, 'src/shared/hooks'),
+      '@utils': path.resolve(__dirname, 'src/shared/utils'),
       '@contexts': path.resolve(__dirname, 'src/contexts'),
-      '@constants': path.resolve(__dirname, 'src/constants')
+      '@constants': path.resolve(__dirname, 'src/shared/constants'),
+      '@app-types': path.resolve(__dirname, 'src/shared/types')
     },
     extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json']
   },

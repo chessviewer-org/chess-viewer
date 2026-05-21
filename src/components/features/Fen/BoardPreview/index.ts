@@ -1,1 +1,1 @@
-export { default } from './BoardPreview.jsx';
+export { default } from './BoardPreview';

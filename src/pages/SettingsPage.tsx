@@ -1,0 +1,255 @@
+import { memo, useCallback, useEffect, useState } from 'react';
+import { 
+  Check, 
+  Database, 
+  Download, 
+  Palette, 
+  Pencil, 
+  X, 
+  ShieldCheck, 
+  User, 
+  Settings 
+} from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+
+import { ToolPageHeader } from '@/components/layout';
+import { Button } from '@shared/ui';
+import { useLocalStorage } from '@hooks';
+import {
+  DataManagement,
+  ExportCustomization,
+  ThemeCustomization
+} from '@/pages/settings';
+import { TwoFactorSetup } from '@/features/auth/components/TwoFactorSetup';
+
+const pageTabs = [
+  {
+    id: 'profile',
+    label: 'Account Profile',
+    shortLabel: 'Profile',
+    icon: User
+  },
+  {
+    id: 'security',
+    label: 'Security & Privacy',
+    shortLabel: 'Security',
+    icon: ShieldCheck
+  },
+  {
+    id: 'theme',
+    label: 'Theme Customization',
+    shortLabel: 'Theme',
+    icon: Palette
+  },
+  {
+    id: 'export',
+    label: 'Export Customization',
+    shortLabel: 'Export',
+    icon: Download
+  },
+  {
+    id: 'data',
+    label: 'Data Management',
+    shortLabel: 'Data',
+    icon: Database
+  }
+];
+
+const SettingsPage = memo(function SettingsPage() {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') || 'profile';
+  
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [themeEditControls, setThemeEditControls] = useState<any>(null);
+  
+  const [boardSize, setBoardSize] = useLocalStorage('chess-board-size', 4);
+  const [fileName, setFileName] = useLocalStorage('chess-file-name', 'chess-position');
+  const [exportQuality, setExportQuality] = useLocalStorage('chess-export-quality', 16);
+
+  const handleBack = useCallback(() => navigate(-1), [navigate]);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleBack();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [handleBack]);
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    setSearchParams({ tab: tabId });
+  };
+
+  const handleThemeEditControlsChange = useCallback((controls: any) => {
+    setThemeEditControls(controls);
+  }, []);
+
+  useEffect(() => {
+    if (activeTab !== 'theme' && themeEditControls !== null) {
+      setThemeEditControls(null);
+    }
+  }, [activeTab, themeEditControls]);
+
+  const themeHeaderRightSlot =
+    activeTab === 'theme' && themeEditControls ? (
+      <div className="flex items-center gap-2">
+        {themeEditControls.editMode ? (
+          <>
+            <Button
+              onClick={themeEditControls.onCancelEditMode}
+              variant="outline"
+              size="sm"
+              icon={X}
+              className="px-3 sm:px-4 py-2 text-xs sm:text-sm"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={themeEditControls.onApplyChanges}
+              size="sm"
+              icon={Check}
+              className="px-3 sm:px-5 py-2 text-xs sm:text-sm font-semibold"
+            >
+              Apply
+            </Button>
+          </>
+        ) : (
+          <Button
+            onClick={themeEditControls.onEnableEditMode}
+            variant="outline"
+            size="sm"
+            icon={Pencil}
+            className="px-3 sm:px-4 py-2 text-xs sm:text-sm"
+          >
+            Edit Mode
+          </Button>
+        )}
+      </div>
+    ) : null;
+
+  return (
+    <div className="h-full max-h-full flex flex-col bg-bg overflow-hidden">
+      <ToolPageHeader
+        title="Account Preferences"
+        onBack={handleBack}
+        showSave={false}
+        rightSlot={themeHeaderRightSlot}
+      />
+
+      <div className="shrink-0 bg-surface-elevated border-b border-border animate-fadeIn scrollbar-hide">
+        <div className="px-3 sm:px-6 overflow-x-auto">
+          <div className="flex gap-0 min-w-max sm:min-w-0">
+            {pageTabs.map(({ id, icon: Icon, label, shortLabel }) => (
+              <button
+                key={id}
+                onClick={() => handleTabChange(id)}
+                className={`px-3 sm:px-5 py-3.5 sm:py-4 flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold transition-all duration-300 border-b-2 whitespace-nowrap ${
+                  activeTab === id 
+                    ? 'text-accent border-accent bg-accent/5' 
+                    : 'text-text-secondary hover:text-text-primary border-transparent hover:bg-surface-hover'
+                }`}
+              >
+                <Icon
+                  className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-300 ${activeTab === id ? 'scale-110' : ''}`}
+                />
+                <span className="sm:hidden">{shortLabel}</span>
+                <span className="hidden sm:inline">{label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <main className="flex-1 overflow-y-auto min-h-0">
+        <div className="h-full max-w-4xl mx-auto px-4 sm:px-8 py-6 sm:py-10">
+          {activeTab === 'profile' && (
+            <div className="space-y-8 animate-pageEnter">
+              <section>
+                <h3 className="text-xl font-bold text-text-primary font-display flex items-center gap-2 mb-4">
+                   <User className="w-5 h-5 text-accent" />
+                   Profile Information
+                </h3>
+                <div className="bg-surface-elevated border border-border rounded-2xl p-6 space-y-4">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Email Address</label>
+                    <p className="text-text-primary font-medium">Logged in with your Supabase account.</p>
+                  </div>
+                  <p className="text-sm text-text-secondary italic">Profile editing is coming soon in v6.1.0</p>
+                </div>
+              </section>
+            </div>
+          )}
+
+          {activeTab === 'security' && (
+            <div className="space-y-10 animate-pageEnter">
+              <section>
+                <h3 className="text-xl font-bold text-text-primary font-display flex items-center gap-2 mb-4">
+                   <ShieldCheck className="w-5 h-5 text-accent" />
+                   Security Settings
+                </h3>
+                <div className="bg-surface-elevated border border-border rounded-2xl overflow-hidden">
+                  <div className="p-6 border-b border-border/50">
+                    <TwoFactorSetup />
+                  </div>
+                  <div className="p-6 bg-surface-primary/30">
+                     <h4 className="text-sm font-bold text-text-primary mb-2">Password Management</h4>
+                     <p className="text-xs text-text-secondary mb-4">You can request a password reset email if you wish to change your login credentials.</p>
+                     <Button size="sm" variant="outline" className="text-xs">Request Password Reset</Button>
+                  </div>
+                </div>
+              </section>
+            </div>
+          )}
+
+          {activeTab === 'theme' && (
+            <div className="h-full animate-pageEnter">
+              <ThemeCustomization
+                onEditControlsChange={handleThemeEditControlsChange}
+              />
+            </div>
+          )}
+
+          {activeTab === 'export' && (
+            <div className="h-full animate-pageEnter">
+              <ExportCustomization
+                boardSize={boardSize}
+                setBoardSize={setBoardSize}
+                fileName={fileName}
+                setFileName={setFileName}
+                exportQuality={exportQuality}
+                setExportQuality={setExportQuality}
+              />
+            </div>
+          )}
+
+          {activeTab === 'data' && (
+            <div className="space-y-8 animate-pageEnter">
+               <section>
+                <h3 className="text-xl font-bold text-text-primary font-display flex items-center gap-2 mb-4">
+                   <Database className="w-5 h-5 text-accent" />
+                   Data & Privacy
+                </h3>
+                <DataManagement />
+               </section>
+               
+               <section className="pt-8 border-t border-error/20">
+                 <div className="bg-error/5 border border-error/20 rounded-2xl p-6">
+                    <h4 className="text-lg font-bold text-error mb-2">Danger Zone</h4>
+                    <p className="text-sm text-text-secondary mb-4">Permanently delete your account and all associated cloud data. This action cannot be undone.</p>
+                    <button className="px-6 py-2.5 bg-error text-white rounded-xl font-bold text-sm hover:bg-error/90 transition-all">
+                      Delete Account Forever
+                    </button>
+                 </div>
+               </section>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+});
+
+SettingsPage.displayName = 'SettingsPage';
+export default SettingsPage;

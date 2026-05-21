@@ -3,13 +3,12 @@ import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useState } fro
 import { useLocation } from 'react-router-dom';
 
 import { Navbar } from '@/components/layout';
-import { ErrorBoundary } from '@/components/ui';
-import { FENBatchProvider, ThemeSettingsProvider } from '@/contexts';
+import { ErrorBoundary } from '@shared/ui';
+import { FENBatchProvider, ThemeSettingsProvider, ModalProvider } from '@/contexts';
 import Routes from '@/routes/Router';
-import { logger } from '@/utils/logger';
+import { logger } from '@utils/logger';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useSecurityCheck } from '@/features/auth/hooks/useSecurityCheck';
-import { useSupabaseSync } from '@/features/auth/hooks/useSupabaseSync';
 
 /** Lazy-loaded: only needed when an authenticated user hits the 90-day lock. */
 const SecurityLockModal = lazy(() =>
@@ -115,9 +114,7 @@ function App() {
   const location = useLocation();
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const { isAuthenticated } = useAuth();
-  const { isLocked, unlock } = useSecurityCheck();
-  
-  useSupabaseSync();
+  const { isLocked, isLoading, unlock } = useSecurityCheck();
 
   const isToolPage = TOOL_PAGES.includes(location.pathname);
 
@@ -190,7 +187,8 @@ function App() {
     <ErrorBoundary>
       <ThemeSettingsProvider>
         <FENBatchProvider>
-          <div className="h-dvh flex flex-col overflow-hidden bg-linear-to-br from-bg-gradient-start to-bg-gradient-end text-[clamp(0.9375rem,0.25vw+0.875rem,1rem)] transition-colors duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
+          <ModalProvider>
+            <div className="min-h-dvh sm:h-dvh flex flex-col sm:overflow-hidden bg-linear-to-br from-bg-gradient-start to-bg-gradient-end text-[clamp(0.9375rem,0.25vw+0.875rem,1rem)] transition-colors duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
             <a
               href="#main-content"
               className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-100 focus:px-6 focus:py-3 focus:bg-accent focus:text-bg focus:rounded-xl focus:shadow-lg focus:font-semibold"
@@ -203,19 +201,28 @@ function App() {
             <main
               id="main-content"
               tabIndex={-1}
-              className={`flex-1 min-h-0 overflow-x-hidden focus:outline-none ${!isToolPage ? 'mt-12' : ''}`}
+              className={`flex-1 min-h-0 sm:overflow-x-hidden focus:outline-none ${!isToolPage ? 'mt-12' : ''}`}
             >
-              {isAuthenticated && isLocked && (
-                <Suspense fallback={null}>
-                  <SecurityLockModal onUnlock={unlock} />
-                </Suspense>
+              {isLoading ? (
+                <div className="flex h-full items-center justify-center">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-current border-t-transparent" />
+                </div>
+              ) : (
+                <>
+                  {isAuthenticated && isLocked && (
+                    <Suspense fallback={null}>
+                      <SecurityLockModal onUnlock={unlock} />
+                    </Suspense>
+                  )}
+                  <Routes />
+                </>
               )}
-              <Routes />
             </main>
           </div>
-        </FENBatchProvider>
-      </ThemeSettingsProvider>
-    </ErrorBoundary>
+        </ModalProvider>
+      </FENBatchProvider>
+    </ThemeSettingsProvider>
+  </ErrorBoundary>
   );
 }
 
