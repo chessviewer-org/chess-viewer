@@ -2,8 +2,8 @@ import { memo, useCallback } from 'react';
 
 import { useDrop } from 'react-dnd';
 
-import { DraggablePiece } from '@/components/interactions';
-import { ItemTypes } from '@/constants';
+import DraggablePiece from '../DraggablePiece/DraggablePiece';
+import { ItemTypes } from '@constants';
 
 export interface DragItem {
   piece: string;

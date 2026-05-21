@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react';
 
-import { DraggablePiece } from '@/components/interactions';
-import { getPieceImageKey, PALETTE_PIECES } from '@/constants';
+import DraggablePiece from '../DraggablePiece/DraggablePiece';
+import { getPieceImageKey, PALETTE_PIECES } from '@constants';
 
 export interface PiecePaletteProps {
   pieceImages: Record<string, HTMLImageElement | null>;

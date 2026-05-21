@@ -3,12 +3,10 @@ import { memo, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { Copy, RotateCcw, Settings, X } from 'lucide-react';
 
 import ThemeMainView from '@/components/features/ColorPicker/views/ThemeMainView';
-import {
-  CustomDragLayer,
-  InteractiveBoard,
-  PiecePalette,
-  TrashZone
-} from '@/components/interactions';
+import CustomDragLayer from '../CustomDragLayer/CustomDragLayer';
+import InteractiveBoard from '../InteractiveBoard/InteractiveBoard';
+import PiecePalette from '../PiecePalette/PiecePalette';
+import TrashZone from '../TrashZone/TrashZone';
 import { useInteractiveBoard, usePieceImages, useTheme } from '@hooks';
 
 /**

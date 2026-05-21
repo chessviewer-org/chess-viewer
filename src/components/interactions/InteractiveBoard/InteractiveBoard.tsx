@@ -2,8 +2,8 @@ import { memo, useCallback, useMemo, useRef } from 'react';
 
 import { useDrop } from 'react-dnd';
 
-import { DroppableSquare } from '@/components/interactions';
-import { ItemTypes } from '@/constants';
+import DroppableSquare from '../DroppableSquare/DroppableSquare';
+import { ItemTypes } from '@constants';
 
 export interface InteractiveBoardProps {
   board: string[][];

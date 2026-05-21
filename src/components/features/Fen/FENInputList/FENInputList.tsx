@@ -2,7 +2,7 @@ import { memo, useCallback } from 'react';
 
 import { AlertCircle, Check, Clipboard, Star, Trash2 } from 'lucide-react';
 
-import { validateFEN } from '@/utils';
+import { validateFEN } from '@utils';
 
 export interface FENInputRowProps {
   index: number;

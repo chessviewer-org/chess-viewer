@@ -10,12 +10,12 @@ import {
   Plus
 } from 'lucide-react';
 
-import ClipboardHistory from '@/components/features/ClipboardHistory';
-import { useFENBatch } from '@/contexts';
-import { useDebouncedFENValidation } from '@/hooks/useDebouncedFENValidation';
-import { validateFEN } from '@/utils';
-import { logger } from '@/utils/logger';
-import { MAX_FEN_LENGTH, safeJSONParse } from '@/utils/validation';
+import ClipboardHistory from '../../ClipboardHistory';
+import { useFENBatch } from '@contexts';
+import { useDebouncedFENValidation } from '@hooks/useDebouncedFENValidation';
+import { validateFEN } from '@utils';
+import { logger } from '@utils/logger';
+import { MAX_FEN_LENGTH, safeJSONParse } from '@utils/validation';
 
 export type NotificationType = 'success' | 'error' | 'warning' | 'info';
 

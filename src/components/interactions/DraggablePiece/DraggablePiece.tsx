@@ -3,7 +3,7 @@ import { memo, useEffect, useLayoutEffect, useRef } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 
-import { getPieceImageKey, ItemTypes } from '@/constants';
+import { getPieceImageKey, ItemTypes } from '@constants';
 
 export interface DraggablePieceProps {
   piece: string;

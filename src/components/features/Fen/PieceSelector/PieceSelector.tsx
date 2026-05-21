@@ -1,5 +1,5 @@
-import { SearchableSelect } from '@/components/ui';
-import { PIECE_SETS } from '@/constants';
+import { SearchableSelect } from '@shared/ui';
+import { PIECE_SETS } from '@constants';
 
 interface PieceSelectorProps {
   pieceStyle: string;

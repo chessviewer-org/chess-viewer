@@ -2,8 +2,8 @@ import { memo } from 'react';
 
 import { useDrop } from 'react-dnd';
 
-import { ItemTypes } from '@/constants';
-import type { DragItem } from '@/components/interactions/DroppableSquare/DroppableSquare';
+import { ItemTypes } from '@constants';
+import type { DragItem } from '../DroppableSquare/DroppableSquare';
 
 export interface TrashZoneProps {
   onDrop?: (fromRow: number, fromCol: number) => void;

@@ -51,27 +51,27 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (
-              id.includes('react') ||
-              id.includes('react-dom') ||
-              id.includes('react-router-dom')
-            ) {
-              return 'vendor-react';
-            }
-            if (id.includes('lucide-react') || id.includes('react-icons')) {
-              return 'vendor-icons';
-            }
-            if (id.includes('framer-motion')) {
-              return 'vendor-motion';
-            }
-            if (id.includes('react-dnd')) {
-              return 'vendor-dnd';
-            }
-            if (id.includes('react-window')) {
-              return 'vendor-virtualization';
-            }
-          }
+      if (id.includes('node_modules')) {
+        if (
+          id.includes('react') ||
+          id.includes('react-dom') ||
+          id.includes('react-router-dom')
+        ) {
+          return 'vendor-react';
+        }
+        if (id.includes('lucide-react')) {
+          return 'vendor-icons';
+        }
+        if (id.includes('framer-motion')) {
+          return 'vendor-motion';
+        }
+        if (id.includes('react-dnd')) {
+          return 'vendor-dnd';
+        }
+        if (id.includes('react-window')) {
+          return 'vendor-virtualization';
+        }
+      }
         },
 
         chunkFileNames: 'static/js/[name]-[hash].js',
@@ -111,7 +111,6 @@ export default defineConfig({
       'react-dnd-html5-backend',
       'react-dnd-touch-backend',
       'lucide-react',
-      'react-icons',
       'react-window'
     ]
   },

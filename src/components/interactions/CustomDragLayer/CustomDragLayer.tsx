@@ -1,9 +1,9 @@
 import { memo, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useDragLayer, DragLayerMonitor } from 'react-dnd';
-import { ItemTypes } from '@/constants';
+import { ItemTypes } from '@constants';
 
-import type { DragItem } from '@/components/interactions/DroppableSquare/DroppableSquare';
+import type { DragItem } from '../DroppableSquare/DroppableSquare';
 
 interface CollectedDragState {
   item: DragItem | null;

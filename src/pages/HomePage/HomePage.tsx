@@ -90,10 +90,8 @@ const HomePage: React.FC = () => {
         initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="w-full bg-linear-to-b from-gray-100 to-white pt-16  sm:pt-20 lg:pt-24 3xl:pt-32 px-[2%] sm:px-[3%] lg:px-[4%] pb-8 sm:pb-12 overflow-y-auto"
+        className="w-full bg-bg pt-16 sm:pt-20 lg:pt-24 3xl:pt-32 px-[2%] sm:px-[3%] lg:px-[4%] pb-8 sm:pb-12 overflow-y-auto"
       >
-        <h1 className="text-3xl font-bold text-center mb-6">Chess Vision</h1>
-<p className="text-center text-gray-600 mb-8">Create, edit, and export chess positions with ease.</p>
           <div className="w-[95%] max-w-600 mx-auto">
           <div className="flex flex-col xl:flex-row xl:items-start gap-4 lg:gap-5 xl:gap-6 min-w-0">
             {/* Left Column — Board + Actions */}
