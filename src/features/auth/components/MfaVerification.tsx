@@ -46,9 +46,9 @@ export function MfaVerification({ onSuccess, onBack }: MfaVerificationProps) {
       } else {
         onSuccess();
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       logger.error('MFA TOTP error:', err);
-      setError(err.message || 'Verification failed.');
+      setError(err instanceof Error ? err.message : 'Verification failed.');
     } finally {
       setIsSubmitting(false);
     }
@@ -69,7 +69,7 @@ export function MfaVerification({ onSuccess, onBack }: MfaVerificationProps) {
       } else {
         onSuccess();
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       logger.error('MFA Backup error:', err);
       setError('Failed to verify backup code.');
     } finally {
