@@ -19,7 +19,7 @@ const BoardPreview = memo(function BoardPreview({ light, dark }: BoardPreviewPro
       <div className="inline-flex flex-col p-2 sm:p-3">
         <div className="flex">
           <div
-            className="flex flex-col flex-shrink-0"
+            className="flex flex-col shrink-0"
             style={{
               width: RANK_GUTTER
             }}
