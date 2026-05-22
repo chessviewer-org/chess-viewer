@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 
 import ClipboardHistory from '../../ClipboardHistory';
-import { useFENBatch } from '@contexts';
+import { useFENBatch } from '@/contexts';
 import { useDebouncedFENValidation } from '@hooks/useDebouncedFENValidation';
 import { validateFEN } from '@utils';
 import { logger } from '@utils/logger';
