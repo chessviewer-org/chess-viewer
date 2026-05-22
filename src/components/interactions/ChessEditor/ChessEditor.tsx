@@ -226,7 +226,7 @@ export const ChessEditor = memo(function ChessEditor({
 
             {isLoading && (
               <div
-                className="absolute flex flex-col items-center justify-center bg-surface z-[30]"
+                className="absolute flex flex-col items-center justify-center bg-surface z-30"
                 style={{
                   top: 0,
                   left: showCoords ? gutterSize : 0,
@@ -250,7 +250,7 @@ export const ChessEditor = memo(function ChessEditor({
 
         {/* Tools and Actions Container */}
         <div className="flex flex-col gap-4 sm:gap-6 flex-1 w-full lg:w-auto min-w-0 lg:self-stretch">
-          <div className="flex-1 w-full overflow-hidden rounded-xl border border-border/40 bg-surface-elevated min-h-[200px] sm:min-h-[240px] relative">
+          <div className="flex-1 w-full overflow-hidden rounded-xl border border-border/40 bg-surface-elevated min-h-50 sm:min-h-60 relative">
             <AnimatePresence mode="wait" initial={false}>
               {isVisualSettingsOpen ? (
                 <motion.div
