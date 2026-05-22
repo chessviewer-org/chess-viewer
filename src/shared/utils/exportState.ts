@@ -109,6 +109,8 @@ export function getExportInfo(config: ExportConfig): ExportInfo {
   );
 
   return {
+    canvasWidth: exportSize.canvasWidth,
+    canvasHeight: exportSize.canvasHeight,
     displaySize: `${exportSize.canvasWidth} × ${exportSize.canvasHeight}`,
     exportWidth: exportSize.canvasWidth,
     exportHeight: exportSize.canvasHeight,
