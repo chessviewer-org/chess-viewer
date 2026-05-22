@@ -46,6 +46,7 @@ export interface SecurityLockModalProps {
 
 export interface SignInProps {
   onSuccess?: () => void;
+  onMfaRequired?: () => void;
 }
 
 export interface SignUpProps {
