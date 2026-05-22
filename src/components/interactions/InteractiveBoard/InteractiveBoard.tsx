@@ -4,18 +4,19 @@ import { useDrop } from 'react-dnd';
 
 import DroppableSquare from '../DroppableSquare/DroppableSquare';
 import { ItemTypes } from '@constants';
+import type { PieceSymbol } from '@app-types/chess';
 
 export interface InteractiveBoardProps {
-  board: string[][];
+  board: (PieceSymbol | '')[][];
   lightSquare: string;
   darkSquare: string;
   pieceImages: Record<string, HTMLImageElement | null>;
   isLoading: boolean;
   flipped: boolean;
   onPieceDrop?: (
-    piece: string,
-    fromRow: number,
-    fromCol: number,
+    piece: PieceSymbol,
+    fromRow: number | undefined,
+    fromCol: number | undefined,
     toRow: number,
     toCol: number,
     isFromPalette: boolean
@@ -38,9 +39,9 @@ export const InteractiveBoard = memo(function InteractiveBoard({
   const boardRef = useRef<HTMLDivElement | null>(null);
   const handleDrop = useCallback(
     (
-      piece: string,
-      fromRow: number,
-      fromCol: number,
+      piece: PieceSymbol,
+      fromRow: number | undefined,
+      fromCol: number | undefined,
       toRow: number,
       toCol: number,
       isFromPalette: boolean
@@ -75,7 +76,7 @@ export const InteractiveBoard = memo(function InteractiveBoard({
         const pieceImage = piece
           ? pieceImages[
               (piece === piece.toUpperCase() ? 'w' : 'b') + piece.toUpperCase()
-            ]
+            ] || null
           : null;
         result.push(
           <DroppableSquare
@@ -110,11 +111,13 @@ export const InteractiveBoard = memo(function InteractiveBoard({
     >
       <div
         ref={setRefs}
-        className="grid grid-cols-8 grid-rows-8 gap-0 overflow-hidden w-full h-full"
+        className="grid grid-cols-8 grid-rows-8 overflow-hidden w-full h-full"
         style={{
+          gap: 0,
           zIndex: 1,
           contain: 'layout style paint',
-          borderRadius: '0',
+          fontSize: 0,
+          lineHeight: 0,
           boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
         }}
       >
