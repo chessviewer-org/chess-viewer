@@ -79,7 +79,7 @@ export const PiecePalette = memo(function PiecePalette({
     <div className={`flex flex-col gap-3 sm:gap-3.5 ${className}`}>
       <div className="text-sm font-semibold text-text-primary flex items-center gap-2 px-1">
         <svg
-          className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent flex-shrink-0"
+          className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent shrink-0"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
