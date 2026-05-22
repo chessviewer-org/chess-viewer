@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import Modal, { ModalType } from '@shared/ui/Modal/Modal';
 
 interface ModalState {
@@ -65,8 +65,13 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const value = useMemo(
+    () => ({ showAlert, showConfirm }),
+    [showAlert, showConfirm]
+  );
+
   return (
-    <ModalContext.Provider value={{ showAlert, showConfirm }}>
+    <ModalContext.Provider value={value}>
       {children}
       <Modal
         isOpen={modalState.isOpen}
