@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useFENHistory, useLocalStorage, useNotifications } from '@hooks';
 import {
@@ -161,7 +161,22 @@ export const useHome = () => {
 
   const addToFavoritesRef = useRef<(() => void) | null>(null);
   const pieceImagesRef = useRef<Record<string, HTMLImageElement>>({});
-  
+  const completeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (completeTimerRef.current) clearTimeout(completeTimerRef.current);
+    };
+  }, []);
+
+  const scheduleComplete = useCallback(() => {
+    if (completeTimerRef.current) clearTimeout(completeTimerRef.current);
+    completeTimerRef.current = setTimeout(() => {
+      dispatchExport({ type: 'COMPLETE' });
+      completeTimerRef.current = null;
+    }, 300);
+  }, []);
+
   const handlePieceImagesChange = useCallback((images: Record<string, HTMLImageElement>) => {
     pieceImagesRef.current = images;
   }, []);
@@ -219,11 +234,9 @@ export const useHome = () => {
         error('PNG export failed: ' + (err instanceof Error ? err.message : String(err)));
       }
     } finally {
-      setTimeout(() => {
-        dispatchExport({ type: 'COMPLETE' });
-      }, 300);
+      scheduleComplete();
     }
-  }, [getExportConfig, fileName, fen, saveExportFen, success, error, info]);
+  }, [getExportConfig, fileName, fen, saveExportFen, success, error, info, scheduleComplete]);
 
   const handleDownloadJPEG = useCallback(async () => {
     if (!validateFEN(fen)) {
@@ -245,11 +258,9 @@ export const useHome = () => {
         error('JPEG export failed: ' + (err instanceof Error ? err.message : String(err)));
       }
     } finally {
-      setTimeout(() => {
-        dispatchExport({ type: 'COMPLETE' });
-      }, 300);
+      scheduleComplete();
     }
-  }, [getExportConfig, fileName, fen, saveExportFen, success, error, info]);
+  }, [getExportConfig, fileName, fen, saveExportFen, success, error, info, scheduleComplete]);
 
   const handleCopyImage = useCallback(async () => {
     if (!validateFEN(fen)) {
@@ -314,9 +325,7 @@ export const useHome = () => {
           error('Batch export failed: ' + (err instanceof Error ? err.message : String(err)));
         }
       } finally {
-        setTimeout(() => {
-          dispatchExport({ type: 'COMPLETE' });
-        }, 300);
+        scheduleComplete();
       }
     },
     [
@@ -326,7 +335,8 @@ export const useHome = () => {
       saveExportFen,
       success,
       error,
-      info
+      info,
+      scheduleComplete
     ]
   );
 
@@ -374,52 +384,65 @@ export const useHome = () => {
     dispatchExport({ type: 'TOGGLE_PROGRESS' });
   }, []);
 
-  return {
-    fen,
-    setFen,
-    pieceStyle,
-    setPieceStyle,
-    showCoords,
-    setShowCoords,
-    showCoordinateBorder,
-    setShowCoordinateBorder,
-    showThinFrame,
-    setShowThinFrame,
-    lightSquare,
-    setLightSquare,
-    darkSquare,
-    setDarkSquare,
-    boardSize,
-    setBoardSize,
-    exportQuality,
-    setExportQuality,
-    fileName,
-    setFileName,
-    flipped,
-    isFavorite,
-    setIsFavorite,
-    addToFavoritesRef,
-    exportState,
-    notifications,
-    removeNotification,
-    
-    saveManualFen,
-    saveExportFen,
-    addCurrentToFavorites,
-    
-    handlePieceImagesChange,
-    handleDownloadPNG,
-    handleDownloadJPEG,
-    handleCopyImage,
-    handleFlip,
-    handleBatchExport,
-    handleCancelExport,
-    handlePause,
-    handleResume,
-    handleAddToFavorites,
-    handleEditorFenChange,
-    handleNotification,
-    toggleProgress,
-    getExportConfig
-  };
+  return useMemo(
+    () => ({
+      fen,
+      setFen,
+      pieceStyle,
+      setPieceStyle,
+      showCoords,
+      setShowCoords,
+      showCoordinateBorder,
+      setShowCoordinateBorder,
+      showThinFrame,
+      setShowThinFrame,
+      lightSquare,
+      setLightSquare,
+      darkSquare,
+      setDarkSquare,
+      boardSize,
+      setBoardSize,
+      exportQuality,
+      setExportQuality,
+      fileName,
+      setFileName,
+      flipped,
+      isFavorite,
+      setIsFavorite,
+      addToFavoritesRef,
+      exportState,
+      notifications,
+      removeNotification,
+
+      saveManualFen,
+      saveExportFen,
+      addCurrentToFavorites,
+
+      handlePieceImagesChange,
+      handleDownloadPNG,
+      handleDownloadJPEG,
+      handleCopyImage,
+      handleFlip,
+      handleBatchExport,
+      handleCancelExport,
+      handlePause,
+      handleResume,
+      handleAddToFavorites,
+      handleEditorFenChange,
+      handleNotification,
+      toggleProgress,
+      getExportConfig
+    }),
+    [
+      fen, setFen, pieceStyle, setPieceStyle, showCoords, setShowCoords,
+      showCoordinateBorder, setShowCoordinateBorder, showThinFrame, setShowThinFrame,
+      lightSquare, setLightSquare, darkSquare, setDarkSquare, boardSize, setBoardSize,
+      exportQuality, setExportQuality, fileName, setFileName, flipped, isFavorite,
+      exportState, notifications, removeNotification, saveManualFen, saveExportFen,
+      addCurrentToFavorites, handlePieceImagesChange, handleDownloadPNG, handleDownloadJPEG,
+      handleCopyImage, handleFlip, handleBatchExport, handleCancelExport, handlePause,
+      handleResume, handleAddToFavorites, handleEditorFenChange, handleNotification,
+      toggleProgress, getExportConfig
+    ]
+  );
 };
