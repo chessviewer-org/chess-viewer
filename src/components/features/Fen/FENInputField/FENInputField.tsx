@@ -394,7 +394,7 @@ const FENInputField = memo(
                 className={`
                   w-full px-2 sm:px-3 py-1.5 sm:py-2 pb-8 sm:pb-9
                   bg-surface/50 text-text-primary
-                  font-mono text-base sm:text-[12px] leading-tight resize-none min-h-9 sm:min-h-[5.5rem]
+                  font-mono text-base sm:text-[12px] leading-tight resize-none min-h-9 sm:min-h-22
                   focus-visible:outline-none focus:outline-none outline-none
                   transition duration-200 ease-out border-0
                   ${visibleError ? 'text-error' : ''}
