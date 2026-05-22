@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { ADVANCED_FEN_CONFIG } from '@constants';
-import { useFENBatch } from '@/contexts';
+import { useFENBatch } from '@/contexts/useFENBatch';
 import { useChessBoard, usePieceImages, useTheme } from '@hooks';
 import {
   cancelExport,
