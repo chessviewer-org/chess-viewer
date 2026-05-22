@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 
 import { supabase } from '../services/supabaseClient';
@@ -31,31 +31,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Resolve the current session on mount.
-    supabase.auth
-      .getSession()
-      .then(({ data: { session: currentSession } }) => {
-        setSession(currentSession);
-      })
-      .catch((error) => {
-        logger.warn('Failed to get initial session:', error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    let cancelled = false;
+    let subscription: { unsubscribe: () => void } | null = null;
 
-    // Subscribe to auth state changes.
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession);
-      if (newSession?.user) {
-        dataMigration.migrateToCloud(newSession.user.id);
+    async function init() {
+      // 1. Resolve initial session first — subscriber attaches only after this settles.
+      try {
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        if (!cancelled) setSession(currentSession);
+      } catch (error) {
+        logger.warn('Failed to get initial session:', error);
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
-    });
+
+      if (cancelled) return;
+
+      // 2. Subscribe only after initial state is committed.
+      const { data } = supabase.auth.onAuthStateChange((_event, newSession) => {
+        if (cancelled) return;
+        setSession(newSession);
+        if (newSession?.user) {
+          dataMigration.migrateToCloud(newSession.user.id);
+        }
+      });
+      subscription = data.subscription;
+    }
+
+    init();
 
     return () => {
-      subscription.unsubscribe();
+      cancelled = true;
+      subscription?.unsubscribe();
     };
   }, []);
 
@@ -65,14 +72,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [session]);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     try {
       await supabase.auth.signOut();
       setSession(null);
     } catch (error) {
       logger.warn('Sign out failed:', error);
     }
-  };
+  }, []);
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -82,9 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isAuthenticated: !!session?.user,
       signOut,
     }),
-    // signOut is stable (no captured state that changes its identity)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [session, isLoading],
+    [session, isLoading, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
