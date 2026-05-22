@@ -3,18 +3,21 @@ import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
-export default [
+export default tseslint.config(
   {
     ignores: ['build/', 'dist/', 'node_modules/']
   },
 
   js.configs.recommended,
+  ...tseslint.configs.recommended,
 
   {
-    files: ['**/*.{js,jsx}'],
+    files: ['**/*.{js,jsx,ts,tsx}'],
 
     languageOptions: {
+      parser: tseslint.parser,
       ecmaVersion: 'latest',
       sourceType: 'module',
       parserOptions: {
@@ -43,7 +46,10 @@ export default [
     rules: {
       'react/prop-types': 'off',
       'react/display-name': 'warn',
-      'react-refresh/only-export-components': 'warn',
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true }
+      ],
       'react/jsx-key': 'error',
       'react/jsx-no-target-blank': ['error', { allowReferrer: false }],
       'react/no-array-index-key': 'warn',
@@ -54,7 +60,8 @@ export default [
       'react-hooks/exhaustive-deps':
         process.env.NODE_ENV === 'production' ? 'error' : 'warn',
 
-      'no-unused-vars': [
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': [
         'warn',
         {
           argsIgnorePattern: '^_',
@@ -62,6 +69,10 @@ export default [
           ignoreRestSiblings: true
         }
       ],
+
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-expressions': 'warn',
+      'no-useless-escape': 'error',
 
       'no-console':
         process.env.NODE_ENV === 'production'
@@ -75,4 +86,4 @@ export default [
       eqeqeq: ['error', 'always', { null: 'ignore' }]
     }
   }
-];
+);
