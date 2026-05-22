@@ -284,8 +284,8 @@ const ExportStudio = ({ homeState, onClose }: ExportStudioProps) => {
     currentPage === totalPages - 1;
 
   return (
-    <div className="fixed inset-x-0 top-16 sm:top-20 lg:top-24 z-[60] h-[calc(100vh-4rem)] sm:h-[calc(100vh-5rem)] lg:h-[calc(100vh-6rem)] bg-bg border-t border-border/40">
-      <div className="h-full flex flex-col">
+    <div className="fixed inset-x-0 top-16 sm:top-20 lg:top-24 z-[60] h-[calc(100dvh-4rem)] sm:h-[calc(100dvh-5rem)] lg:h-[calc(100dvh-6rem)] bg-bg border-t border-border/40 overflow-hidden">
+      <div className="h-full flex flex-col overflow-hidden">
         <header className="h-14 shrink-0 border-b border-border/40 bg-surface px-4 sm:px-6 flex items-center justify-between">
           <button
             type="button"
@@ -319,8 +319,8 @@ const ExportStudio = ({ homeState, onClose }: ExportStudioProps) => {
           </div>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 h-full min-h-0">
-          <div className="min-h-0 border-r border-border/40 bg-surface overflow-y-auto">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_minmax(0,1fr)] h-full min-h-0 overflow-hidden">
+          <div className="min-h-0 border-r border-border/40 bg-surface overflow-y-auto overflow-x-hidden">
             <AnimatePresence mode="wait">
               {wizard.currentStep === 1 && (
                 <motion.section
@@ -386,13 +386,13 @@ const ExportStudio = ({ homeState, onClose }: ExportStudioProps) => {
             </AnimatePresence>
           </div>
 
-          <div className="min-h-0 md:sticky md:top-0 h-full w-full bg-surface-muted/40 p-4 sm:p-6 lg:p-8">
-            <div className="h-full w-full flex items-center justify-center">
+          <div className="hidden md:flex min-h-0 self-start md:sticky md:top-0 h-[calc(100dvh-5rem-1px)] lg:h-[calc(100dvh-6rem-1px)] w-full bg-surface-muted/40 p-4 sm:p-6 lg:p-8 items-center justify-center overflow-hidden">
+            <div className="w-full h-full flex items-center justify-center">
               <div
                 className="relative transition-all duration-300 ease-out"
                 style={{
-                  width: `${previewFrameSize}px`,
-                  height: `${previewFrameSize}px`,
+                  width: `min(${previewFrameSize}px, 100%)`,
+                  height: `min(${previewFrameSize}px, 100%)`,
                   maxWidth: '100%',
                   maxHeight: '100%'
                 }}
@@ -653,6 +653,7 @@ function ThemeStudioStep({
         {totalPages > 1 &&
           Array.from({ length: totalPages }).map((_, pageIndex) => (
             <button
+              // eslint-disable-next-line react/no-array-index-key
               key={pageIndex}
               type="button"
               onClick={() => setCurrentPage(pageIndex)}
