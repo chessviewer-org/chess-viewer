@@ -14,6 +14,98 @@ export interface SvgRasterWorkerTask {
   cancel: () => void;
 }
 
+// ─── Singleton worker + task queue ───────────────────────────────────────────
+
+interface PendingTask {
+  resolve: (blob: Blob) => void;
+  reject: (err: Error) => void;
+  onProgress: ((progress: number, label?: string) => void) | undefined;
+  cancelled: boolean;
+}
+
+let sharedWorker: Worker | null = null;
+// Queue of tasks waiting to run (only one runs at a time on the singleton).
+const taskQueue: Array<{ id: number; options: SvgRasterWorkerOptions }> = [];
+const pendingTasks = new Map<number, PendingTask>();
+let nextTaskId = 1;
+let workerBusy = false;
+
+function getSharedWorker(): Worker {
+  if (!sharedWorker) {
+    sharedWorker = new Worker(
+      new URL('../workers/svgRasterWorker.ts', import.meta.url),
+      { type: 'module' }
+    );
+
+    sharedWorker.onmessage = (e: MessageEvent) => {
+      const { type, payload, taskId } = e.data as {
+        type: string;
+        payload: { blob?: Blob; progress?: number; label?: string; message?: string };
+        taskId: number;
+      };
+      const task = pendingTasks.get(taskId);
+      if (!task) return;
+
+      if (type === 'progress') {
+        if (!task.cancelled) task.onProgress?.(payload.progress ?? 0, payload.label);
+      } else if (type === 'done') {
+        pendingTasks.delete(taskId);
+        workerBusy = false;
+        if (!task.cancelled) {
+          task.resolve(payload.blob!);
+        } else {
+          task.reject(new Error('Export cancelled'));
+        }
+        drainQueue();
+      } else if (type === 'error') {
+        pendingTasks.delete(taskId);
+        workerBusy = false;
+        task.reject(new Error(payload.message ?? 'Worker render failed'));
+        drainQueue();
+      }
+    };
+
+    sharedWorker.onerror = (err) => {
+      logger.error('SVG Raster Worker critical error:', err);
+      // Reject all pending tasks and reset.
+      pendingTasks.forEach((t) => t.reject(new Error('Worker crashed')));
+      pendingTasks.clear();
+      taskQueue.length = 0;
+      workerBusy = false;
+      sharedWorker = null;
+    };
+  }
+  return sharedWorker;
+}
+
+function drainQueue() {
+  if (workerBusy || taskQueue.length === 0) return;
+  const next = taskQueue.shift();
+  if (!next) return;
+  const task = pendingTasks.get(next.id);
+  if (!task || task.cancelled) {
+    // Skip cancelled tasks and try the next one.
+    task?.reject(new Error('Export cancelled'));
+    pendingTasks.delete(next.id);
+    drainQueue();
+    return;
+  }
+  workerBusy = true;
+  getSharedWorker().postMessage({
+    type: 'start',
+    taskId: next.id,
+    payload: {
+      svgString: next.options.svgString,
+      width: next.options.width,
+      height: next.options.height,
+      format: next.options.format,
+      quality: next.options.quality
+    }
+  });
+}
+
+// ─── Public API ───────────────────────────────────────────────────────────────
+
 /**
  * Checks if the current environment supports OffscreenCanvas and Web Workers.
  *
@@ -28,7 +120,7 @@ export function isSvgRasterWorkerSupported(): boolean {
 }
 
 /**
- * Starts a rasterization task in a Web Worker.
+ * Queues a rasterization task on the singleton Web Worker.
  *
  * @param {SvgRasterWorkerOptions} options - Task options
  * @returns {SvgRasterWorkerTask | null} The task object or null if not supported
@@ -38,47 +130,22 @@ export function startSvgRasterWorkerTask(
 ): SvgRasterWorkerTask | null {
   if (!isSvgRasterWorkerSupported()) return null;
 
-  const worker = new Worker(
-    new URL('../workers/svgRasterWorker.ts', import.meta.url),
-    { type: 'module' }
-  );
+  const id = nextTaskId++;
 
   const promise = new Promise<Blob>((resolve, reject) => {
-    worker.onmessage = (e: MessageEvent) => {
-      const { type, payload } = e.data;
-      if (type === 'progress' && options.onProgress) {
-        options.onProgress(payload.progress, payload.label);
-      } else if (type === 'done') {
-        resolve(payload.blob);
-        worker.terminate();
-      } else if (type === 'error') {
-        reject(new Error(payload.message || 'Worker render failed'));
-        worker.terminate();
-      }
-    };
-
-    worker.onerror = (err) => {
-      logger.error('SVG Raster Worker critical error:', err);
-      reject(err);
-      worker.terminate();
-    };
-
-    worker.postMessage({
-      type: 'start',
-      payload: {
-        svgString: options.svgString,
-        width: options.width,
-        height: options.height,
-        format: options.format,
-        quality: options.quality
-      }
-    });
+    pendingTasks.set(id, { resolve, reject, onProgress: options.onProgress, cancelled: false });
   });
+
+  taskQueue.push({ id, options });
+  // Ensure the worker is instantiated before draining.
+  getSharedWorker();
+  drainQueue();
 
   return {
     promise,
     cancel: () => {
-      worker.terminate();
+      const task = pendingTasks.get(id);
+      if (task) task.cancelled = true;
     }
   };
 }
