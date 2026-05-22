@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { PIECE_MAP } from '@constants';
 import { logger } from '@utils/logger';
@@ -76,12 +76,15 @@ export function usePieceImages(pieceStyle: string): {
     };
   }, [pieceStyle]);
 
-  return {
-    pieceImages,
-    isLoading,
-    error,
-    loadProgress
-  };
+  return useMemo(
+    () => ({
+      pieceImages,
+      isLoading,
+      error,
+      loadProgress
+    }),
+    [pieceImages, isLoading, error, loadProgress]
+  );
 }
 
 function createPlaceholderImage(pieceName: string): HTMLImageElement {
