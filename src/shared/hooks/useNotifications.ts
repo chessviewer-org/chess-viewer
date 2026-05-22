@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export interface Notification {
   id: number;
@@ -121,12 +121,15 @@ export function useNotifications() {
     [addNotification]
   );
 
-  return {
-    notifications,
-    success,
-    error,
-    info,
-    warning,
-    removeNotification
-  };
+  return useMemo(
+    () => ({
+      notifications,
+      success,
+      error,
+      info,
+      warning,
+      removeNotification
+    }),
+    [notifications, success, error, info, warning, removeNotification]
+  );
 }
