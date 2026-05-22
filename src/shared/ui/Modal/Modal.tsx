@@ -7,7 +7,8 @@ export type ModalType = 'warning' | 'info' | 'danger';
 export interface ModalProps {
   isOpen: boolean;
   title: string;
-  message: string;
+  message?: string;
+  children?: React.ReactNode;
   type?: ModalType;
   onConfirm: () => void;
   onCancel: () => void;
@@ -21,6 +22,7 @@ const Modal = memo(({
   isOpen,
   title,
   message,
+  children,
   type = 'info',
   onConfirm,
   onCancel
@@ -74,9 +76,9 @@ const Modal = memo(({
                   <h3 className="text-lg font-bold text-text-primary mb-1">
                     {title}
                   </h3>
-                  <p className="text-sm text-text-secondary leading-relaxed">
-                    {message}
-                  </p>
+                  <div className="text-sm text-text-secondary leading-relaxed">
+                    {children || message}
+                  </div>
                 </div>
                 <button
                   onClick={onCancel}
