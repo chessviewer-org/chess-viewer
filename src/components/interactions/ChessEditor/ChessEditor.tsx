@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 
+import { AnimatePresence, motion } from 'framer-motion';
 import { Copy, RotateCcw, Settings, X } from 'lucide-react';
 
 import ThemeMainView from '@/components/features/ColorPicker/views/ThemeMainView';
@@ -14,26 +15,24 @@ import { useInteractiveBoard, usePieceImages, useTheme } from '@hooks';
  * This ensures the board remains responsive even in split-pane or embedded layouts.
  */
 function calculateBoardSize(containerWidth: number, showCoords: boolean) {
-  if (containerWidth <= 0) return 400;
+  if (containerWidth <= 0) return 320;
 
-  const padding = 32; // Total horizontal padding for the container
-  const availableWidth = Math.max(0, containerWidth - padding);
-  
-  // Account for coordinates if they are shown (gutter adds ~6.25% to width)
+  // ResizeObserver contentRect already excludes padding — no extra subtraction.
+  // Account for the coordinate gutter so board+gutter never exceeds container.
   const widthFactor = showCoords ? 1.0625 : 1;
-  
-  // Mobile/Small: Fill container width
+
+  let raw: number;
   if (containerWidth < 640) {
-    return Math.min(availableWidth / widthFactor, 400);
+    raw = Math.min(containerWidth / widthFactor, 400);
+  } else if (containerWidth < 1024) {
+    raw = Math.min((containerWidth * 0.9) / widthFactor, 480);
+  } else {
+    raw = Math.min((containerWidth * 0.8) / widthFactor, 520);
   }
-  
-  // Tablet/Medium: Take a significant portion but capped
-  if (containerWidth < 1024) {
-    return Math.min(availableWidth * 0.9 / widthFactor, 450);
-  }
-  
-  // Desktop/Large: Maintain a balanced size relative to container
-  return Math.min(availableWidth * 0.8 / widthFactor, 500);
+
+  // Snap to the nearest multiple of 8 so every grid cell is exactly an integer
+  // number of pixels — eliminates sub-pixel gap lines between squares.
+  return Math.floor(raw / 8) * 8;
 }
 
 const getGutterSize = (boardSize: number) => Math.round(boardSize / 16);
@@ -166,17 +165,18 @@ export const ChessEditor = memo(function ChessEditor({
   return (
     <div
       ref={containerRef}
-      className={`flex flex-col gap-6 w-full max-w-[100vw] overflow-x-hidden ${className}`}
+      className={`flex flex-col gap-4 sm:gap-6 w-full min-w-0 overflow-x-hidden ${className}`}
     >
       <CustomDragLayer pieceImages={pieceImages} boardSize={boardSize} />
 
-      <div className="flex flex-col lg:flex-row gap-6 items-center lg:items-start w-full min-h-0 flex-1">
+      <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 items-center lg:items-stretch w-full min-h-0">
         {/* Board Container */}
-        <div className="shrink-0 flex justify-center w-full lg:w-auto max-w-full">
+        <div className="shrink-0 flex justify-center w-full lg:w-auto max-w-full min-w-0">
           <div
-            className="relative flex flex-col items-center justify-center max-w-full"
+            className="relative flex flex-col items-center justify-center min-w-0"
             style={{
-              width: showCoords ? boardSize + gutterSize : boardSize
+              width: showCoords ? boardSize + gutterSize : boardSize,
+              maxWidth: '100%'
             }}
           >
             <div className="flex justify-between items-center mb-2 w-full">
@@ -226,7 +226,7 @@ export const ChessEditor = memo(function ChessEditor({
 
             {isLoading && (
               <div
-                className="absolute flex flex-col items-center justify-center bg-surface z-50"
+                className="absolute flex flex-col items-center justify-center bg-surface z-[30]"
                 style={{
                   top: 0,
                   left: showCoords ? gutterSize : 0,
@@ -249,25 +249,45 @@ export const ChessEditor = memo(function ChessEditor({
         </div>
 
         {/* Tools and Actions Container */}
-        <div className="flex flex-col gap-6 flex-1 w-full lg:w-auto min-w-0">
-          <div className="flex-1 w-full max-w-full overflow-hidden rounded-xl border border-border/40 bg-surface-elevated">
-            {isVisualSettingsOpen ? (
-              <ThemeMainView
-                currentLight={lightSquare}
-                currentDark={darkSquare}
-                onThemeApply={(l: string, d: string) => applyCustomTheme(l, d)}
-              />
-            ) : (
-              <PiecePalette
-                pieceImages={pieceImages}
-                isLoading={isLoading}
-                className="w-full h-full p-2 sm:p-4"
-              />
-            )}
+        <div className="flex flex-col gap-4 sm:gap-6 flex-1 w-full lg:w-auto min-w-0 lg:self-stretch">
+          <div className="flex-1 w-full overflow-hidden rounded-xl border border-border/40 bg-surface-elevated min-h-[200px] sm:min-h-[240px] relative">
+            <AnimatePresence mode="wait" initial={false}>
+              {isVisualSettingsOpen ? (
+                <motion.div
+                  key="theme-view"
+                  className="w-full h-full"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
+                >
+                  <ThemeMainView
+                    currentLight={lightSquare}
+                    currentDark={darkSquare}
+                    onThemeApply={(l: string, d: string) => applyCustomTheme(l, d)}
+                  />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="palette-view"
+                  className="w-full h-full"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
+                >
+                  <PiecePalette
+                    pieceImages={pieceImages}
+                    isLoading={isLoading}
+                    className="w-full h-full p-2 sm:p-4"
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 w-full">
-            <div className="flex flex-col sm:flex-row gap-3 flex-1 w-full">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 w-full">
+            <div className="flex flex-row gap-2 sm:gap-3 flex-1 w-full min-w-0">
               <button
                 type="button"
                 onClick={(e) => {
@@ -313,7 +333,7 @@ export const ChessEditor = memo(function ChessEditor({
               </button>
             </div>
 
-            <div className="shrink-0 w-full sm:w-auto h-16 sm:h-auto min-h-11">
+            <div className="shrink-0 w-full sm:w-auto h-12 sm:h-auto min-h-11">
               <TrashZone
                 onDrop={handleTrashDrop}
                 className="h-full w-full rounded-lg"
