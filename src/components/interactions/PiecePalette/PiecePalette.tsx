@@ -2,6 +2,7 @@ import { memo, useCallback } from 'react';
 
 import DraggablePiece from '../DraggablePiece/DraggablePiece';
 import { getPieceImageKey, PALETTE_PIECES } from '@constants';
+import type { PieceSymbol } from '@app-types/chess';
 
 export interface PiecePaletteProps {
   pieceImages: Record<string, HTMLImageElement | null>;
@@ -11,7 +12,7 @@ export interface PiecePaletteProps {
 
 interface PalettePiece {
   id: string;
-  piece: string;
+  piece: PieceSymbol;
   color: 'w' | 'b';
   name: string;
 }
@@ -24,17 +25,14 @@ interface PalettePiece {
  * @param {string} [props.className=''] - Additional CSS classes
  * @returns {JSX.Element}
  */
+const WHITE_PIECES = PALETTE_PIECES.filter((p: PalettePiece) => p.color === 'w');
+const BLACK_PIECES = PALETTE_PIECES.filter((p: PalettePiece) => p.color === 'b');
+
 export const PiecePalette = memo(function PiecePalette({
   pieceImages,
   isLoading,
   className = ''
 }: PiecePaletteProps) {
-  const whitePieces = PALETTE_PIECES.filter(
-    (p: PalettePiece) => p.color === 'w'
-  );
-  const blackPieces = PALETTE_PIECES.filter(
-    (p: PalettePiece) => p.color === 'b'
-  );
 
   const renderPieceGroup = useCallback(
     (pieces: PalettePiece[], label: string) => (
@@ -45,7 +43,7 @@ export const PiecePalette = memo(function PiecePalette({
         <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
           {pieces.map((p) => {
             const imageKey = getPieceImageKey(p.piece);
-            const pieceImage = pieceImages[imageKey];
+            const pieceImage = imageKey ? pieceImages[imageKey] || null : null;
 
             return (
               <div
@@ -98,8 +96,8 @@ export const PiecePalette = memo(function PiecePalette({
       </div>
 
       <div className="flex flex-col gap-2.5 sm:gap-3 xl:flex-1 xl:justify-around">
-        {renderPieceGroup(whitePieces, 'White')}
-        {renderPieceGroup(blackPieces, 'Black')}
+        {renderPieceGroup(WHITE_PIECES, 'White')}
+        {renderPieceGroup(BLACK_PIECES, 'Black')}
       </div>
     </div>
   );
