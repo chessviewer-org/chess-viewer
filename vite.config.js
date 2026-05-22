@@ -24,7 +24,7 @@ export default defineConfig({
       '@constants': path.resolve(__dirname, 'src/shared/constants'),
       '@app-types': path.resolve(__dirname, 'src/shared/types')
     },
-    extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json']
+    extensions: ['.ts', '.tsx', '.mts', '.js', '.jsx', '.mjs', '.json']
   },
 
   server: {
@@ -51,27 +51,27 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-      if (id.includes('node_modules')) {
-        if (
-          id.includes('react') ||
-          id.includes('react-dom') ||
-          id.includes('react-router-dom')
-        ) {
-          return 'vendor-react';
-        }
-        if (id.includes('lucide-react')) {
-          return 'vendor-icons';
-        }
-        if (id.includes('framer-motion')) {
-          return 'vendor-motion';
-        }
-        if (id.includes('react-dnd')) {
-          return 'vendor-dnd';
-        }
-        if (id.includes('react-window')) {
-          return 'vendor-virtualization';
-        }
-      }
+          if (id.includes('node_modules')) {
+            if (
+              id.includes('react') ||
+              id.includes('react-dom') ||
+              id.includes('react-router-dom')
+            ) {
+              return 'vendor-react';
+            }
+            if (id.includes('lucide-react')) {
+              return 'vendor-icons';
+            }
+            if (id.includes('framer-motion')) {
+              return 'vendor-motion';
+            }
+            if (id.includes('react-dnd')) {
+              return 'vendor-dnd';
+            }
+            if (id.includes('react-window')) {
+              return 'vendor-virtualization';
+            }
+          }
         },
 
         chunkFileNames: 'static/js/[name]-[hash].js',
