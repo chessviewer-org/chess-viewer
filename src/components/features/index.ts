@@ -6,4 +6,3 @@ export { default as ClipboardHistory } from './ClipboardHistory/ClipboardHistory
 export { ColorPicker, PickerModal } from './ColorPicker';
 export * from './Export';
 export * from './Fen';
-export * from './Theme';
