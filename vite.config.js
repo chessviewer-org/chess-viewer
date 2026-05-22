@@ -51,27 +51,24 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (
-              id.includes('react') ||
-              id.includes('react-dom') ||
-              id.includes('react-router-dom')
-            ) {
-              return 'vendor-react';
-            }
-            if (id.includes('lucide-react')) {
-              return 'vendor-icons';
-            }
-            if (id.includes('framer-motion')) {
-              return 'vendor-motion';
-            }
-            if (id.includes('react-dnd')) {
-              return 'vendor-dnd';
-            }
-            if (id.includes('react-window')) {
-              return 'vendor-virtualization';
-            }
+          if (!id.includes('node_modules')) return undefined;
+          // Order matters — more specific patterns first to avoid the
+          // `react` substring swallowing `react-dnd`, `react-window`, etc.
+          if (id.includes('lucide-react')) return 'vendor-icons';
+          if (id.includes('framer-motion')) return 'vendor-motion';
+          if (id.includes('react-dnd')) return 'vendor-dnd';
+          if (id.includes('react-window')) return 'vendor-virtualization';
+          if (id.includes('@supabase')) return 'vendor-supabase';
+          if (
+            id.includes('/react/') ||
+            id.includes('/react-dom/') ||
+            id.includes('/react-router-dom/') ||
+            id.includes('/react-router/') ||
+            id.includes('/scheduler/')
+          ) {
+            return 'vendor-react';
           }
+          return undefined;
         },
 
         chunkFileNames: 'static/js/[name]-[hash].js',
