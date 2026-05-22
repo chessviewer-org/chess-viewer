@@ -2,7 +2,11 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { logger, parseFEN, validateFEN } from '@utils';
 import { boardToFEN, createEmptyBoard, isBoardEmpty } from '@utils/boardUtils';
-import { ChessBoard, PieceSymbol } from '@app-types/chess';
+import { ChessBoard, isChessBoard, PieceSymbol } from '@app-types/chess';
+
+function cloneBoard(board: ChessBoard): ChessBoard {
+  return board.map((row) => [...row] as PieceSymbol[]) as ChessBoard;
+}
 
 export interface UseInteractiveBoardResult {
   board: ChessBoard;
@@ -43,7 +47,7 @@ export function useInteractiveBoard(
           metadataRef.current = parts.slice(1).join(' ');
         }
         const parsed = parseFEN(initialFen);
-        if (parsed && parsed.length === 8) return parsed as ChessBoard;
+        if (isChessBoard(parsed)) return parsed;
       }
     } catch (err) {
       logger.error('Failed to parse initial FEN:', err);
@@ -79,8 +83,8 @@ export function useInteractiveBoard(
         return;
       }
 
-      const parsedBoard = parseFEN(fen) as ChessBoard;
-      if (parsedBoard && parsedBoard.length === 8) {
+      const parsedBoard = parseFEN(fen);
+      if (isChessBoard(parsedBoard)) {
         setBoard((prevBoard) => {
           // Deep equality check using FEN representation
           if (boardToFEN(prevBoard) === boardToFEN(parsedBoard)) {
@@ -104,7 +108,7 @@ export function useInteractiveBoard(
       isFromPalette: boolean
     ) => {
       setBoard((prevBoard) => {
-        const newBoard = prevBoard.map((row) => [...row]) as ChessBoard;
+        const newBoard = cloneBoard(prevBoard);
         if (!isFromPalette && fromRow !== undefined && fromCol !== undefined) {
           const originRow = newBoard[fromRow];
           if (originRow !== undefined && fromCol !== undefined) {
@@ -127,7 +131,7 @@ export function useInteractiveBoard(
 
   const handlePieceRemove = useCallback((row: number, col: number) => {
     setBoard((prevBoard) => {
-      const newBoard = prevBoard.map((r) => [...r]) as ChessBoard;
+      const newBoard = cloneBoard(prevBoard);
       if (row !== undefined && col !== undefined) {
         const targetRow = newBoard[row];
         if (targetRow !== undefined) {
@@ -153,7 +157,12 @@ export function useInteractiveBoard(
   const resetBoard = useCallback(() => {
     const startingFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
     metadataRef.current = 'w KQkq - 0 1';
-    const startingBoard = parseFEN(startingFen) as ChessBoard;
+    const parsedStarting = parseFEN(startingFen);
+    if (!isChessBoard(parsedStarting)) {
+      logger.error('useInteractiveBoard: resetBoard failed to parse starting FEN');
+      return;
+    }
+    const startingBoard = parsedStarting;
     
     setBoard((prevBoard) => {
       if (boardToFEN(prevBoard) === boardToFEN(startingBoard)) {
@@ -167,7 +176,7 @@ export function useInteractiveBoard(
   const setPiece = useCallback(
     (row: number, col: number, piece: PieceSymbol) => {
       setBoard((prevBoard) => {
-        const newBoard = prevBoard.map((r) => [...r]) as ChessBoard;
+        const newBoard = cloneBoard(prevBoard);
         if (row !== undefined && col !== undefined) {
           const targetRow = newBoard[row];
           if (targetRow !== undefined) {
