@@ -84,9 +84,19 @@ export function getCachedPieces(): Record<string, HTMLImageElement> {
   return result;
 }
 
-/** 
- * Manually adds images to the cache for a style. 
- * 
+/**
+ * Releases all cached piece images and clears the cache.
+ */
+export function clearPieceCache(): void {
+  pieceCache.forEach((img) => {
+    img.src = '';
+  });
+  pieceCache.clear();
+}
+
+/**
+ * Manually adds images to the cache for a style.
+ *
  * @param style - The piece style name
  * @param pieces - Map of piece keys to image elements
  */
