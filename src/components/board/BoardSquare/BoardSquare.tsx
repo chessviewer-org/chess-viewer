@@ -1,6 +1,7 @@
 import { memo } from 'react';
+import { PieceSymbol } from '@/shared/types';
 
-const PIECE_NAMES = {
+const PIECE_NAMES: Record<string, string> = {
   K: 'White King',
   Q: 'White Queen',
   R: 'White Rook',
@@ -15,7 +16,18 @@ const PIECE_NAMES = {
   p: 'Black Pawn'
 };
 
-function arePropsEqual(prevProps, nextProps) {
+export interface BoardSquareProps {
+  piece: PieceSymbol;
+  isLight: boolean;
+  lightSquare: string;
+  darkSquare: string;
+  pieceImages: Record<string, HTMLImageElement>;
+  isLoading: boolean;
+  row: number;
+  col: number;
+}
+
+function arePropsEqual(prevProps: BoardSquareProps, nextProps: BoardSquareProps) {
   return (
     prevProps.piece === nextProps.piece &&
     prevProps.isLight === nextProps.isLight &&
@@ -26,10 +38,10 @@ function arePropsEqual(prevProps, nextProps) {
   );
 }
 /**
- * @param {Object} props
+ * @param {BoardSquareProps} props
  * @returns {JSX.Element}
  */
-const BoardSquare = memo(function BoardSquare(props) {
+const BoardSquare = memo(function BoardSquare(props: BoardSquareProps) {
   const { isLight, lightSquare, darkSquare, piece, pieceImages, isLoading } =
     props;
   const backgroundColor = isLight ? lightSquare : darkSquare;
@@ -48,8 +60,9 @@ const BoardSquare = memo(function BoardSquare(props) {
       {piece && pieceImage && !isLoading && (
         <img
           src={pieceImage.src}
-          alt={PIECE_NAMES[piece] ?? piece}
+          alt={PIECE_NAMES[piece as keyof typeof PIECE_NAMES] ?? (piece as string)}
           className="w-[85%] h-[85%] object-contain pointer-events-none"
+          style={{ imageRendering: 'auto' }}
           draggable="false"
         />
       )}
