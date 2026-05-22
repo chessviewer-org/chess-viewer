@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import type { User } from '@supabase/supabase-js';
 
 import { supabase } from '../services/supabaseClient';
-import { logger } from '@/utils/logger';
+import { logger } from '@utils/logger';
 
 declare global {
   interface Window {
@@ -82,9 +82,9 @@ export function useSupabaseSync() {
       };
     };
 
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setupSync(user);
-    });
+    supabase.auth.getUser()
+      .then(({ data: { user } }) => { setupSync(user); })
+      .catch((err: unknown) => { logger.error('useSupabaseSync: getUser failed', err); });
 
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       setupSync(session?.user ?? null);
