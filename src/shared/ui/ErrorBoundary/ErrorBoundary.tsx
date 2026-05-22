@@ -4,12 +4,16 @@ import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
 
 import { logger } from '@utils';
 
+interface ErrorFallbackProps {
+  error: Error | null;
+  resetErrorBoundary: () => void;
+}
+
 /**
- * @param {Object} props
+ * @param {ErrorFallbackProps} props
  * @returns {JSX.Element}
  */
-function ErrorFallback(props) {
-  const { error, resetErrorBoundary } = props;
+function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
   return (
     <div
       role="alert"
@@ -67,26 +71,48 @@ function ErrorFallback(props) {
     </div>
   );
 }
-class ErrorBoundary extends React.Component {
-  constructor(props) {
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+  FallbackComponent?: React.ComponentType<{
+    error: Error | null;
+    resetErrorBoundary: () => void;
+  }>;
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
+  onReset?: () => void;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundary extends React.Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = {
       hasError: false,
       error: null
     };
   }
-  static getDerivedStateFromError(error) {
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return {
       hasError: true,
       error: error
     };
   }
-  componentDidCatch(error, errorInfo) {
+
+  override componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     logger.error('ErrorBoundary caught an error:', error, errorInfo);
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }
   }
+
   resetErrorBoundary = () => {
     this.setState({
       hasError: false,
@@ -96,7 +122,8 @@ class ErrorBoundary extends React.Component {
       this.props.onReset();
     }
   };
-  render() {
+
+  override render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
         return this.props.fallback;
