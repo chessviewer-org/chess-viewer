@@ -2,19 +2,19 @@ import { memo, useCallback } from 'react';
 
 import { Copy, FlipVertical2 } from 'lucide-react';
 
-import { downloadJPEG, downloadPNG, downloadSVG, logger } from '@/utils';
+import { downloadJPEG, downloadPNG, downloadSVG, logger } from '@utils';
+import { ExportConfig } from '@shared/utils/canvasExporter';
 
-/**
- * @typedef {Object} QuickActionsPanelProps
- * @property {string} currentFen - The currently active FEN string.
- * @property {Object} exportConfig - Configuration object passed to export utilities.
- * @property {string} fileName - Base file name used for exported files.
- * @property {string[]} validFens - Array of valid FEN strings available for batch export.
- * @property {Function} onFlip - Callback invoked when the user clicks "Flip Board".
- * @property {Function} onExportStart - Called when an export starts.
- * @property {Function} onExportProgress - Called with progress updates.
- * @property {Function} onExportFinish - Called when export work ends.
- */
+export interface QuickActionsPanelProps {
+  currentFen: string;
+  exportConfig: ExportConfig;
+  fileName: string;
+  validFens: string[];
+  onFlip: () => void;
+  onExportStart?: (format: string) => void;
+  onExportProgress?: (progress: number, format: string, label?: string | null) => void;
+  onExportFinish?: () => void;
+}
 
 /**
  * Renders quick-action buttons for flipping the board, copying the FEN,
@@ -32,7 +32,7 @@ const QuickActionsPanel = memo(function QuickActionsPanel({
   onExportStart,
   onExportProgress,
   onExportFinish
-}) {
+}: QuickActionsPanelProps) {
   /**
    * Copies the current FEN string to the clipboard.
    *
@@ -120,18 +120,20 @@ const QuickActionsPanel = memo(function QuickActionsPanel({
    * @returns {Promise<void>}
    */
   const handleBatchExport = useCallback(
-    async function handleBatchExport(format, label) {
+    async function handleBatchExport(format: 'png' | 'jpeg' | 'svg', label: string) {
       try {
         onExportStart?.(format);
         for (let i = 0; i < validFens.length; i++) {
           const fen = validFens[i];
+          if (fen === undefined) continue;
+
           const numberedName =
             validFens.length > 1 ? `${fileName}-${i + 1}` : fileName;
-          const config = {
+          const config: ExportConfig = {
             ...exportConfig,
             fen
           };
-          const reportProgress = (progress, _label) => {
+          const reportProgress = (progress: number, _label?: string | null) => {
             const totalProgress =
               ((i + progress / 100) / validFens.length) * 100;
             onExportProgress?.(

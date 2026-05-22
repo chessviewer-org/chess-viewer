@@ -1,12 +1,25 @@
 import { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import type { Transition } from 'framer-motion';
 import { AlertCircle, Check, Clipboard, Heart, Trash2 } from 'lucide-react';
 
-import { validateFEN } from '@/utils';
-import { MAX_FEN_LENGTH } from '@/utils/validation';
+import { validateFEN } from '@utils/fenParser';
+import { MAX_FEN_LENGTH } from '@utils/validation';
+
+export interface PositionsTabProps {
+  fens: string[];
+  fenErrors: Record<number, string>;
+  duplicateWarning: number | null;
+  favorites: Record<string, boolean>;
+  pastedIndex: number | null;
+  onUpdateFen: (index: number, fen: string) => void;
+  onRemoveFen: (index: number) => void;
+  onToggleFavorite: (fen: string) => void;
+  onPasteFEN: (index: number) => void;
+}
 
 /**
- * @param {Object} props
+ * @param {PositionsTabProps} props
  * @returns {JSX.Element}
  */
 const PositionsTab = memo(function PositionsTab({
@@ -19,13 +32,13 @@ const PositionsTab = memo(function PositionsTab({
   onRemoveFen,
   onToggleFavorite,
   onPasteFEN
-}) {
+}: PositionsTabProps) {
   // Group fens into pairs for the rows to satisfy the single-column flex + grid-cols-2 requirement
   const rows = [];
   for (let i = 0; i < fens.length; i += 2) {
     rows.push({
       rowIndex: Math.floor(i / 2),
-      items: fens.slice(i, i + 2).map((fen, relIdx) => ({
+      items: fens.slice(i, i + 2).map((fen: string, relIdx: number) => ({
         fen,
         originalIndex: i + relIdx,
         id: `fen-slot-${i + relIdx}`
@@ -33,7 +46,7 @@ const PositionsTab = memo(function PositionsTab({
     });
   }
 
-  const springTransition = {
+  const springTransition: Transition = {
     type: 'spring',
     stiffness: 300,
     damping: 30,
@@ -58,7 +71,7 @@ const PositionsTab = memo(function PositionsTab({
               className={`grid gap-4 3xl:gap-6 ${isSingle ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'}`}
             >
               <AnimatePresence mode="popLayout">
-                {row.items.map(({ fen, originalIndex: idx, id }) => {
+                {row.items.map(({ fen, originalIndex: idx, id }: { fen: string; originalIndex: number; id: string }) => {
                   const hasError = !!fenErrors[idx];
                   const hasDuplicate = duplicateWarning === idx;
 

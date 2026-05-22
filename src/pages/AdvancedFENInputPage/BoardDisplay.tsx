@@ -1,7 +1,17 @@
 import { memo } from 'react';
 
+export interface BoardDisplayProps {
+  boardState: string[][];
+  isFlipped: boolean;
+  showCoordinates: boolean;
+  pieceImages: Record<string, { src: string }>;
+  isBoardReady: boolean;
+  lightSquare: string;
+  darkSquare: string;
+}
+
 /**
- * @param {Object} props
+ * @param {BoardDisplayProps} props
  * @returns {JSX.Element}
  */
 const BoardDisplay = memo(function BoardDisplay({
@@ -12,10 +22,12 @@ const BoardDisplay = memo(function BoardDisplay({
   isBoardReady,
   lightSquare,
   darkSquare
-}) {
+}: BoardDisplayProps) {
   if (!isBoardReady) {
     return (
-      <div className="flex items-center justify-center bg-surface-elevated rounded-lg w-full max-w-[400px] aspect-square">
+      <div className="flex items-center justify-center bg-surface-elevated rounded-lg w-full max-w-100
+      
+       aspect-square">
         <div className="text-text-muted text-sm">Loading...</div>
       </div>
     );
@@ -27,11 +39,13 @@ const BoardDisplay = memo(function BoardDisplay({
     ? ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a']
     : ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
   return (
-    <div className="flex flex-col w-full max-w-[400px]">
+    <div className="flex flex-col w-full max-w-100
+    
+    ">
       <div className="flex w-full">
         {showCoordinates && (
           <div
-            className="flex flex-col flex-shrink-0"
+            className="flex flex-col shrink-0"
             style={{
               width: '5%'
             }}

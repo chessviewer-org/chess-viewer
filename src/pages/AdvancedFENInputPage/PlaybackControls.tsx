@@ -2,8 +2,22 @@ import { memo } from 'react';
 
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 
+export interface PlaybackControlsProps {
+  isPlaying: boolean;
+  interval: number;
+  showIntervalMenu: boolean;
+  intervalOptions: number[];
+  currentIndex: number;
+  totalCount: number;
+  onTogglePlay: () => void;
+  onSetInterval: (interval: number) => void;
+  onToggleIntervalMenu: () => void;
+  onPrevious: () => void;
+  onNext: () => void;
+}
+
 /**
- * @param {Object} props
+ * @param {PlaybackControlsProps} props
  * @returns {JSX.Element}
  */
 const PlaybackControls = memo(function PlaybackControls({
@@ -18,9 +32,9 @@ const PlaybackControls = memo(function PlaybackControls({
   onToggleIntervalMenu,
   onPrevious,
   onNext
-}) {
+}: PlaybackControlsProps) {
   return (
-    <div className="mt-6 w-full max-w-[520px] flex items-center justify-between bg-surface border border-border rounded-2xl p-2 text-center">
+    <div className="mt-6 w-full max-w-130 flex items-center justify-between bg-surface border border-border rounded-2xl p-2 text-center">
       <div className="flex items-center gap-2">
         <button
           onClick={onTogglePlay}
@@ -36,13 +50,13 @@ const PlaybackControls = memo(function PlaybackControls({
         <div className="relative">
           <button
             onClick={onToggleIntervalMenu}
-            className="px-3 py-1.5 bg-surface-elevated hover:bg-surface-hover text-text-primary rounded-lg text-sm font-semibold transition-colors border border-border min-w-[52px] text-center"
+            className="px-3 py-1.5 bg-surface-elevated hover:bg-surface-hover text-text-primary rounded-lg text-sm font-semibold transition-colors border border-border min-w-13 text-center"
           >
             {interval}s
           </button>
           {showIntervalMenu && (
-            <div className="absolute top-full mt-1 bg-surface border border-border rounded-lg shadow-lg overflow-hidden z-20 min-w-[72px]">
-              {intervalOptions.map((opt) => (
+            <div className="absolute top-full mt-1 bg-surface border border-border rounded-lg shadow-lg overflow-hidden z-20 min-w-18">
+              {intervalOptions.map((opt: number) => (
                 <button
                   key={opt}
                   onClick={() => onSetInterval(opt)}
@@ -65,7 +79,7 @@ const PlaybackControls = memo(function PlaybackControls({
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <span className="px-3 py-1 bg-surface-elevated rounded-lg text-sm font-mono border border-border min-w-[56px] text-center text-text-secondary">
+        <span className="px-3 py-1 bg-surface-elevated rounded-lg text-sm font-mono border border-border min-w-14 text-center text-text-secondary">
           {currentIndex + 1} / {totalCount}
         </span>
         <button
