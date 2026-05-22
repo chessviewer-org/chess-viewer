@@ -1,12 +1,14 @@
 import { memo, useCallback } from 'react';
 
+import { AnimatePresence, motion } from 'framer-motion';
 import { useDrop } from 'react-dnd';
 
 import DraggablePiece from '../DraggablePiece/DraggablePiece';
 import { ItemTypes } from '@constants';
+import type { PieceSymbol } from '@app-types/chess';
 
 export interface DragItem {
-  piece: string;
+  piece: PieceSymbol;
   pieceKey?: string;
   fromRow: number;
   fromCol: number;
@@ -16,15 +18,15 @@ export interface DragItem {
 export interface DroppableSquareProps {
   row: number;
   col: number;
-  piece: string | null;
+  piece: PieceSymbol | '';
   isLight: boolean;
   lightColor: string;
   darkColor: string;
-  pieceImage: string | null;
+  pieceImage: HTMLImageElement | null;
   onDrop?: (
-    piece: string,
-    fromRow: number,
-    fromCol: number,
+    piece: PieceSymbol,
+    fromRow: number | undefined,
+    fromCol: number | undefined,
     toRow: number,
     toCol: number,
     isFromPalette: boolean
@@ -95,21 +97,28 @@ export const DroppableSquare = memo(
         data-row={row}
         data-col={col}
       >
-        {piece && pieceImage && !isLoading && (
-          <div
-            className="w-full h-full flex items-center justify-center animate-piece-enter"
-            style={{ contain: 'layout style' }}
-          >
-            <DraggablePiece
-              piece={piece}
-              pieceImage={pieceImage}
-              row={row}
-              col={col}
-              isFromPalette={false}
-              size="85%"
-            />
-          </div>
-        )}
+        <AnimatePresence mode="wait" initial={false}>
+          {piece && pieceImage && !isLoading && (
+            <motion.div
+              key={piece + row + col}
+              className="w-full h-full flex items-center justify-center"
+              style={{ contain: 'layout style' }}
+              initial={{ opacity: 0, scale: 0.82 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.72 }}
+              transition={{ duration: 0.13, ease: [0.4, 0, 0.2, 1] }}
+            >
+              <DraggablePiece
+                piece={piece}
+                pieceImage={pieceImage}
+                row={row}
+                col={col}
+                isFromPalette={false}
+                size="85%"
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   },
