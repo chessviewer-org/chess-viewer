@@ -92,7 +92,7 @@ const HomePage: React.FC = () => {
         transition={{ duration: 0.2, ease: 'easeOut' }}
         className="w-full min-h-0 bg-bg pt-16 sm:pt-20 lg:pt-24 px-3 sm:px-6 lg:px-8 pb-8 sm:pb-12 overflow-y-auto overflow-x-hidden"
       >
-        <div className="w-full max-w-[1600px] mx-auto">
+        <div className="w-full max-w-400 mx-auto">
           <div className="flex flex-col xl:flex-row xl:items-start gap-4 lg:gap-5 xl:gap-6 min-w-0">
             {/* Left Column — Board + Actions */}
             <div className="w-full xl:flex-1 space-y-3 sm:space-y-4 min-w-0 min-h-0">
@@ -127,7 +127,7 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* Right Column — Settings Sidebar */}
-            <div className="w-full min-w-0 xl:w-[clamp(360px,32vw,560px)] xl:flex-none xl:sticky xl:top-[6rem]">
+            <div className="w-full min-w-0 xl:w-[clamp(360px,32vw,560px)] xl:flex-none xl:sticky xl:top-24">
               <ControlPanel
                 fen={fen}
                 setFen={setFen}
