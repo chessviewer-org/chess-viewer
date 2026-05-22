@@ -1,7 +1,24 @@
 import { logger } from './logger';
 
+// A single piece style has 12 piece images. Cap at 3 styles worth (36 images)
+// so users who swap pieces don't accumulate dead Image elements forever.
+const MAX_CACHED_IMAGES = 36;
 const pieceCache = new Map<string, HTMLImageElement>();
 let currentPieceStyle = 'cburnett';
+
+/**
+ * Evicts the oldest cached entries (FIFO via Map insertion order) when the
+ * cache exceeds MAX_CACHED_IMAGES. Releases the image src to help GC.
+ */
+function enforceCacheCap(): void {
+  while (pieceCache.size > MAX_CACHED_IMAGES) {
+    const oldestKey = pieceCache.keys().next().value;
+    if (oldestKey === undefined) break;
+    const oldImg = pieceCache.get(oldestKey);
+    if (oldImg) oldImg.src = '';
+    pieceCache.delete(oldestKey);
+  }
+}
 
 /** 
  * Preloads all piece images for a given style. 
@@ -42,6 +59,7 @@ export async function preloadPieceStyle(
       img.crossOrigin = 'anonymous';
       img.onload = () => {
         pieceCache.set(key, img);
+        enforceCacheCap();
         finishOne(img);
       };
       img.onerror = () => {
@@ -104,4 +122,5 @@ export function setCachedPieces(style: string, pieces: Record<string, HTMLImageE
   Object.entries(pieces).forEach(([key, img]) => {
     pieceCache.set(`${style}_${key}`, img);
   });
+  enforceCacheCap();
 }
