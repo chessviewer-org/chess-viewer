@@ -2,7 +2,7 @@ import { parseFEN } from './fenParser';
 import { shouldForceCoordinateBorder } from './imageOptimizer';
 import { logger } from './logger';
 import { sanitizeFileName, sanitizeInput } from './validation';
-import { ChessBoard } from '../types/index';
+import { ChessBoard, isChessBoard } from '../types/index';
 
 const SVG_BOARD_PX = 800;
 const SVG_COORD_BORDER_RATIO = 0.05;
@@ -101,7 +101,7 @@ function toBase64Utf8(text: string): string {
   const chunkSize = 0x8000;
   for (let i = 0; i < utf8.length; i += chunkSize) {
     const chunk = utf8.subarray(i, i + chunkSize);
-    binary += String.fromCharCode(...(chunk as unknown as number[]));
+    binary += String.fromCharCode(...Array.from(chunk));
   }
   return btoa(binary);
 }
@@ -124,9 +124,21 @@ async function imageToEmbeddableDataURL(img: HTMLImageElement): Promise<string> 
   if (src.startsWith('data:')) {
     dataUrl = src;
   } else {
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(src);
+    } catch {
+      logger.warn('SVG export: rejecting piece src with unparseable URL:', src);
+      return '';
+    }
+    if (parsedUrl.protocol !== 'https:' && parsedUrl.protocol !== 'http:') {
+      logger.warn('SVG export: rejecting piece src with disallowed protocol:', parsedUrl.protocol);
+      return '';
+    }
+
     const lowerSrc = src.toLowerCase();
     const isSvgSource = lowerSrc.endsWith('.svg') || lowerSrc.includes('image/svg+xml');
-    
+
     if (isSvgSource) {
       try {
         const response = await fetch(src, { cache: 'force-cache' });
@@ -185,10 +197,11 @@ export async function generateBoardSVG(config: SVGExportConfig): Promise<string>
   const boardX = borderPx + (withFrame ? framePx / 2 : 0);
   const boardY = withFrame ? framePx / 2 : 0;
   
-  const board = parseFEN(fen) as unknown as ChessBoard;
-  if (!board || board.length !== 8) {
+  const parsedBoard = parseFEN(fen);
+  if (!isChessBoard(parsedBoard)) {
     throw new Error('Invalid FEN: unable to parse board');
   }
+  const board: ChessBoard = parsedBoard;
 
   const pieceDataURLs: Record<string, string> = {};
   await Promise.all(Object.values(pieceImages).map((img) => waitForPieceImage(img)));
