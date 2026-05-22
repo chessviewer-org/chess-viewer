@@ -195,9 +195,9 @@ const HelpCenterDrawer = memo(function HelpCenterDrawer({
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredContent.map((result, idx) => (
+              {filteredContent.map((result) => (
                 <div
-                  key={idx}
+                  key={result.sectionId + '-' + result.title}
                   className="p-4 bg-surface-elevated border border-border rounded-xl cursor-pointer hover:border-accent/50 transition-colors"
                   onClick={() => {
                     setActiveSection(result.sectionId);
@@ -230,9 +230,9 @@ const HelpCenterDrawer = memo(function HelpCenterDrawer({
         </div>
 
         <div className="space-y-4">
-          {content.sections.map((section, idx) => (
+          {content.sections.map((section) => (
             <div
-              key={idx}
+              key={section.title}
               className="p-5 bg-surface-elevated border border-border/50 rounded-2xl"
             >
               <h4 className="text-lg font-bold text-text-primary mb-2">
@@ -259,7 +259,7 @@ const HelpCenterDrawer = memo(function HelpCenterDrawer({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[80] bg-bg/95 backdrop-blur-sm"
+            className="fixed inset-0 z-80 bg-bg/95 backdrop-blur-sm"
             onClick={onClose}
           />
           <motion.div
@@ -267,7 +267,7 @@ const HelpCenterDrawer = memo(function HelpCenterDrawer({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 h-full w-full max-w-xl bg-surface border-l border-border z-[90] shadow-2xl flex flex-col"
+            className="fixed top-0 right-0 h-full w-full max-w-xl bg-surface border-l border-border z-90 shadow-2xl flex flex-col"
           >
             <div className="p-6 border-b border-border">
               <div className="flex items-center justify-between mb-6">

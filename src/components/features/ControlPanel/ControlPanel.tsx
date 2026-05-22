@@ -175,7 +175,7 @@ const ControlPanel = memo(function ControlPanel({
             onPaste={handlePasteFEN}
             copySuccess={copySuccess}
             onAdvancedClick={() => navigate('/advanced-fen')}
-            onNotification={onNotification}
+            {...(onNotification && { onNotification })}
           />
         </div>
 

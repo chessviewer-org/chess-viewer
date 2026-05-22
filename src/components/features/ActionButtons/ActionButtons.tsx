@@ -1,7 +1,7 @@
 import { memo, useState } from 'react';
 import { useModal } from '@/contexts';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, Copy, Download, Image, RefreshCcw } from 'lucide-react';
+import { Check, Copy, Download, Heart, Image, RefreshCcw } from 'lucide-react';
 
 export interface ActionButtonsProps {
   /** Callback fired to download board state as a PNG */
@@ -14,8 +14,14 @@ export interface ActionButtonsProps {
   onFlip: () => void;
   /** Callback fired to trigger batch exports in designated formats */
   onBatchExport: (formats: string[]) => void;
+  /** Callback fired to add current FEN to favorites */
+  onAddToFavorites?: () => void;
   /** State indicator disabling interactions if an export task is active */
   isExporting: boolean;
+  /** The currently active FEN string */
+  currentFen?: string;
+  /** Whether the current FEN is in favorites */
+  isFavorite?: boolean;
 }
 
 /**
@@ -35,7 +41,9 @@ const ActionButtons = memo(function ActionButtons({
   onCopyImage,
   onFlip,
   onBatchExport,
-  isExporting
+  onAddToFavorites,
+  isExporting,
+  isFavorite
 }: ActionButtonsProps) {
   const { showAlert } = useModal();
   const [showBatchMenu, setShowBatchMenu] = useState(false);
@@ -164,7 +172,7 @@ const ActionButtons = memo(function ActionButtons({
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-2 gap-2 sm:gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
         <button
           onClick={handleCopy}
           disabled={isExporting}
@@ -192,6 +200,20 @@ const ActionButtons = memo(function ActionButtons({
         >
           <RefreshCcw className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
           <span>Flip</span>
+        </button>
+
+        <button
+          onClick={onAddToFavorites}
+          disabled={isExporting}
+          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          className="col-span-2 sm:col-span-1 group px-2 sm:px-3 py-2 sm:py-3 min-h-11 rounded-lg font-medium text-xs sm:text-sm transition duration-200 ease-out flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed bg-surface-elevated hover:bg-surface-hover border border-border active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+        >
+          <Heart
+            className={`w-4 h-4 sm:w-4.5 sm:h-4.5 ${
+              isFavorite ? 'text-error fill-error' : 'text-text-secondary'
+            }`}
+          />
+          <span>{isFavorite ? 'Favorite' : 'Add Favorite'}</span>
         </button>
       </div>
     </div>

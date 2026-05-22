@@ -15,7 +15,7 @@ import { useFENBatch } from '@/contexts';
 import { useDebouncedFENValidation } from '@hooks/useDebouncedFENValidation';
 import { validateFEN } from '@utils';
 import { logger } from '@utils/logger';
-import { MAX_FEN_LENGTH, safeJSONParse } from '@utils/validation';
+import { isRecord, MAX_FEN_LENGTH, safeJSONParse } from '@utils/validation';
 
 export type NotificationType = 'success' | 'error' | 'warning' | 'info';
 
@@ -43,10 +43,6 @@ export interface FENInputFieldProps {
 export interface FENHistoryEntry {
   fen: string;
   timestamp: number;
-}
-
-function isRecord(val: unknown): val is Record<string, unknown> {
-  return typeof val === 'object' && val !== null && !Array.isArray(val);
 }
 
 /**
@@ -96,7 +92,7 @@ const FENInputField = memo(
       [onChange]
     );
 
-    const { debouncedError, isValid } = useDebouncedFENValidation(
+    const { debouncedError } = useDebouncedFENValidation(
       localFen,
       handleValidFenSync
     );
@@ -128,17 +124,17 @@ const FENInputField = memo(
         const currentFen = localFen.trim();
         if (currentFen && validateFEN(currentFen)) {
           try {
-            const rawHistory = safeJSONParse(
+            const rawHistory = safeJSONParse<unknown[]>(
               localStorage.getItem('fenClipboardHistory'),
               []
             );
 
             const history: FENHistoryEntry[] = Array.isArray(rawHistory)
               ? rawHistory.filter(
-                  (item): item is FENHistoryEntry =>
+                  (item: unknown): item is FENHistoryEntry =>
                     isRecord(item) &&
-                    typeof item.fen === 'string' &&
-                    typeof item.timestamp === 'number'
+                    typeof item['fen'] === 'string' &&
+                    typeof item['timestamp'] === 'number'
                 )
               : [];
 
@@ -281,7 +277,7 @@ const FENInputField = memo(
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-surface-elevated border-b border-border">
               <button
                 onClick={() => setIsClipboardOpen(true)}
-                className="p-1.5 sm:p-2 rounded-md transition duration-150 ease-out active:scale-95 hover:bg-opacity-80 bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-[36px] sm:min-h-[40px]"
+                className="p-1.5 sm:p-2 rounded-md transition duration-150 ease-out active:scale-95 hover:bg-opacity-80 bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-9 sm:min-h-10"
                 title="View clipboard history"
                 aria-label="View clipboard history"
                 type="button"
@@ -295,7 +291,7 @@ const FENInputField = memo(
 
               <button
                 onClick={onPaste}
-                className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md transition duration-150 ease-out active:scale-95 hover:bg-opacity-80 bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-accent text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-[36px] sm:min-h-[40px]"
+                className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md transition duration-150 ease-out active:scale-95 hover:bg-opacity-80 bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-accent text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-9 sm:min-h-10"
                 title="Paste FEN from clipboard"
                 aria-label="Paste FEN from clipboard"
                 type="button"
@@ -310,7 +306,7 @@ const FENInputField = memo(
 
               <button
                 onClick={handleCopyWithHistory}
-                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md transition duration-150 ease-out active:scale-95 hover:bg-opacity-80 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-[36px] sm:min-h-[40px] ${
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md transition duration-150 ease-out active:scale-95 hover:bg-opacity-80 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-9 sm:min-h-10 ${
                   copySuccess
                     ? 'bg-success/20 text-success border border-success/30'
                     : 'bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-accent'
@@ -348,7 +344,7 @@ const FENInputField = memo(
 
               <button
                 onClick={handleAddToBatch}
-                className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md transition duration-150 ease-out active:scale-95 hover:bg-opacity-80 bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-accent text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-[36px] sm:min-h-[40px]"
+                className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md transition duration-150 ease-out active:scale-95 hover:bg-opacity-80 bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-accent text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-9 sm:min-h-10"
                 title="Add to batch (no redirect)"
                 aria-label="Add to batch"
                 type="button"
@@ -363,7 +359,7 @@ const FENInputField = memo(
 
               <button
                 onClick={handleToggleFavorite}
-                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md transition duration-150 ease-out active:scale-95 hover:bg-opacity-80 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-[36px] sm:min-h-[40px] ${
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md transition duration-150 ease-out active:scale-95 hover:bg-opacity-80 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-9 sm:min-h-10 ${
                   isFavorite
                     ? 'bg-error/20 text-error border border-error/30'
                     : 'bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-error'
@@ -396,10 +392,10 @@ const FENInputField = memo(
                 aria-describedby={visibleError ? 'fen-error' : undefined}
                 aria-invalid={visibleError ? 'true' : 'false'}
                 className={`
-                  w-full px-2 sm:px-3 py-1.5 sm:py-2 pb-7 sm:pb-8
-                  bg-surface/50 text-text-primary 
-                  font-mono text-base sm:text-[12px] leading-tight resize-none min-h-[50px] sm:min-h-[80px]
-                  focus-visible:outline-none focus:outline-none outline-none 
+                  w-full px-2 sm:px-3 py-1.5 sm:py-2 pb-8 sm:pb-9
+                  bg-surface/50 text-text-primary
+                  font-mono text-base sm:text-[12px] leading-tight resize-none min-h-9 sm:min-h-[5.5rem]
+                  focus-visible:outline-none focus:outline-none outline-none
                   transition duration-200 ease-out border-0
                   ${visibleError ? 'text-error' : ''}
                 `}
@@ -411,7 +407,7 @@ const FENInputField = memo(
 
               <button
                 onClick={onAdvancedClick}
-                className="absolute bottom-1.5 right-1.5 text-[11px] sm:text-[12px] text-accent/80 hover:text-accent font-semibold transition duration-150 ease-out hover:bg-opacity-80 active:scale-95 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-1"
+                className="absolute bottom-2 right-2 text-[11px] sm:text-[12px] text-accent/80 hover:text-accent font-semibold transition duration-150 ease-out active:scale-95 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-1 py-0.5 bg-surface/80 backdrop-blur-sm"
                 type="button"
                 aria-label="Open advanced FEN input modal"
               >
@@ -433,7 +429,7 @@ const FENInputField = memo(
                 className="flex items-center gap-2 text-error text-xs mt-1"
                 role="alert"
               >
-                <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
                 <span>{visibleError}</span>
               </div>
             </div>

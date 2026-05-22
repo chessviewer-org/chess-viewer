@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import {
   CheckCircle2,
@@ -20,14 +20,12 @@ import {
 } from 'lucide-react';
 
 /**
- * @param {Object} props
  * @returns {JSX.Element}
  */
 function UserGuide() {
   const [isExpanded, setIsExpanded] = useState(false);
   return (
     <div className="bg-surface rounded-2xl border border-border shadow-2xl overflow-hidden">
-      {}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full px-6 py-5 flex items-center justify-between text-left group hover:bg-surface-hover/30 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset"
@@ -67,13 +65,11 @@ function UserGuide() {
         </div>
       </button>
 
-      {}
       {isExpanded && (
         <div
           id="user-guide-content"
           className="px-6 pb-6 space-y-6 animate-fadeIn"
         >
-          {}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-blue-600/20 flex items-center justify-center">
@@ -93,6 +89,7 @@ function UserGuide() {
                 use="Web & Social Media"
                 description="Fast downloads, perfect for online sharing"
                 color="green"
+                recommended={false}
               />
               <QualityCard
                 icon={<Shield className="w-5 h-5" />}
@@ -112,6 +109,7 @@ function UserGuide() {
                 use="Professional Print"
                 description="High-resolution for large formats"
                 color="purple"
+                recommended={false}
               />
               <QualityCard
                 icon={<Maximize2 className="w-5 h-5" />}
@@ -121,11 +119,11 @@ function UserGuide() {
                 use="Maximum Quality"
                 description="Ultra HD, largest file sizes"
                 color="red"
+                recommended={false}
               />
             </div>
           </div>
 
-          {}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-amber-600/20 flex items-center justify-center">
@@ -160,7 +158,6 @@ function UserGuide() {
             </div>
           </div>
 
-          {}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-green-600/20 flex items-center justify-center">
@@ -197,7 +194,6 @@ function UserGuide() {
             </div>
           </div>
 
-          {}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-purple-600/20 flex items-center justify-center">
@@ -236,7 +232,6 @@ function UserGuide() {
             </div>
           </div>
 
-          {}
           <div className="bg-gradient-to-br from-blue-950/40 to-purple-950/40 rounded-xl p-5 border border-blue-700/30">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-lg bg-blue-600/20 flex items-center justify-center flex-shrink-0">
@@ -280,8 +275,20 @@ function UserGuide() {
     </div>
   );
 }
+
+interface QualityCardProps {
+  icon: React.ReactNode;
+  level: string;
+  resolution: string;
+  fileSize: string;
+  use: string;
+  description: string;
+  color: 'green' | 'blue' | 'purple' | 'red';
+  recommended: boolean;
+}
+
 /**
- * @param {Object} props
+ * @param {QualityCardProps} props
  * @returns {JSX.Element}
  */
 function QualityCard({
@@ -293,14 +300,14 @@ function QualityCard({
   description,
   color,
   recommended
-}) {
-  const colors = {
+}: QualityCardProps) {
+  const colors: Record<string, string> = {
     green: 'from-green-600/10 to-green-600/5 border-green-600/30',
     blue: 'from-blue-600/10 to-blue-600/5 border-blue-600/30',
     purple: 'from-purple-600/10 to-purple-600/5 border-purple-600/30',
     red: 'from-red-600/10 to-red-600/5 border-red-600/30'
   };
-  const iconColors = {
+  const iconColors: Record<string, string> = {
     green: 'text-green-400',
     blue: 'text-blue-400',
     purple: 'text-purple-400',
@@ -328,12 +335,21 @@ function QualityCard({
     </div>
   );
 }
+
+interface FormatCardProps {
+  icon: React.ReactNode;
+  format: string;
+  color: 'blue' | 'amber' | 'purple';
+  pros: string[];
+  cons: string[];
+}
+
 /**
- * @param {Object} props
+ * @param {FormatCardProps} props
  * @returns {JSX.Element}
  */
-function FormatCard({ icon, format, color, pros, cons }) {
-  const colors = {
+function FormatCard({ icon, format, color, pros, cons }: FormatCardProps) {
+  const colors: Record<string, string> = {
     blue: 'from-blue-600/10 to-blue-600/5 border-blue-600/30 text-blue-400',
     amber:
       'from-amber-600/10 to-amber-600/5 border-amber-600/30 text-amber-400',
@@ -375,11 +391,17 @@ function FormatCard({ icon, format, color, pros, cons }) {
     </div>
   );
 }
+
+interface TipCardProps {
+  icon: React.ReactNode;
+  text: string;
+}
+
 /**
- * @param {Object} props
+ * @param {TipCardProps} props
  * @returns {JSX.Element}
  */
-function TipCard({ icon, text }) {
+function TipCard({ icon, text }: TipCardProps) {
   return (
     <div className="bg-gray-800/50 rounded-lg p-3 flex items-start gap-3 hover:bg-gray-700/50 transition-colors duration-200 border border-gray-700/50">
       <div className="flex-shrink-0 mt-0.5">{icon}</div>
@@ -388,8 +410,19 @@ function TipCard({ icon, text }) {
   );
 }
 
-function ActionCard({ icon, action, description, color }) {
-  const colors = {
+interface ActionCardProps {
+  icon: React.ReactNode;
+  action: string;
+  description: string;
+  color: 'green' | 'blue' | 'purple' | 'pink';
+}
+
+/**
+ * @param {ActionCardProps} props
+ * @returns {JSX.Element}
+ */
+function ActionCard({ icon, action, description, color }: ActionCardProps) {
+  const colors: Record<string, string> = {
     green:
       'from-green-600/10 to-green-600/5 border-green-600/30 text-green-400',
     blue: 'from-blue-600/10 to-blue-600/5 border-blue-600/30 text-blue-400',

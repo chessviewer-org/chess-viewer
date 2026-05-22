@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { FileImage, Pause, Play, XCircle } from 'lucide-react';
 
 import { ModalShell } from '@shared/ui';
@@ -8,7 +8,7 @@ import { FileSizeEstimates } from '@utils/imageOptimizer';
 export interface ExportProgressProps {
   isExporting: boolean;
   progress: number;
-  currentFormat: string;
+  currentFormat: string | null;
   config: ExportConfig | null;
   statusText?: string;
   onClose?: () => void;
@@ -86,8 +86,8 @@ const ExportProgress = memo(function ExportProgress({
             <div>Resolution: {exportInfo.displaySize}</div>
             <div>
               File size estimate:{' '}
-              {(exportInfo.fileSizeEstimates as any)[format] ||
-                exportInfo.fileSizeEstimates.png}
+              {exportInfo.fileSizeEstimates[format] ||
+                exportInfo.fileSizeEstimates['png']}
             </div>
             {exportInfo.isLargeExport && (
               <div className="text-warning mt-1">
