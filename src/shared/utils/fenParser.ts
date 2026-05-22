@@ -5,6 +5,10 @@ const VALID_PIECES = new Set([
   'p', 'n', 'b', 'r', 'q', 'k',
   'P', 'N', 'B', 'R', 'Q', 'K'
 ]);
+
+function isPieceSymbol(char: string): char is PieceSymbol {
+  return VALID_PIECES.has(char);
+}
 const VALID_DIGITS = new Set(['1', '2', '3', '4', '5', '6', '7', '8']);
 
 /**
@@ -53,10 +57,10 @@ export function parseFEN(fenString: FENString): BoardMatrix {
         squareCount += count;
         for (let i = 0; i < count; i++) boardRow.push('');
       } else {
-        if (!VALID_PIECES.has(char))
+        if (!isPieceSymbol(char))
           throw new FENParseError(`Invalid piece character '${char}' in rank ${rowIndex + 1}`);
         squareCount++;
-        boardRow.push(char as PieceSymbol);
+        boardRow.push(char);
       }
     }
     if (squareCount !== 8)
