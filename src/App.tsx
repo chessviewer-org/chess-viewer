@@ -4,7 +4,9 @@ import { useLocation } from 'react-router-dom';
 
 import { Navbar } from '@/components/layout';
 import { ErrorBoundary } from '@shared/ui';
-import { FENBatchProvider, ThemeSettingsProvider, ModalProvider } from '@/contexts';
+import { FENBatchProvider } from '@/contexts/FENBatchContext';
+import { ThemeSettingsProvider } from '@/contexts/ThemeSettingsContext';
+import { ModalProvider } from '@/contexts/ModalContext';
 import Routes from '@/routes/Router';
 import { logger } from '@utils/logger';
 import { useAuth } from '@/features/auth/hooks/useAuth';
