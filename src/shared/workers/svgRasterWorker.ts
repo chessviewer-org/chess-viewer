@@ -7,8 +7,8 @@ export {};
 
 // Custom interface for the worker global scope to avoid missing DedicatedWorkerGlobalScope
 interface WorkerGlobalScope {
-  onmessage: ((this: WorkerGlobalScope, ev: MessageEvent) => any) | null;
-  postMessage(message: any): void;
+  onmessage: ((this: WorkerGlobalScope, ev: MessageEvent) => unknown) | null;
+  postMessage(message: unknown): void;
 }
 
 const workerContext = self as unknown as WorkerGlobalScope;
@@ -17,15 +17,14 @@ workerContext.onmessage = async (event: MessageEvent) => {
   const data = event.data || {};
   if (data.type !== 'start') return;
 
+  const taskId: number = data.taskId;
   const { svgString, width, height, format, quality } = data.payload;
 
   const postProgress = (progress: number, label: string) => {
     workerContext.postMessage({
       type: 'progress',
-      payload: {
-        progress,
-        label
-      }
+      taskId,
+      payload: { progress, label }
     });
   };
 
@@ -81,13 +80,13 @@ workerContext.onmessage = async (event: MessageEvent) => {
 
     workerContext.postMessage({
       type: 'done',
-      payload: {
-        blob
-      }
+      taskId,
+      payload: { blob }
     });
   } catch (error) {
     workerContext.postMessage({
       type: 'error',
+      taskId,
       payload: {
         message: error instanceof Error ? error.message : String(error)
       }
