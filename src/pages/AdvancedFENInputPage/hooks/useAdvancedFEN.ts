@@ -76,7 +76,7 @@ export function parseSmartNaming(input: string, totalCount: number): string[] {
   let hasCustomMappings = false;
 
   for (const token of tokens) {
-    const match = token.match(/^([^\[]+)\[(\d+)-(\d+)\]$/);
+    const match = token.match(/^([^[]+)\[(\d+)-(\d+)\]$/);
     if (match) {
       hasCustomMappings = true;
       const baseName = (match[1] || '').trim();
