@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, ShieldAlert, KeyRound, ArrowLeft } from 'lucide-react';
+import { ShieldCheck, ShieldAlert,  ArrowLeft } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -87,8 +87,8 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
       } else {
         onUnlock();
       }
-    } catch (err: any) {
-      setError(err.message || 'MFA verification failed.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'MFA verification failed.');
     } finally {
       setIsSubmitting(false);
     }
@@ -233,7 +233,7 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
                   maxLength={6}
                   className="w-full text-center text-lg tracking-[0.2em] font-mono rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-text-primary focus:border-accent focus:ring-2 focus:ring-accent/35 outline-none transition-all"
                   value={totpCode}
-                  onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
+                  onChange={(e) => setTotpCode(e.target.value.replace(/\\D/g, ''))}
                   required
                   autoFocus
                 />
