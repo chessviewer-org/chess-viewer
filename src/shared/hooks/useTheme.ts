@@ -1,10 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { syncStorage } from '@/features/auth/services/syncStorage';
 import { logger } from '@utils/logger';
 import { safeJSONParse, sanitizeHexColor } from '@utils/validation';
-
-const CUSTOM_THEME_PRESETS_KEY = 'custom-theme-presets';
 
 export interface ThemeHistoryItem {
   id: number;
@@ -393,188 +391,35 @@ export function useTheme({
     [applyCustomTheme]
   );
 
-  return {
-    lightSquare,
-    darkSquare,
-    currentTheme,
-    themeHistory,
+  return useMemo(
+    () => ({
+      lightSquare,
+      darkSquare,
+      currentTheme,
+      themeHistory,
 
-    setLightSquare,
-    setDarkSquare,
+      setLightSquare,
+      setDarkSquare,
 
-    applyTheme,
-    applyCustomTheme,
-    resetTheme,
-    clearThemeHistory,
-    exportTheme,
-    importTheme,
+      applyTheme,
+      applyCustomTheme,
+      resetTheme,
+      clearThemeHistory,
+      exportTheme,
+      importTheme,
 
-    getContrastRatio,
-    hasGoodContrast,
-    generateComplementary,
-    adjustBrightness
-  };
-}
-
-export interface ThemePreset {
-  id: number;
-  name: string;
-  light: string;
-  dark: string;
-  timestamp: number;
-}
-
-export interface UseThemePresetsResult {
-  customPresets: ThemePreset[];
-  savePreset: (name: string, light: string, dark: string) => void;
-  deletePreset: (id: number) => void;
-  updatePreset: (
-    id: number,
-    updates: Partial<Pick<ThemePreset, 'name' | 'light' | 'dark'>>
-  ) => void;
-  replacePresets: (presets: ThemePreset[]) => void;
-  clearPresets: () => void;
-}
-
-/**
- * Hook for managing user-created custom theme presets.
- *
- * @returns State and operations for custom presets
- */
-export function useThemePresets(): UseThemePresetsResult {
-  const [customPresets, setCustomPresets] = useState<ThemePreset[]>([]);
-
-  useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(CUSTOM_THEME_PRESETS_KEY);
-      if (saved) {
-        const parsed = safeJSONParse<ThemePreset[]>(saved, []);
-        if (Array.isArray(parsed)) {
-          setCustomPresets(parsed);
-        }
-      }
-    } catch (err) {
-      logger.error('Failed to load custom presets:', err);
-    }
-  }, []);
-
-  /** 
-   * Internal helper to persist presets to localStorage. 
-   * 
-   * @param presets - List of presets to save
-   */
-  const persistPresets = useCallback((presets: ThemePreset[]) => {
-    try {
-      window.localStorage.setItem(CUSTOM_THEME_PRESETS_KEY, JSON.stringify(presets));
-    } catch (err) {
-      logger.error('Failed to persist presets:', err);
-    }
-  }, []);
-
-  /**
-   * Saves a new theme configuration as a named preset.
-   *
-   * @param name - Display name
-   * @param light - Light square hex
-   * @param dark - Dark square hex
-   */
-  const savePreset = useCallback(
-    (name: string, light: string, dark: string) => {
-      const newPreset: ThemePreset = {
-        id: Date.now(),
-        name,
-        light,
-        dark,
-        timestamp: Date.now()
-      };
-
-      setCustomPresets((prev) => {
-        const updated = [...prev, newPreset];
-        persistPresets(updated);
-        return updated;
-      });
-    },
-    [persistPresets]
+      getContrastRatio,
+      hasGoodContrast,
+      generateComplementary,
+      adjustBrightness
+    }),
+    [
+      lightSquare, darkSquare, currentTheme, themeHistory,
+      applyTheme, applyCustomTheme, resetTheme, clearThemeHistory,
+      exportTheme, importTheme,
+      getContrastRatio, hasGoodContrast, generateComplementary, adjustBrightness
+    ]
   );
-
-  /** 
-   * Updates an existing preset. 
-   * 
-   * @param id - Preset ID
-   * @param updates - Object containing fields to change
-   */
-  const updatePreset = useCallback(
-    (
-      id: number,
-      updates: Partial<Pick<ThemePreset, 'name' | 'light' | 'dark'>>
-    ) => {
-      setCustomPresets((prev) => {
-        const updated = prev.map((preset) =>
-          preset.id === id
-            ? {
-                ...preset,
-                name: updates.name ?? preset.name,
-                light: updates.light ?? preset.light,
-                dark: updates.dark ?? preset.dark
-              }
-            : preset
-        );
-        persistPresets(updated);
-        return updated;
-      });
-    },
-    [persistPresets]
-  );
-
-  /** 
-   * Overwrites all custom presets. 
-   * 
-   * @param presets - New preset list
-   */
-  const replacePresets = useCallback(
-    (presets: ThemePreset[]) => {
-      setCustomPresets(presets);
-      persistPresets(presets);
-    },
-    [persistPresets]
-  );
-
-  /**
-   * Deletes a preset by its ID.
-   *
-   * @param id - Preset ID to remove
-   */
-  const deletePreset = useCallback(
-    (id: number) => {
-      setCustomPresets((prev) => {
-        const updated = prev.filter((preset) => preset.id !== id);
-        persistPresets(updated);
-        return updated;
-      });
-    },
-    [persistPresets]
-  );
-
-  /**
-   * Clears all user presets.
-   */
-  const clearPresets = useCallback(() => {
-    setCustomPresets([]);
-    try {
-      window.localStorage.removeItem(CUSTOM_THEME_PRESETS_KEY);
-    } catch (err) {
-      logger.error('Failed to clear presets:', err);
-    }
-  }, []);
-
-  return {
-    customPresets,
-    savePreset,
-    updatePreset,
-    replacePresets,
-    deletePreset,
-    clearPresets
-  };
 }
 
 export default useTheme;
