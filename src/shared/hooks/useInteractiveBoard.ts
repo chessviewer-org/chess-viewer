@@ -195,16 +195,28 @@ export function useInteractiveBoard(
     return `${positionFen} ${metadataRef.current}`;
   }, [board]);
 
-  return {
-    board,
-    currentFen,
-    handlePieceDrop,
-    handlePieceRemove,
-    clearBoard,
-    resetBoard,
-    setPiece,
-    syncFromFen
-  };
+  return useMemo(
+    () => ({
+      board,
+      currentFen,
+      handlePieceDrop,
+      handlePieceRemove,
+      clearBoard,
+      resetBoard,
+      setPiece,
+      syncFromFen
+    }),
+    [
+      board,
+      currentFen,
+      handlePieceDrop,
+      handlePieceRemove,
+      clearBoard,
+      resetBoard,
+      setPiece,
+      syncFromFen
+    ]
+  );
 }
 
 export default useInteractiveBoard;
