@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { useModal } from '@/contexts';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check, Copy, Download, Heart, Image, RefreshCcw } from 'lucide-react';
@@ -48,6 +48,7 @@ const ActionButtons = memo(function ActionButtons({
   const { showAlert } = useModal();
   const [showBatchMenu, setShowBatchMenu] = useState(false);
   const [copied, setCopied] = useState(false);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [selectedFormats, setSelectedFormats] = useState<{
     png: boolean;
     jpeg: boolean;
@@ -55,6 +56,12 @@ const ActionButtons = memo(function ActionButtons({
     png: true,
     jpeg: false
   });
+
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    };
+  }, []);
 
   const toggleFormat = (format: keyof typeof selectedFormats) => {
     setSelectedFormats((prev) => ({ ...prev, [format]: !prev[format] }));
@@ -75,7 +82,8 @@ const ActionButtons = memo(function ActionButtons({
   const handleCopy = async () => {
     await onCopyImage();
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
   };
 
   return (
