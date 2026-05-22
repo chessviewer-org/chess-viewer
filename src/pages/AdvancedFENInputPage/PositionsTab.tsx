@@ -55,7 +55,7 @@ const PositionsTab = memo(function PositionsTab({
   };
 
   return (
-    <div className="flex flex-col gap-4 3xl:gap-6 w-[95%] max-w-[2400px] mx-auto">
+    <div className="flex flex-col gap-4 3xl:gap-6 w-[95%] max-w-600 mx-auto">
       <AnimatePresence mode="popLayout">
         {rows.map((row) => {
           const isSingle = row.items.length === 1;
@@ -147,13 +147,13 @@ const PositionsTab = memo(function PositionsTab({
                       />
                       {hasError && (
                         <div className="flex items-center gap-1.5 text-error text-xs">
-                          <AlertCircle className="w-3 h-3 flex-shrink-0" />
+                          <AlertCircle className="w-3 h-3 shrink-0" />
                           <span>{fenErrors[idx]}</span>
                         </div>
                       )}
                       {hasDuplicate && (
                         <div className="flex items-center gap-1.5 text-warning text-xs">
-                          <AlertCircle className="w-3 h-3 flex-shrink-0" />
+                          <AlertCircle className="w-3 h-3 shrink-0" />
                           <span>
                             Duplicate FEN — already exists in another slot
                           </span>
