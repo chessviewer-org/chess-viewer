@@ -8,24 +8,61 @@ import {
 } from 'react';
 
 import { safeJSONParse } from '@utils/validation';
+import { logger } from '@utils/logger';
 
-const ThemeSettingsContext = createContext(null);
+function isPlainObject(val: unknown): val is Record<string, unknown> {
+  return typeof val === 'object' && val !== null && !Array.isArray(val);
+}
 
-let _sharedAudioCtx = null;
+export interface ThemeSettings {
+  autoApply: boolean;
+  showRGB: boolean;
+  enableAnimations: boolean;
+  showColorNames: boolean;
+  enableKeyboardShortcuts: boolean;
+  showHexValues: boolean;
+  enableSoundEffects: boolean;
+  compactMode: boolean;
+  showRecentColors: boolean;
+  enableColorBlindMode: boolean;
+}
+
+export interface ThemeSettingsContextValue {
+  settings: ThemeSettings;
+  updateSetting: <K extends keyof ThemeSettings>(key: K, value: ThemeSettings[K]) => void;
+  updateSettings: (newSettings: ThemeSettings) => void;
+  resetSettings: () => void;
+  recentColors: string[];
+  addRecentColor: (color: string) => void;
+  clearRecentColors: () => void;
+  playSound: (type?: 'click' | 'success' | 'error') => Promise<void>;
+  defaultSettings: ThemeSettings;
+}
+
+declare global {
+  interface Window {
+    webkitAudioContext: typeof AudioContext;
+  }
+}
+
+const ThemeSettingsContext = createContext<ThemeSettingsContextValue | null>(null);
+
+let _sharedAudioCtx: AudioContext | null = null;
 
 /**
  * Returns the shared AudioContext singleton.
  * @returns {AudioContext}
  */
-function getAudioCtx() {
+function getAudioCtx(): AudioContext {
   if (!_sharedAudioCtx) {
-    _sharedAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    _sharedAudioCtx = new AudioContextClass();
   }
-  return _sharedAudioCtx;
+  return _sharedAudioCtx!;
 }
 
 /**
- * @returns {Object} Theme settings context value
+ * @returns {ThemeSettingsContextValue} Theme settings context value
  * @throws {Error} If used outside a ThemeSettingsProvider
  */
 // eslint-disable-next-line react-refresh/only-export-components
@@ -39,7 +76,7 @@ export function useThemeSettings() {
   return context;
 }
 
-const defaultSettings = {
+const defaultSettings: ThemeSettings = {
   autoApply: false,
   showRGB: true,
   enableAnimations: true,
@@ -57,25 +94,33 @@ const defaultSettings = {
  * @param {{ children: React.ReactNode }} props
  * @returns {JSX.Element}
  */
-export function ThemeSettingsProvider({ children }) {
-  const [settings, setSettings] = useState(() => {
+export function ThemeSettingsProvider({ children }: { children: React.ReactNode }) {
+  const [settings, setSettings] = useState<ThemeSettings>(() => {
     try {
       const saved = localStorage.getItem('themeSettings');
       const parsed = safeJSONParse(saved, null);
-      return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
-        ? { ...defaultSettings, ...parsed }
-        : defaultSettings;
-    } catch {
+      if (!isPlainObject(parsed)) return defaultSettings;
+      const merged = { ...defaultSettings };
+      for (const key of Object.keys(defaultSettings) as (keyof ThemeSettings)[]) {
+        const val = parsed[key];
+        if (typeof val === typeof defaultSettings[key]) {
+          (merged as Record<string, unknown>)[key] = val;
+        }
+      }
+      return merged;
+    } catch (err) {
+      logger.error('ThemeSettingsContext: failed to hydrate themeSettings from localStorage', err);
       return defaultSettings;
     }
   });
 
-  const [recentColors, setRecentColors] = useState(() => {
+  const [recentColors, setRecentColors] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('recentColors');
       const parsed = safeJSONParse(saved, null);
       return Array.isArray(parsed) ? parsed : [];
-    } catch {
+    } catch (err) {
+      logger.error('ThemeSettingsContext: failed to hydrate recentColors from localStorage', err);
       return [];
     }
   });
@@ -118,16 +163,16 @@ export function ThemeSettingsProvider({ children }) {
    * @param {string} key - Setting key
    * @param {*} value - New value
    */
-  const updateSetting = useCallback((key, value) => {
+  const updateSetting = useCallback(<K extends keyof ThemeSettings>(key: K, value: ThemeSettings[K]) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   }, []);
 
   /**
    * Replace all settings with a new settings object.
    *
-   * @param {Object} newSettings - Complete settings object
+   * @param {ThemeSettings} newSettings - Complete settings object
    */
-  const updateSettings = useCallback((newSettings) => {
+  const updateSettings = useCallback((newSettings: ThemeSettings) => {
     setSettings(newSettings);
   }, []);
 
@@ -143,7 +188,7 @@ export function ThemeSettingsProvider({ children }) {
    *
    * @param {string} color - Hex color to add
    */
-  const addRecentColor = useCallback((color) => {
+  const addRecentColor = useCallback((color: string) => {
     if (!color) return;
     setRecentColors((prev) => {
       const filtered = prev.filter((c) => c !== color);
@@ -164,7 +209,7 @@ export function ThemeSettingsProvider({ children }) {
    * @param {'click'|'success'|'error'} [type='click'] - Sound type
    */
   const playSound = useCallback(
-    async (type = 'click') => {
+    async (type: 'click' | 'success' | 'error' = 'click') => {
       if (!settings.enableSoundEffects) return;
 
       try {
@@ -176,8 +221,8 @@ export function ThemeSettingsProvider({ children }) {
         osc.connect(gain);
         gain.connect(audioCtx.destination);
 
-        osc.frequency.value =
-          { click: 800, success: 1200, error: 400 }[type] ?? 800;
+        const freqMap: Record<string, number> = { click: 800, success: 1200, error: 400 };
+        osc.frequency.value = freqMap[type] ?? 800;
         osc.type = 'sine';
         gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(
@@ -191,8 +236,8 @@ export function ThemeSettingsProvider({ children }) {
           osc.disconnect();
           gain.disconnect();
         };
-      } catch {
-        return;
+      } catch (err) {
+        logger.error('ThemeSettingsContext: playSound failed', err);
       }
     },
     [settings.enableSoundEffects]
