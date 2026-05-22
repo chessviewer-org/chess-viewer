@@ -13,6 +13,7 @@ import {
 import { MAX_TOTAL_PRESETS, STORAGE_KEYS, WOOD_PRESET } from '@constants';
 import { Button } from '@shared/ui';
 import { loadPresets, readSquare, savePresets } from '@utils';
+import type { BoardPreset } from '@/shared/types';
 
 import BoardPreview from './BoardPreview';
 import ColorPickerPanel from './ColorPickerPanel';
@@ -23,31 +24,48 @@ import PresetCard from './PresetCard';
 const PAGE_SIZE = 40;
 const TOTAL_PRESET_PAGES = 2;
 
+export interface ThemeEditControls {
+  editMode: boolean;
+  onEnableEditMode: () => void;
+  onCancelEditMode: () => void;
+  onApplyChanges: () => void;
+}
+
+export interface ThemeCustomizationProps {
+  onEditControlsChange?: (controls: ThemeEditControls | null) => void;
+}
+
+interface DuplicateCheck {
+  light: string;
+  dark: string;
+  existingId: string;
+}
+
 /**
  * @returns {JSX.Element}
  */
 const ThemeCustomization = memo(function ThemeCustomization({
   onEditControlsChange
-}) {
-  const [savedLight, setSavedLight] = useState(() =>
+}: ThemeCustomizationProps) {
+  const [savedLight, setSavedLight] = useState<string>(() =>
     readSquare(STORAGE_KEYS.LIGHT_SQUARE, '#f0d9b5')
   );
-  const [savedDark, setSavedDark] = useState(() =>
+  const [savedDark, setSavedDark] = useState<string>(() =>
     readSquare(STORAGE_KEYS.DARK_SQUARE, '#b58863')
   );
-  const [previewLight, setPreviewLight] = useState(savedLight);
-  const [previewDark, setPreviewDark] = useState(savedDark);
-  const [presets, setPresets] = useState(loadPresets);
-  const [presetsBackup, setPresetsBackup] = useState(null);
-  const [editMode, setEditMode] = useState(false);
-  const [editingPresetId, setEditingPresetId] = useState(null);
-  const [draggedPreset, setDraggedPreset] = useState(null);
-  const [dragOverId, setDragOverId] = useState(null);
-  const [duplicateCheck, setDuplicateCheck] = useState(null);
-  const [isAddingNew, setIsAddingNew] = useState(false);
-  const [activePanelTab, setActivePanelTab] = useState('main');
-  const [presetPage, setPresetPage] = useState(0);
-  const [draftPresetName, setDraftPresetName] = useState('');
+  const [previewLight, setPreviewLight] = useState<string>(savedLight);
+  const [previewDark, setPreviewDark] = useState<string>(savedDark);
+  const [presets, setPresets] = useState<BoardPreset[]>(loadPresets);
+  const [presetsBackup, setPresetsBackup] = useState<BoardPreset[] | null>(null);
+  const [editMode, setEditMode] = useState<boolean>(false);
+  const [editingPresetId, setEditingPresetId] = useState<string | null>(null);
+  const [draggedPreset, setDraggedPreset] = useState<BoardPreset | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const [duplicateCheck, setDuplicateCheck] = useState<DuplicateCheck | null>(null);
+  const [isAddingNew, setIsAddingNew] = useState<boolean>(false);
+  const [activePanelTab, setActivePanelTab] = useState<'main' | 'custom'>('main');
+  const [presetPage, setPresetPage] = useState<number>(0);
+  const [draftPresetName, setDraftPresetName] = useState<string>('');
 
   const sortedPresets = useMemo(() => {
     const defaults = presets.filter((p) => p.isDefault);
@@ -74,7 +92,7 @@ const ThemeCustomization = memo(function ThemeCustomization({
     [visiblePresets]
   );
 
-  const hasSecondPresetPage = presetPages[1].items.length > 0;
+  const hasSecondPresetPage = (presetPages[1]?.items.length ?? 0) > 0;
   const currentPresetPage = hasSecondPresetPage ? presetPage : 0;
   const hasChanges = previewLight !== savedLight || previewDark !== savedDark;
   const canAddPreset = visiblePresets.length < MAX_TOTAL_PRESETS;
@@ -87,7 +105,7 @@ const ThemeCustomization = memo(function ThemeCustomization({
       presets.reduce((max, preset) => {
         const num =
           typeof preset.id === 'string' && preset.id.startsWith('custom-')
-            ? parseInt(preset.id.split('-')[1], 10)
+            ? parseInt(preset.id.split('-')[1] ?? '', 10)
             : 0;
         return Number.isNaN(num) ? max : Math.max(max, num);
       }, 0) + 1,
@@ -140,7 +158,7 @@ const ThemeCustomization = memo(function ThemeCustomization({
   );
 
   const handlePresetClick = useCallback(
-    function handlePresetClick(preset) {
+    function handlePresetClick(preset: BoardPreset) {
       if (editMode) return;
       setPreviewLight(preset.light);
       setPreviewDark(preset.dark);
@@ -161,15 +179,15 @@ const ThemeCustomization = memo(function ThemeCustomization({
   );
 
   const handleCustomColorChange = useCallback(function handleCustomColorChange(
-    light,
-    dark
+    light: string,
+    dark: string
   ) {
     setPreviewLight(light);
     setPreviewDark(dark);
   }, []);
 
   const handleEditColorChange = useCallback(
-    function handleEditColorChange(light, dark) {
+    function handleEditColorChange(light: string, dark: string) {
       setPreviewLight(light);
       setPreviewDark(dark);
       if (editingPresetId !== null) {
@@ -189,7 +207,7 @@ const ThemeCustomization = memo(function ThemeCustomization({
     [editingPresetId]
   );
 
-  const handleEditPreset = useCallback(function handleEditPreset(preset) {
+  const handleEditPreset = useCallback(function handleEditPreset(preset: BoardPreset) {
     setEditingPresetId(preset.id);
     setPreviewLight(preset.light);
     setPreviewDark(preset.dark);
@@ -199,7 +217,7 @@ const ThemeCustomization = memo(function ThemeCustomization({
   }, []);
 
   const handleDeletePreset = useCallback(
-    function handleDeletePreset(id) {
+    function handleDeletePreset(id: string) {
       if (id === WOOD_PRESET.id) return;
       setPresets((prev) => prev.filter((preset) => preset.id !== id));
       if (editingPresetId === id) {
@@ -213,8 +231,8 @@ const ThemeCustomization = memo(function ThemeCustomization({
   );
 
   const handleRenamePreset = useCallback(function handleRenamePreset(
-    id,
-    newName
+    id: string,
+    newName: string
   ) {
     const trimmedName = newName.trim();
     setPresets((prev) =>
@@ -263,7 +281,7 @@ const ThemeCustomization = memo(function ThemeCustomization({
       const nextCustomIndex = getNextCustomIndex();
       const nextName = draftPresetName.trim() || `Custom ${nextCustomIndex}`;
 
-      const newPreset = {
+      const newPreset: BoardPreset = {
         id: `custom-${nextCustomIndex}`,
         name: nextName,
         light: previewLight,
@@ -287,7 +305,7 @@ const ThemeCustomization = memo(function ThemeCustomization({
       const nextCustomIndex = getNextCustomIndex();
       const nextName = draftPresetName.trim() || `Custom ${nextCustomIndex}`;
 
-      const newPreset = {
+      const newPreset: BoardPreset = {
         id: `custom-${nextCustomIndex}`,
         name: nextName,
         light: previewLight,
@@ -314,11 +332,11 @@ const ThemeCustomization = memo(function ThemeCustomization({
     setActivePanelTab('main');
   }, []);
 
-  const handleDragStart = useCallback(function handleDragStart(_event, preset) {
+  const handleDragStart = useCallback(function handleDragStart(_event: React.DragEvent, preset: BoardPreset) {
     setDraggedPreset(preset);
   }, []);
 
-  const handleDragOver = useCallback(function handleDragOver(event, preset) {
+  const handleDragOver = useCallback(function handleDragOver(event: React.DragEvent, preset: BoardPreset) {
     event.preventDefault();
     setDragOverId(preset.id);
   }, []);
@@ -329,7 +347,7 @@ const ThemeCustomization = memo(function ThemeCustomization({
   }, []);
 
   const handleDrop = useCallback(
-    function handleDrop(_event, targetPreset) {
+    function handleDrop(_event: React.DragEvent, targetPreset: BoardPreset) {
       if (!draggedPreset || draggedPreset.id === targetPreset.id) return;
 
       setPresets((prev) => {
@@ -343,7 +361,7 @@ const ThemeCustomization = memo(function ThemeCustomization({
 
         if (dragIndex === -1 || targetIndex === -1) return prev;
         const [removed] = nextPresets.splice(dragIndex, 1);
-        nextPresets.splice(targetIndex, 0, removed);
+        nextPresets.splice(targetIndex, 0, removed!);
         return nextPresets;
       });
 
@@ -354,7 +372,7 @@ const ThemeCustomization = memo(function ThemeCustomization({
   );
 
   const handleChangePanelTab = useCallback(
-    (tabId) => {
+    (tabId: 'main' | 'custom') => {
       setActivePanelTab(tabId);
       if (tabId === 'main' && !isAddingNew) {
         setEditingPresetId(null);
@@ -389,7 +407,7 @@ const ThemeCustomization = memo(function ThemeCustomization({
   }, [hasSecondPresetPage, presetPage]);
 
   useEffect(() => {
-    function handleEscapeKey(event) {
+    function handleEscapeKey(event: KeyboardEvent) {
       if (event.key === 'Escape' && editMode) handleCancelEditMode();
     }
 
@@ -494,7 +512,7 @@ const ThemeCustomization = memo(function ThemeCustomization({
           </div>
         </div>
 
-        <div className="relative flex-1 overflow-hidden px-3 pb-3 sm:px-4 sm:pb-4 min-h-0">
+        <div className="relative w-full flex-1 overflow-hidden px-3 pb-3 sm:px-4 sm:pb-4 min-h-0">
           <AnimatePresence>
             {editMode && (
               <motion.div

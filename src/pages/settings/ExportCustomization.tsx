@@ -9,13 +9,18 @@ import { QUALITY_PRESETS } from '@constants';
  * @param {Object} props
  * @returns {JSX.Element}
  */
+interface BoardSizeSectionProps {
+  boardSize: number;
+  setBoardSize: (size: number) => void;
+}
+
 const BoardSizeSection = memo(function BoardSizeSection({
   boardSize,
   setBoardSize
-}) {
-  const [boardSizeInput, setBoardSizeInput] = useState(boardSize);
+}: BoardSizeSectionProps) {
+  const [boardSizeInput, setBoardSizeInput] = useState<number | string>(boardSize);
   const [boardSizeError, setBoardSizeError] = useState('');
-  const [selectedPreset, setSelectedPreset] = useState(null);
+  const [selectedPreset, setSelectedPreset] = useState<number | null>(null);
   const presets = useMemo(
     () => [
       {
@@ -41,13 +46,13 @@ const BoardSizeSection = memo(function BoardSizeSection({
     const matchingPreset = presets.find((p) => p.value === boardSize);
     setSelectedPreset(matchingPreset ? matchingPreset.value : null);
   }, [boardSize, presets]);
-  const handlePresetClick = (value) => {
+  const handlePresetClick = (value: number) => {
     setSelectedPreset(value);
     setBoardSize(value);
     setBoardSizeInput(value);
     setBoardSizeError('');
   };
-  const handleCustomInputChange = (e) => {
+  const handleCustomInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSelectedPreset(null);
     if (value === '') {
@@ -110,7 +115,7 @@ const BoardSizeSection = memo(function BoardSizeSection({
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault();
-              e.target.blur();
+              (e.target as HTMLInputElement).blur();
             }
           }}
         />
@@ -122,8 +127,17 @@ const BoardSizeSection = memo(function BoardSizeSection({
   );
 });
 BoardSizeSection.displayName = 'BoardSizeSection';
+interface ExportCustomizationProps {
+  boardSize: number;
+  setBoardSize: (size: number) => void;
+  fileName: string;
+  setFileName: (name: string) => void;
+  exportQuality: number;
+  setExportQuality: (quality: number) => void;
+}
+
 /**
- * @param {Object} props
+ * @param {ExportCustomizationProps} props
  * @returns {JSX.Element}
  */
 const ExportCustomization = memo(function ExportCustomization({
@@ -133,7 +147,7 @@ const ExportCustomization = memo(function ExportCustomization({
   setFileName,
   exportQuality,
   setExportQuality
-}) {
+}: ExportCustomizationProps) {
   const printPresets = QUALITY_PRESETS.filter((p) => p.mode === 'print');
   const socialPresets = QUALITY_PRESETS.filter((p) => p.mode === 'social');
   const currentPreset = QUALITY_PRESETS.find((p) => p.value === exportQuality);

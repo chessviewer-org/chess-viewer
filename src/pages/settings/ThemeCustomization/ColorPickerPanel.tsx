@@ -1,18 +1,24 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 import { hexToRgb, hsvToRgb, rgbToHex, rgbToHsv } from '@utils';
 
+export interface ColorPickerPanelProps {
+  currentLight: string;
+  currentDark: string;
+  onColorChange: (light: string, dark: string) => void;
+}
+
 /**
- * @param {Object} props
+ * @param {ColorPickerPanelProps} props
  * @returns {JSX.Element}
  */
 const ColorPickerPanel = memo(function ColorPickerPanel({
   currentLight,
   currentDark,
   onColorChange
-}) {
-  const [activeSquare, setActiveSquare] = useState('light');
-  const canvasRef = useRef(null);
+}: ColorPickerPanelProps) {
+  const [activeSquare, setActiveSquare] = useState<'light' | 'dark'>('light');
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDragging = useRef(false);
   const currentValue = activeSquare === 'light' ? currentLight : currentDark;
   const [tempColor, setTempColor] = useState(currentValue);
@@ -23,12 +29,13 @@ const ColorPickerPanel = memo(function ColorPickerPanel({
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
     const w = canvas.width;
     const h = canvas.height;
     const rgb = hexToRgb(tempColor);
     if (!rgb) return;
     const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
-    const hueRgb = hsvToRgb(hsv.h, 100, 100);
+    const hueRgb = hsvToRgb(hsv.h, 1, 1); // hsvToRgb takes 0-1 for s and v
     const gH = ctx.createLinearGradient(0, 0, w, 0);
     gH.addColorStop(0, 'white');
     gH.addColorStop(1, `rgb(${hueRgb.r},${hueRgb.g},${hueRgb.b})`);
@@ -39,9 +46,13 @@ const ColorPickerPanel = memo(function ColorPickerPanel({
     gV.addColorStop(1, 'rgba(0,0,0,1)');
     ctx.fillStyle = gV;
     ctx.fillRect(0, 0, w, h);
+    return () => {
+      canvas.width = 0;
+      canvas.height = 0;
+    };
   }, [tempColor]);
   const pickColorAt = useCallback(
-    (clientX, clientY) => {
+    (clientX: number, clientY: number) => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
@@ -60,7 +71,11 @@ const ColorPickerPanel = memo(function ColorPickerPanel({
         )
       );
       const ctx = canvas.getContext('2d');
-      const [r, g, b] = ctx.getImageData(x, y, 1, 1).data;
+      if (!ctx) return;
+      const data = ctx.getImageData(x, y, 1, 1).data;
+      const r = data[0]!;
+      const g = data[1]!;
+      const b = data[2]!;
       const newColor = rgbToHex(r, g, b);
       setTempColor(newColor);
       if (activeSquare === 'light') onColorChange(newColor, currentDark);
@@ -70,7 +85,7 @@ const ColorPickerPanel = memo(function ColorPickerPanel({
   );
 
   const handleCanvasPointerDown = useCallback(
-    (e) => {
+    (e: React.PointerEvent<HTMLCanvasElement>) => {
       isDragging.current = true;
       e.currentTarget.setPointerCapture(e.pointerId);
       pickColorAt(e.clientX, e.clientY);
@@ -79,13 +94,13 @@ const ColorPickerPanel = memo(function ColorPickerPanel({
   );
 
   const handleCanvasPointerMove = useCallback(
-    (e) => {
+    (e: React.PointerEvent<HTMLCanvasElement>) => {
       if (isDragging.current) pickColorAt(e.clientX, e.clientY);
     },
     [pickColorAt]
   );
 
-  const handleCanvasPointerUp = useCallback((e) => {
+  const handleCanvasPointerUp = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
     isDragging.current = false;
     if (e.currentTarget.hasPointerCapture(e.pointerId)) {
       e.currentTarget.releasePointerCapture(e.pointerId);
@@ -101,12 +116,12 @@ const ColorPickerPanel = memo(function ColorPickerPanel({
     return () => window.removeEventListener('pointerup', stopDragging);
   }, []);
   const handleHueChange = useCallback(
-    (e) => {
+    (e: React.ChangeEvent<HTMLInputElement>) => {
       const hue = parseFloat(e.target.value);
       const rgb = hexToRgb(tempColor);
       if (!rgb) return;
       const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
-      const newRgb = hsvToRgb(hue, hsv.s, hsv.v);
+      const newRgb = hsvToRgb(hue / 360, hsv.s, hsv.v); // hsvToRgb takes 0-1 for h
       const newColor = rgbToHex(newRgb.r, newRgb.g, newRgb.b);
       setTempColor(newColor);
       if (activeSquare === 'light') onColorChange(newColor, currentDark);
@@ -116,12 +131,12 @@ const ColorPickerPanel = memo(function ColorPickerPanel({
   );
   const getCurrentHue = useCallback(() => {
     const rgb = hexToRgb(tempColor);
-    return rgb ? rgbToHsv(rgb.r, rgb.g, rgb.b).h : 0;
+    return rgb ? rgbToHsv(rgb.r, rgb.g, rgb.b).h * 360 : 0; // hsv.h is 0-1
   }, [tempColor]);
   return (
     <div className="flex flex-col gap-2.5">
       <div className="flex gap-1.5 p-1 bg-surface rounded-lg border border-border">
-        {['light', 'dark'].map((sq) => (
+        {(['light', 'dark'] as const).map((sq) => (
           <button
             key={sq}
             onClick={() => setActiveSquare(sq)}

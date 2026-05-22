@@ -2,11 +2,16 @@ import { memo } from 'react';
 
 import { BOARD_SIZE_EXPR, CELL_SIZE_EXPR, RANK_GUTTER } from '@constants';
 
+export interface BoardPreviewProps {
+  light: string;
+  dark: string;
+}
+
 /**
- * @param {Object} props
+ * @param {BoardPreviewProps} props
  * @returns {JSX.Element}
  */
-const BoardPreview = memo(function BoardPreview({ light, dark }) {
+const BoardPreview = memo(function BoardPreview({ light, dark }: BoardPreviewProps) {
   const ranks = [8, 7, 6, 5, 4, 3, 2, 1];
   const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
   return (

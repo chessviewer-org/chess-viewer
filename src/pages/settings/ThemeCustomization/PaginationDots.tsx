@@ -1,7 +1,14 @@
 import { memo } from 'react';
 
+export interface PaginationDotsProps {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (pageNum: number) => void;
+  isPageDisabled?: (pageNum: number) => boolean;
+}
+
 /**
- * @param {Object} props
+ * @param {PaginationDotsProps} props
  * @returns {JSX.Element}
  */
 const PaginationDots = memo(function PaginationDots({
@@ -9,7 +16,7 @@ const PaginationDots = memo(function PaginationDots({
   totalPages,
   onPageChange,
   isPageDisabled
-}) {
+}: PaginationDotsProps) {
   if (totalPages <= 1) return null;
   return (
     <div className="flex items-center justify-center gap-2 mt-3">

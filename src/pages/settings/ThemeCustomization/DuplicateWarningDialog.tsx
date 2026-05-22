@@ -2,15 +2,18 @@ import { memo } from 'react';
 
 import { AlertTriangle } from 'lucide-react';
 
+export interface DuplicateWarningDialogProps {
+  light: string;
+  dark: string;
+  onRename: () => void;
+  onMerge: () => void;
+  onCancel: () => void;
+}
+
 /**
  * Modal dialog shown when a duplicate theme color combination is detected.
  *
- * @param {Object} props
- * @param {string} props.light - Light square hex color of the duplicate
- * @param {string} props.dark - Dark square hex color of the duplicate
- * @param {function(): void} props.onRename - Called when user picks "Keep Both"
- * @param {function(): void} props.onMerge - Called when user picks "Merge"
- * @param {function(): void} props.onCancel - Called when user dismisses
+ * @param {DuplicateWarningDialogProps} props
  * @returns {JSX.Element}
  */
 const DuplicateWarningDialog = memo(function DuplicateWarningDialog({
@@ -19,7 +22,7 @@ const DuplicateWarningDialog = memo(function DuplicateWarningDialog({
   onRename,
   onMerge,
   onCancel
-}) {
+}: DuplicateWarningDialogProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/95">
       <div className="bg-surface rounded-xl border border-border p-6 max-w-sm w-full mx-4 shadow-xl animate-scaleIn">

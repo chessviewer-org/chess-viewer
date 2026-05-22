@@ -2,15 +2,20 @@ import { memo } from 'react';
 
 import { Plus } from 'lucide-react';
 
+export interface AddPresetCardProps {
+  onClick: () => void;
+  disabled: boolean;
+}
+
 /**
  * Button card for adding a new theme preset.
  *
- * @param {Object} props
+ * @param {AddPresetCardProps} props
  * @param {function(): void} props.onClick - Called when the button is pressed
  * @param {boolean} props.disabled - Disables the button when true
  * @returns {JSX.Element}
  */
-const AddPresetCard = memo(function AddPresetCard({ onClick, disabled }) {
+const AddPresetCard = memo(function AddPresetCard({ onClick, disabled }: AddPresetCardProps) {
   return (
     <button
       onClick={onClick}

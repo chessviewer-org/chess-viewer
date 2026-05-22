@@ -1,11 +1,27 @@
-import { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 
 import { Check, GripVertical, Palette, Pencil, Trash2 } from 'lucide-react';
 
 import { WOOD_PRESET } from '@constants';
+import type { BoardPreset } from '@/shared/types';
+
+export interface PresetCardProps {
+  preset: BoardPreset;
+  isActive: boolean;
+  onClick: (preset: BoardPreset) => void;
+  editMode: boolean;
+  onEdit: (preset: BoardPreset) => void;
+  onDelete: (id: string) => void;
+  onRename: (id: string, newName: string) => void;
+  dragOverId?: string | null;
+  onDragStart?: (event: React.DragEvent, preset: BoardPreset) => void;
+  onDragOver?: (event: React.DragEvent, preset: BoardPreset) => void;
+  onDrop?: (event: React.DragEvent, preset: BoardPreset) => void;
+  onDragEnd?: () => void;
+}
 
 /**
- * @param {Object} props
+ * @param {PresetCardProps} props
  * @returns {JSX.Element}
  */
 const PresetCard = memo(function PresetCard({
@@ -21,11 +37,11 @@ const PresetCard = memo(function PresetCard({
   onDragOver,
   onDrop,
   onDragEnd
-}) {
+}: PresetCardProps) {
   const [hovered, setHovered] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
   const [nameValue, setNameValue] = useState(preset.name);
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const isWood = preset.id === WOOD_PRESET.id;
   const canDelete = !isWood && preset.isDeletable !== false;
   const isDragTarget = dragOverId === preset.id;
@@ -39,10 +55,10 @@ const PresetCard = memo(function PresetCard({
   /**
    * Saves or cancels preset renaming from keyboard input.
    *
-   * @param {KeyboardEvent} e - Input keyboard event
+   * @param {React.KeyboardEvent} e - Input keyboard event
    * @returns {void}
    */
-  function handleRenameKeyDown(e) {
+  function handleRenameKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter') {
       onRename(preset.id, nameValue.trim() || preset.name);
       setIsRenaming(false);

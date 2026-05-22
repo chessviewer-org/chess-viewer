@@ -58,14 +58,14 @@ const DataManagement = memo(function DataManagement() {
     const file = event.target.files?.[0];
     if (!file) return;
     const text = await file.text();
-    const data = safeJSONParse(text, null);
+    const data = safeJSONParse(text, null) as Record<string, unknown> | null;
     if (!data || typeof data !== 'object' || Array.isArray(data)) {
       showAlert('Import Failed', 'Invalid backup file format.', 'danger');
       return;
     }
     STORAGE_KEYS.forEach((key) => {
       if (Object.prototype.hasOwnProperty.call(data, key)) {
-        const value = (data as any)[key];
+        const value = data[key];
         localStorage.setItem(
           key,
           typeof value === 'string' ? value : JSON.stringify(value)
