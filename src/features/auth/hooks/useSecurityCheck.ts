@@ -18,21 +18,25 @@ export function useSecurityCheck() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
+
     async function checkSecurity(user: User | null) {
+      if (signal.aborted) return;
       if (!user) {
-        setIsLocked(false);
-        setIsLoading(false);
+        if (!signal.aborted) { setIsLocked(false); setIsLoading(false); }
         return;
       }
-      
+
       const { data, error } = await supabase
         .from('user_security')
         .select('last_verified_at')
         .eq('user_id', user.id)
         .maybeSingle<SecurityRow>();
-        
+
+      if (signal.aborted) return;
+
       if (error || !data) {
-        // Use error code since PostgrestError might not have status property in this version
         if (error && (error.code === 'PGRST116' || error.code === 'PGRST204')) {
           console.warn('Supabase sync: user_security row is missing.');
         }
@@ -41,29 +45,36 @@ export function useSecurityCheck() {
         return;
       }
 
-      const lastVerified = new Date(data.last_verified_at).getTime();
-      const ninetyDays = 90 * 24 * 60 * 60 * 1000;
-      
-      if (Date.now() - lastVerified > ninetyDays) {
+      const raw = data.last_verified_at;
+      if (typeof raw !== 'string' || raw.trim() === '') {
         setIsLocked(true);
-      } else {
-        setIsLocked(false);
+        setIsLoading(false);
+        return;
       }
-      
+      const lastVerified = new Date(raw).getTime();
+      if (!Number.isFinite(lastVerified)) {
+        setIsLocked(true);
+        setIsLoading(false);
+        return;
+      }
+      const ninetyDays = 90 * 24 * 60 * 60 * 1000;
+
+      setIsLocked(Date.now() - lastVerified > ninetyDays);
       setIsLoading(false);
     }
-    
+
     // Initial check
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      checkSecurity(user);
-    });
+    supabase.auth.getUser()
+      .then(({ data: { user } }) => { checkSecurity(user); })
+      .catch((err: unknown) => { if (!signal.aborted) console.warn('useSecurityCheck: getUser failed', err); });
 
     // Listen for auth changes
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       checkSecurity(session?.user ?? null);
     });
-    
+
     return () => {
+      controller.abort();
       data?.subscription.unsubscribe();
     };
   }, []);
