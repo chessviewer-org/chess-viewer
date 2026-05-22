@@ -9,4 +9,5 @@ export { useColorState } from './useColorState';
 
 export { useOutsideClick } from './useOutsideClick';
 export { useIntersectionObserver } from './useIntersectionObserver';
-export { useFENBatch, useThemeSettings } from '@/contexts';
+export { useFENBatch } from '@/contexts/useFENBatch';
+export { useThemeSettings } from '@/contexts/ThemeSettingsContext';
