@@ -4,9 +4,10 @@ import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 
 import { getPieceImageKey, ItemTypes } from '@constants';
+import type { PieceSymbol } from '@app-types/chess';
 
 export interface DraggablePieceProps {
-  piece: string;
+  piece: PieceSymbol | '';
   pieceImage: HTMLImageElement | null;
   row?: number;
   col?: number;
@@ -100,7 +101,8 @@ export const DraggablePiece = memo(function DraggablePiece({
         style={{
           pointerEvents: 'none',
           userSelect: 'none',
-          WebkitUserSelect: 'none'
+          WebkitUserSelect: 'none',
+          imageRendering: 'auto'
         }}
         draggable={false}
       />
