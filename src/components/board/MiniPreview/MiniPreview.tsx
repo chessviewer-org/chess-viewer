@@ -97,6 +97,10 @@ const MiniPreview = memo(
         logger.error('Preview render error:', err);
         setHasError(true);
       }
+      return () => {
+        canvas.width = 0;
+        canvas.height = 0;
+      };
     }, [fen, lightSquare, darkSquare, pieceImages, size]);
     return (
       <div
