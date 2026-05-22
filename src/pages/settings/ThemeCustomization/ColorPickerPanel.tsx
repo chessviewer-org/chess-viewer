@@ -154,7 +154,7 @@ const ColorPickerPanel = memo(function ColorPickerPanel({
           onPointerDown={handleCanvasPointerDown}
           onPointerMove={handleCanvasPointerMove}
           onPointerUp={handleCanvasPointerUp}
-          className="w-full h-[100px] rounded-md cursor-crosshair border border-border/50"
+          className="w-full h-25 rounded-md cursor-crosshair border border-border/50"
           style={{
             touchAction: 'none'
           }}
