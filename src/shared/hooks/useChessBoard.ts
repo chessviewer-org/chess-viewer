@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { logger, parseFEN } from '@utils';
 import { createEmptyBoard } from '@utils/boardUtils';
-import { ChessBoard } from '@app-types/chess';
+import { ChessBoard, isChessBoard } from '@app-types/chess';
 import { FENParseError } from '@utils/fenParser';
 
 export interface UseChessBoardResult {
@@ -24,7 +24,10 @@ export function useChessBoard(fen: string): UseChessBoardResult {
     }
     try {
       const parsed = parseFEN(fen);
-      return { board: parsed as ChessBoard, error: null };
+      if (!isChessBoard(parsed)) {
+        return { board: createEmptyBoard(), error: 'Parsed board has unexpected structure' };
+      }
+      return { board: parsed, error: null };
     } catch (error) {
       if (error instanceof FENParseError) {
         return { board: createEmptyBoard(), error: error.message };
