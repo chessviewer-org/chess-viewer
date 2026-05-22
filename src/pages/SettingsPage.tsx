@@ -7,8 +7,7 @@ import {
   Pencil, 
   X, 
   ShieldCheck, 
-  User, 
-  Settings 
+  User
 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -21,6 +20,13 @@ import {
   ThemeCustomization
 } from '@/pages/settings';
 import { TwoFactorSetup } from '@/features/auth/components/TwoFactorSetup';
+
+interface ThemeEditControls {
+  editMode: boolean;
+  onEnableEditMode: () => void;
+  onCancelEditMode: () => void;
+  onApplyChanges: () => void;
+}
 
 const pageTabs = [
   {
@@ -61,7 +67,7 @@ const SettingsPage = memo(function SettingsPage() {
   const initialTab = searchParams.get('tab') || 'profile';
   
   const [activeTab, setActiveTab] = useState(initialTab);
-  const [themeEditControls, setThemeEditControls] = useState<any>(null);
+  const [themeEditControls, setThemeEditControls] = useState<ThemeEditControls | null>(null);
   
   const [boardSize, setBoardSize] = useLocalStorage('chess-board-size', 4);
   const [fileName, setFileName] = useLocalStorage('chess-file-name', 'chess-position');
@@ -82,7 +88,7 @@ const SettingsPage = memo(function SettingsPage() {
     setSearchParams({ tab: tabId });
   };
 
-  const handleThemeEditControlsChange = useCallback((controls: any) => {
+  const handleThemeEditControlsChange = useCallback((controls: ThemeEditControls | null) => {
     setThemeEditControls(controls);
   }, []);
 

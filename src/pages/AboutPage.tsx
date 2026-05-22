@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   CheckCircle,
   Code,
@@ -14,7 +15,6 @@ import {
 } from 'lucide-react';
 
 /**
- * @param {Object} props
  * @returns {JSX.Element}
  */
 function AboutPage() {
@@ -171,7 +171,13 @@ function AboutPage() {
   );
 }
 
-function QualityCard({ level, label, desc }) {
+interface QualityCardProps {
+  level: string;
+  label: string;
+  desc: string;
+}
+
+function QualityCard({ level, label, desc }: QualityCardProps) {
   return (
     <div className="p-3 rounded-lg bg-surface-elevated border border-border hover:border-accent text-center transition-colors duration-200">
       <div className="text-lg font-bold text-accent mb-0.5">{level}</div>
@@ -183,7 +189,13 @@ function QualityCard({ level, label, desc }) {
   );
 }
 
-function ActionCard({ icon, title, desc }) {
+interface ActionCardProps {
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+}
+
+function ActionCard({ icon, title, desc }: ActionCardProps) {
   return (
     <div className="flex items-center gap-3 p-3 rounded-lg bg-surface-elevated border border-border hover:border-accent transition-colors duration-200">
       <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center text-accent shrink-0">

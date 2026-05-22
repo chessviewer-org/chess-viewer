@@ -400,7 +400,7 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
                               <div className="max-h-26.25 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
                                 {state.parsedNames.map((name, idx) => (
                                   <div
-                                    key={idx}
+                                    key={name + '-' + (state.validFens[idx] || idx)}
                                     className="flex justify-between items-center text-[9px] font-mono text-text-secondary"
                                   >
                                     <span>Pos {idx + 1}:</span>

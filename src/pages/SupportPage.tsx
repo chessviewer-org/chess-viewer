@@ -94,7 +94,16 @@ function SupportPage() {
  * @param {Object} props
  * @returns {JSX.Element}
  */
-function SupportCard({ icon, title, desc, link, linkText, primary }) {
+interface SupportCardProps {
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+  link: string;
+  linkText: string;
+  primary?: boolean;
+}
+
+function SupportCard({ icon, title, desc, link, linkText, primary = false }: SupportCardProps) {
   return (
     <div
       className={`glass-card p-5 rounded-xl shadow-md transition-shadow duration-200 hover:shadow-lg ${primary ? 'border-2 border-accent' : 'border border-border'}`}
@@ -121,7 +130,12 @@ function SupportCard({ icon, title, desc, link, linkText, primary }) {
   );
 }
 
-function FAQItem({ q, a }) {
+interface FAQItemProps {
+  q: string;
+  a: string;
+}
+
+function FAQItem({ q, a }: FAQItemProps) {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div className="border border-border hover:border-accent/50 rounded-xl transition-colors duration-200">
