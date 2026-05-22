@@ -7,7 +7,7 @@ import { QRCodeSVG } from 'qrcode.react';
 function isMfa422Error(error: unknown): boolean {
   if (typeof error !== 'object' || error === null) return false;
   if (!('status' in error)) return false;
-  const record = error as Record<string, unknown>;
+  const record = error as { status?: unknown; message?: unknown };
   return Number(record.status) === 422;
 }
 
@@ -18,7 +18,7 @@ function getMfaErrorMessage(error: unknown): string {
   if (error instanceof Error && error.message) {
     msg = error.message;
   } else if (typeof error === 'object' && error !== null && 'message' in error) {
-    const record = error as Record<string, unknown>;
+    const record = error as { status?: unknown; message?: unknown };
     msg = String(record.message);
   }
 
@@ -34,7 +34,6 @@ function getMfaErrorMessage(error: unknown): string {
 }
 
 export function TwoFactorSetup() {
-  const [qrCode, setQrCode] = useState<string | null>(null);
   const [totpUri, setTotpUri] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
   const [verifyCode, setVerifyCode] = useState<string>('');
@@ -80,7 +79,7 @@ export function TwoFactorSetup() {
       return;
     }
 
-    const unverifiedFactors = factors.totp.filter((factor) => factor.status === 'unverified');
+    const unverifiedFactors = factors.totp.filter((factor) => (factor.status as string) === 'unverified');
     for (const factor of unverifiedFactors) {
       const { error: unenrollError } = await supabase.auth.mfa.unenroll({
         factorId: factor.id
@@ -109,7 +108,6 @@ export function TwoFactorSetup() {
     }
 
     if (data.type === 'totp') {
-      setQrCode(data.totp.qr_code);
       setTotpUri(data.totp.uri);
       setSecret(data.totp.secret);
       setStep(2);
@@ -141,7 +139,7 @@ export function TwoFactorSetup() {
       return;
     }
 
-    const unverifiedFactor = factors.totp.find((factor) => factor.status === 'unverified');
+    const unverifiedFactor = factors.totp.find((factor) => (factor.status as string) === 'unverified');
     if (!unverifiedFactor) {
       setError('No active unverified TOTP factor found. Please restart the setup.');
       setStep(1);
@@ -230,7 +228,7 @@ export function TwoFactorSetup() {
           <div className="flex flex-col items-center justify-center p-6 bg-surface-elevated/40 rounded-2xl border border-border/50 shadow-sm">
             <div className="text-center mb-6">
               <h3 className="text-base font-semibold text-text-primary mb-1">Scan QR Code</h3>
-              <p className="text-text-secondary text-xs leading-relaxed max-w-[260px] mx-auto">
+              <p className="text-text-secondary text-xs leading-relaxed max-w-65 mx-auto">
                 Use an authenticator app (e.g. Google Auth, Authy, Aegis) to scan this code.
               </p>
             </div>
@@ -306,8 +304,8 @@ export function TwoFactorSetup() {
           </div>
           
           <div className="grid grid-cols-2 gap-3 bg-surface-primary p-5 rounded-2xl border border-border shadow-inner">
-            {backupCodes.map((code, index) => (
-              <div key={index} className="font-mono text-[13px] sm:text-sm text-text-primary bg-surface-elevated py-2.5 px-3 text-center rounded-xl border border-border/50 tracking-wider">
+            {backupCodes.map((code) => (
+              <div key={code} className="font-mono text-[13px] sm:text-sm text-text-primary bg-surface-elevated py-2.5 px-3 text-center rounded-xl border border-border/50 tracking-wider">
                 {code.slice(0, 4)} {code.slice(4)}
               </div>
             ))}
