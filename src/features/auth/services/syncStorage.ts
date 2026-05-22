@@ -10,6 +10,8 @@ interface UserDataValueRow {
   value: string;
 }
 
+const isTableMissingError = (err: unknown) => err && typeof err === 'object' && 'code' in err && (err as { code: string }).code === '42P01';
+
 let currentUser: User | null = null;
 
 // Initialize and listen to auth changes
@@ -44,12 +46,13 @@ export const syncStorage = {
         throw error;
       }
       
-      if (!data?.value) return null;
+      if (!data || typeof data.value !== 'string' || data.value === '') return null;
 
       const encryptionKey = getEncryptionKey();
       if (encryptionKey && data.value.startsWith('enc:')) {
         try {
           const decrypted = await crypto.decrypt(data.value.replace('enc:', ''), encryptionKey);
+          if (typeof decrypted !== 'string') return null;
           return { value: decrypted };
         } catch (decErr) {
           logger.warn('Failed to decrypt cloud data. Returning raw value.', decErr);
