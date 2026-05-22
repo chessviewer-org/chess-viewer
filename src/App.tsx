@@ -34,6 +34,10 @@ const VALID_THEMES = new Set<string>(['light', 'dark']);
 
 type Theme = 'light' | 'dark';
 
+function isTheme(value: string): value is Theme {
+  return VALID_THEMES.has(value);
+}
+
 const THEME_REVEAL_DEFAULT_OFFSET = 24;
 
 /**
@@ -73,15 +77,15 @@ function getInitialTheme(): Theme {
   if (
     typeof window !== 'undefined' &&
     typeof window.__INITIAL_THEME__ === 'string' &&
-    VALID_THEMES.has(window.__INITIAL_THEME__)
+    isTheme(window.__INITIAL_THEME__)
   ) {
-    return window.__INITIAL_THEME__ as Theme;
+    return window.__INITIAL_THEME__;
   }
 
   try {
     const saved = localStorage.getItem('chess-theme');
-    if (saved && VALID_THEMES.has(saved)) {
-      return saved as Theme;
+    if (saved && isTheme(saved)) {
+      return saved;
     }
   } catch (error) {
     logger.warn('localStorage access blocked:', error);
