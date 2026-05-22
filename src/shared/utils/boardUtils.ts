@@ -1,9 +1,8 @@
-import { BoardMatrix, PieceSymbol } from '../types/index';
-import { parseFEN } from './fenParser';
+import { BoardMatrix } from '../types/index';
 
-/** 
- * Returns an 8x8 matrix representing an empty chess board. 
- * 
+/**
+ * Returns an 8x8 matrix representing an empty chess board.
+ *
  * @returns Empty board matrix
  */
 export function createEmptyBoard(): BoardMatrix {
