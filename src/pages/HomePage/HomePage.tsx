@@ -90,12 +90,12 @@ const HomePage: React.FC = () => {
         initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="w-full bg-bg pt-16 sm:pt-20 lg:pt-24 3xl:pt-32 px-[2%] sm:px-[3%] lg:px-[4%] pb-8 sm:pb-12 overflow-y-auto"
+        className="w-full min-h-0 bg-bg pt-16 sm:pt-20 lg:pt-24 px-3 sm:px-6 lg:px-8 pb-8 sm:pb-12 overflow-y-auto overflow-x-hidden"
       >
-          <div className="w-[95%] max-w-600 mx-auto">
+        <div className="w-full max-w-[1600px] mx-auto">
           <div className="flex flex-col xl:flex-row xl:items-start gap-4 lg:gap-5 xl:gap-6 min-w-0">
             {/* Left Column — Board + Actions */}
-            <div className="w-full xl:flex-1 space-y-3 sm:space-y-4 min-w-0">
+            <div className="w-full xl:flex-1 space-y-3 sm:space-y-4 min-w-0 min-h-0">
               <div className="bg-surface border border-border/40 rounded-xl p-3 sm:p-4">
                 <ChessEditor
                   fen={fen}
@@ -109,7 +109,7 @@ const HomePage: React.FC = () => {
                 />
               </div>
 
-              <div className="bg-surface border border-border/40 rounded-xl p-3 sm:p-4 lg:p-5 flex gap-3">
+              <div className="bg-surface border border-border/40 rounded-xl p-3 sm:p-4 lg:p-5 flex flex-col xs:flex-row gap-3">
                 <button
                   type="button"
                   className="flex-1 flex justify-center items-center px-4 py-3 min-h-11 text-sm font-semibold text-text-primary bg-transparent border border-border/50 rounded-lg hover:bg-surface-hover hover:border-text-muted transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
@@ -127,7 +127,7 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* Right Column — Settings Sidebar */}
-            <div className="w-full min-w-0 xl:w-[clamp(400px,35vw,600px)] xl:flex-none xl:sticky xl:top-24">
+            <div className="w-full min-w-0 xl:w-[clamp(360px,32vw,560px)] xl:flex-none xl:sticky xl:top-[6rem]">
               <ControlPanel
                 fen={fen}
                 setFen={setFen}
