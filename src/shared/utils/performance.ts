@@ -5,7 +5,7 @@
  * @param {Function} callback
  * @returns {Function & { cancel: () => void }}
  */
-export function rafThrottle<T extends any[]>(
+export function rafThrottle<T extends unknown[]>(
   callback: (...args: T) => void
 ): ((...args: T) => void) & { cancel: () => void } {
   let requestId: number | null = null;
