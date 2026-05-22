@@ -1,8 +1,17 @@
 import { memo } from 'react';
-
+import { ChessBoard } from '@/shared/types';
 import BoardSquare from '../BoardSquare';
 
-function arePropsEqual(prev, next) {
+export interface BoardGridProps {
+  board: ChessBoard;
+  lightSquare: string;
+  darkSquare: string;
+  pieceImages: Record<string, HTMLImageElement>;
+  isLoading: boolean;
+  flipped?: boolean;
+}
+
+function arePropsEqual(prev: BoardGridProps, next: BoardGridProps) {
   if (prev.isLoading !== next.isLoading) return false;
   if (prev.lightSquare !== next.lightSquare) return false;
   if (prev.darkSquare !== next.darkSquare) return false;
@@ -13,21 +22,24 @@ function arePropsEqual(prev, next) {
     nb = next.board;
   if (!pb || !nb || pb.length !== nb.length) return false;
   for (let r = 0; r < 8; r++) {
+    const prevRow = pb[r];
+    const nextRow = nb[r];
+    if (!prevRow || !nextRow) return false;
     for (let c = 0; c < 8; c++) {
-      if (pb[r]?.[c] !== nb[r]?.[c]) return false;
+      if (prevRow[c] !== nextRow[c]) return false;
     }
   }
   return true;
 }
 
 /**
- * @param {Object} props
+ * @param {BoardGridProps} props
  * @returns {JSX.Element}
  */
-const BoardGrid = memo(function BoardGrid(props) {
+const BoardGrid = memo(function BoardGrid(props: BoardGridProps) {
   const { board, lightSquare, darkSquare, pieceImages, isLoading } = props;
   return (
-    <div className="grid grid-cols-8 gap-0">
+    <div className="grid grid-cols-8" style={{ gap: 0, fontSize: 0, lineHeight: 0 }}>
       {Array.from({
         length: 64
       }).map((_, index) => {
