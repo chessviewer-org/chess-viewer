@@ -34,7 +34,27 @@ export function useBoardCanvas({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const lastTotalSizeRef = useRef<number | null>(null);
   const lastRenderScaleRef = useRef<number | null>(null);
-  
+
+  // Stable refs for all volatile props — lets drawBoard have an empty dep array
+  // while still reading the latest values on each invocation.
+  const boardRef = useRef(board);
+  const pieceImagesRef = useRef(pieceImages);
+  const showCoordsRef = useRef(showCoords);
+  const lightSquareRef = useRef(lightSquare);
+  const darkSquareRef = useRef(darkSquare);
+  const boardSizeRef = useRef(boardSize);
+  const flippedRef = useRef(flipped);
+  const isLoadingRef = useRef(isLoading);
+
+  boardRef.current = board;
+  pieceImagesRef.current = pieceImages;
+  showCoordsRef.current = showCoords;
+  lightSquareRef.current = lightSquare;
+  darkSquareRef.current = darkSquare;
+  boardSizeRef.current = boardSize;
+  flippedRef.current = flipped;
+  isLoadingRef.current = isLoading;
+
   // Track previous state manually to avoid expensive JSON.stringify
   const prevPropsRef = useRef({
     boardHash: '',
@@ -46,20 +66,31 @@ export function useBoardCanvas({
     loadedCount: 0
   });
 
+  // Stable callback — reads all volatile state through refs so it never needs
+  // to be recreated, preventing the useEffect from firing on every render.
   const drawBoard = useCallback(() => {
+    const board = boardRef.current;
+    const pieceImages = pieceImagesRef.current;
+    const showCoords = showCoordsRef.current;
+    const lightSquare = lightSquareRef.current;
+    const darkSquare = darkSquareRef.current;
+    const boardSize = boardSizeRef.current;
+    const flipped = flippedRef.current;
+    const isLoading = isLoadingRef.current;
+
     if (!canvasRef.current || board.length === 0 || isLoading) {
       return;
     }
 
     const loadedKeys = Object.keys(pieceImages);
     const loadedCount = loadedKeys.filter(k => pieceImages[k]?.complete).length;
-    
+
     if (loadedCount === 0) return;
 
     // Simple hash/fingerprint of the board array for quick change detection
     const boardHash = board.map(row => row.join('')).join('/');
-    
-    const hasChanged = 
+
+    const hasChanged =
       prevPropsRef.current.boardHash !== boardHash ||
       prevPropsRef.current.showCoords !== showCoords ||
       prevPropsRef.current.lightSquare !== lightSquare ||
@@ -76,7 +107,7 @@ export function useBoardCanvas({
     const borderSize = showCoords ? getCoordinateParams(boardSize).borderSize : 0;
     const totalSize = boardSize + borderSize * 2;
     const deviceScale = window.devicePixelRatio || 1;
-    
+
     // Cap render scale at 2 for preview fluidity while keeping sharpness
     const renderScale = Math.min(2, deviceScale);
 
@@ -152,13 +183,13 @@ export function useBoardCanvas({
         if (img && img.complete && img.naturalWidth > 0) {
           const [displayRow, displayCol] = getDisplayCoordinates(row, col, flipped);
           const bounds = getSquareBounds(displayRow, displayCol, squareSize, borderSize, borderSize);
-          
+
           // Slight padding for pieces within squares for better aesthetics
           const padding = squareSize * 0.05;
           const pieceSize = squareSize - (padding * 2);
           const px = bounds.centerX - pieceSize / 2;
           const py = bounds.centerY - pieceSize / 2;
-          
+
           ctx.drawImage(img, px, py, pieceSize, pieceSize);
         }
       }
@@ -167,15 +198,27 @@ export function useBoardCanvas({
     if (showCoords) {
       drawCoordinates(ctx, squareSize, borderSize, flipped, boardSize, false, true);
     }
-  }, [board, pieceImages, showCoords, lightSquare, darkSquare, boardSize, flipped, isLoading]);
+  }, []);
 
+  // Re-schedule a draw whenever any prop changes. The callback itself is stable
+  // so this effect only re-runs when actual input values change, not on every render.
   useEffect(() => {
     const throttledDraw = rafThrottle(drawBoard);
     throttledDraw();
     return () => {
       throttledDraw.cancel();
     };
-  }, [drawBoard]);
+  }, [drawBoard, board, pieceImages, showCoords, lightSquare, darkSquare, boardSize, flipped, isLoading]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    return () => {
+      if (canvas) {
+        canvas.width = 0;
+        canvas.height = 0;
+      }
+    };
+  }, []);
 
   return canvasRef;
 }
