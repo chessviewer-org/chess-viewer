@@ -133,8 +133,8 @@ Custom position:
 
 - [ ] I have not introduced unnecessary dependencies
 - [ ] All new dependencies are MIT-compatible or similar open source
-- [ ] `package.json` and `package-lock.json` are updated
-- [ ] Bundle size impact is acceptable (check with `npm run build`)
+- [ ] `package.json` and `pnpm-lock.yaml` are updated
+- [ ] Bundle size impact is acceptable (check with `pnpm build`)
 
 ### Git Hygiene
 
@@ -255,7 +255,7 @@ Memory usage: X MB → Y MB
 
 **Details:**
 
-## 📝 Additional Context
+## Additional Context
 
 <!-- Any additional information reviewers should know -->
 
@@ -282,7 +282,7 @@ Memory usage: X MB → Y MB
 
 When reviewing this PR, please verify:
 
-### Code Quality (⭐ Critical)
+### Code Quality (Critical)
 
 - [ ] Code is clean, readable, and maintainable
 - [ ] Follows React and JavaScript best practices
@@ -290,14 +290,14 @@ When reviewing this PR, please verify:
 - [ ] Components are properly memoized where needed
 - [ ] No prop drilling or context abuse
 
-### Functionality (⭐ Critical)
+### Functionality (Critical)
 
 - [ ] Works as described in all scenarios
 - [ ] Handles edge cases gracefully
 - [ ] No console errors or warnings
 - [ ] Proper error handling and user feedback
 
-### Chess-Specific (⭐ Critical for chess features)
+### Chess-Specific (Critical for chess features)
 
 - [ ] FEN parsing/validation is correct
 - [ ] Board rendering is accurate
@@ -361,7 +361,7 @@ perf(canvas): optimize board rendering performance
 
 - [ ] I have read and understood the [Contributing Guidelines](../CONTRIBUTING.md)
 - [ ] My code follows the project's code style and conventions
-- [ ] My contribution is licensed under the MIT License
+- [ ] My contribution is licensed under the AGPL-3.0 License
 - [ ] I agree to follow the [Code of Conduct](../CODE_OF_CONDUCT.md)
 - [ ] I have tested my changes thoroughly
 - [ ] This PR is ready for review (not a draft)

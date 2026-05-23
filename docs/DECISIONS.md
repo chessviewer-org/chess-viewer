@@ -45,7 +45,7 @@ Each decision follows this structure:
 ### ADR-001: Use React for UI Framework
 
 **Date:** 2025-12-27  
-**Status:** ✅ Accepted
+**Status:** Accepted
 
 #### Context
 
@@ -82,7 +82,7 @@ Use React 18+ (built with React 19.x) as the primary UI framework.
 ### ADR-002: Use HTML5 Canvas for Board Rendering
 
 **Date:** 2025-12-28  
-**Status:** ✅ Accepted
+**Status:** Accepted
 
 #### Context
 
@@ -126,7 +126,7 @@ Use HTML5 Canvas API instead of DOM-based rendering (SVG or HTML elements).
 ### ADR-003: Zero-Backend Architecture
 
 **Date:** 2025-12-28  
-**Status:** ✅ Accepted
+**Status:** Accepted
 
 #### Context
 
@@ -172,7 +172,7 @@ Build a completely client-side application with no backend server.
 ### ADR-004: Use Tailwind CSS for Styling
 
 **Date:** 2025-12-28  
-**Status:** ✅ Accepted
+**Status:** Accepted
 
 #### Context
 
@@ -211,7 +211,7 @@ Use Tailwind CSS utility-first framework.
 ### ADR-005: Client-Side FEN Parsing Only
 
 **Date:** 2025-12-28  
-**Status:** ✅ Accepted
+**Status:** Accepted
 
 #### Context
 
@@ -253,7 +253,7 @@ Implement FEN parsing entirely in JavaScript on the client side.
 ### ADR-006: No Database, Use LocalStorage
 
 **Date:** 2025-12-29  
-**Status:** ✅ Accepted
+**Status:** Accepted
 
 #### Context
 
@@ -299,7 +299,7 @@ Use browser localStorage API for all data persistence.
 ### ADR-007: PNG and JPEG Export Only (v3.x)
 
 **Date:** 2025-12-29  
-**Status:** ✅ Accepted
+**Status:** Accepted
 
 #### Context
 
@@ -348,7 +348,7 @@ This ADR was partially superseded in implementation: SVG export is now available
 ### ADR-008: Piece Images from Lichess (SVG)
 
 **Date:** 2025-12-28  
-**Status:** ✅ Accepted
+**Status:** Accepted
 
 #### Context
 
@@ -393,7 +393,7 @@ Use SVG piece sets from Lichess, which are MIT-licensed.
 ### ADR-009: Single-Page Application (No Routing)
 
 **Date:** 2025-12-28  
-**Status:** ✅ Accepted
+**Status:** Accepted
 
 #### Context
 
@@ -433,7 +433,7 @@ Build as a single-page application without client-side routing.
 ### ADR-010: No Authentication System
 
 **Date:** 2025-12-28  
-**Status:** ✅ Accepted
+**Status:** Accepted
 
 #### Context
 
@@ -474,7 +474,7 @@ This decision aligns with our privacy-first approach and keeps the application s
 ### ADR-011: Vite as Build Tool
 
 **Date:** 2025-12-28  
-**Status:** ✅ Accepted
+**Status:** Accepted
 
 #### Context
 
@@ -512,7 +512,7 @@ Use Vite instead of Create React App or Webpack.
 ### ADR-012: No Analytics or Tracking
 
 **Date:** 2025-12-28  
-**Status:** ✅ Accepted
+**Status:** Accepted
 
 #### Context
 
@@ -553,7 +553,7 @@ We prioritize user privacy over product metrics. Issues will be reported via Git
 ### ADR-013: Vercel for Hosting
 
 **Date:** 2025-12-28  
-**Status:** ✅ Accepted
+**Status:** Accepted
 
 #### Context
 
@@ -593,7 +593,7 @@ Deploy to Vercel with automatic deployments from GitHub.
 ### ADR-014: Mobile-First Responsive Design
 
 **Date:** 2025-12-29  
-**Status:** ✅ Accepted
+**Status:** Accepted
 
 #### Context
 
@@ -652,7 +652,7 @@ Use mobile-first responsive design approach with Tailwind breakpoints.
 ### ADR-015: Semantic Versioning
 
 **Date:** 2025-12-28  
-**Status:** ✅ Accepted
+**Status:** Accepted
 
 #### Context
 
@@ -702,15 +702,15 @@ Follow Semantic Versioning (SemVer 2.0.0): MAJOR.MINOR.PATCH
 
 | Technology     | Decision     | Status      | Version  |
 | -------------- | ------------ | ----------- | -------- |
-| **Framework**  | React        | ✅ Accepted | 19.x     |
-| **Build Tool** | Vite         | ✅ Accepted | Latest   |
-| **Styling**    | Tailwind CSS | ✅ Accepted | 3.4.x    |
-| **Rendering**  | HTML5 Canvas | ✅ Accepted | Native   |
-| **State**      | React Hooks  | ✅ Accepted | Built-in |
-| **Storage**    | localStorage | ✅ Accepted | Native   |
-| **Hosting**    | Vercel       | ✅ Accepted | -        |
-| **Icons**      | Lucide React | ✅ Accepted | Latest   |
-| **Pieces**     | Lichess SVG  | ✅ Accepted | -        |
+| **Framework**  | React        | Accepted | 19.x     |
+| **Build Tool** | Vite         | Accepted | 8.x      |
+| **Styling**    | Tailwind CSS | Accepted | 4.x      |
+| **Rendering**  | HTML5 Canvas | Accepted | Native   |
+| **State**      | React Hooks  | Accepted | Built-in |
+| **Storage**    | localStorage | Accepted | Native   |
+| **Hosting**    | Vercel       | Accepted | —        |
+| **Icons**      | Lucide React | Accepted | 1.x      |
+| **Pieces**     | Lichess SVG  | Accepted | —        |
 
 ---
 
@@ -928,6 +928,6 @@ Want to propose a new decision or challenge an existing one?
 
 ---
 
-**Last Updated:** May 6, 2026  
-**Version:** 5.0.0  
+**Last Updated:** 2026-05-23  
+**Applies To:** v5.5.3  
 **Maintainer:** [@BilgeGates](https://github.com/BilgeGates)

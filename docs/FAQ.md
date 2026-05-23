@@ -1,24 +1,24 @@
-# ChessVision - FAQ
+# ChessVision FAQ
 
-Common questions and answers.
+Common questions and answers. This document reflects the **v5.5.3 stable release** on `master`.
 
 ---
 
 ## General
 
-### What is this tool?
+### What is ChessVision?
 
-A browser-based tool that creates chess position images from FEN notation.
+A browser-based application that renders chess positions from FEN notation as high-resolution raster or vector images. All processing is client-side; no data is uploaded to a server.
 
 ### Requirements
 
-- Modern browser (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+)
-- Internet connection (piece images loaded from CDN)
-- No installation needed
+- A modern browser (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+)
+- An internet connection on first load to fetch the application bundle (piece SVGs and the JavaScript bundle are served from the deployed origin)
+- No installation; the application runs entirely in the browser
 
-### Is it free?
+### License
 
-Yes. MIT License. Use for any purpose.
+ChessVision is released under the **AGPL-3.0** license. Commercial use is permitted under the terms of that license.
 
 ---
 
@@ -26,7 +26,7 @@ Yes. MIT License. Use for any purpose.
 
 ### What is FEN?
 
-FEN (Forsyth-Edwards Notation) describes chess positions as text.
+FEN (Forsyth-Edwards Notation) is a single-line text representation of a chess position.
 
 **Example (starting position):**
 
@@ -34,26 +34,30 @@ FEN (Forsyth-Edwards Notation) describes chess positions as text.
 rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 ```
 
-### FEN Format
+### FEN format
 
-Six fields separated by spaces:
+A FEN string consists of six space-separated fields:
 
-1. **Piece placement** - Ranks 8 to 1, separated by `/`. Uppercase=White, lowercase=Black, numbers=empty squares
-2. **Active color** - `w` or `b`
-3. **Castling** - `KQkq` or `-`
-4. **En passant** - Target square or `-`
-5. **Halfmove clock** - Moves since capture/pawn move
-6. **Fullmove number** - Current move number
+1. **Piece placement.** Ranks 8 to 1, separated by `/`. Uppercase letters denote White, lowercase Black, and digits denote empty squares.
+2. **Active color.** `w` or `b`.
+3. **Castling availability.** Any combination of `KQkq`, or `-` for none.
+4. **En-passant target square.** Algebraic square, or `-`.
+5. **Halfmove clock.** Moves since the last capture or pawn move.
+6. **Fullmove number.** Current move number.
 
 ### Partial FEN
 
-Only the piece placement field is required. Others default to standard values.
+Only the piece-placement field is strictly required. Missing trailing fields default to standard values.
 
-### Common FEN Errors
+### Input limits
 
-- Wrong number of ranks (must be 8)
-- Invalid piece letters (only `prnbqkPRNBQK`)
-- Rank doesn't sum to 8 squares
+ChessVision enforces a hard input ceiling of `MAX_FEN_LENGTH = 93` characters. Inputs above this length are rejected before parsing.
+
+### Common FEN errors
+
+- Wrong number of ranks (must be 8).
+- Invalid piece letters (only `prnbqkPRNBQK` are accepted).
+- A rank that does not sum to 8 squares.
 
 ---
 
@@ -61,28 +65,28 @@ Only the piece placement field is required. Others default to standard values.
 
 ### Formats
 
-- **PNG** - Lossless, transparent background
-- **JPEG** - Smaller file size, no transparency
-- **SVG** - Vector export (currently available in Advanced FEN page export actions)
+- **PNG** — Lossless, supports transparency.
+- **JPEG** — Smaller file size; no transparency.
+- **SVG** — Vector export. Available on the Advanced FEN page export actions; not yet exposed on the Home page export toolbar.
 
 ### Resolution
 
-Print mode resolutions depend on board size selection (4 cm, 6 cm, 8 cm):
+Pixel dimensions are computed as `boardSizeCm × qualityMultiplier × 118.11`. The following table shows the maximum output at each quality level (8 cm board size).
 
-| Quality | Mode   | Example dimension (8 cm) |
-| ------- | ------ | ------------------------ |
-| 8×      | Print  | 7,552 × 7,552 px         |
-| 16×     | Print  | 15,104 × 15,104 px       |
-| 24×     | Social | 18,112 × 18,112 px       |
-| 32×     | Social | 24,192 × 24,192 px       |
+| Quality | Mode   | Dimension (8 cm board) | DPI   |
+| ------- | ------ | ---------------------- | ----- |
+| 8×      | Print  | 7,552 × 7,552 px       | 2,400 |
+| 16×     | Print  | 15,104 × 15,104 px     | 4,800 |
+| 24×     | Social | 22,656 × 22,656 px     | 7,200 |
+| 32×     | Social | 30,208 × 30,208 px     | 9,600 |
 
-### Export Issues
+The complete table covering 4 cm and 6 cm board sizes is in the [README](../README.md).
 
-**Browser crashes:** High-resolution exports (24×, 32×) need significant memory. Use lower scale or desktop browser.
+### Export issues
 
-**Export slow:** Large canvas operations take time. Close other tabs, use JPEG for faster processing.
-
-**Colors different after export:** Use PNG for accurate colors. JPEG compression can alter colors.
+- **Browser crashes at the largest sizes.** The 24× and 32× Social presets require significant memory. Safari and iOS WebKit can OOM at the largest dimensions despite the application's explicit canvas-disposal pattern. Use a desktop browser, or reduce the quality multiplier.
+- **Slow export.** High-resolution canvas operations are CPU-bound. Close other tabs; choose JPEG for faster encoding.
+- **Colour drift after JPEG export.** JPEG compression alters colours subtly. Use PNG when colour fidelity matters.
 
 ---
 
@@ -90,29 +94,31 @@ Print mode resolutions depend on board size selection (4 cm, 6 cm, 8 cm):
 
 ### Themes
 
-20+ preset board themes available. Custom hex colors supported via color picker.
+20+ preset board themes are included. Custom colours can be defined through the HSL / RGB / HEX color picker.
 
 ### Piece Sets
 
-20+ piece sets included. Cannot upload custom sets.
+23 piece sets are bundled. Custom piece-set upload is not supported in v5.5.3.
 
-### Board Options
+### Board options
 
-- Flip board (view from Black's perspective)
-- Toggle coordinate labels
-- Adjust board size
+- Flip board (view from Black's perspective).
+- Toggle coordinate labels.
+- Adjust physical board size (4 cm, 6 cm, 8 cm).
 
 ---
 
-## Known Limitations
+## Known Limitations (v5.5.3)
 
-- **No keyboard shortcuts** — Planned for future
-- **Home page has no SVG button** — SVG export is in Advanced FEN flow
-- **No PGN import** — FEN only
-- **No arrow/highlight annotations**
-- **Safari memory limits** — 24×/32× Social exports may fail on Safari/iOS
-- **No WCAG compliance** — Canvas content not accessible to screen readers
-- **No cross-device sync** — All data stored locally in browser
+- **No keyboard shortcuts.** Standard browser tab navigation works; application-specific shortcuts are not implemented.
+- **Home page lacks SVG export.** SVG export is currently exposed only on the Advanced FEN page.
+- **No PGN import.** FEN input only.
+- **No annotations.** Arrows and square highlights are not available.
+- **Safari memory limits.** 24× and 32× Social exports may fail on Safari and iOS WebKit.
+- **Canvas board is not accessible.** Screen readers cannot read the canvas-rendered board (see [ACCESSIBILITY.md](ACCESSIBILITY.md)).
+- **No cross-device sync.** State is persisted to `localStorage` only.
+
+A complete and current statement of known limitations is maintained in [ROADMAP.md](../ROADMAP.md) on `master`.
 
 ---
 
@@ -120,47 +126,41 @@ Print mode resolutions depend on board size selection (4 cm, 6 cm, 8 cm):
 
 ### Board not displaying
 
-1. Refresh page (Ctrl+F5)
-2. Clear browser cache
-3. Check internet connection
-4. Try different browser
+1. Hard-refresh the page (Ctrl-F5 or Cmd-Shift-R).
+2. Clear browser cache.
+3. Check the network connection.
+4. Try a different browser.
 
 ### Piece images missing
 
-1. Refresh page
-2. Try different piece set
-3. Clear browser cache
+1. Refresh the page.
+2. Try a different piece set.
+3. Clear browser cache.
 
 ### Export not working
 
-1. Check browser supports Canvas API
-2. Reduce export scale
-3. Disable popup blockers
-4. Allow downloads in browser settings
+1. Verify the browser supports the Canvas API.
+2. Reduce the export quality multiplier.
+3. Allow downloads in browser settings.
+4. Check that popup blockers are not interfering with the download.
 
 ---
 
 ## Development
 
-### Report a Bug
+### Report a bug
 
-[GitHub Issues](https://github.com/BilgeGates/chess-vision/issues) - Include browser, steps to reproduce, screenshots.
+Use [GitHub Issues](https://github.com/BilgeGates/chess-vision/issues). Include browser version, operating system, reproduction steps, and screenshots. See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full reporting protocol.
 
 ### Contribute
 
-Fork repo, create branch, submit pull request. See CONTRIBUTING.md.
+Fork the repository, create a branch following the convention in [CONTRIBUTING.md](../CONTRIBUTING.md), and open a pull request. Conventional Commits are enforced by commitlint.
 
-### Self-Host
+### Self-host
 
-Clone repository. Build with `pnpm build`. Deploy `dist/` folder.
-
----
-
-## License
-
-MIT License - Commercial use, modification, distribution allowed.
+Clone the repository, run `pnpm install`, then `pnpm build`. Deploy the `dist/` directory to any static host. See the [README](../README.md) for the full build instructions.
 
 ---
 
-**Last Updated:** May 6, 2026  
-**Version:** 5.0.0
+**Last Updated:** 2026-05-23  
+**Applies To:** v5.5.3
