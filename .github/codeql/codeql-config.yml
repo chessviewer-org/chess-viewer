@@ -1,0 +1,37 @@
+name: "ChessVision CodeQL Configuration"
+
+# Scope CodeQL to application source only. This file is consumed by the
+# CodeQL Advanced workflow at .github/workflows/codeql.yml.
+#
+# Rationale
+# - The application code lives under src/. Everything else is either tooling
+#   (vite.config.js, eslint.config.js), static assets (public/), documentation
+#   (docs/), or generated output that should never be scanned.
+# - Limiting the scan to src/ eliminates the bulk of low-signal findings from
+#   query packs that would otherwise inspect configuration files, tests, and
+#   anything checked into public/.
+# - The default query suite is paired with security-extended; the
+#   security-and-quality suite is intentionally excluded because its
+#   maintainability and style queries are out of scope for a focused security
+#   posture and were the principal cause of high alert volume.
+
+queries:
+  - uses: security-extended
+
+paths:
+  - src
+
+paths-ignore:
+  - "**/*.test.js"
+  - "**/*.test.ts"
+  - "**/*.test.jsx"
+  - "**/*.test.tsx"
+  - "**/__tests__/**"
+  - "**/*.d.ts"
+  - "**/*.min.js"
+  - dist
+  - build
+  - node_modules
+  - public
+  - docs
+  - coverage
