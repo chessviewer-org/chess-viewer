@@ -26,7 +26,7 @@ Technical documentation for ChessVision v5.0.0.
 - **[Changelog](CHANGELOG.md)** — Version history (v1.0.0 → v5.0.0)
 - **[FAQ](FAQ.md)** — Common questions
 - **[Linting Setup](LINTING_SETUP.md)** — ESLint, Prettier, Husky, commitlint configuration
-- **[Roadmap](ROADMAP.md)** — Implemented features and planned work
+- **[Roadmap](../ROADMAP.md)** — Implemented features and planned work
 
 ---
 
