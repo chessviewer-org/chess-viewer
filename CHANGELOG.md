@@ -608,9 +608,44 @@ _Authored: 2026-04-18→2026-04-19_
 
 **Commits:** 4 · **Range:** `93e2bb2..a299cd2` · [GitHub Release](https://github.com/BilgeGates/chess-vision/releases/tag/v5.0.1)
 
-## [5.0.0] - Export Engine Overhaul
+## [v5.0.0] - Export Engine Overhaul
 
-Initial v5 release. See [GitHub Release](https://github.com/BilgeGates/chess-vision/releases/tag/v5.0.0).
+_Released: 2026-04-17_
+
+### Features
+
+- Advanced FEN Editor at `/advanced-fen` with multi-position management, Positions and Preview/Export tabs
+- Batch export across PNG, JPEG, and SVG
+- Slideshow playback with configurable interval
+- FEN History: Archive tab to move positions out of active view without deletion
+- FEN History: reactivate archived positions at any time
+- FEN History: freshness indicators (Fresh / Aging / Stale) with timestamps
+- Theme Studio with 20 preset board themes and 2 custom slots
+- Custom Color Mixer with independent Light Square / Dark Square controls and hue canvas
+- Export Customization: board size selector (4×4 / 6×6 / 8×8 / Custom cm)
+- Export Customization: file name input
+- Export Customization: print quality tiers (Print 8×, Print 16×, Social 24×, Max 32×)
+- Help Center: searchable in-app help panel covering all major features
+- Light / Dark mode with persistent theme preference
+
+### Bug Fixes
+
+- Critical export dimension bug: board size selection now correctly maps to pixel output across all quality tiers (e.g. Print 8× @ 4cm → 3,776px; @ 6cm → 5,664px; @ 8cm → 7,552px)
+- Incorrect property access in `getExportInfo` (`baseSizeCm` → `physicalSizeCm`, `dpi` → `effectiveDPI`)
+- Coordinate label borders no longer appear in exported images
+- Coordinate positioning scales proportionally with board dimensions
+- Circular export dependencies across component index files resolved
+- React build errors caused by incorrect component export patterns resolved
+
+### Code Quality
+
+- Comprehensive JSDoc documentation added across the codebase
+- Standardized import ordering in all source files
+- Markdown documentation rewritten in professional technical style
+- Low-value inline comments removed
+- Export dimension logic extracted into a dedicated scaling utility
+
+[GitHub Release](https://github.com/BilgeGates/chess-vision/releases/tag/v5.0.0)
 
 ---
 
