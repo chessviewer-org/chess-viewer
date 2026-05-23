@@ -612,3 +612,356 @@ _Authored: 2026-04-18→2026-04-19_
 
 Initial v5 release. See [GitHub Release](https://github.com/BilgeGates/chess-vision/releases/tag/v5.0.0).
 
+
+---
+
+## Historical releases (v1.x – v4.x)
+
+> Entries below are reproduced from the original GitHub Release notes for each tag. Authored and published on the dates shown. Repository was renamed from `chess_viewer` to `chess-vision` during the v4.x line; some links in older entries may point to the previous repository name.
+
+## [v4.0.0] - 2026-02-02
+
+_v4.0.0 - PWA Support_
+
+#### 🚀 Progressive Web App Support
+
+This major release introduces PWA (Progressive Web App) functionality, allowing users to install and use Chess Diagram Generator as a native-like application.
+
+#### ✨ What's New
+
+#### Progressive Web App (PWA) Support
+- **Service Worker** - Implemented offline-first caching strategy with Workbox
+- **Web App Manifest** - Added comprehensive manifest.json with app icons and metadata
+- **Installability** - Users can now install the app on desktop and mobile devices
+- **Offline Mode** - Full functionality available without internet connection
+- **App Icons** - Added complete set of PWA icons (192x192, 512x512, maskable icons)
+- **Theme Color** - Added theme color support for better native app experience
+- **Cache Management** - Intelligent caching of static assets and API responses
+
+#### 🔧 Changes
+- Updated build configuration to support PWA features
+- Enhanced app metadata for better mobile experience
+- Improved loading performance with service worker precaching
+
+#### 📱 How to Install
+1. Visit the app in Chrome, Edge, or Safari
+2. Look for the install icon in the address bar
+3. Click 'Install' to add to your home screen or applications
+
+**Full Changelog**: https://github.com/BilgeGates/chess_viewer/blob/master/docs/CHANGELOG.md
+
+[GitHub Release](https://github.com/BilgeGates/chess-vision/releases/tag/v4.0.0)
+
+## [v3.5.4] - 2026-02-01
+
+_v3.5.4 – Accessibility, performance and modal fixes_
+
+#### ♟ Chess Diagram Generator v3.5.4
+
+🔧 **Modal Stability & Production-Grade Accessibility**
+
+This release resolves critical ThemeModal bugs and brings comprehensive accessibility compliance, making the application screen reader-ready and production-grade.
+
+---
+
+#### 🛠️ **Critical Bug Fixes**
+
+• **ThemeModal Restoration** - Fixed broken piece preview in theme selector  
+• **Piece Rendering** - Corrected piece key mapping (wK, wQ, bK, bQ format)  
+• **Board Preview** - Theme selection now properly displays chess pieces  
+• **Color Templates** - Restored all 12 predefined theme options to working state  
+• **Empty Board Fix** - Fixed empty board initialization on first render  
+• **CSS Cleanup** - Removed malformed CSS and fixed reduce-motion rules  
+
+#### ♿ **Accessibility Compliance**
+
+• **Full ARIA Support** - Complete accessibility across modals, tabs, dialogs  
+• **Keyboard Navigation** - Enhanced Escape, Enter, Space key handling  
+• **Screen Reader Ready** - Skip-to-content navigation and proper landmarks  
+• **Focus Management** - Improved focus-visible styles and tab trapping  
+• **WCAG 2.1 AA** - Compliant with accessibility standards  
+
+#### 🚀 **Performance Optimizations**
+
+• **Code Splitting** - React.lazy implementation for all main pages  
+• **Lazy Rendering** - Intersection Observer for theme presets  
+• **GPU Acceleration** - CSS containment for heavy UI elements  
+• **Bundle Optimization** - Reduced CSS duplication, improved tree-shaking  
+• **Smart Hooks** - Added useDebounce, useIdleCallback for better UX  
+
+#### 🎨 **UI/UX Improvements**
+
+• **ThemeModal Redesign** - Improved layout and header styling  
+• **Professional Polish** - Cleaner About and User Guide pages  
+• **Custom Scrollbar** - Themed scrollbars with hover/active states  
+• **Animation System** - Centralized transitions and keyframes  
+• **404 Page** - Added proper NotFoundPage with navigation  
+
+#### 🧹 **Code Quality**
+
+• **Dependency Cleanup** - Removed unused props, variables, inline styles  
+• **CSS Consolidation** - Single source for scrollbar and animation styles  
+• **Hook Stability** - Improved error handling and lifecycle management  
+• **Type Safety** - Enhanced prop validation and component contracts  
+
+---
+
+#### 📊 **Technical Details**
+
+| Metric | Impact |
+|--------|--------|
+| **Bundle Size** | +74B (0.07% increase) |
+| **Accessibility Score** | 100% WCAG 2.1 AA |
+| **Performance** | Improved lazy loading |
+| **Files Modified** | 14 files updated |
+| **Breaking Changes** | None (backward compatible) |
+
+#### 🎯 **Who Should Upgrade**
+
+**🔴 Critical for:**
+- Users experiencing theme selection issues
+- Organizations requiring accessibility compliance
+- Screen reader and keyboard navigation users
+
+**🟡 Recommended for:**
+- All active users (stability improvements)
+- Performance-sensitive deployments
+
+#### 📦 **Installation**
+
+```bash
+git clone https://github.com/BilgeGates/chess_viewer.git
+cd chess_viewer
+npm install
+npm start
+```
+
+#### 📄 **Full Changelog**
+[View CHANGELOG.md](https://github.com/BilgeGates/chess_viewer/blob/master/docs/CHANGELOG.md#v354---2025-02-01)
+
+---
+
+**MIT Licensed · © 2025 Khatai Huseynzada**
+
+[GitHub Release](https://github.com/BilgeGates/chess-vision/releases/tag/v3.5.4)
+
+## [v3.5.3] - 2026-01-23
+
+_v3.5.3 - Tab-Based Modal Refactor & Code Quality Improvements_
+
+#### 🎯 What's New in v3.5.3
+
+This release focuses on **UX improvements** for the Advanced FEN Input modal and **code quality fixes** across the codebase.
+
+---
+
+#### ✨ Highlights
+
+#### 🗂️ Tab-Based Advanced FEN Modal
+The Advanced FEN Input modal has been completely redesigned with a cleaner, more intuitive tab-based interface:
+
+| Tab | Description |
+|-----|-------------|
+| **Positions** | Manage multiple FEN inputs (up to 10) |
+| **Preview** | Live board preview with slideshow controls |
+| **Export** | Batch export options (PNG/JPEG) |
+
+- Modal size reduced from `max-w-6xl` to `max-w-2xl` for better focus
+- Compact header with integrated navigation
+- Improved mobile responsiveness
+
+---
+
+#### 🐛 Bug Fixes
+
+- **Merge Conflicts Resolved** - Fixed git conflicts in `HueSlider.jsx` and `colorUtils.js`
+- **Unreachable Code** - Removed duplicate return statement in color utilities
+- **ESLint Warnings** - All 16 warnings fixed (unused variables, array index keys)
+- **Props Handling** - Fixed `lightSquare`/`darkSquare` prop passing in modals
+
+---
+
+#### 🔧 Code Quality
+
+- Replaced array index keys with unique identifiers across components
+- Prefixed unused props with underscore for clarity
+- Consistent single-quote string formatting
+
+---
+
+#### ⚠️ Known Issues
+
+| Issue | Status |
+|-------|--------|
+| ThemeModal live preview not updating | 🔴 Open |
+| AdvancedFENInputModal board preview not rendering | 🔴 Open |
+
+These will be addressed in the next release.
+
+---
+
+#### 📦 Installation
+
+```bash
+git clone https://github.com/BilgeGates/chess_viewer.git
+cd chess_viewer
+npm install
+npm start
+
+[GitHub Release](https://github.com/BilgeGates/chess-vision/releases/tag/v3.5.3)
+
+## [v3.5.2] - 2026-01-18
+
+_v3.5.2 - Bug Fixes & Accessibility Improvements_
+
+#### What's Changed
+
+#### 🐛 Bug Fixes
+
+- **Console logs removed** - Replaced 74 console.log/error statements with logger utility (dev-only)
+- **Memory leaks fixed** - Added setTimeout cleanup refs to prevent memory leaks
+- **Coordinate alignment** - Fixed board coordinate misalignment in display and export
+- **Export accuracy** - Fixed coordinate positioning in exported images
+- **Clipboard paste** - Fixed FEN notation paste functionality
+- **Mobile layout** - Fixed canvas overflow on mobile devices
+- **React memo** - Fixed comparison functions to prevent unnecessary re-renders
+
+#### ✨ New Features
+
+- **Error Boundary** - Graceful error recovery with user-friendly fallback UI
+- **ARIA labels** - Added accessibility attributes to Modal, Button, ActionButtons, ChessBoard
+- **Focus trap** - Modal components now trap focus for better keyboard navigation
+- **Logger utility** - Development-only logging (`src/utils/logger.js`)
+- **Error handler** - Centralized error handling (`src/utils/errorHandler.js`)
+
+#### ♿ Accessibility
+
+- Modal: `role="dialog"`, `aria-modal`, `aria-labelledby`
+- Button: `aria-label` prop, `aria-disabled` attribute
+- ChessBoard: `role="img"` with dynamic board description
+
+#### 📁 Files Changed
+
+- `src/utils/logger.js` (new)
+- `src/utils/errorHandler.js` (new)
+- `src/components/UI/ErrorBoundary.jsx` (new)
+- `src/components/UI/base/Modal.jsx`
+- `src/components/UI/base/Button.jsx`
+- `src/components/UI/ActionButtons.jsx`
+- `src/components/board/ChessBoard.jsx`
+- `src/App.jsx`
+- Multiple hooks files
+
+**Full Changelog**: https://github.com/BilgeGates/chess_viewer/compare/v3.5.1...v3.5.2
+
+[GitHub Release](https://github.com/BilgeGates/chess-vision/releases/tag/v3.5.2)
+
+## [v3.5.1] - 2026-01-04
+
+_v3.5.1 — Patch release_
+
+#### 🐛 Bug Fix
+- Fixed a critical export issue where chess pieces were not rendered correctly in PNG/JPEG exports.
+
+#### 🎨 Visual Improvements
+- Improved coordinate readability with larger, bolder fonts.
+- Increased chess piece size for clearer board visualization.
+- Added a subtle border around the chessboard for better visual definition.
+
+[GitHub Release](https://github.com/BilgeGates/chess-vision/releases/tag/v3.5.1)
+
+## [v3.5.0] - 2026-01-03
+
+_v3.5.0 — Performance, Stability & Polish_
+
+⚡ Refinement release focused on performance and stability.
+
+✨ Improvements
+- Faster export pipeline
+- Smoother UI interactions
+- Improved color picker accuracy
+- Better mobile responsiveness
+
+🛠️ Internal
+- Extensive use of React.memo
+- Optimized hooks and utilities
+- Cleaner folder structure
+- Reduced bundle size
+
+🐛 Fixes
+- FEN parsing edge cases fixed
+- Export scaling issues resolved
+- Cross-browser UI fixes
+
+[GitHub Release](https://github.com/BilgeGates/chess-vision/releases/tag/v.3.5.0)
+
+## [v3.0.0] - 2026-01-03
+
+_v3.0.0 — Ultra-HD Export & Power Features_
+
+🖼️ Professional-grade diagram generation.
+
+✨ Features
+- Advanced color picker (HEX / RGB / HSL)
+
+♟️ Chess Features
+- FEN history with auto-save
+- Favorite positions
+- Famous classical positions
+
+⚙️ Architecture
+- Refactored component structure
+- Atomic Design principles
+- Improved canvas scaling logic
+
+[GitHub Release](https://github.com/BilgeGates/chess-vision/releases/tag/v3.0.0)
+
+## [v2.0.0] - 2026-01-03
+
+_v2.0.0 — Customization & UX Upgrade_
+
+🎨 Major customization and user experience improvements.
+
+✨ New Features
+- Custom light and dark square colors
+- Multiple board themes
+- Improved piece selector
+
+🧠 Enhancements
+- Better FEN validation
+- Improved control panel UX
+- Responsive layout improvements
+
+⚡ Performance
+- Reduced unnecessary re-renders
+- Optimized board redraw logic
+
+[GitHub Release](https://github.com/BilgeGates/chess-vision/releases/tag/v.2.0.0)
+
+## [v1.0.0] - 2026-01-03
+
+_v1.0.0 — Initial Stable Release_
+
+🎉 First public release of Chess Diagram Generator.
+
+✨ Features
+- Full FEN notation support
+- Interactive chessboard renderer
+- Multiple piece styles
+- Board flip and coordinate toggle
+- Real-time board updates
+
+🖼️ Export
+- PNG & JPEG export
+- High-quality canvas rendering
+- Custom board size control
+
+🛠️ Tech
+- React 18
+- Tailwind CSS
+- HTML5 Canvas
+
+This version establishes the core functionality and serves as a stable foundation.
+
+[GitHub Release](https://github.com/BilgeGates/chess-vision/releases/tag/v1.0.0)
+
