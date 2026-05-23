@@ -1,4 +1,6 @@
-# ChessVision — Architecture Documentation
+# ChessVision — Architecture Documentation (v5.5.3)
+
+This document describes the architecture of the `master` branch at **v5.5.3**. Forward-looking work that lives on `develop` (authentication, multi-factor authentication, encrypted cloud sync, Web Worker rasterization, and full TypeScript migration) is intentionally not described here and will be integrated when it ships on `master`.
 
 ## Table of Contents
 
@@ -11,21 +13,23 @@
 - [Routing](#routing)
 - [Canvas Rendering](#canvas-rendering)
 - [Export System](#export-system)
+- [Out of Scope (v5.x)](#out-of-scope-v5x)
 
 ---
 
 ## Project Overview
 
-A React-based web application that renders chess positions from FEN notation, supports interactive drag-and-drop board editing, and exports high-resolution images via HTML5 Canvas.
+A React-based single-page application that renders chess positions from FEN notation, supports interactive drag-and-drop board editing, and exports high-resolution raster and vector images via HTML5 Canvas.
 
 **Core Principles:**
 
-- Component-based architecture with feature-domain grouping
-- Functional components with React hooks exclusively
-- Canvas-based board rendering and image export
-- Zero-backend — all state persisted in localStorage
-- Lazy-loaded pages for faster initial load
-- Dual context providers for theme settings and FEN batch processing
+- Component-based architecture with feature-domain grouping.
+- Functional components with React hooks exclusively.
+- Canvas-based board rendering and image export.
+- Zero backend; all state persisted in `localStorage`.
+- Lazy-loaded pages with manual vendor chunking.
+- Three context providers (`FENBatchContext`, `LayoutContext`, `ThemeSettingsContext`) for cross-tree state.
+- Conventional Commits with `semantic-release` operating against `master`.
 
 ---
 
@@ -34,24 +38,29 @@ A React-based web application that renders chess positions from FEN notation, su
 ### Frontend
 
 - **React 19.x** — UI library with hooks
+- **TypeScript 6.x** — Language. The v5.x source tree is predominantly `.jsx` / `.js`; selected files such as `fenParser.ts`, `fenValidationDetailed.ts`, and `useDebouncedFENValidation.ts` are typed.
 - **React Router DOM 7.x** — Client-side routing
-- **Framer Motion 12.x** — Animations
-- **React DnD 16.x** — Drag-and-drop piece interaction
-- **react-window 2.x** — Virtualised list rendering for history
-- **Lucide React / React Icons** — Icon libraries
+- **Framer Motion 12.x** — Page-transition animations
+- **React DnD 16.x** with `HTML5Backend` and `TouchBackend` — Drag-and-drop piece interaction
+- **react-window 2.x** with `react-window-infinite-loader` — Virtualized list rendering
+- **Lucide React 1.x** and `react-icons` — Icon libraries
+- **canvg 4.x** — SVG-to-canvas rasterization used by the SVG export path
 
 ### Styling
 
-- **Tailwind CSS 3.x** — Utility-first CSS
+- **Tailwind CSS 4.x** — Utility-first CSS via `@tailwindcss/postcss`
 - **PostCSS / Autoprefixer** — CSS build pipeline
 
 ### Build & Tooling
 
-- **Vite 6.x** — Build tool and dev server
-- **ESLint 9.x** with React/hooks plugins — Linting
+- **Vite 8.x** — Build tool and dev server (port 3000)
+- **pnpm 10.x** — Package manager (`packageManager: pnpm@10.33.0`)
+- **ESLint 9.x** with `eslint-plugin-react`, `eslint-plugin-react-hooks`, `eslint-plugin-react-refresh` — Linting (production: `--max-warnings=0`)
 - **Prettier** — Code formatting
 - **Husky + lint-staged** — Pre-commit hooks
-- **commitlint** — Conventional commit enforcement
+- **commitlint** with Conventional Commits — Commit-message enforcement
+- **semantic-release 25.x** — Automated versioning and release notes from Conventional Commits, operating against `master`
+- **Node test runner** (`node --test`) — Unit tests against `src/utils/fenParser.test.js`. No experimental Node flags required on the v5.x line.
 
 ### Browser APIs
 
@@ -59,6 +68,7 @@ A React-based web application that renders chess positions from FEN notation, su
 - **Blob & URL APIs** — Image download
 - **localStorage** — State persistence
 - **Clipboard API** — Copy image to clipboard
+- **`<a download>`** — File-download fallback
 
 ---
 
@@ -169,8 +179,11 @@ chess-vision/
 │   │       └── index.js
 │   │
 │   ├── contexts/              # React context providers
-│   │   ├── ThemeSettingsContext.jsx  # Color picker settings & recent colors
-│   │   ├── FENBatchContext.jsx       # Batch FEN list with localStorage
+│   │   ├── FENBatchContext.jsx       # Batch FEN list, persisted to localStorage
+│   │   ├── FENBatchStore.js          # Store object + type declaration
+│   │   ├── LayoutContext.jsx         # UI layout state
+│   │   ├── ThemeSettingsContext.jsx  # Color-picker settings, recent colors, sound
+│   │   ├── useFENBatch.js            # Consumer hook
 │   │   └── index.js
 │   │
 │   ├── hooks/                 # Custom React hooks
@@ -178,6 +191,7 @@ chess-vision/
 │   │   ├── useChessBoard.js
 │   │   ├── useColorConversion.js
 │   │   ├── useColorState.js
+│   │   ├── useDebouncedFENValidation.ts
 │   │   ├── useFENHistory.js
 │   │   ├── useInteractiveBoard.js
 │   │   ├── useIntersectionObserver.js
@@ -190,23 +204,29 @@ chess-vision/
 │   │   ├── useTheme.js
 │   │   └── index.js
 │   │
-│   ├── utils/                 # Pure utility functions
+│   ├── utils/                 # Utility functions, canvas pipeline, validation
 │   │   ├── advancedExport.js
 │   │   ├── archiveManager.js
 │   │   ├── boardUtils.js
 │   │   ├── canvasExporter.js
+│   │   ├── canvasRenderer.js
 │   │   ├── classNames.js
-│   │   ├── colorUtils.js
+│   │   ├── colorConversions.js       # HEX/RGB/HSL utilities
+│   │   ├── colorOperations.js        # Color manipulation
 │   │   ├── coordinateCalculations.js
 │   │   ├── errorHandler.js
 │   │   ├── eventUtils.js
-│   │   ├── fenParser.ts
+│   │   ├── fenParser.ts              # FEN parsing (typed)
+│   │   ├── fenParser.test.js         # node --test unit tests
+│   │   ├── fenValidationDetailed.ts  # Granular FEN diagnostics
 │   │   ├── historyUtils.js
 │   │   ├── imageOptimizer.js
-│   │   ├── logger.js
+│   │   ├── logger.js                 # Centralized logger (dev-only output)
 │   │   ├── performance.js
 │   │   ├── pieceImageCache.js
-│   │   ├── validation.js
+│   │   ├── svgExporter.js            # SVG export path
+│   │   ├── themeCustomization.js
+│   │   ├── validation.js             # safeJSONParse, sanitizeFileName, MAX_FEN_LENGTH
 │   │   └── index.js
 │   │
 │   └── constants/
@@ -214,13 +234,15 @@ chess-vision/
 │       ├── dragDropConstants.js # DnD item types
 │       └── index.js
 │
-├── docs/                      # Documentation
+├── docs/                      # Extended documentation
 ├── dist/                      # Vite build output (gitignored)
 ├── index.html                 # HTML entry point
 ├── package.json
 ├── vite.config.js
 ├── tailwind.config.js
-├── jsconfig.json              # Path alias (@/ → src/)
+├── jsconfig.json              # JS path-alias config (@/ → src/)
+├── tsconfig.json              # TypeScript config for the typed files
+├── tsconfig.node.json         # TypeScript config for Node-side tooling
 └── eslint.config.js
 ```
 
@@ -288,7 +310,7 @@ Root application component. Responsibilities:
 - Manages light/dark color-scheme state (`theme`: `'light' | 'dark'`)
 - Reads initial theme from `window.__INITIAL_THEME__` → localStorage → `prefers-color-scheme`
 - Applies `data-theme` attribute to `<html>` via `useLayoutEffect`
-- Wraps the app in `<ThemeSettingsProvider>` and `<FENBatchProvider>`
+- Wraps the app in `<FENBatchProvider>`, `<LayoutProvider>`, and `<ThemeSettingsProvider>`
 - Renders `<Navbar>` conditionally (hidden on tool pages: `/settings`, `/fen-history`, `/advanced-fen`)
 - Contains skip-to-main-content link for keyboard accessibility
 
@@ -353,17 +375,15 @@ User Input (FEN text / drag-drop)
 
 ## State Management
 
-See [STATE_MANAGEMENT.md](STATE_MANAGEMENT.md) for the full guide.
+| Layer            | Tool         | Examples                                                       |
+| ---------------- | ------------ | -------------------------------------------------------------- |
+| Component state  | `useState`   | Modal open/close, form values                                  |
+| Derived state    | `useMemo`    | Parsed FEN → board array                                       |
+| Cross-tree state | Context API  | `FENBatchContext`, `LayoutContext`, `ThemeSettingsContext`     |
+| Persistence      | localStorage | FEN history (300 ms debounced), batch list, theme, settings    |
+| Drag state       | React DnD    | Piece being dragged (no React-state mirror; `useDragLayer`)    |
 
-**Summary:**
-
-| Layer            | Tool         | Examples                       |
-| ---------------- | ------------ | ------------------------------ |
-| Component state  | `useState`   | Modal open/close, form values  |
-| Derived state    | `useMemo`    | Parsed FEN → board array       |
-| Cross-tree state | Context API  | Theme settings, FEN batch list |
-| Persistence      | localStorage | FEN history, theme, settings   |
-| Drag state       | React DnD    | Piece being dragged            |
+Persistence is local-only on the v5.x line. Every `localStorage` read is routed through `safeJSONParse` in `src/utils/validation.js`; direct `JSON.parse` on untrusted strings is forbidden.
 
 ---
 
@@ -383,14 +403,16 @@ See [STATE_MANAGEMENT.md](STATE_MANAGEMENT.md) for the full guide.
 - Supports pause/resume/cancel via module-level `exportState` object
 - Progress reported via `onProgress(0–100)` callback
 
-**Quality levels and maximum resolutions:**
+**Quality levels and maximum resolutions** (full table in `README.md`):
 
-| Mode   | Quality | Max Resolution                           |
-| ------ | ------- | ---------------------------------------- |
-| Print  | 8×      | ~3,776–7,552 px depending on board size  |
-| Print  | 16×     | ~5,664–15,104 px depending on board size |
-| Social | 24×     | 18,112 × 18,112 px                       |
-| Social | 32×     | 24,192 × 24,192 px                       |
+| Mode   | Quality | Board size range | Pixel-dimension range                       | DPI   |
+| ------ | ------- | ---------------- | ------------------------------------------- | ----- |
+| Print  | 8×      | 4 cm – 8 cm      | 3,776 × 3,776 px – 7,552 × 7,552 px         | 2,400 |
+| Print  | 16×     | 4 cm – 8 cm      | 7,552 × 7,552 px – 15,104 × 15,104 px       | 4,800 |
+| Social | 24×     | 4 cm – 8 cm      | 11,328 × 11,328 px – 22,656 × 22,656 px     | 7,200 |
+| Social | 32×     | 4 cm – 8 cm      | 15,104 × 15,104 px – 30,208 × 30,208 px     | 9,600 |
+
+The pixel dimension is computed as `boardSizeCm × qualityMultiplier × 118.11`. The maximum supported output is 30,208 × 30,208 px at 9,600 DPI. Safari and iOS WebKit can OOM at the largest sizes despite the explicit `canvas.width = 0` disposal after every blob generation; the v5.x pipeline mitigates this but does not eliminate it.
 
 ---
 
@@ -400,13 +422,34 @@ See [EXPORT_PIPELINE.md](EXPORT_PIPELINE.md) for the full technical reference.
 
 **Flow:**
 
-1. User configures quality, format (PNG/JPEG), and board size in `ExportSettings`
-2. `ActionButtons` triggers `exportBoardAsImage` from `canvasExporter.js`
-3. `ExportProgress` displays real-time progress via callback
-4. On completion the image is downloaded via `<a download>` or copied to clipboard via the Clipboard API
-5. For batch export, `advancedExport.js` iterates the FEN list from `FENBatchContext`
+1. User configures quality, format (PNG / JPEG / SVG), and board size in `ExportSettings`.
+2. `ActionButtons` triggers `exportBoardAsImage` from `canvasExporter.js`, or `svgExporter.js` for the SVG path.
+3. `ExportProgress` displays real-time progress through the `onProgress(0–100)` callback.
+4. The shared pause / resume / cancel state machine in `canvasExporter.js` and `advancedExport.js` is checked at every chunk boundary.
+5. On completion, the image is downloaded via `<a download>` or copied to clipboard via the Clipboard API.
+6. For batch export, `advancedExport.js` iterates the FEN list from `FENBatchContext` and `archiveManager.js` bundles the result into a ZIP.
+
+**Safari canvas-disposal invariant.** After every blob generation, the producing `HTMLCanvasElement` must be reset by `canvas.width = 0`. This releases GPU memory that Safari does not garbage-collect on reference drop. The invariant is non-negotiable; any contribution that bypasses it will be rejected.
 
 ---
 
-**Last Updated:** May 6, 2026  
-**Version:** 5.0.0
+## Out of Scope (v5.x)
+
+The following are not implemented on the v5.x line and are deliberately excluded from this architecture document. They may appear in a future major release; when they do, this document will be updated.
+
+- Authentication, multi-factor authentication, or any user-account surface.
+- Cloud synchronization, end-to-end encryption, or remote storage.
+- Web Worker / `OffscreenCanvas` rasterization path.
+- DPI-metadata encoder for PNG chunks beyond what the export pipeline already supplies.
+- DOM-accessible alternative to the canvas board for screen readers.
+- Move animation, game playback, PGN replay, or chess-engine analysis.
+- Internationalization or multi-language support.
+- Native mobile applications.
+- Multiplayer or real-time collaboration.
+
+The authoritative statement of known limitations is maintained in [ROADMAP.md](../ROADMAP.md) on `master`.
+
+---
+
+**Last Updated:** 2026-05-23  
+**Version:** 5.5.3
