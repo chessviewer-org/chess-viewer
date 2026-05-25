@@ -1,4 +1,11 @@
-import { memo, useCallback, useEffect, useRef, useState, ChangeEvent } from 'react';
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  ChangeEvent
+} from 'react';
 
 import {
   AlertCircle,
@@ -96,7 +103,7 @@ const FENInputField = memo(
       [onChange]
     );
 
-    const { debouncedError, isValid } = useDebouncedFENValidation(
+    const { debouncedError } = useDebouncedFENValidation(
       localFen,
       handleValidFenSync
     );
@@ -433,12 +440,14 @@ const FENInputField = memo(
                 className="flex items-center gap-2 text-error text-xs mt-1"
                 role="alert"
               >
-                <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
+                <AlertCircle
+                  className="w-3.5 h-3.5 flex-shrink-0"
+                  aria-hidden="true"
+                />
                 <span>{visibleError}</span>
               </div>
             </div>
           </div>
-
         </div>
 
         {isClipboardOpen && (
