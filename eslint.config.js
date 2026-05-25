@@ -65,10 +65,7 @@ export default [
         }
       ],
 
-      'no-console':
-        process.env.NODE_ENV === 'production'
-          ? ['error', { allow: ['log', 'warn', 'error'] }]
-          : 'off',
+      'no-console': 'error',
 
       'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
 
@@ -134,16 +131,20 @@ export default [
         }
       ],
 
-      'no-console':
-        process.env.NODE_ENV === 'production'
-          ? ['error', { allow: ['log', 'warn', 'error'] }]
-          : 'off',
+      'no-console': 'error',
 
       'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
 
       'no-var': 'error',
       'prefer-const': 'warn',
       eqeqeq: ['error', 'always', { null: 'ignore' }]
+    }
+  },
+
+  {
+    files: ['src/utils/logger.js'],
+    rules: {
+      'no-console': ['error', { allow: ['log', 'warn', 'error'] }]
     }
   }
 ];
