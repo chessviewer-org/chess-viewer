@@ -55,6 +55,8 @@
     "@types/node": "^25.6.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.59.4",
+    "@typescript-eslint/parser": "^8.59.4",
     "@vitejs/plugin-react": "6.0.2",
     "@welldone-software/why-did-you-render": "^10.0.1",
     "autoprefixer": "^10.5.0",
