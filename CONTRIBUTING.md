@@ -86,11 +86,11 @@ Pull requests against `master` that fall outside this scope will be redirected t
 
 All open issues are tracked on the [ChessVision project board](https://github.com/users/BilgeGates/projects/4) and carry the following label families:
 
-| Family       | Values                                          | Meaning              |
-| ------------ | ----------------------------------------------- | -------------------- |
-| `area:*`     | `area:export`, `area:ci`, `area:auth`           | Subsystem affected   |
-| `priority:*` | `priority:high`, `priority:low`                 | Triage priority      |
-| `effort:*`   | `effort:small`, `effort:large`                  | Expected effort      |
+| Family       | Values                                | Meaning            |
+| ------------ | ------------------------------------- | ------------------ |
+| `area:*`     | `area:export`, `area:ci`, `area:auth` | Subsystem affected |
+| `priority:*` | `priority:high`, `priority:low`       | Triage priority    |
+| `effort:*`   | `effort:small`, `effort:large`        | Expected effort    |
 
 Type labels (`bug`, `enhancement`, `documentation`, `question`, etc.) are applied in addition to the triage labels above. Issues without these labels are awaiting triage by a maintainer; contributors should not self-apply labels they do not have permission to set.
 
@@ -159,18 +159,18 @@ git checkout -b fix/bug-description master
 
 ChessVision uses [Conventional Commits](https://www.conventionalcommits.org/). Commitlint enforces the format on the `commit-msg` hook; non-conforming messages are rejected locally.
 
-| Type       | Use case                                                    |
-| ---------- | ----------------------------------------------------------- |
-| `feat`     | New user-facing feature                                     |
-| `fix`      | Bug fix                                                     |
-| `docs`     | Documentation only                                          |
-| `refactor` | Code change that neither fixes a bug nor adds a feature     |
-| `perf`     | Performance improvement                                     |
-| `test`     | Adding or correcting tests                                  |
-| `build`    | Build-system or external-dependency changes                 |
-| `ci`       | CI configuration changes                                    |
-| `chore`    | Other changes that do not modify source or test files       |
-| `revert`   | Reverts a previous commit                                   |
+| Type       | Use case                                                |
+| ---------- | ------------------------------------------------------- |
+| `feat`     | New user-facing feature                                 |
+| `fix`      | Bug fix                                                 |
+| `docs`     | Documentation only                                      |
+| `refactor` | Code change that neither fixes a bug nor adds a feature |
+| `perf`     | Performance improvement                                 |
+| `test`     | Adding or correcting tests                              |
+| `build`    | Build-system or external-dependency changes             |
+| `ci`       | CI configuration changes                                |
+| `chore`    | Other changes that do not modify source or test files   |
+| `revert`   | Reverts a previous commit                               |
 
 Optional scope in parentheses identifies the affected subsystem.
 

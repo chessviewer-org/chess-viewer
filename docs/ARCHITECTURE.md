@@ -375,13 +375,13 @@ User Input (FEN text / drag-drop)
 
 ## State Management
 
-| Layer            | Tool         | Examples                                                       |
-| ---------------- | ------------ | -------------------------------------------------------------- |
-| Component state  | `useState`   | Modal open/close, form values                                  |
-| Derived state    | `useMemo`    | Parsed FEN → board array                                       |
-| Cross-tree state | Context API  | `FENBatchContext`, `LayoutContext`, `ThemeSettingsContext`     |
-| Persistence      | localStorage | FEN history (300 ms debounced), batch list, theme, settings    |
-| Drag state       | React DnD    | Piece being dragged (no React-state mirror; `useDragLayer`)    |
+| Layer            | Tool         | Examples                                                    |
+| ---------------- | ------------ | ----------------------------------------------------------- |
+| Component state  | `useState`   | Modal open/close, form values                               |
+| Derived state    | `useMemo`    | Parsed FEN → board array                                    |
+| Cross-tree state | Context API  | `FENBatchContext`, `LayoutContext`, `ThemeSettingsContext`  |
+| Persistence      | localStorage | FEN history (300 ms debounced), batch list, theme, settings |
+| Drag state       | React DnD    | Piece being dragged (no React-state mirror; `useDragLayer`) |
 
 Persistence is local-only on the v5.x line. Every `localStorage` read is routed through `safeJSONParse` in `src/utils/validation.js`; direct `JSON.parse` on untrusted strings is forbidden.
 
@@ -405,12 +405,12 @@ Persistence is local-only on the v5.x line. Every `localStorage` read is routed 
 
 **Quality levels and maximum resolutions** (full table in `README.md`):
 
-| Mode   | Quality | Board size range | Pixel-dimension range                       | DPI   |
-| ------ | ------- | ---------------- | ------------------------------------------- | ----- |
-| Print  | 8×      | 4 cm – 8 cm      | 3,776 × 3,776 px – 7,552 × 7,552 px         | 2,400 |
-| Print  | 16×     | 4 cm – 8 cm      | 7,552 × 7,552 px – 15,104 × 15,104 px       | 4,800 |
-| Social | 24×     | 4 cm – 8 cm      | 11,328 × 11,328 px – 22,656 × 22,656 px     | 7,200 |
-| Social | 32×     | 4 cm – 8 cm      | 15,104 × 15,104 px – 30,208 × 30,208 px     | 9,600 |
+| Mode   | Quality | Board size range | Pixel-dimension range                   | DPI   |
+| ------ | ------- | ---------------- | --------------------------------------- | ----- |
+| Print  | 8×      | 4 cm – 8 cm      | 3,776 × 3,776 px – 7,552 × 7,552 px     | 2,400 |
+| Print  | 16×     | 4 cm – 8 cm      | 7,552 × 7,552 px – 15,104 × 15,104 px   | 4,800 |
+| Social | 24×     | 4 cm – 8 cm      | 11,328 × 11,328 px – 22,656 × 22,656 px | 7,200 |
+| Social | 32×     | 4 cm – 8 cm      | 15,104 × 15,104 px – 30,208 × 30,208 px | 9,600 |
 
 The pixel dimension is computed as `boardSizeCm × qualityMultiplier × 118.11`. The maximum supported output is 30,208 × 30,208 px at 9,600 DPI. Safari and iOS WebKit can OOM at the largest sizes despite the explicit `canvas.width = 0` disposal after every blob generation; the v5.x pipeline mitigates this but does not eliminate it.
 

@@ -6,11 +6,11 @@ This document defines the security-disclosure policy for **ChessVision**. It sta
 
 The following versions are supported with security updates. "Active" denotes the current stable line and the recipient of all security work. "Limited Support" denotes a maintenance window during which only critical fixes are backported. "End of Life" denotes versions that no longer receive any security updates and should not be deployed.
 
-| Version | Support Status   | Security Updates    | Notes                                         |
-| ------- | ---------------- | ------------------- | --------------------------------------------- |
-| v5.x.x  | Active           | All severities      | Current stable line; v5.5.3 is the latest tag |
-| v4.x.x  | Limited Support  | Critical only       | Maintenance window ends 2026-12-31            |
-| < v4.0  | End of Life      | None                | Not supported                                 |
+| Version | Support Status  | Security Updates | Notes                                         |
+| ------- | --------------- | ---------------- | --------------------------------------------- |
+| v5.x.x  | Active          | All severities   | Current stable line; v5.5.3 is the latest tag |
+| v4.x.x  | Limited Support | Critical only    | Maintenance window ends 2026-12-31            |
+| < v4.0  | End of Life     | None             | Not supported                                 |
 
 ChessVision is a client-side application delivered over the network on each visit. Users are strongly encouraged to access the latest deployed build at [chess-vision-site.vercel.app](https://chess-vision-site.vercel.app) and to keep their browser up to date.
 
@@ -67,12 +67,12 @@ A report should include the following. Reports missing this information may be r
 
 ### Response Timeline
 
-| Stage                     | Target                                                          |
-| ------------------------- | --------------------------------------------------------------- |
-| Initial acknowledgment    | Within 48 hours of receipt                                      |
-| Triage and severity rating| Within 5 business days                                          |
-| Fix development           | Typically 5 – 10 business days, scaled to severity              |
-| Coordinated disclosure    | After a remediating release; reporter notified before publication |
+| Stage                      | Target                                                            |
+| -------------------------- | ----------------------------------------------------------------- |
+| Initial acknowledgment     | Within 48 hours of receipt                                        |
+| Triage and severity rating | Within 5 business days                                            |
+| Fix development            | Typically 5 – 10 business days, scaled to severity                |
+| Coordinated disclosure     | After a remediating release; reporter notified before publication |
 
 For critical, in-the-wild reports, the fix-development window may be compressed and an out-of-band release published.
 

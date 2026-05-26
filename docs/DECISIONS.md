@@ -700,8 +700,8 @@ Follow Semantic Versioning (SemVer 2.0.0): MAJOR.MINOR.PATCH
 
 ### Summary Table
 
-| Technology     | Decision     | Status      | Version  |
-| -------------- | ------------ | ----------- | -------- |
+| Technology     | Decision     | Status   | Version  |
+| -------------- | ------------ | -------- | -------- |
 | **Framework**  | React        | Accepted | 19.x     |
 | **Build Tool** | Vite         | Accepted | 8.x      |
 | **Styling**    | Tailwind CSS | Accepted | 4.x      |

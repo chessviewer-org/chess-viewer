@@ -80,14 +80,14 @@ effectiveDPI = 300 × qualityMultiplier
 
 **Resolutions by board size**:
 
-| Quality | Board size | Dimensions          | Effective DPI |
-| ------- | ---------- | ------------------- | ------------- |
-| 24×     | 4 cm       | 11,328 × 11,328 px  | 7,200         |
-| 24×     | 6 cm       | 16,992 × 16,992 px  | 7,200         |
-| 24×     | 8 cm       | 22,656 × 22,656 px  | 7,200         |
-| 32×     | 4 cm       | 15,104 × 15,104 px  | 9,600         |
-| 32×     | 6 cm       | 22,656 × 22,656 px  | 9,600         |
-| 32×     | 8 cm       | 30,208 × 30,208 px  | 9,600         |
+| Quality | Board size | Dimensions         | Effective DPI |
+| ------- | ---------- | ------------------ | ------------- |
+| 24×     | 4 cm       | 11,328 × 11,328 px | 7,200         |
+| 24×     | 6 cm       | 16,992 × 16,992 px | 7,200         |
+| 24×     | 8 cm       | 22,656 × 22,656 px | 7,200         |
+| 32×     | 4 cm       | 15,104 × 15,104 px | 9,600         |
+| 32×     | 6 cm       | 22,656 × 22,656 px | 9,600         |
+| 32×     | 8 cm       | 30,208 × 30,208 px | 9,600         |
 
 ---
 
@@ -277,12 +277,12 @@ Batch export is available in Advanced FEN quick actions and utility flows. It it
 
 ## Browser Compatibility
 
-| Feature                 | Chrome    | Firefox   | Safari                                            | Edge      |
-| ----------------------- | --------- | --------- | ------------------------------------------------- | --------- |
-| Canvas API              | Supported | Supported | Supported                                         | Supported |
-| `canvas.toBlob()`       | Supported | Supported | Supported                                         | Supported |
-| Clipboard API (`write`) | Supported | Supported | Supported; requires a user gesture                | Supported |
-| 24× / 32× export        | Supported | Supported | Limited; may fail above the 16,384 px canvas cap  | Supported |
+| Feature                 | Chrome    | Firefox   | Safari                                           | Edge      |
+| ----------------------- | --------- | --------- | ------------------------------------------------ | --------- |
+| Canvas API              | Supported | Supported | Supported                                        | Supported |
+| `canvas.toBlob()`       | Supported | Supported | Supported                                        | Supported |
+| Clipboard API (`write`) | Supported | Supported | Supported; requires a user gesture               | Supported |
+| 24× / 32× export        | Supported | Supported | Limited; may fail above the 16,384 px canvas cap | Supported |
 
 ---
 

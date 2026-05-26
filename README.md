@@ -124,24 +124,24 @@ Each directory exports symbols through an `index.js` barrel file. The source tre
 
 ## Technology Stack
 
-| Category       | Library / Tool   | Version |
-| -------------- | ---------------- | ------- |
-| UI framework   | React            | 19.x    |
-| Language       | TypeScript       | 6.x     |
-| Build tool     | Vite             | 8.x     |
-| Styling        | Tailwind CSS     | 4.x     |
-| Routing        | React Router DOM | 7.x     |
-| Drag and drop  | React DnD        | 16.x    |
-| Animations     | Framer Motion    | 12.x    |
-| Virtual lists  | react-window     | 2.x     |
-| Icons          | Lucide React     | 1.x     |
-| Rendering      | HTML5 Canvas     | —       |
-| Storage        | localStorage     | —       |
-| Test runner    | `node --test`    | —       |
-| Linting        | ESLint           | 9.x     |
-| Package manager| pnpm             | 10.x    |
-| Release        | semantic-release | 25.x    |
-| Deployment     | Vercel           | —       |
+| Category        | Library / Tool   | Version |
+| --------------- | ---------------- | ------- |
+| UI framework    | React            | 19.x    |
+| Language        | TypeScript       | 6.x     |
+| Build tool      | Vite             | 8.x     |
+| Styling         | Tailwind CSS     | 4.x     |
+| Routing         | React Router DOM | 7.x     |
+| Drag and drop   | React DnD        | 16.x    |
+| Animations      | Framer Motion    | 12.x    |
+| Virtual lists   | react-window     | 2.x     |
+| Icons           | Lucide React     | 1.x     |
+| Rendering       | HTML5 Canvas     | —       |
+| Storage         | localStorage     | —       |
+| Test runner     | `node --test`    | —       |
+| Linting         | ESLint           | 9.x     |
+| Package manager | pnpm             | 10.x    |
+| Release         | semantic-release | 25.x    |
+| Deployment      | Vercel           | —       |
 
 ---
 
@@ -227,14 +227,14 @@ Commit messages follow [Conventional Commits](https://www.conventionalcommits.or
 
 ## Contact and Support
 
-| Channel        | Address                                                              |
-| -------------- | -------------------------------------------------------------------- |
-| Repository     | https://github.com/BilgeGates/chess-vision                           |
-| Live demo      | https://chess-vision-site.vercel.app                                 |
-| Project board  | https://github.com/users/BilgeGates/projects/4                       |
-| Bug reports    | https://github.com/BilgeGates/chess-vision/issues                    |
-| Support email  | chessvision@protonmail.com                                           |
-| Security policy| [SECURITY.md](SECURITY.md)                                           |
+| Channel         | Address                                           |
+| --------------- | ------------------------------------------------- |
+| Repository      | https://github.com/BilgeGates/chess-vision        |
+| Live demo       | https://chess-vision-site.vercel.app              |
+| Project board   | https://github.com/users/BilgeGates/projects/4    |
+| Bug reports     | https://github.com/BilgeGates/chess-vision/issues |
+| Support email   | chessvision@protonmail.com                        |
+| Security policy | [SECURITY.md](SECURITY.md)                        |
 
 For security-sensitive disclosures, do not open a public issue. Use the channel documented in `SECURITY.md`.
 

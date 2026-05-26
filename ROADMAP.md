@@ -186,4 +186,4 @@ The following are explicitly out of scope for the entire v5.x line. They may be 
 
 ---
 
-*This roadmap reflects `master` at v5.5.3. It will be revised when the next merge to `master` lands.*
+_This roadmap reflects `master` at v5.5.3. It will be revised when the next merge to `master` lands._
