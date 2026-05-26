@@ -1,12 +1,32 @@
 # Contributing to ChessVision
 
+ChessVision operates under an **enterprise-grade engineering governance model**.
+Contributions are welcome, but they are held to a strict, automated quality bar.
+These standards are enforced by Git hooks and the CI/CD pipeline — they are not
+discretionary, and they cannot be waived on a per-PR basis.
+
+Read this document in full before opening a pull request. PRs that do not
+conform will be **blocked automatically**.
+
 Contributions are welcome: bug reports, feature requests, documentation improvements, and code changes. This document describes the workflow for contributions against the **v5.5.3 stable line** on `master`. Forward-looking development for the next major release happens on `develop`.
 
 Read this document in full before opening your first pull request. The repository enforces several quality gates and conventions that are not optional.
 
 ---
 
-## Ways to Contribute
+## Project Status & Scope
+
+ChessVision is a **purely open-source project**, maintained on a volunteer
+basis.
+
+- There is **no bounty program** and **no budget** for paid contributions.
+- We do **not** purchase or contract development, design, audit, or marketing
+  services.
+- All contributions are accepted strictly on a voluntary, open-source basis and
+  must meet the standards below.
+
+Inquiries about payment or paid services will be declined. See
+[`.github/RESPONSE_TEMPLATES.md`](.github/RESPONSE_TEMPLATES.md).
 
 - Report bugs (see [Reporting Bugs](#reporting-bugs))
 - Suggest features (see [Feature Requests](#feature-requests))
@@ -16,9 +36,16 @@ Read this document in full before opening your first pull request. The repositor
 
 ---
 
-## Reporting Bugs
+## Non-Negotiable Engineering Standards
 
-Before opening an issue:
+Every contribution **must** satisfy all of the following. Each is enforced by
+automation (local Git hooks and/or CI).
+
+### 1. Atomic Commits
+
+One logical task per commit. A commit must not mix unrelated concerns (e.g.
+application source + dependency bumps + documentation rewrites in a single
+commit).
 
 1. Search [existing issues](https://github.com/BilgeGates/chess-vision/issues) to avoid duplicates.
 2. Reproduce the bug on the latest tagged release (or `master` HEAD if you build locally).
@@ -45,9 +72,66 @@ Every open issue carries an `area:*`, `priority:*`, and `effort:*` label. Mainta
 - **Functional** bugs that do not crash or destroy data are routinely triaged; non-routine fixes may be deferred to the next major release.
 - **Cosmetic** issues are deferred to the next major unless trivial.
 
----
+- Enforced locally by [`scripts/validate-atomic-commit.js`](scripts/validate-atomic-commit.js)
+  via the `pre-commit` hook, which classifies staged files by domain and rejects
+  commits that span unrelated domains.
+- Co-located changes that belong together (a source file, its `*.test.ts`, and
+  the docs describing it) are treated as one atomic unit.
+- Mechanical mass changes (a repo-wide format sweep, a dependency bump) may
+  bypass the local check with `ATOMIC_COMMIT_BYPASS=1 git commit ...`. Use this
+  sparingly and only for genuinely mechanical changes.
 
-## Feature Requests
+### 2. Conventional Commits
+
+Commit messages **and** PR titles must follow
+[Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+<type>(<optional-scope>): <subject>
+```
+
+Allowed types (enforced by `commitlint` and Danger):
+
+| Type       | Use case                                             |
+| ---------- | ---------------------------------------------------- |
+| `feat`     | New feature                                          |
+| `fix`      | Bug fix                                              |
+| `docs`     | Documentation only                                   |
+| `style`    | Formatting/whitespace; no code-behavior change       |
+| `refactor` | Code change that neither fixes a bug nor adds a feat |
+| `perf`     | Performance improvement                              |
+| `test`     | Adding or correcting tests                           |
+| `chore`    | Tooling/maintenance                                  |
+| `ci`       | CI configuration                                     |
+| `build`    | Build system or dependencies                         |
+| `revert`   | Reverts a previous commit                            |
+
+Rules: lower-case type, non-empty subject, no trailing period, header ≤ 100
+chars. Enforced by the `commit-msg` hook (`commitlint`) and re-checked on the
+PR title by Danger.
+
+> Note: the legacy `update:` prefix is **not** a valid type. Use `feat`,
+> `fix`, or `refactor` as appropriate.
+
+### 3. Zero-Warning Quality Gates
+
+All three gates must pass with **zero** warnings/errors:
+
+```bash
+pnpm lint           # ESLint — 0 warnings (--max-warnings=0)
+npx tsc --noEmit    # TypeScript 6 strict — 0 errors
+pnpm test           # FEN parser unit tests (node --test)
+```
+
+Prettier formatting is enforced on staged files via `lint-staged` in the
+`pre-commit` hook, and re-checked in CI.
+
+### 4. Mandatory Testing
+
+- Behavioral source changes must include or update tests. Danger **warns** when
+  `src/**` changes ship without any test change.
+- **Any** change to `src/utils/fenParser.ts` **requires** a matching change to
+  `src/utils/fenParser.test.js`. Danger **fails** the PR otherwise.
 
 Use the **Feature Request** template (`feature_request.yml`) on the New Issue picker. Each request should describe:
 
@@ -86,11 +170,11 @@ Pull requests against `master` that fall outside this scope will be redirected t
 
 All open issues are tracked on the [ChessVision project board](https://github.com/users/BilgeGates/projects/4) and carry the following label families:
 
-| Family       | Values                                | Meaning            |
-| ------------ | ------------------------------------- | ------------------ |
-| `area:*`     | `area:export`, `area:ci`, `area:auth` | Subsystem affected |
-| `priority:*` | `priority:high`, `priority:low`       | Triage priority    |
-| `effort:*`   | `effort:small`, `effort:large`        | Expected effort    |
+| Family       | Values                                          | Meaning              |
+| ------------ | ----------------------------------------------- | -------------------- |
+| `area:*`     | `area:export`, `area:ci`, `area:auth`           | Subsystem affected   |
+| `priority:*` | `priority:high`, `priority:low`                 | Triage priority      |
+| `effort:*`   | `effort:small`, `effort:large`                  | Expected effort      |
 
 Type labels (`bug`, `enhancement`, `documentation`, `question`, etc.) are applied in addition to the triage labels above. Issues without these labels are awaiting triage by a maintainer; contributors should not self-apply labels they do not have permission to set.
 
@@ -101,20 +185,18 @@ Type labels (`bug`, `enhancement`, `documentation`, `question`, etc.) are applie
 ### Prerequisites
 
 - Node.js >= 20
+- pnpm >= 9
 - pnpm >= 9 (lockfile is produced by pnpm 10.33.0)
 - Git
 
 ### Installation
 
 ```bash
-# Fork the repository on GitHub, then:
 git clone https://github.com/YOUR_USERNAME/chess-vision.git
 cd chess-vision
-pnpm install
-pnpm dev
+pnpm install        # also installs Git hooks via husky
+pnpm dev            # dev server at http://localhost:3000
 ```
-
-The dev server runs at `http://localhost:3000`.
 
 ### Build
 
@@ -124,6 +206,21 @@ pnpm preview  # serve dist/ locally
 ```
 
 ---
+
+## Coding Standards
+
+- TypeScript 6 strict mode throughout — **no** `any`, `@ts-ignore`, or non-null
+  assertions (`!`). Use type guards and generics.
+- All colors via Tailwind CSS variables (`--accent`, `--bg-primary`, etc.) — **no**
+  hardcoded hex values in JSX.
+- `memo()` is required on `BoardSquare`, `DraggablePiece`, `DroppableSquare` —
+  these render ×64 per board state change.
+- Heavy canvas/export work (>1000px) must be offloaded to the SVG raster Web
+  Worker — never run synchronously on the main thread.
+- After every canvas blob generation: `canvas.width = 0; canvas.height = 0`
+  (Safari OOM prevention).
+- No bare `console.log` in production paths — use `logger.ts`.
+- Import order: framework → third-party → `@/` path aliases → relative paths.
 
 ## Making Changes
 
@@ -142,7 +239,9 @@ git checkout -b feat/your-feature-name develop
 git checkout -b fix/bug-description master
 ```
 
-### Coding Standards
+---
+
+## Submitting a Pull Request
 
 - All exported functions use `export function` declarations rather than arrow-function exports.
 - All exported functions and components carry JSDoc with `@param` and `@returns`.
@@ -155,22 +254,47 @@ git checkout -b fix/bug-description master
 - `MAX_FEN_LENGTH = 93` is enforced before any FEN parse.
 - The Safari canvas-disposal invariant (`canvas.width = 0` after every blob generation) must not be removed.
 
-### Commit Messages
+1. Branch from `master` (`feature/<name>` or `fix/<description>`).
+2. Make atomic, Conventional commits.
+3. Run all gates locally: `pnpm test && npx tsc --noEmit && pnpm lint`.
+4. Open a PR against `master` with a Conventional Commit **title** and a
+   description that explains **what** changed and **why**, linking any related
+   issue (e.g. `Fixes #123`).
+5. Address automated review (Danger) and human review feedback.
+
+### What the pipeline enforces automatically
+
+| Stage        | Check                                                            |
+| ------------ | ---------------------------------------------------------------- |
+| `pre-commit` | `lint-staged` (Prettier + ESLint) and atomic-commit validation   |
+| `commit-msg` | `commitlint` Conventional Commit validation                      |
+| CI (Danger)  | Conventional PR title, description, test coverage, FEN test rule |
+| CI (quality) | ESLint zero-warning + Prettier check                             |
+| CI (build)   | Production build must succeed                                    |
+
+### Pre-submission Checklist
+
+- [ ] Commits are atomic (one logical task each).
+- [ ] PR title and commits follow Conventional Commits.
+- [ ] `pnpm test && npx tsc --noEmit && pnpm lint` all pass with zero warnings.
+- [ ] Tests added/updated for behavioral changes.
+- [ ] No `any`, `@ts-ignore`, or non-null `!`; no hardcoded hex in JSX.
+- [ ] PR description explains what and why, with issue references.
 
 ChessVision uses [Conventional Commits](https://www.conventionalcommits.org/). Commitlint enforces the format on the `commit-msg` hook; non-conforming messages are rejected locally.
 
-| Type       | Use case                                                |
-| ---------- | ------------------------------------------------------- |
-| `feat`     | New user-facing feature                                 |
-| `fix`      | Bug fix                                                 |
-| `docs`     | Documentation only                                      |
-| `refactor` | Code change that neither fixes a bug nor adds a feature |
-| `perf`     | Performance improvement                                 |
-| `test`     | Adding or correcting tests                              |
-| `build`    | Build-system or external-dependency changes             |
-| `ci`       | CI configuration changes                                |
-| `chore`    | Other changes that do not modify source or test files   |
-| `revert`   | Reverts a previous commit                               |
+| Type       | Use case                                                    |
+| ---------- | ----------------------------------------------------------- |
+| `feat`     | New user-facing feature                                     |
+| `fix`      | Bug fix                                                     |
+| `docs`     | Documentation only                                          |
+| `refactor` | Code change that neither fixes a bug nor adds a feature     |
+| `perf`     | Performance improvement                                     |
+| `test`     | Adding or correcting tests                                  |
+| `build`    | Build-system or external-dependency changes                 |
+| `ci`       | CI configuration changes                                    |
+| `chore`    | Other changes that do not modify source or test files       |
+| `revert`   | Reverts a previous commit                                   |
 
 Optional scope in parentheses identifies the affected subsystem.
 
@@ -187,6 +311,8 @@ chore(deps): bump react-router-dom from 7.15.0 to 7.15.1
 
 ---
 
+## Reporting Bugs
+
 ## Submitting a Pull Request
 
 1. Push your branch to your fork.
@@ -199,16 +325,19 @@ chore(deps): bump react-router-dom from 7.15.0 to 7.15.1
    - Screenshots for any UI change.
 4. Address review feedback and push updates to the same branch.
 
-### Pre-submission Checklist
+1. Search existing issues to avoid duplicates.
+2. Reproduce on the latest version.
+3. Include: clear description, steps to reproduce, expected vs. actual behavior,
+   screenshots/recordings if applicable, and browser/OS versions.
+
+Submit at: https://github.com/BilgeGates/chess-vision/issues
 
 - [ ] All three quality gates pass locally:
-
   ```bash
   pnpm test           # node --test against src/utils/fenParser.test.js
   pnpm lint           # ESLint with --max-warnings=0
   pnpm format:check   # Prettier check, no writes
   ```
-
 - [ ] Code follows the standards in [Coding Standards](#coding-standards).
 - [ ] No console errors or warnings introduced.
 - [ ] Changes tested locally across the relevant scenarios.
@@ -219,14 +348,10 @@ chore(deps): bump react-router-dom from 7.15.0 to 7.15.1
 
 ---
 
-## Documentation
+## Feature Requests
 
-Contributing to documentation is as valuable as code contributions:
-
-- Improve clarity in README or docs/
-- Add JSDoc where missing
-- Fix typos or outdated information
-- Document architectural decisions in docs/DECISIONS.md
+Include a description of the proposed feature, the use case, expected behavior,
+and optional mockups.
 
 ---
 
@@ -245,6 +370,7 @@ Security-sensitive reports must not be filed as public GitHub issues. The suppor
 ## Contact
 
 - GitHub Issues: https://github.com/BilgeGates/chess-vision/issues
+- Security issues: [chessvision@protonmail.com](mailto:chessvision@protonmail.com)
 - Repository: https://github.com/BilgeGates/chess-vision
 - Project board: https://github.com/users/BilgeGates/projects/4
 - Live demo: https://chess-vision-site.vercel.app
