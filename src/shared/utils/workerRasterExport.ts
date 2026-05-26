@@ -1,5 +1,6 @@
 import { logger } from './logger';
 
+/** Configuration passed to the SVG raster worker for a single render task. */
 export interface SvgRasterWorkerOptions {
   svgString: string;
   width: number;
@@ -9,12 +10,11 @@ export interface SvgRasterWorkerOptions {
   onProgress?: (progress: number, label?: string) => void;
 }
 
+/** Handle returned by `startSvgRasterWorkerTask` for consuming or cancelling the render. */
 export interface SvgRasterWorkerTask {
   promise: Promise<Blob>;
   cancel: () => void;
 }
-
-// ─── Singleton worker + task queue ───────────────────────────────────────────
 
 interface PendingTask {
   resolve: (blob: Blob) => void;
@@ -24,7 +24,6 @@ interface PendingTask {
 }
 
 let sharedWorker: Worker | null = null;
-// Queue of tasks waiting to run (only one runs at a time on the singleton).
 const taskQueue: Array<{ id: number; options: SvgRasterWorkerOptions }> = [];
 const pendingTasks = new Map<number, PendingTask>();
 let nextTaskId = 1;
@@ -67,7 +66,6 @@ function getSharedWorker(): Worker {
 
     sharedWorker.onerror = (err) => {
       logger.error('SVG Raster Worker critical error:', err);
-      // Reject all pending tasks and reset.
       pendingTasks.forEach((t) => t.reject(new Error('Worker crashed')));
       pendingTasks.clear();
       taskQueue.length = 0;
@@ -84,7 +82,6 @@ function drainQueue() {
   if (!next) return;
   const task = pendingTasks.get(next.id);
   if (!task || task.cancelled) {
-    // Skip cancelled tasks and try the next one.
     task?.reject(new Error('Export cancelled'));
     pendingTasks.delete(next.id);
     drainQueue();
@@ -104,12 +101,10 @@ function drainQueue() {
   });
 }
 
-// ─── Public API ───────────────────────────────────────────────────────────────
-
 /**
  * Checks if the current environment supports OffscreenCanvas and Web Workers.
  *
- * @returns {boolean} True if supported
+ * @returns `true` if the SVG raster worker path is available
  */
 export function isSvgRasterWorkerSupported(): boolean {
   return (
@@ -120,10 +115,12 @@ export function isSvgRasterWorkerSupported(): boolean {
 }
 
 /**
- * Queues a rasterization task on the singleton Web Worker.
+ * Queues a rasterization task on the singleton SVG raster Web Worker.
  *
- * @param {SvgRasterWorkerOptions} options - Task options
- * @returns {SvgRasterWorkerTask | null} The task object or null if not supported
+ * Tasks execute serially; concurrently queued tasks wait until the previous one resolves.
+ *
+ * @param options - Render options for the task
+ * @returns A task handle for awaiting or cancelling the result, or `null` if the worker is unsupported
  */
 export function startSvgRasterWorkerTask(
   options: SvgRasterWorkerOptions
@@ -137,7 +134,6 @@ export function startSvgRasterWorkerTask(
   });
 
   taskQueue.push({ id, options });
-  // Ensure the worker is instantiated before draining.
   getSharedWorker();
   drainQueue();
 
