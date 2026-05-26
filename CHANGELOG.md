@@ -1,3 +1,9 @@
+## [5.5.7](https://github.com/BilgeGates/chess-vision/compare/v5.5.6...v5.5.7) (2026-05-26)
+
+### Bug Fixes
+
+- run FEN parser tests through stable bundle ([da47b8c](https://github.com/BilgeGates/chess-vision/commit/da47b8cf42b0824fc30a506ab2601864293d19a5))
+
 ## [5.5.6](https://github.com/BilgeGates/chess-vision/compare/v5.5.5...v5.5.6) (2026-05-26)
 
 ### Bug Fixes
