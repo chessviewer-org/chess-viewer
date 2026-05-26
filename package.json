@@ -35,7 +35,7 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "lint:ci": "eslint . --max-warnings=500",
-    "test": "node --test src/utils/fenParser.test.js",
+    "test": "esbuild src/utils/fenParser.test.js --bundle --platform=node --format=esm --outfile=.tmp/node-tests/fenParser.test.mjs && node --test .tmp/node-tests/fenParser.test.mjs",
     "format": "prettier --write \"src/**/*.{js,jsx,json,css,md}\"",
     "format:check": "prettier . --check",
     "format:ci": "prettier . --check || exit 0",

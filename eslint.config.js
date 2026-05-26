@@ -8,7 +8,7 @@ import globals from 'globals';
 
 export default [
   {
-    ignores: ['build/', 'dist/', 'node_modules/']
+    ignores: ['build/', 'dist/', '.tmp/', 'node_modules/']
   },
 
   js.configs.recommended,
