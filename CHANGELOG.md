@@ -1,3 +1,9 @@
+## [5.5.5](https://github.com/BilgeGates/chess-vision/compare/v5.5.4...v5.5.5) (2026-05-26)
+
+### Bug Fixes
+
+- enforce no-console lint rule ([587975f](https://github.com/BilgeGates/chess-vision/commit/587975fefffe5f1e2d60b44aff615d2e0accd603))
+
 ## [5.5.4](https://github.com/BilgeGates/chess-vision/compare/v5.5.3...v5.5.4) (2026-05-25)
 
 ### Bug Fixes
