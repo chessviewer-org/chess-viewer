@@ -1,3 +1,10 @@
+## [5.5.8](https://github.com/BilgeGates/chess-vision/compare/v5.5.7...v5.5.8) (2026-05-26)
+
+### Bug Fixes
+
+* **ci:** skip pre-commit hook for automated release commits ([36ae474](https://github.com/BilgeGates/chess-vision/commit/36ae474ca184fb9f2fe0911dc54be4938215504e))
+* potential fix for pull request finding ([2f4858f](https://github.com/BilgeGates/chess-vision/commit/2f4858f0885bf2506b16df17ff0fdf8eb339bdf0))
+
 ## [5.5.7](https://github.com/BilgeGates/chess-vision/compare/v5.5.6...v5.5.7) (2026-05-26)
 
 ### Bug Fixes
