@@ -1,3 +1,11 @@
+# Skip developer pre-commit checks during automated CI commits (e.g. the
+# semantic-release version-bump commit). These are not interactive developer
+# commits and must not be reformatted or blocked by atomic-commit rules.
+if [ "$CI" = "true" ] || [ "$CI" = "1" ]; then
+  echo "CI environment detected — skipping interactive pre-commit checks."
+  exit 0
+fi
+
 echo "Running pre-commit checks..."
 
 # 1. Lint & format staged files (zero-warning ESLint + Prettier).
