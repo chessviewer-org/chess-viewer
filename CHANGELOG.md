@@ -1,3 +1,10 @@
+## [5.5.6](https://github.com/BilgeGates/chess-vision/compare/v5.5.5...v5.5.6) (2026-05-26)
+
+### Bug Fixes
+
+- release export canvas after encoding ([f54712e](https://github.com/BilgeGates/chess-vision/commit/f54712e1b27110d8052edd73aaff3490cf72b771))
+- release svg export canvas ([4820007](https://github.com/BilgeGates/chess-vision/commit/48200078d43c3c04aa194b31b70a0261a117ab01))
+
 ## [5.5.5](https://github.com/BilgeGates/chess-vision/compare/v5.5.4...v5.5.5) (2026-05-26)
 
 ### Bug Fixes
