@@ -26,9 +26,10 @@ function getPieceKey(fenPiece) {
  */
 async function imageToDataURL(img) {
   return new Promise((resolve) => {
+    let canvas = null;
     try {
       const size = Math.max(img.naturalWidth || 64, img.naturalHeight || 64, 1);
-      const canvas = document.createElement('canvas');
+      canvas = document.createElement('canvas');
       canvas.width = size;
       canvas.height = size;
       const ctx = canvas.getContext('2d');
@@ -37,6 +38,11 @@ async function imageToDataURL(img) {
     } catch (err) {
       logger.warn('SVG export: failed to convert piece image to base64:', err);
       resolve('');
+    } finally {
+      if (canvas) {
+        canvas.width = 0;
+        canvas.height = 0;
+      }
     }
   });
 }
