@@ -141,7 +141,6 @@ function getStagedFiles() {
   });
   return raw.split('\0').filter((p) => p.length > 0);
 }
-}
 
 function isMidMergeOrRebase() {
   try {
@@ -227,14 +226,14 @@ function main() {
   lines.push('');
 
   if (BYPASS) {
-    console.warn(lines.join('\n'));
-    console.warn(
-      '  ⚠ ATOMIC_COMMIT_BYPASS=1 set — proceeding despite the above.\n'
+    process.stderr.write(`${lines.join('\n')}\n`);
+    process.stderr.write(
+      '  ⚠ ATOMIC_COMMIT_BYPASS=1 set — proceeding despite the above.\n\n'
     );
     process.exit(0);
   }
 
-  console.error(lines.join('\n'));
+  process.stderr.write(`${lines.join('\n')}\n`);
   process.exit(1);
 }
 

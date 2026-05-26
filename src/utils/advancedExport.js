@@ -14,10 +14,14 @@ export async function progressiveExport(config, fileName, format) {
     format = 'png';
   }
   const canvas = await createSmartCanvas(config);
-  if (canvas.width > 8192 || canvas.height > 8192) {
-    return await chunkedExport(canvas, fileName, format);
+  try {
+    if (canvas.width > 8192 || canvas.height > 8192) {
+      return await chunkedExport(canvas, fileName, format);
+    }
+    return await standardExport(canvas, fileName, format);
+  } finally {
+    releaseCanvas(canvas);
   }
-  return await standardExport(canvas, fileName, format);
 }
 
 async function createSmartCanvas(config) {
@@ -45,7 +49,11 @@ async function chunkedExport(canvas, fileName, format) {
   smallerCanvas.height = canvas.height * scale;
   const ctx = smallerCanvas.getContext('2d');
   ctx.drawImage(canvas, 0, 0, smallerCanvas.width, smallerCanvas.height);
-  return await standardExport(smallerCanvas, fileName, format);
+  try {
+    return await standardExport(smallerCanvas, fileName, format);
+  } finally {
+    releaseCanvas(smallerCanvas);
+  }
 }
 async function standardExport(canvas, fileName, format) {
   let mimeType = 'image/png';
@@ -57,26 +65,37 @@ async function standardExport(canvas, fileName, format) {
     quality = 0.98;
   }
   return new Promise(function (resolve, reject) {
-    canvas.toBlob(
-      function (blob) {
-        if (!blob) {
-          reject(new Error('Failed to create ' + format + ' blob'));
-          return;
-        }
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = fileName + '.' + extension;
-        document.body.appendChild(link);
-        link.click();
-        setTimeout(function () {
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-          resolve();
-        }, 100);
-      },
-      mimeType,
-      quality
-    );
+    try {
+      canvas.toBlob(
+        function (blob) {
+          if (!blob) {
+            reject(new Error('Failed to create ' + format + ' blob'));
+            return;
+          }
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = fileName + '.' + extension;
+          document.body.appendChild(link);
+          link.click();
+          setTimeout(function () {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            resolve();
+          }, 100);
+        },
+        mimeType,
+        quality
+      );
+    } catch (error) {
+      reject(error);
+    }
   });
+}
+
+function releaseCanvas(canvas) {
+  if (canvas) {
+    canvas.width = 0;
+    canvas.height = 0;
+  }
 }

@@ -28,7 +28,7 @@ The export system converts canvas-based chess board visualisations into high-res
 
 - **Dual Export Modes**: Print mode (preserves physical dimensions) and Social mode (fixed large output)
 - **Dynamic Scaling**: Board size controls physical print dimensions; quality controls pixel density
-- **High Resolution**: Export up to 24,192×24,192 px (Social 32×)
+- **High Resolution**: Export up to 30,208 × 30,208 px (Social 32× at 8 cm board size)
 - **Multiple Formats**: PNG, JPEG, and SVG (SVG currently exposed in Advanced FEN actions)
 - **Pause / Resume / Cancel**: Export can be paused, resumed, or cancelled mid-way
 - **Batch Processing**: Export multiple FEN positions simultaneously via `advancedExport.js`
@@ -74,16 +74,20 @@ effectiveDPI = 300 × qualityMultiplier
 
 **Behaviour**:
 
-- Fixed pixel output regardless of board size selection
-- Coordinate borders always enabled (forced)
-- Larger file sizes for maximum detail
+- Pixel output scales with the selected board size, identically to Print mode.
+- Coordinate borders always enabled (forced).
+- Larger file sizes for maximum detail.
 
-**Base Resolutions**:
+**Resolutions by board size**:
 
-| Quality | Resolution         |
-| ------- | ------------------ |
-| 24×     | 18,112 × 18,112 px |
-| 32×     | 24,192 × 24,192 px |
+| Quality | Board size | Dimensions         | Effective DPI |
+| ------- | ---------- | ------------------ | ------------- |
+| 24×     | 4 cm       | 11,328 × 11,328 px | 7,200         |
+| 24×     | 6 cm       | 16,992 × 16,992 px | 7,200         |
+| 24×     | 8 cm       | 22,656 × 22,656 px | 7,200         |
+| 32×     | 4 cm       | 15,104 × 15,104 px | 9,600         |
+| 32×     | 6 cm       | 22,656 × 22,656 px | 9,600         |
+| 32×     | 8 cm       | 30,208 × 30,208 px | 9,600         |
 
 ---
 
@@ -94,9 +98,9 @@ effectiveDPI = 300 × qualityMultiplier
 | Quality | Mode   | Effective DPI | Approx. PNG Size | Approx. JPEG Size |
 | ------- | ------ | ------------- | ---------------- | ----------------- |
 | 8×      | Print  | 2,400         | 70–500 KB        | 30–200 KB         |
-| 16×     | Print  | 4,800         | 500–900 KB       | 200–400 KB        |
-| 24×     | Social | —             | 1.2–2.0 MB       | 500–800 KB        |
-| 32×     | Social | —             | 2.5–4.0 MB       | 1.0–1.5 MB        |
+| 16×     | Print  | 4,800         | 500–1,500 KB     | 200–500 KB        |
+| 24×     | Social | 7,200         | 1.2–6.5 MB       | 500 KB–2.0 MB     |
+| 32×     | Social | 9,600         | 4.6–18.0 MB      | 1.0–5.0 MB        |
 
 ---
 
@@ -273,12 +277,12 @@ Batch export is available in Advanced FEN quick actions and utility flows. It it
 
 ## Browser Compatibility
 
-| Feature                 | Chrome | Firefox | Safari                        | Edge |
-| ----------------------- | ------ | ------- | ----------------------------- | ---- |
-| Canvas API              | ✅     | ✅      | ✅                            | ✅   |
-| `canvas.toBlob()`       | ✅     | ✅      | ✅                            | ✅   |
-| Clipboard API (`write`) | ✅     | ✅      | ⚠️ Requires user gesture      | ✅   |
-| 24×/32× export          | ✅     | ✅      | ⚠️ May fail (16,384 px limit) | ✅   |
+| Feature                 | Chrome    | Firefox   | Safari                                           | Edge      |
+| ----------------------- | --------- | --------- | ------------------------------------------------ | --------- |
+| Canvas API              | Supported | Supported | Supported                                        | Supported |
+| `canvas.toBlob()`       | Supported | Supported | Supported                                        | Supported |
+| Clipboard API (`write`) | Supported | Supported | Supported; requires a user gesture               | Supported |
+| 24× / 32× export        | Supported | Supported | Limited; may fail above the 16,384 px canvas cap | Supported |
 
 ---
 
@@ -367,5 +371,5 @@ Control an in-progress export. These functions mutate module-level state and tak
 
 ---
 
-**Last Updated:** May 6, 2026  
-**Version:** 5.0.0
+**Last Updated:** 2026-05-23  
+**Applies To:** v5.5.3

@@ -1,84 +1,102 @@
 # Security Policy
 
-## 🔐 Supported Versions
+This document defines the security-disclosure policy for **ChessVision**. It states which versions receive security updates, the architectural controls in place, the supported reporting channels, and the expected response timeline. Reports that follow this policy will be acknowledged and remediated under a coordinated-disclosure model.
 
-The following versions of **ChessVision** are currently supported with security updates:
+## Supported Versions
 
-| Version | Support Status | Security Updates | End of Life |
-| ------- | -------------- | ---------------- | ----------- |
-| v5.x.x  | ✅ Active      | ✅ Yes           | Current     |
-| v4.x.x  | ⚠️ Limited     | ⚠️ Critical Only | 2026-12-31  |
-| < v4.0  | ❌ Unsupported | ❌ No            | N/A         |
+The following versions are supported with security updates. "Active" denotes the current stable line and the recipient of all security work. "Limited Support" denotes a maintenance window during which only critical fixes are backported. "End of Life" denotes versions that no longer receive any security updates and should not be deployed.
 
-> **Note:** As this is a client-side only tool, we strongly recommend always using the latest version available on [chess-vision-site.vercel.app](https://chess-vision-site.vercel.app).
+| Version | Support Status  | Security Updates | Notes                                         |
+| ------- | --------------- | ---------------- | --------------------------------------------- |
+| v5.x.x  | Active          | All severities   | Current stable line; v5.5.3 is the latest tag |
+| v4.x.x  | Limited Support | Critical only    | Maintenance window ends 2026-12-31            |
+| < v4.0  | End of Life     | None             | Not supported                                 |
 
-## 🛡️ Security Architecture
+ChessVision is a client-side application delivered over the network on each visit. Users are strongly encouraged to access the latest deployed build at [chess-vision-site.vercel.app](https://chess-vision-site.vercel.app) and to keep their browser up to date.
 
-ChessVision follows a **zero-backend, client-side-only architecture**. This design inherently minimizes the attack surface.
+## Security Architecture
+
+ChessVision follows a zero-backend, client-side-only architecture. This design minimizes the attack surface by removing entire classes of server-side vulnerabilities from scope.
 
 ### Privacy-First Design
 
-- **No data collection:** All processing happens in your browser.
-- **No server storage:** No positions or images are uploaded to any server.
-- **No tracking:** No analytics, cookies, or telemetry are used.
-- **Local storage only:** Settings and history remain on your device.
+- **No data collection.** All processing happens in the user's browser.
+- **No server storage.** Positions, exports, and settings are never uploaded.
+- **No tracking.** The application uses no analytics, cookies, or telemetry.
+- **Local-only persistence.** Settings and history are stored in `localStorage` and remain on the user's device.
 
 ### Attack Surface
 
-- **Minimal risk:** Static client-side JavaScript only.
-- **No authentication:** No user accounts or login systems to compromise.
-- **No sensitive data:** The application only handles public chess positions (FEN notation).
+- **Static client-side JavaScript only.** No server endpoints, no user-authentication surface, no remote storage.
+- **No user accounts.** There is no login system, password store, session manager, or token surface to compromise on the v5.x line.
+- **No sensitive data class.** The application processes public chess positions in FEN notation only.
 
-### Browser Security Features
+### Browser Security Controls
 
-- **Content Security Policy (CSP):** Strict policy prevents XSS and unauthorized script execution.
-- **HTTPS-only:** Deployed with HSTS and secure headers.
-- **No inline scripts:** All logic is bundled and served from verified sources.
-- **Sanitized Input:** FEN strings are validated and length-limited (`MAX_FEN_LENGTH = 256`) before processing.
-- **Safe State Handling:** LocalStorage parsing uses `safeJSONParse` to prevent prototype pollution.
+- **Content Security Policy.** A strict CSP restricts script origins and inhibits cross-site-scripting payloads.
+- **HTTPS-only delivery.** Deployed with HSTS and secure response headers.
+- **No inline scripts.** All application logic is bundled and served from the verified origin.
+- **Sanitized input at system boundaries.** FEN strings are validated and length-limited (`MAX_FEN_LENGTH = 93`) before any parse attempt. File names, hexadecimal colors, and free-form text inputs are sanitized through `sanitizeFileName`, `sanitizeHexColor`, and `sanitizeInput` respectively.
+- **Safe state handling.** Every `localStorage` read is routed through `safeJSONParse`, which contains the parse failure and rejects prototype-polluting payloads. Direct `JSON.parse` on untrusted input is prohibited.
+- **Link hardening.** The lint rule `react/jsx-no-target-blank` is configured as an error; outbound links must carry `rel="noopener noreferrer"`.
 
-## 🐞 Reporting a Vulnerability
+## Reporting a Vulnerability
 
-If you discover a security vulnerability, please **do not open a public GitHub issue**.
+Do not file security-sensitive reports as public GitHub issues. Use one of the following channels.
 
-### 📬 Reporting Methods
+### Preferred: GitHub Security Advisory
 
-#### Option 1: GitHub Security Advisory (Preferred)
+1. Open the repository [Security tab](https://github.com/BilgeGates/chess-vision/security).
+2. Select **Report a vulnerability**.
+3. Complete the advisory form with the information described below.
 
-1. Go to the [Security tab](https://github.com/BilgeGates/chess-vision/security).
-2. Click **"Report a vulnerability"**.
-3. Fill out the advisory form with details.
+### Alternative: Email
 
-#### Option 2: Direct Email
+Send the report to **[chessvision@protonmail.com](mailto:chessvision@protonmail.com)** with the subject line `[SECURITY] <brief description>`.
 
-Send details to: **[chessvision@protonmail.com](mailto:chessvision@protonmail.com)**  
-Subject: `[SECURITY] <Brief description>`
+### Required Information
 
-### 📋 What to Include
+A report should include the following. Reports missing this information may be returned for clarification before triage begins.
 
-Please provide as much information as possible:
+- The class of vulnerability (for example, XSS, injection, prototype pollution, supply-chain compromise).
+- The affected version, branch, or commit hash.
+- Step-by-step reproduction instructions from a clean session.
+- The observed impact, including the privilege level required and the scope of compromise.
+- A proof of concept, if available, supplied as a minimal isolated artifact.
+- The reporter's preferred attribution wording, or a request to remain anonymous.
 
-- Type of vulnerability (XSS, injection, etc.)
-- Steps to reproduce the issue.
-- Potential impact.
-- Proof of concept (if available).
+### Response Timeline
 
-### ⏱ Response Timeline
+| Stage                      | Target                                                            |
+| -------------------------- | ----------------------------------------------------------------- |
+| Initial acknowledgment     | Within 48 hours of receipt                                        |
+| Triage and severity rating | Within 5 business days                                            |
+| Fix development            | Typically 5 – 10 business days, scaled to severity                |
+| Coordinated disclosure     | After a remediating release; reporter notified before publication |
 
-- **Initial acknowledgment:** Within 48 hours.
-- **Fix development:** Typically 5-10 business days depending on severity.
-- **Public disclosure:** After a fix is released (coordinated disclosure).
+For critical, in-the-wild reports, the fix-development window may be compressed and an out-of-band release published.
 
-## 📦 Dependency Security
+## Dependency Security
 
-This project uses **Dependabot** to monitor and update dependencies automatically. We perform regular audits using `pnpm audit` to ensure no known vulnerabilities are shipped to users.
+- **Dependabot** monitors direct and transitive dependencies. Pull requests for security updates are reviewed and merged on an accelerated path; routine version bumps follow the batched cadence described in [CONTRIBUTING.md](CONTRIBUTING.md).
+- **`pnpm audit`** is run periodically and before any tagged release. Findings of severity high or critical block the release until remediated or formally accepted.
+- **CodeQL** static analysis runs in GitHub Actions with the extended-queries pack enabled.
 
-## 🔒 Best Practices for Users
+## Guidance for Users
 
-- **Use the Latest Version:** Always access the app via the official URL.
-- **Clear LocalStorage:** If using a shared computer, you can clear the application data in your browser settings.
-- **Browser Security:** Keep your browser updated to benefit from the latest security patches.
+- **Use the latest deployed build.** Always access the application through the official URL: [chess-vision-site.vercel.app](https://chess-vision-site.vercel.app).
+- **Treat `localStorage` as user-readable.** On a shared device, clear the application's `localStorage` through your browser's developer tools or site-data controls.
+- **Keep the browser current.** Browser-level security patches are part of the trust chain that protects this application.
+
+## References
+
+- Repository: https://github.com/BilgeGates/chess-vision
+- Security advisories: https://github.com/BilgeGates/chess-vision/security/advisories
+- Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- Roadmap: [ROADMAP.md](ROADMAP.md)
+- Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---
 
-_Last Updated: May 8, 2026_
+**Last Updated:** 2026-05-23  
+**Applies To:** v5.5.3

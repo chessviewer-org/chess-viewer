@@ -1,3 +1,37 @@
+## [5.5.7](https://github.com/BilgeGates/chess-vision/compare/v5.5.6...v5.5.7) (2026-05-26)
+
+### Bug Fixes
+
+- run FEN parser tests through stable bundle ([da47b8c](https://github.com/BilgeGates/chess-vision/commit/da47b8cf42b0824fc30a506ab2601864293d19a5))
+
+## [5.5.6](https://github.com/BilgeGates/chess-vision/compare/v5.5.5...v5.5.6) (2026-05-26)
+
+### Bug Fixes
+
+- release export canvas after encoding ([f54712e](https://github.com/BilgeGates/chess-vision/commit/f54712e1b27110d8052edd73aaff3490cf72b771))
+- release svg export canvas ([4820007](https://github.com/BilgeGates/chess-vision/commit/48200078d43c3c04aa194b31b70a0261a117ab01))
+
+## [5.5.5](https://github.com/BilgeGates/chess-vision/compare/v5.5.4...v5.5.5) (2026-05-26)
+
+### Bug Fixes
+
+- enforce no-console lint rule ([587975f](https://github.com/BilgeGates/chess-vision/commit/587975fefffe5f1e2d60b44aff615d2e0accd603))
+
+## [5.5.4](https://github.com/BilgeGates/chess-vision/compare/v5.5.3...v5.5.4) (2026-05-25)
+
+### Bug Fixes
+
+- add TypeScript files to ESLint coverage ([ad4c926](https://github.com/BilgeGates/chess-vision/commit/ad4c926755adeb0c67e15a3a2c0815f2ef27f766))
+
+### Documentation
+
+- align README, CONTRIBUTING, and ARCHITECTURE with v5.5.3 ([8e90a8c](https://github.com/BilgeGates/chess-vision/commit/8e90a8c519084f60fe296ddff606e4c65263ae14))
+- consolidate CHANGELOG and append v1.x-v4.x history ([539e13e](https://github.com/BilgeGates/chess-vision/commit/539e13ef84d45bdd781b18957a83dbe527646550))
+- expand v5.0.0 CHANGELOG entry into unified mechanical format ([6af664b](https://github.com/BilgeGates/chess-vision/commit/6af664be475968f24e3cb107940267aeb2e9c95b))
+- normalize v1.x-v4.x changelog to v5.x format; vercel: skip build on docs-only commits ([17b4360](https://github.com/BilgeGates/chess-vision/commit/17b4360897547d547465f1bd4cef15693df9dbbd))
+- rewrite ROADMAP as faithful v5.5.3 snapshot of master ([5a83c83](https://github.com/BilgeGates/chess-vision/commit/5a83c83332b2bdc4ef03b46577198bd4584dc773)), closes [#88](https://github.com/BilgeGates/chess-vision/issues/88)
+- **security:** standardize SECURITY.md and correct MAX_FEN_LENGTH ([5b59404](https://github.com/BilgeGates/chess-vision/commit/5b594049b30e217f3ab1fc448f1934c2ea459332))
+
 # Changelog
 
 All notable changes to this project are documented in this file.
