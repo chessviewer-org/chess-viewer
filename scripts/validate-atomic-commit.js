@@ -222,13 +222,13 @@ function main() {
   lines.push(
     '  Mechanical mass changes (format sweep, dep bump) may bypass with:'
   );
-  lines.push('    ATOMIC_COMMIT_BYPASS=1 git commit ...');
+  lines.push('ATOMIC_COMMIT_BYPASS=1 git commit ...');
   lines.push('');
 
   if (BYPASS) {
     process.stderr.write(`${lines.join('\n')}\n`);
     process.stderr.write(
-      '  ⚠ ATOMIC_COMMIT_BYPASS=1 set — proceeding despite the above.\n\n'
+      'ATOMIC_COMMIT_BYPASS=1 set — proceeding despite the above.\n\n'
     );
     process.exit(0);
   }
