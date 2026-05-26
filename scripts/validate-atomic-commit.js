@@ -133,13 +133,14 @@ function classify(filePath) {
   return FALLBACK;
 }
 
-/** @returns {string[]} staged file paths (added/copied/modified/renamed) */
+/** @returns {string[]} staged file paths (added/copied/modified/renamed/deleted) */
 function getStagedFiles() {
   // -z + NUL split keeps paths with spaces/unicode intact.
-  const raw = execSync('git diff --cached --name-only --diff-filter=ACMR -z', {
+  const raw = execSync('git diff --cached --name-only --diff-filter=ACMRD -z', {
     encoding: 'utf8'
   });
   return raw.split('\0').filter((p) => p.length > 0);
+}
 }
 
 function isMidMergeOrRebase() {
