@@ -22,9 +22,16 @@
  */
 
 import { execSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 
 const BYPASS = process.env.ATOMIC_COMMIT_BYPASS === '1';
+
+// This validator enforces *developer* commit discipline. Automated commits made
+// by CI tooling (notably the @semantic-release/git plugin, which commits a
+// version bump across package.json + CHANGELOG.md) legitimately span multiple
+// domains and must never be blocked. Skip when running in CI or when the commit
+// message is a semantic-release / automated release commit.
+const IS_CI = process.env.CI === 'true' || process.env.CI === '1';
 
 /**
  * Ordered classification rules. First match wins, so put the most specific
@@ -142,15 +149,40 @@ function getStagedFiles() {
   return raw.split('\0').filter((p) => p.length > 0);
 }
 
+function gitDir() {
+  return execSync('git rev-parse --git-dir', { encoding: 'utf8' }).trim();
+}
+
 function isMidMergeOrRebase() {
   try {
-    const gitDir = execSync('git rev-parse --git-dir', {
-      encoding: 'utf8'
-    }).trim();
+    const dir = gitDir();
     return (
-      existsSync(`${gitDir}/MERGE_HEAD`) ||
-      existsSync(`${gitDir}/rebase-merge`) ||
-      existsSync(`${gitDir}/rebase-apply`)
+      existsSync(`${dir}/MERGE_HEAD`) ||
+      existsSync(`${dir}/rebase-merge`) ||
+      existsSync(`${dir}/rebase-apply`)
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Detect an automated release commit (semantic-release / release bots). These
+ * intentionally bundle a version bump (package.json, pnpm-lock.yaml) with the
+ * generated CHANGELOG.md and must not be treated as non-atomic.
+ *
+ * The prepared commit message is staged at .git/COMMIT_EDITMSG before the
+ * pre-commit hook runs, so we can read it directly.
+ */
+function isAutomatedReleaseCommit() {
+  try {
+    const msg = readFileSync(`${gitDir()}/COMMIT_EDITMSG`, 'utf8');
+    // semantic-release uses "chore(release): <version> [skip ci]"; also honor
+    // the conventional [skip ci] / [ci skip] markers used by release tooling.
+    return (
+      /^chore\(release\):/m.test(msg) ||
+      /\[skip ci\]/i.test(msg) ||
+      /\[ci skip\]/i.test(msg)
     );
   } catch {
     return false;
@@ -158,6 +190,12 @@ function isMidMergeOrRebase() {
 }
 
 function main() {
+  // Automated CI commits (semantic-release version bumps, release bots) span
+  // many domains by design — never block them.
+  if (IS_CI || isAutomatedReleaseCommit()) {
+    process.exit(0);
+  }
+
   // Merges/rebases legitimately combine many categories — never block them.
   if (isMidMergeOrRebase()) {
     process.exit(0);
