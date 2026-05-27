@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { logger } from '@utils/logger';
 
+/** Return type of `useColorState` — all hex color input state and interaction handlers. */
 export interface ColorState {
   hexInput: string;
   setHexInput: React.Dispatch<React.SetStateAction<string>>;
@@ -40,19 +41,11 @@ export function useColorState(initialValue: string): ColorState {
     };
   }, []);
 
-  /** 
-   * Updates the temporary and main hex input when a color is picked. 
-   * 
-   * @param color - Hex color string
-   */
   const handleColorSelect = useCallback((color: string): void => {
     setTempColor(color);
     setHexInput(color);
   }, []);
 
-  /** 
-   * Generates a random hex color and updates state. 
-   */
   const handleRandom = useCallback((): void => {
     const randomColor =
       '#' +
@@ -63,21 +56,11 @@ export function useColorState(initialValue: string): ColorState {
     setHexInput(randomColor);
   }, []);
 
-  /** 
-   * Resets the color state to a provided original value. 
-   * 
-   * @param originalValue - Hex color string to reset to
-   */
   const handleReset = useCallback((originalValue: string): void => {
     setTempColor(originalValue);
     setHexInput(originalValue);
   }, []);
 
-  /** 
-   * Copies text to the system clipboard and shows a brief confirmation. 
-   * 
-   * @param text - String to copy
-   */
   const handleCopy = useCallback(async (text: string): Promise<void> => {
     try {
       await navigator.clipboard.writeText(text);
@@ -91,16 +74,10 @@ export function useColorState(initialValue: string): ColorState {
     }
   }, []);
 
-  /** 
-   * Toggles the open/closed state of the color picker. 
-   */
   const toggleOpen = useCallback((): void => {
     setIsOpen((prev) => !prev);
   }, []);
 
-  /** 
-   * Forces the color picker to close. 
-   */
   const closeModal = useCallback((): void => {
     setIsOpen(false);
   }, []);

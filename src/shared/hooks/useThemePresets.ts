@@ -5,6 +5,7 @@ import { safeJSONParse } from '@utils/validation';
 
 const CUSTOM_THEME_PRESETS_KEY = 'custom-theme-presets';
 
+/** A user-created custom board theme preset. */
 export interface ThemePreset {
   id: number;
   name: string;
@@ -13,6 +14,7 @@ export interface ThemePreset {
   timestamp: number;
 }
 
+/** Return type of `useThemePresets`. */
 export interface UseThemePresetsResult {
   customPresets: ThemePreset[];
   savePreset: (name: string, light: string, dark: string) => void;
