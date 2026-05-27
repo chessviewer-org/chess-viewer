@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Eye, Grid3X3, RotateCcw, Zap } from 'lucide-react';
 
 import { logger } from '@/utils/logger';
-import { safeJSONParse } from '@/utils/validation';
+import { getStoredValue } from '@/utils/validation';
 
 const STORAGE_KEY = 'chess-vision-settings';
 
@@ -16,8 +16,7 @@ const STORAGE_KEY = 'chess-vision-settings';
 function ThemeSettingsView({ onSettingsChange }) {
   const [settings, setSettings] = useState(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      const parsed = safeJSONParse(saved, null);
+      const parsed = getStoredValue(STORAGE_KEY, null);
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
         ? parsed
         : {

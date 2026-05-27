@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { logger } from '@/utils/logger';
-import { safeJSONParse, sanitizeHexColor } from '@/utils/validation';
+import {
+  getStoredString,
+  getStoredValue,
+  safeJSONParse,
+  sanitizeHexColor
+} from '@/utils/validation';
 
 /**
  * Manages board theme colors, presets, and persistence.
@@ -36,27 +41,20 @@ export function useTheme({
           }
         }
 
-        const lightLocal = window.localStorage.getItem('chess-light-square');
-        const darkLocal = window.localStorage.getItem('chess-dark-square');
+        const lightLocal = getStoredString('chess-light-square', '');
+        const darkLocal = getStoredString('chess-dark-square', '');
 
         if (lightLocal || darkLocal) {
-          setLightSquare(
-            sanitizeHexColor(lightLocal?.replace(/"/g, ''), initialLight)
-          );
-          setDarkSquare(
-            sanitizeHexColor(darkLocal?.replace(/"/g, ''), initialDark)
-          );
+          setLightSquare(sanitizeHexColor(lightLocal, initialLight));
+          setDarkSquare(sanitizeHexColor(darkLocal, initialDark));
           return;
         }
 
-        const localTheme = window.localStorage.getItem('chess-theme');
-        if (localTheme) {
-          const saved = safeJSONParse(localTheme, null);
-          if (saved && typeof saved === 'object') {
-            setLightSquare(sanitizeHexColor(saved.light, initialLight));
-            setDarkSquare(sanitizeHexColor(saved.dark, initialDark));
-            setCurrentTheme('custom');
-          }
+        const saved = getStoredValue('chess-theme', null);
+        if (saved && typeof saved === 'object') {
+          setLightSquare(sanitizeHexColor(saved.light, initialLight));
+          setDarkSquare(sanitizeHexColor(saved.dark, initialDark));
+          setCurrentTheme('custom');
         }
       } catch (err) {
         logger.error('Failed to load theme:', err);
@@ -65,12 +63,9 @@ export function useTheme({
 
     const loadHistory = () => {
       try {
-        const historyData = window.localStorage.getItem('theme-history');
-        if (historyData) {
-          const parsed = safeJSONParse(historyData, null);
-          if (Array.isArray(parsed)) {
-            setThemeHistory(parsed);
-          }
+        const parsed = getStoredValue('theme-history', null);
+        if (Array.isArray(parsed)) {
+          setThemeHistory(parsed);
         }
       } catch (err) {
         logger.error('Failed to load theme history:', err);
@@ -81,14 +76,14 @@ export function useTheme({
     loadHistory();
 
     const handleStorageChange = () => {
-      const light = window.localStorage.getItem('chess-light-square');
-      const dark = window.localStorage.getItem('chess-dark-square');
+      const light = getStoredString('chess-light-square', '');
+      const dark = getStoredString('chess-dark-square', '');
 
       if (light) {
-        setLightSquare(sanitizeHexColor(light.replace(/"/g, ''), initialLight));
+        setLightSquare(sanitizeHexColor(light, initialLight));
       }
       if (dark) {
-        setDarkSquare(sanitizeHexColor(dark.replace(/"/g, ''), initialDark));
+        setDarkSquare(sanitizeHexColor(dark, initialDark));
       }
     };
 
@@ -357,12 +352,9 @@ export function useThemePresets() {
 
   useEffect(() => {
     try {
-      const saved = window.localStorage.getItem('custom-theme-presets');
-      if (saved) {
-        const parsed = safeJSONParse(saved, null);
-        if (Array.isArray(parsed)) {
-          setCustomPresets(parsed);
-        }
+      const parsed = getStoredValue('custom-theme-presets', null);
+      if (Array.isArray(parsed)) {
+        setCustomPresets(parsed);
       }
     } catch (err) {
       logger.error('Failed to load custom presets:', err);
