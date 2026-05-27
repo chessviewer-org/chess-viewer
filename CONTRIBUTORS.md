@@ -1,6 +1,6 @@
 # Contributors
 
-Thank you to everyone who has helped improve ChessVision. This file recognizes the people who have contributed code, fixes, and improvements to the project.
+This file recognizes the people who have contributed code, fixes, and improvements to ChessVision.
 
 ---
 
@@ -8,7 +8,7 @@ Thank you to everyone who has helped improve ChessVision. This file recognizes t
 
 ### Khatai Huseynzada — [@BilgeGates](https://github.com/BilgeGates)
 
-**Project author and maintainer.**
+Project author and maintainer.
 
 ---
 
@@ -20,7 +20,7 @@ Thank you to everyone who has helped improve ChessVision. This file recognizes t
 
 **Last contribution:** May 2026
 
-#### Unnecessary background canvas render removed
+#### Background canvas render removed
 
 A hidden canvas render pipeline that ran continuously in the background — separate from the export process — was identified and removed. The board now renders only where needed, reducing idle CPU usage.
 
@@ -30,7 +30,7 @@ A repetitive draw cycle on the main page that increased render load during navig
 
 #### 32× export board size calculation fixed
 
-A scaling miscalculation in the 24× and 32× export modes caused the output dimensions to deviate from the specified board size in centimetres. The formula was corrected so that, for example, a 4 cm board at 32× quality now produces output based on that exact measurement.
+A scaling miscalculation in the 24× and 32× export modes caused output dimensions to deviate from the specified board size in centimetres. The formula was corrected so that, for example, a 4 cm board at 32× quality now produces output based on that exact measurement.
 
 #### Export size calculation unified
 
@@ -42,7 +42,7 @@ The drag preview for pieces was misaligned from the cursor during drag operation
 
 #### Asset caching improved — [#53](https://github.com/BilgeGates/chess-vision/pull/53)
 
-Repeated loading of identical piece images across pages was reduced. This lightens the load during page transitions and general use.
+Repeated loading of identical piece images across pages was reduced, lightening load during page transitions and general use.
 
 #### Export progress indicator fixed
 
@@ -58,27 +58,27 @@ In multi-position export, each position is now downloaded sequentially with an i
 
 #### Large export size information added
 
-For 24× and 32× quality options, the interface now displays the expected output dimensions so users can anticipate file size before exporting.
+For 24× and 32× quality options, the interface now displays the expected output dimensions before exporting.
 
 #### Large export warning added
 
-A warning is shown when an export configuration may place significant demand on the device, allowing users to make an informed choice before proceeding.
+A warning is shown when an export configuration may place significant demand on the device.
 
 #### FEN error messages improved
 
-Validation errors now indicate the specific part of the FEN string that failed, rather than returning a generic invalid message.
+Validation errors now indicate the specific part of the FEN string that failed, rather than returning a generic message.
 
 #### Data management added to settings
 
-Users can now export their saved data, restore it from a backup, or reset it entirely from within the settings panel.
+Users can export their saved data, restore from a backup, or reset it entirely from within the settings panel.
 
 #### FEN validation unit tests added
 
-Basic automated tests were introduced for core FEN validation logic to help catch regressions.
+Basic automated tests were introduced for core FEN validation logic.
 
 #### Performance documentation updated
 
-Internal documentation was updated to reflect the optimisations made and to note considerations for large export operations.
+Internal documentation was updated to reflect the optimizations made and to note considerations for large export operations.
 
 ---
 
@@ -98,4 +98,4 @@ A maximum length constraint was added to the FEN input field to prevent excessiv
 
 ---
 
-_To contribute to ChessVision, please read [CONTRIBUTING.md](CONTRIBUTING.md) and open a pull request._
+_To contribute to ChessVision, read [CONTRIBUTING.md](CONTRIBUTING.md) and open a pull request._

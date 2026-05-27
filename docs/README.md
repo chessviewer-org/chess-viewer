@@ -1,87 +1,59 @@
 # ChessVision — Documentation
 
-Technical documentation for ChessVision v5.0.0.
+Technical documentation for ChessVision v6.0.0.
 
 ---
 
-## Documentation Index
+## Index
 
-### Core Documentation
+### Core
 
-- **[Architecture](ARCHITECTURE.md)** — System design, folder structure, component groups, routing
-- **[State Management](STATE_MANAGEMENT.md)** — React hooks, Context API patterns, localStorage persistence
-- **[Decisions](DECISIONS.md)** — Architectural decision records (ADRs)
+- [Architecture](ARCHITECTURE.md) — System design, folder structure, component groups, routing, auth
+- [Decisions](DECISIONS.md) — Architectural decision records (ADRs)
 
 ### Technical References
 
-- **[Export Pipeline](EXPORT_PIPELINE.md)** — Canvas export system, quality modes, API reference
-- **[Performance](PERFORMANCE.md)** — Implemented optimisations, memory usage, browser limits
-- **[Accessibility](ACCESSIBILITY.md)** — Current accessibility status
-- **[FEN Notation](FEN.md)** — FEN format reference and parser implementation
-- **[Known Issues](KNOWN_ISSUES.md)** — Tracked issues and limitations
-- **[Design Errors Analysis](DESIGN_ERRORS_ANALYSIS.md)** — Identified design issues and fixes
+- [Export Pipeline](EXPORT_PIPELINE.md) — Canvas export system, quality modes, API reference
+- [FEN Notation](FEN.md) — FEN format reference and parser implementation
+- [Accessibility](ACCESSIBILITY.md) — Current accessibility status and known gaps
+- [Linting Setup](LINTING_SETUP.md) — ESLint, Prettier, Husky, commitlint configuration
 
 ### Project Information
 
-- **[Changelog](CHANGELOG.md)** — Version history (v1.0.0 → v5.0.0)
-- **[FAQ](FAQ.md)** — Common questions
-- **[Linting Setup](LINTING_SETUP.md)** — ESLint, Prettier, Husky, commitlint configuration
-- **[Roadmap](ROADMAP.md)** — Implemented features and planned work
+- [Changelog](CHANGELOG.md) — Version history
+- [FAQ](FAQ.md) — Common questions
+- [Roadmap](../ROADMAP.md) — Implemented features and planned work
 
 ---
 
 ## Quick Reference
 
-### For Developers
+### Development Commands
 
-1. Read [Architecture](ARCHITECTURE.md) for a full system overview and file structure
-2. Review [State Management](STATE_MANAGEMENT.md) for hook and context patterns
-3. Check [Known Issues](KNOWN_ISSUES.md) before starting work
-4. See [Export Pipeline](EXPORT_PIPELINE.md) for canvas/export details
+```bash
+pnpm dev              # dev server on :3000
+pnpm build            # production build → dist/
+pnpm test             # FEN parser unit tests
+npx tsc --noEmit      # type check — must be 0 errors
+pnpm lint             # ESLint — must be 0 warnings
+pnpm format           # Prettier
+```
 
-### For Contributors
+### For New Contributors
 
-1. Review [Decisions](DECISIONS.md) for context on why things are built the way they are
-2. Check [Design Errors Analysis](DESIGN_ERRORS_ANALYSIS.md) for open design issues
-3. Follow code style in existing files — zero ESLint warnings enforced in CI
-
----
-
-## Current Status (v5.0.0)
-
-### What Works
-
-- FEN parsing and validation
-- Canvas board rendering with 23+ piece sets and 20+ themes
-- Interactive drag-and-drop board editor
-- PNG/JPEG export up to 24,192×24,192 px (Social 32×)
-- SVG export (Advanced FEN page single + batch export)
-- Print mode with physical dimension accuracy (DPI-correct output)
-- Batch export of multiple FEN positions
-- FEN history with archive, filtering, and favorites
-- Light/dark color scheme with `prefers-color-scheme` support
-- PWA manifest
-- Settings page, FEN history page, advanced FEN input page
-- All pages lazy-loaded with code splitting
-
-### Known Limitations
-
-- No WCAG accessibility compliance for canvas content (screen readers cannot access board)
-- 24×/32× Social exports may fail on Safari/iOS (canvas area limit)
-- No keyboard shortcuts for board actions
-- Home page export toolbar has PNG/JPEG only (SVG is currently in Advanced FEN flow)
-- Automated tests are minimal and currently failing in the Node test runner
-- `export/` and `Export/` (and similar pairs) directories duplicated in `features/` due to case-insensitive filesystem
+1. Read [Architecture](ARCHITECTURE.md) for system overview and file locations
+2. Check [Decisions](DECISIONS.md) for context on why things are built the way they are
+3. Review [Export Pipeline](EXPORT_PIPELINE.md) before touching canvas or export code
+4. All three quality gates must pass: `pnpm test && npx tsc --noEmit && pnpm lint`
 
 ---
 
-## Repository Links
+## Repository
 
-- **Source:** [github.com/BilgeGates/chess-vision](https://github.com/BilgeGates/chess-vision)
-- **Demo:** [chess-vision-site.vercel.app](https://chess-vision-site.vercel.app)
-- **Issues:** [GitHub Issues](https://github.com/BilgeGates/chess-vision/issues)
+- Source: [github.com/BilgeGates/chess-vision](https://github.com/BilgeGates/chess-vision)
+- Demo: [chess-vision-site.vercel.app](https://chess-vision-site.vercel.app)
+- Issues: [GitHub Issues](https://github.com/BilgeGates/chess-vision/issues)
 
 ---
 
-**Last Updated:** May 6, 2026  
-**Version:** 5.0.0
+_Last updated: May 2026 — v6.0.0_

@@ -1,44 +1,102 @@
 # Contributing to ChessVision
 
-Contributions of any kind are welcome: bug reports, feature requests, documentation improvements, and code changes.
+ChessVision operates under an **enterprise-grade engineering governance model**.
+Contributions are welcome, but they are held to a strict, automated quality bar.
+These standards are enforced by Git hooks and the CI/CD pipeline — they are not
+discretionary, and they cannot be waived on a per-PR basis.
+
+Read this document in full before opening a pull request. PRs that do not
+conform will be **blocked automatically**.
 
 ---
 
-## Ways to Contribute
+## Project Status & Scope
 
-- Report bugs
-- Suggest features
-- Improve or add code (bug fixes, refactors, optimizations)
-- Improve documentation
-- Review pull requests
+ChessVision is a **purely open-source project**, maintained on a volunteer
+basis.
 
----
+- There is **no bounty program** and **no budget** for paid contributions.
+- We do **not** purchase or contract development, design, audit, or marketing
+  services.
+- All contributions are accepted strictly on a voluntary, open-source basis and
+  must meet the standards below.
 
-## Reporting Bugs
-
-Before opening an issue:
-
-1. Search existing issues to avoid duplicates.
-2. Reproduce the bug on the latest version.
-3. Open a new issue and include:
-   - Clear description of the problem
-   - Steps to reproduce
-   - Expected behavior vs. actual behavior
-   - Screenshots or screen recordings if applicable
-   - Environment: browser name and version, OS
-
-Submit at: https://github.com/BilgeGates/chess-vision/issues
+Inquiries about payment or paid services will be declined. See
+[`.github/RESPONSE_TEMPLATES.md`](.github/RESPONSE_TEMPLATES.md).
 
 ---
 
-## Feature Requests
+## Non-Negotiable Engineering Standards
 
-When submitting a feature request, include:
+Every contribution **must** satisfy all of the following. Each is enforced by
+automation (local Git hooks and/or CI).
 
-- Description of the proposed feature
-- Use case — why it's useful
-- Expected behavior
-- Mockups or examples (optional)
+### 1. Atomic Commits
+
+One logical task per commit. A commit must not mix unrelated concerns (e.g.
+application source + dependency bumps + documentation rewrites in a single
+commit).
+
+- Enforced locally by [`scripts/validate-atomic-commit.js`](scripts/validate-atomic-commit.js)
+  via the `pre-commit` hook, which classifies staged files by domain and rejects
+  commits that span unrelated domains.
+- Co-located changes that belong together (a source file, its `*.test.ts`, and
+  the docs describing it) are treated as one atomic unit.
+- Mechanical mass changes (a repo-wide format sweep, a dependency bump) may
+  bypass the local check with `ATOMIC_COMMIT_BYPASS=1 git commit ...`. Use this
+  sparingly and only for genuinely mechanical changes.
+
+### 2. Conventional Commits
+
+Commit messages **and** PR titles must follow
+[Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+<type>(<optional-scope>): <subject>
+```
+
+Allowed types (enforced by `commitlint` and Danger):
+
+| Type       | Use case                                             |
+| ---------- | ---------------------------------------------------- |
+| `feat`     | New feature                                          |
+| `fix`      | Bug fix                                              |
+| `docs`     | Documentation only                                   |
+| `style`    | Formatting/whitespace; no code-behavior change       |
+| `refactor` | Code change that neither fixes a bug nor adds a feat |
+| `perf`     | Performance improvement                              |
+| `test`     | Adding or correcting tests                           |
+| `chore`    | Tooling/maintenance                                  |
+| `ci`       | CI configuration                                     |
+| `build`    | Build system or dependencies                         |
+| `revert`   | Reverts a previous commit                            |
+
+Rules: lower-case type, non-empty subject, no trailing period, header ≤ 100
+chars. Enforced by the `commit-msg` hook (`commitlint`) and re-checked on the
+PR title by Danger.
+
+> Note: the legacy `update:` prefix is **not** a valid type. Use `feat`,
+> `fix`, or `refactor` as appropriate.
+
+### 3. Zero-Warning Quality Gates
+
+All three gates must pass with **zero** warnings/errors:
+
+```bash
+pnpm lint           # ESLint — 0 warnings (--max-warnings=0)
+npx tsc --noEmit    # TypeScript 6 strict — 0 errors
+pnpm test           # FEN parser unit tests (node:test)
+```
+
+Prettier formatting is enforced on staged files via `lint-staged` in the
+`pre-commit` hook, and re-checked in CI.
+
+### 4. Mandatory Testing
+
+- Behavioral source changes must include or update tests. Danger **warns** when
+  `src/**` changes ship without any test change.
+- **Any** change to `src/shared/utils/fenParser.ts` **requires** a matching
+  change to `fenParser.test.ts`. Danger **fails** the PR otherwise.
 
 ---
 
@@ -46,21 +104,18 @@ When submitting a feature request, include:
 
 ### Prerequisites
 
-- Node.js >= 18
+- Node.js >= 20
 - pnpm >= 9
 - Git
 
 ### Installation
 
 ```bash
-# Fork the repository on GitHub, then:
 git clone https://github.com/YOUR_USERNAME/chess-vision.git
 cd chess-vision
-pnpm install
-pnpm dev
+pnpm install        # also installs Git hooks via husky
+pnpm dev            # dev server at http://localhost:3000
 ```
-
-The dev server runs at `http://localhost:3000`.
 
 ### Build
 
@@ -71,76 +126,69 @@ pnpm preview  # serve dist/ locally
 
 ---
 
-## Making Changes
+## Coding Standards
 
-### Branching
-
-```bash
-git checkout -b feature/your-feature-name
-# or
-git checkout -b fix/bug-description
-```
-
-### Coding Standards
-
-- All exported functions use `export function` declarations (no arrow function exports).
-- All exported functions and components have JSDoc with `@param` and `@returns`.
-- Memo components: `const X = memo(function X({ props }) { ... })`.
-- Import order: React/framework → third-party → `@/` paths → relative paths.
-- No unnecessary inline comments; keep logic readable without them.
-- Keep functions small and single-purpose.
-
-### Commit Messages
-
-Prefix commits with a type:
-
-| Prefix      | Use case                               |
-| ----------- | -------------------------------------- |
-| `Add:`      | New feature or file                    |
-| `Fix:`      | Bug fix                                |
-| `Update:`   | Modification to existing functionality |
-| `Refactor:` | Code cleanup without behavior change   |
-| `Docs:`     | Documentation only                     |
-
-Example:
-
-```
-Add: board flip functionality
-Fix: piece drag-and-drop on mobile
-Refactor: split canvasExporter into smaller functions
-```
+- TypeScript 6 strict mode throughout — **no** `any`, `@ts-ignore`, or non-null
+  assertions (`!`). Use type guards and generics.
+- All colors via Tailwind CSS variables (`--accent`, `--bg-primary`, etc.) — **no**
+  hardcoded hex values in JSX.
+- `memo()` is required on `BoardSquare`, `DraggablePiece`, `DroppableSquare` —
+  these render ×64 per board state change.
+- Heavy canvas/export work (>1000px) must be offloaded to the SVG raster Web
+  Worker — never run synchronously on the main thread.
+- After every canvas blob generation: `canvas.width = 0; canvas.height = 0`
+  (Safari OOM prevention).
+- No bare `console.log` in production paths — use `logger.ts`.
+- Import order: framework → third-party → `@/` path aliases → relative paths.
 
 ---
 
 ## Submitting a Pull Request
 
-1. Push your branch to your fork.
-2. Open a pull request against the `main` branch.
-3. In the PR description, include:
-   - What changed and why
-   - Related issue references (e.g. `Fixes #123`)
-   - Screenshots for UI changes
-4. Address review feedback and push updates to the same branch.
+1. Branch from `master` (`feature/<name>` or `fix/<description>`).
+2. Make atomic, Conventional commits.
+3. Run all gates locally: `pnpm test && npx tsc --noEmit && pnpm lint`.
+4. Open a PR against `master` with a Conventional Commit **title** and a
+   description that explains **what** changed and **why**, linking any related
+   issue (e.g. `Fixes #123`).
+5. Address automated review (Danger) and human review feedback.
+
+### What the pipeline enforces automatically
+
+| Stage        | Check                                                            |
+| ------------ | ---------------------------------------------------------------- |
+| `pre-commit` | `lint-staged` (Prettier + ESLint) and atomic-commit validation   |
+| `commit-msg` | `commitlint` Conventional Commit validation                      |
+| CI (Danger)  | Conventional PR title, description, test coverage, FEN test rule |
+| CI (quality) | ESLint zero-warning + Prettier check                             |
+| CI (build)   | Production build must succeed                                    |
 
 ### Pre-submission Checklist
 
-- [ ] Code follows project standards (function declarations, JSDoc)
-- [ ] No console errors or warnings
-- [ ] Changes tested locally across relevant scenarios
-- [ ] Documentation updated if behavior changed
-- [ ] Commit messages follow the prefix convention
-- [ ] Branch is up to date with `main`
+- [ ] Commits are atomic (one logical task each).
+- [ ] PR title and commits follow Conventional Commits.
+- [ ] `pnpm test && npx tsc --noEmit && pnpm lint` all pass with zero warnings.
+- [ ] Tests added/updated for behavioral changes.
+- [ ] No `any`, `@ts-ignore`, or non-null `!`; no hardcoded hex in JSX.
+- [ ] PR description explains what and why, with issue references.
 
 ---
 
-## Documentation
+## Reporting Bugs
 
-Contributing to documentation is as valuable as code contributions:
+1. Search existing issues to avoid duplicates.
+2. Reproduce on the latest version.
+3. Include: clear description, steps to reproduce, expected vs. actual behavior,
+   screenshots/recordings if applicable, and browser/OS versions.
 
-- Improve clarity in README or docs/
-- Add JSDoc where missing
-- Fix typos or outdated information
-- Document architectural decisions in docs/DECISIONS.md
+Submit at: https://github.com/BilgeGates/chess-vision/issues
+
+---
+
+## Feature Requests
+
+Include a description of the proposed feature, the use case, expected behavior,
+and optional mockups.
 
 ---
 
@@ -153,4 +201,4 @@ See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 ## Contact
 
 - GitHub Issues: https://github.com/BilgeGates/chess-vision/issues
-- Repository: https://github.com/BilgeGates/chess-vision
+- Security issues: [chessvision@protonmail.com](mailto:chessvision@protonmail.com)

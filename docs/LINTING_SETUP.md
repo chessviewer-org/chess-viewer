@@ -1,491 +1,210 @@
-# Code Quality Tools Setup Guide
+# Code Quality Setup
 
-Setup guide for ESLint, Prettier, Husky, and Commitlint.
+ESLint, Prettier, Husky, and Commitlint configuration reference for ChessVision.
 
-**Note:** These tools are documented but may not be fully configured in the project.
+All tools are already installed and configured in the repository. This document explains what each tool does and how to use it.
 
 ---
 
-## Installation
+## Tools
 
-### Step 1: Install Dependencies
+| Tool         | Purpose                                         | Config file         |
+| ------------ | ----------------------------------------------- | ------------------- |
+| ESLint 9     | Static analysis — zero warnings allowed in CI   | `eslint.config.js`  |
+| Prettier 3   | Code formatting                                 | (default config)    |
+| Husky 9      | Git hooks                                       | `.husky/`           |
+| lint-staged  | Run linters only on staged files                | `package.json`      |
+| commitlint   | Enforce Conventional Commits on commit messages | (commitlint config) |
+| TypeScript 6 | Type checking — zero errors required            | `tsconfig.json`     |
 
-```bash
-# Install ESLint and plugins
-npm install --save-dev eslint \
-  eslint-plugin-react \
-  eslint-plugin-react-hooks \
-  eslint-plugin-react-refresh
+---
 
-# Install Prettier
-npm install --save-dev prettier
-
-# Install Husky and lint-staged
-npm install --save-dev husky lint-staged
-
-# Install Commitlint
-npm install --save-dev @commitlint/cli @commitlint/config-conventional
-```
-
-### Step 2: Create Configuration Files
-
-Create these files in your project root:
-
-1. `.eslintrc.json` - ESLint configuration
-2. `.prettierrc` - Prettier configuration
-3. `.prettierignore` - Files to ignore for Prettier
-4. `.commitlintrc.json` - Commitlint configuration
-5. `.lintstagedrc.json` - Lint-staged configuration
-
-### Step 3: Initialize Husky
+## Daily Commands
 
 ```bash
-# Initialize Husky
-npx husky install
+# Run all three quality gates (required before every commit)
+pnpm test && npx tsc --noEmit && pnpm lint
 
-# Create pre-commit hook
-npx husky add .husky/pre-commit "npx lint-staged"
+# Lint
+pnpm lint          # check — 0 warnings allowed
+pnpm lint:fix      # auto-fix
 
-# Create commit-msg hook
-npx husky add .husky/commit-msg 'npx --no -- commitlint --edit "$1"'
+# Format
+pnpm format        # write
+pnpm format:check  # check without writing
 
-# Make hooks executable
-chmod +x .husky/pre-commit
-chmod +x .husky/commit-msg
-```
-
-### Step 4: Update package.json
-
-Add these scripts to your `package.json`:
-
-```json
-{
-  "scripts": {
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"src/**/*.{js,jsx,json,css,md}\"",
-    "format:check": "prettier . --check",
-    "prepare": "husky install"
-  }
-}
+# Type check
+npx tsc --noEmit
 ```
 
 ---
 
-## Usage
+## ESLint
 
-### ESLint
+Configured in `eslint.config.js` with:
+
+- `@typescript-eslint` — TypeScript-aware rules
+- `eslint-plugin-react` — React-specific rules
+- `eslint-plugin-react-hooks` — `react-hooks/exhaustive-deps` is an **error**, not a warning
+- `eslint-plugin-react-refresh` — Vite HMR compatibility
+
+Key enforced rules:
+
+- No `any`, `@ts-ignore`, or non-null assertions
+- No bare `console.log` in production paths
+- `react/jsx-no-target-blank` — `target="_blank"` requires `rel="noopener noreferrer"`
+- No unused variables or imports
+
+Zero warnings allowed in CI (`--max-warnings=0`).
+
+---
+
+## Prettier
+
+Default configuration with the following project preferences:
+
+- Single quotes
+- Semicolons required
+- 2-space indentation
+- Trailing commas where valid in ES5
+- Print width: 100 characters
+
+Runs automatically on staged files via Husky + lint-staged before every commit.
+
+---
+
+## Husky Hooks
+
+**Pre-commit:** Runs `lint-staged` — lints and formats only staged files.
+
+**Commit-msg:** Runs commitlint to validate the commit message format.
+
+If a hook fails:
 
 ```bash
-# Check for linting errors
-pnpm lint
-
-# Fix linting errors automatically
+# Fix lint errors manually
 pnpm lint:fix
 
-# Lint specific file
-pnpm eslint src/App.tsx
-
-# Lint and fix specific file
-pnpm eslint src/App.tsx --fix
-```
-
-### Prettier
-
-```bash
-# Format all files
+# Fix formatting
 pnpm format
 
-# Check formatting without changing files
-pnpm format:check
-
-# Format specific file
-pnpm prettier --write src/App.tsx
-
-# Format specific folder
-pnpm prettier --write "src/components/**/*.jsx"
-```
-
-### Husky (Automatic)
-
-Husky runs automatically on git hooks:
-
-**Pre-commit Hook:**
-
-- Runs `lint-staged` on staged files
-- Fixes ESLint errors
-- Formats code with Prettier
-- Blocks commit if errors remain
-
-**Commit-msg Hook:**
-
-- Validates commit message format
-- Ensures Conventional Commits format
-- Blocks commit if message is invalid
-
-### Manual Testing
-
-```bash
-# Test pre-commit hook manually
-npm run lint:fix
-npm run format
-
-# Test commit message format
-echo "feat: add new feature" | npx commitlint
-echo "invalid message" | npx commitlint
+# Re-stage and commit
+git add -p
+git commit -m "fix: your message"
 ```
 
 ---
 
 ## Commit Message Format
 
-### Conventional Commits
+This project uses a prefix convention (enforced by commitlint):
 
-Format: `<type>(<scope>): <subject>`
-
-**Types:**
-
-| Type       | Description             | Example                               |
-| ---------- | ----------------------- | ------------------------------------- |
-| `feat`     | New feature             | `feat: add SVG export`                |
-| `fix`      | Bug fix                 | `fix: resolve Safari rendering issue` |
-| `docs`     | Documentation           | `docs: update README`                 |
-| `style`    | Code style (formatting) | `style: format with prettier`         |
-| `refactor` | Code refactoring        | `refactor: simplify FEN parser`       |
-| `perf`     | Performance improvement | `perf: optimize canvas rendering`     |
-| `test`     | Tests                   | `test: add unit tests for parser`     |
-| `chore`    | Maintenance             | `chore: update dependencies`          |
-| `ci`       | CI/CD changes           | `ci: add GitHub Actions workflow`     |
-| `build`    | Build system            | `build: update vite config`           |
-| `revert`   | Revert previous commit  | `revert: undo feature X`              |
-
-**Valid Examples:**
-
-```bash
-feat: add dark mode support
-feat(export): implement batch export
-fix: correct piece alignment on small screens
-fix(fen): handle invalid FEN notation gracefully
-docs: add contribution guidelines
-docs(api): document export functions
-style: apply prettier formatting
-refactor(board): simplify state management
-perf: reduce bundle size by 20%
-test: add integration tests for export
-chore: update React to v19
-ci: add automated testing workflow
+```
+<type>: <subject>
 ```
 
-**Invalid Examples:**
+| Type       | Use case                               |
+| ---------- | -------------------------------------- |
+| `feat`     | New feature                            |
+| `fix`      | Bug fix                                |
+| `update`   | Modification to existing functionality |
+| `refactor` | Code cleanup, no behavior change       |
+| `docs`     | Documentation only                     |
+| `perf`     | Performance improvement                |
+| `test`     | Test additions or corrections          |
+| `style`    | Formatting, visual-only changes        |
+| `chore`    | Build config, dependency bumps         |
+| `ci`       | CI/CD changes                          |
+| `revert`   | Revert a previous commit               |
 
-```bash
-❌ Added new feature          # Missing type
-❌ FEAT: add dark mode        # Type must be lowercase
-❌ feat:add dark mode         # Missing space after colon
-❌ feat: Add dark mode.       # Subject should not end with period
-❌ feat: Added dark mode      # Subject should be imperative mood
+Subject: imperative mood, lowercase start, no trailing period, max 72 characters.
+
+**Valid:**
+
+```
+feat: add URL-based position sharing
+fix: piece drag offset on touch devices
+refactor: consolidate export dimension calculation
+docs: update export pipeline reference
+```
+
+**Invalid:**
+
+```
+Added new feature          # missing type
+FEAT: add dark mode        # type must be lowercase
+feat:add feature           # missing space after colon
+feat: Add feature.         # uppercase start, trailing period
 ```
 
 ---
 
-## Configuration Details
+## TypeScript
 
-### ESLint Rules
+TypeScript 6 strict mode is enforced via `tsconfig.json`:
 
-**Enabled Rules:**
+```json
+{
+  "strict": true,
+  "noUncheckedIndexedAccess": true,
+  "exactOptionalPropertyTypes": true,
+  "noImplicitAny": true
+}
+```
 
-- React Hooks validation
-- Unused variables warning
-- Console statement warnings
-- Prefer const over let
-- No var keyword
-- Semicolon enforcement
-- Single quotes preference
+Type check command:
 
-**Disabled Rules:**
+```bash
+npx tsc --noEmit
+```
 
-- React in JSX scope (not needed in React 17+)
-- React prop-types (warnings only)
-
-### Prettier Settings
-
-**Configuration:**
-
-- Print width: 80 characters
-- Tab width: 2 spaces
-- Use spaces (not tabs)
-- Semicolons: required
-- Single quotes: yes
-- Trailing commas: none
-- Bracket spacing: yes
-- Arrow function parentheses: always
-
-### Lint-staged Behavior
-
-**On commit, automatically:**
-
-1. Run ESLint on `.js` and `.jsx` files
-2. Fix auto-fixable ESLint errors
-3. Format files with Prettier
-4. Stage fixed files
-5. Block commit if errors remain
-
-**Files Checked:**
-
-- `*.{js,jsx}` - ESLint + Prettier
-- `*.{json,md,css,scss}` - Prettier only
-- `*.{png,jpg,jpeg,gif,svg}` - Validation only
+Zero errors required. `any`, `@ts-ignore`, and non-null assertions (`!`) are forbidden.
 
 ---
 
 ## VS Code Integration
 
-### Recommended Extensions
+Recommended extensions (`.vscode/extensions.json`):
 
-```json
-{
-  "recommendations": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]
-}
-```
+- `dbaeumer.vscode-eslint`
+- `esbenp.prettier-vscode`
 
-### VS Code Settings
-
-Create `.vscode/settings.json`:
+Recommended settings (`.vscode/settings.json`):
 
 ```json
 {
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
-  },
-  "eslint.validate": ["javascript", "javascriptreact"],
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[javascriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "source.fixAll.eslint": "explicit"
   }
 }
 ```
 
 ---
 
-## Ignoring Files
-
-### .eslintignore
-
-Create `.eslintignore`:
-
-```
-node_modules
-dist
-build
-coverage
-*.config.js
-```
-
-### .prettierignore
-
-Already created - see artifact.
-
----
-
 ## Troubleshooting
 
-### Husky Hooks Not Running
+**Husky hooks not running:**
 
 ```bash
 # Reinstall Husky
-rm -rf .husky
-npm run prepare
-
-# Make hooks executable
-chmod +x .husky/pre-commit
-chmod +x .husky/commit-msg
+pnpm prepare
 ```
 
-### ESLint Errors
+**ESLint cache stale:**
 
 ```bash
-# Clear cache
-rm -rf node_modules/.cache
-
-# Reinstall dependencies
-rm -rf node_modules package-lock.json
-npm install
+rm -rf node_modules/.cache && pnpm lint
 ```
 
-### Prettier Conflicts with ESLint
+**Commit blocked by commitlint:**
 
 ```bash
-# Install eslint-config-prettier to disable conflicting rules
-npm install --save-dev eslint-config-prettier
-
-# Add to .eslintrc.json extends
-{
-  "extends": [
-    "eslint:recommended",
-    "plugin:react/recommended",
-    "plugin:react-hooks/recommended",
-    "prettier"  // Must be last
-  ]
-}
-```
-
-### Pre-commit Hook Fails
-
-```bash
-# Run manually to see errors
-npx lint-staged
-
-# Fix errors manually
-npm run lint:fix
-npm run format
-
-# Commit again
-git commit -m "your message"
-```
-
-### Commit Message Validation Fails
-
-```bash
-# Test your commit message
-echo "your commit message" | npx commitlint
-
-# Use correct format
-git commit -m "feat: your feature description"
+# Test your message before committing
+echo "feat: your description" | npx commitlint
 ```
 
 ---
 
-## Best Practices
-
-### 1. Always Format Before Commit
-
-```bash
-npm run format
-git add .
-git commit -m "style: format code"
-```
-
-### 2. Fix Linting Errors Regularly
-
-```bash
-npm run lint:fix
-```
-
-### 3. Write Clear Commit Messages
-
-```bash
-# Good
-git commit -m "feat(export): add PNG quality selection"
-
-# Better
-git commit -m "feat(export): add PNG quality selection
-
-Adds quality dropdown in export modal allowing users to choose
-between Low, Medium, High, and Ultra quality settings."
-```
-
-### 4. Use Scope When Relevant
-
-```bash
-git commit -m "feat(board): add flip animation"
-git commit -m "fix(fen): validate rank counts"
-git commit -m "docs(api): document export functions"
-```
-
-### 5. Keep Commits Focused
-
-```bash
-# Instead of:
-git commit -m "feat: add multiple features"
-
-# Do:
-git commit -m "feat: add SVG export"
-git commit -m "feat: add batch export"
-git commit -m "docs: update export documentation"
-```
-
----
-
-## Quick Reference
-
-### Common Commands
-
-```bash
-# Check code quality
-npm run lint
-npm run format:check
-
-# Fix issues
-npm run lint:fix
-npm run format
-
-# Manual commit hooks
-npx lint-staged
-npx commitlint --edit <file>
-
-# Skip hooks (not recommended)
-git commit --no-verify -m "message"
-```
-
-### Commit Types Quick Reference
-
-```
-feat:     New feature
-fix:      Bug fix
-docs:     Documentation
-style:    Code style
-refactor: Refactoring
-perf:     Performance
-test:     Tests
-chore:    Maintenance
-ci:       CI/CD
-build:    Build
-revert:   Revert
-```
-
----
-
-## CI/CD Integration
-
-### GitHub Actions
-
-Create `.github/workflows/lint.yml`:
-
-```yaml
-name: Lint
-
-on: [push, pull_request]
-
-jobs:
-  lint:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run ESLint
-        run: pnpm lint
-
-      - name: Check Prettier formatting
-        run: pnpm format:check
-```
-
----
-
-**Last Updated:** May 6, 2026  
-**Maintainer:** [@BilgeGates](https://github.com/BilgeGates)
+_Last updated: May 2026 — v6.0.0_

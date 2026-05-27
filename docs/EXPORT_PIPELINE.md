@@ -1,6 +1,6 @@
-# Export Pipeline Documentation
+# Export Pipeline
 
-Technical documentation for the ChessVision export system.
+Technical reference for the ChessVision export system.
 
 ---
 
@@ -10,7 +10,7 @@ Technical documentation for the ChessVision export system.
 - [Export Modes](#export-modes)
 - [Quality Settings](#quality-settings)
 - [Export Formats](#export-formats)
-- [Export Pipeline Architecture](#export-pipeline-architecture)
+- [Pipeline Architecture](#pipeline-architecture)
 - [Resolution Calculation](#resolution-calculation)
 - [Canvas Rendering](#canvas-rendering)
 - [Batch Export](#batch-export)
@@ -22,83 +22,63 @@ Technical documentation for the ChessVision export system.
 
 ## Overview
 
-The export system converts canvas-based chess board visualisations into high-resolution static images with precise control over physical dimensions and pixel density.
+The export system converts canvas-based chess board visualizations into high-resolution static images with precise control over physical dimensions and pixel density.
 
-### Key Features
-
-- **Dual Export Modes**: Print mode (preserves physical dimensions) and Social mode (fixed large output)
-- **Dynamic Scaling**: Board size controls physical print dimensions; quality controls pixel density
-- **High Resolution**: Export up to 24,192×24,192 px (Social 32×)
-- **Multiple Formats**: PNG, JPEG, and SVG (SVG currently exposed in Advanced FEN actions)
-- **Physical Size Metadata**: PNG/JPEG exports embed DPI metadata for print workflows
-- **Background Rasterization**: SVG-to-raster jobs run in a worker when supported
-- **Pause / Resume / Cancel**: Export can be paused, resumed, or cancelled mid-way
-- **Batch Processing**: Export multiple FEN positions simultaneously via `advancedExport.js`
-- **Clipboard Support**: Direct copy to system clipboard
+- Dual export modes: Print (physical dimensions) and Social (fixed large output)
+- Up to 30,208 × 30,208 px at 9,600 DPI
+- Formats: PNG, JPEG, SVG
+- DPI metadata embedded in PNG (`pHYs` chunk) and JPEG (JFIF density fields)
+- SVG-to-raster jobs run in a Web Worker via `OffscreenCanvas`
+- Export can be paused, resumed, or cancelled mid-way
+- Batch export: multiple FEN positions → individual files
 
 ---
 
 ## Export Modes
 
-### Print Mode (8× and 16× Quality)
+### Print Mode (8× and 16×)
 
-**Purpose**: Generate print-ready diagrams with exact physical dimensions.
+Physical board size (4 cm, 6 cm, 8 cm) determines the printed physical dimensions. Quality multiplier increases pixel density (DPI) without changing the printed size. Aspect ratio is always 1:1.
 
-**Behaviour**:
-
-- Board size selection (4 cm, 6 cm, 8 cm) determines the output physical dimensions
-- Quality multiplier increases pixel density (DPI) without changing the printed physical size
-- Aspect ratio 1:1 always maintained
-- Coordinate borders are optional
-
-**Formula**:
+**Formula:**
 
 ```
-pixelDimensions = (boardSizeCM / 2.54) × baseDPI × qualityMultiplier
-baseDPI = 300
-effectiveDPI = baseDPI × qualityMultiplier × scaleFactor
+boardPixels = round((boardSizeCm / 2.54) × 300 × qualityMultiplier)
+effectiveDPI = 300 × qualityMultiplier
 ```
-
-**Examples**:
 
 | Quality | Size | Pixel Dimensions   | Effective DPI |
 | ------- | ---- | ------------------ | ------------- |
-| 8×      | 4 cm | 3,776 × 3,776 px   | 2,400 DPI     |
-| 8×      | 6 cm | 5,664 × 5,664 px   | 2,400 DPI     |
-| 8×      | 8 cm | 7,552 × 7,552 px   | 2,400 DPI     |
-| 16×     | 4 cm | 7,552 × 7,552 px   | 4,800 DPI     |
-| 16×     | 6 cm | 11,328 × 11,328 px | 4,800 DPI     |
-| 16×     | 8 cm | 15,104 × 15,104 px | 4,800 DPI     |
+| 8×      | 4 cm | 3,776 × 3,776 px   | 2,400         |
+| 8×      | 6 cm | 5,664 × 5,664 px   | 2,400         |
+| 8×      | 8 cm | 7,552 × 7,552 px   | 2,400         |
+| 16×     | 4 cm | 7,552 × 7,552 px   | 4,800         |
+| 16×     | 6 cm | 11,328 × 11,328 px | 4,800         |
+| 16×     | 8 cm | 15,104 × 15,104 px | 4,800         |
 
-### Social Mode (24× and 32× Quality)
+### Social Mode (24× and 32×)
 
-**Purpose**: Generate large diagrams optimised for screen viewing and social media.
+Fixed pixel output regardless of board size selection. Coordinate borders are always enabled.
 
-**Behaviour**:
-
-- Fixed pixel output regardless of board size selection
-- Coordinate borders always enabled (forced)
-- Larger file sizes for maximum detail
-
-**Base Resolutions**:
-
-| Quality | Resolution         |
-| ------- | ------------------ |
-| 24×     | 18,112 × 18,112 px |
-| 32×     | 24,192 × 24,192 px |
+| Quality | Board size | Pixel Dimensions   | Effective DPI |
+| ------- | ---------- | ------------------ | ------------- |
+| 24×     | 4 cm       | 11,328 × 11,328 px | 7,200         |
+| 24×     | 6 cm       | 16,992 × 16,992 px | 7,200         |
+| 24×     | 8 cm       | 22,656 × 22,656 px | 7,200         |
+| 32×     | 4 cm       | 15,104 × 15,104 px | 9,600         |
+| 32×     | 6 cm       | 22,656 × 22,656 px | 9,600         |
+| 32×     | 8 cm       | 30,208 × 30,208 px | 9,600         |
 
 ---
 
 ## Quality Settings
 
-### Quality Presets
-
-| Quality | Mode   | Effective DPI | Approx. PNG Size | Approx. JPEG Size |
-| ------- | ------ | ------------- | ---------------- | ----------------- |
-| 8×      | Print  | 2,400         | 70–500 KB        | 30–200 KB         |
-| 16×     | Print  | 4,800         | 500–900 KB       | 200–400 KB        |
-| 24×     | Social | —             | 1.2–2.0 MB       | 500–800 KB        |
-| 32×     | Social | —             | 2.5–4.0 MB       | 1.0–1.5 MB        |
+| Quality | Mode   | Approx. PNG size | Approx. JPEG size |
+| ------- | ------ | ---------------- | ----------------- |
+| 8×      | Print  | 70–500 KB        | 30–200 KB         |
+| 16×     | Print  | 500–900 KB       | 200–400 KB        |
+| 24×     | Social | 1.2–4.0 MB       | 500–800 KB        |
+| 32×     | Social | 4.6–18.0 MB      | 1.0–6.0 MB        |
 
 ---
 
@@ -106,34 +86,28 @@ effectiveDPI = baseDPI × qualityMultiplier × scaleFactor
 
 ### PNG
 
-| Property      | Value                |
-| ------------- | -------------------- |
-| Compression   | Lossless             |
-| Transparency  | Supported            |
-| Best for      | Print, web, diagrams |
-| Relative size | Larger               |
+- Lossless compression
+- Supports transparency
+- DPI embedded via `pHYs` chunk (`dpiEncoder.ts`)
+- Best for print and diagrams
 
 ### JPEG
 
-| Property      | Value                               |
-| ------------- | ----------------------------------- |
-| Compression   | Lossy                               |
-| Transparency  | Not supported                       |
-| Best for      | Social media, email, web sharing    |
-| Relative size | Smaller (60–80% reduction over PNG) |
+- Lossy compression (~60–80% smaller than PNG)
+- No transparency
+- DPI embedded via JFIF density fields
+- Best for social media and email
 
 ### SVG
 
-| Property     | Value                                                           |
-| ------------ | --------------------------------------------------------------- |
-| Type         | Vector                                                          |
-| Transparency | Supported                                                       |
-| Best for     | Scalable diagrams, post-processing in vector tools              |
-| Notes        | Generated from board state + piece assets, then saved as `.svg` |
+- Vector format — resolution-independent
+- Supports transparency
+- Generated from board state and piece assets via `svgExporter.ts`
+- Currently exposed in Advanced FEN export actions
 
 ---
 
-## Export Pipeline Architecture
+## Pipeline Architecture
 
 ### High-Level Flow
 
@@ -142,40 +116,36 @@ User triggers export
         │
         ▼
 validateExportConfig(config)
-  - boardSize, fen, lightSquare, darkSquare, pieceImages must be present
+  — boardSize, fen, lightSquare, darkSquare, pieceImages required
         │
         ▼
 getExportInfo(config)
-  - calculateRenderSurfaceSize(boardSize, showCoords, exportQuality, showThinFrame)
-  - getExportMode(exportQuality) → 'print' | 'social'
-  - estimateFileSizes(width, height, exportQuality)
+  — calculateRenderSurfaceSize() → pixel dimensions
+  — getExportMode() → 'print' | 'social'
+  — estimateFileSizes()
         │
         ▼
-generateBoardSVG(config)
+generateBoardSVG(config)                         [svgExporter.ts]
         │
         ▼
 Worker raster path (preferred when supported)
-  - svgRasterWorker.js + OffscreenCanvas
-  - Produces PNG/JPEG blob off the main thread
+  — svgRasterWorker.ts via OffscreenCanvas
+  — SVG Blob → createImageBitmap → OffscreenCanvas → convertToBlob
         │
-        ├── fallback:
-        │      createUltraQualityCanvas(config)
-        │      (main-thread canvas renderer)
-        │
-        ▼
-changeDPI(blob, effectiveDPI, format)
+        ├── fallback (worker unavailable):
+        │      createUltraQualityCanvas(config)  [canvasRenderer.ts]
+        │      main-thread canvas renderer
         │
         ▼
-Download via <a download> link  OR  navigator.clipboard.write()
+changeDPI(blob, effectiveDPI, format)            [dpiEncoder.ts]
+        │
+        ▼
+Download via <a download>  OR  navigator.clipboard.write()
 ```
 
 ### Export State Machine
 
-`canvasExporter.js` maintains a module-level `exportState` object:
-
-```javascript
-let exportState = { cancelled: false, paused: false };
-```
+`exportState.ts` maintains module-level cancel/pause flags shared across all export calls:
 
 | Function             | Effect                       |
 | -------------------- | ---------------------------- |
@@ -184,15 +154,15 @@ let exportState = { cancelled: false, paused: false };
 | `resumeExport()`     | Sets `paused = false`        |
 | `resetExportState()` | Resets both flags to `false` |
 
-The export loop calls `checkCancellation()` and `waitWhilePaused()` at regular checkpoints, allowing cancellation or pausing without hanging the browser.
+The export loop calls `checkCancellation()` and `waitWhilePaused()` at every async checkpoint.
 
 ### Progress Reporting
 
-Progress is reported through an `onProgress(0–100)` callback. The `simulateProgress(onProgress, start, end, duration)` helper animates progress smoothly across a range using 20 steps over the specified duration.
+Progress is reported via an `onProgress(0–100)` callback. `simulateProgress(onProgress, start, end, duration)` animates progress across a range using 20 steps.
 
 ### Export Configuration Object
 
-```javascript
+```typescript
 {
   fen: string,             // FEN position string
   boardSize: number,       // Physical size in cm (4 | 6 | 8)
@@ -200,8 +170,8 @@ Progress is reported through an `onProgress(0–100)` callback. The `simulatePro
   lightSquare: string,     // Hex color for light squares
   darkSquare: string,      // Hex color for dark squares
   pieceImages: object,     // { 'wK': HTMLImageElement, ... }
-  isFlipped: boolean,      // Board orientation
-  showCoords: boolean,     // Whether to show coordinate labels
+  isFlipped: boolean,
+  showCoords: boolean,
   format: string           // 'png' | 'jpeg' | 'svg'
 }
 ```
@@ -210,28 +180,24 @@ Progress is reported through an `onProgress(0–100)` callback. The `simulatePro
 
 ## Resolution Calculation
 
-For Print mode, dimensions are calculated in `imageOptimizer.js` using:
+Pixel dimensions are computed in `imageOptimizer.ts`:
 
 ```
-boardPixels = (boardSizeCM / 2.54) × 300 × qualityFactor
+boardPixels = round((boardSizeCm / 2.54) × 300 × qualityFactor)
 ```
 
-For Social mode, fixed base sizes apply regardless of `boardSizeCM`.
-
-The exported image width and height include the coordinate border region when `showCoords` is enabled (a border strip is added on the left and bottom sides whose width scales proportionally with board size).
-
-PNG exports store this density via a `pHYs` chunk, and JPEG exports store it via JFIF density fields, so placement in print tools (Word / desktop publishing / print drivers) respects physical size.
-
-**Coordinate border formulas:**
+When `showCoords` is enabled, a coordinate border region is added to the left and bottom sides:
 
 ```
 borderSize = clamp(boardPixels × 0.05, 18px, 800px)
 fontSize   = clamp(borderSize × 0.72, 10px, 480px)
 ```
 
+The total exported image dimensions include this border region.
+
 ### Browser Canvas Limits
 
-| Browser       | Max Dimension | Notes                             |
+| Browser       | Max dimension | Notes                             |
 | ------------- | ------------- | --------------------------------- |
 | Chrome / Edge | 32,767 px     | Chromium limit                    |
 | Firefox       | 32,767 px     |                                   |
@@ -245,51 +211,64 @@ fontSize   = clamp(borderSize × 0.72, 10px, 480px)
 
 ### Square Drawing
 
-Board squares are drawn with `ctx.fillStyle = color; ctx.fillRect(...)` for each of the 64 squares. Square color alternates based on `(row + col) % 2`.
+```
+ctx.fillStyle = color;
+ctx.fillRect(x, y, squareSize, squareSize);
+```
 
-Board flipping is achieved by reversing the iteration order — the board array indices are adjusted so Black's perspective is rendered correctly.
+Square color alternates based on `(row + col) % 2`. Board flipping reverses the iteration order.
 
 ### Piece Drawing
 
-Piece images are drawn with `ctx.drawImage(img, x, y, squareSize, squareSize)`. Images are loaded and cached once by `usePieceImages` / `pieceImageCache.js` before export begins.
+```
+ctx.imageSmoothingEnabled = true;
+ctx.imageSmoothingQuality = 'high';
+ctx.drawImage(img, x, y, squareSize, squareSize);
+```
 
-`ctx.imageSmoothingEnabled = true` and `ctx.imageSmoothingQuality = 'high'` are set for piece rendering.
+Piece images are loaded and cached once by `usePieceImages` / `pieceImageCache.ts` before export begins.
 
-### Coordinate Labels
+### Canvas Disposal
 
-When `showCoords` is enabled, a border region is added. Rank numbers (1–8) are drawn on the left side, file letters (a–h) on the bottom. Font size and border width scale dynamically with board pixel dimensions.
+After every `canvas.toBlob()` call:
+
+```typescript
+canvas.width = 0;
+canvas.height = 0;
+```
+
+This is mandatory on Safari — Safari does not garbage-collect canvas GPU memory on reference drop alone.
 
 ---
 
 ## Batch Export
 
-Batch export is available in Advanced FEN quick actions and utility flows. It iterates positions sequentially and supports `downloadPNG`, `downloadJPEG`, and `downloadSVG`. Outputs are individual files per position.
+Batch export iterates positions from `FENBatchContext` sequentially. Each position runs through the full single-export pipeline. Outputs are individual files named with an incrementing numeric prefix. A ZIP archive can be generated via `archiveManager.ts`.
 
 ---
 
 ## Error Handling
 
-### Common Error Cases
-
-| Error                             | Cause                           | Handling                                                                            |
-| --------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------- |
-| `Invalid export config`           | Missing required field          | `validateExportConfig` throws with a descriptive message listing all missing fields |
-| `Canvas creation returned null`   | Browser refused canvas creation | Caught and rethrown with context                                                    |
-| `Export cancelled`                | `cancelExport()` was called     | `checkCancellation()` throws; caught by caller                                      |
-| `Failed to create blob`           | `canvas.toBlob` returned `null` | Caught and rethrown                                                                 |
-| Canvas size exceeds browser limit | 32× on Safari                   | `willBeReduced` flag; actual dimensions capped                                      |
-| Out of memory                     | 32× on low-RAM devices          | May throw or produce blank canvas; no graceful recovery                             |
+| Error                             | Cause                           | Handling                                                 |
+| --------------------------------- | ------------------------------- | -------------------------------------------------------- |
+| `Invalid export config`           | Missing required field          | `validateExportConfig` throws listing all missing fields |
+| `Canvas creation returned null`   | Browser refused canvas creation | Caught and rethrown with context                         |
+| `Export cancelled`                | `cancelExport()` called         | `checkCancellation()` throws; caught by caller           |
+| `Failed to create blob`           | `canvas.toBlob` returned `null` | Caught and rethrown                                      |
+| Canvas size exceeds browser limit | 32× on Safari                   | `willBeReduced` flag; actual dimensions capped           |
+| Out of memory                     | 32× on low-RAM devices          | May throw or produce blank canvas; no graceful recovery  |
 
 ---
 
 ## Browser Compatibility
 
-| Feature                 | Chrome | Firefox | Safari                        | Edge |
-| ----------------------- | ------ | ------- | ----------------------------- | ---- |
-| Canvas API              | ✅     | ✅      | ✅                            | ✅   |
-| `canvas.toBlob()`       | ✅     | ✅      | ✅                            | ✅   |
-| Clipboard API (`write`) | ✅     | ✅      | ⚠️ Requires user gesture      | ✅   |
-| 24×/32× export          | ✅     | ✅      | ⚠️ May fail (16,384 px limit) | ✅   |
+| Feature                 | Chrome | Firefox | Safari                     | Edge |
+| ----------------------- | ------ | ------- | -------------------------- | ---- |
+| Canvas API              | Yes    | Yes     | Yes                        | Yes  |
+| `canvas.toBlob()`       | Yes    | Yes     | Yes                        | Yes  |
+| Clipboard API (`write`) | Yes    | Yes     | Requires user gesture      | Yes  |
+| OffscreenCanvas         | Yes    | Yes     | Yes (Safari 16.4+)         | Yes  |
+| 24×/32× export          | Yes    | Yes     | May fail (16,384 px limit) | Yes  |
 
 ---
 
@@ -297,27 +276,31 @@ Batch export is available in Advanced FEN quick actions and utility flows. It it
 
 ### `downloadPNG(config, fileName, onProgress)`
 
-Exports the board as a PNG file (lossless, supports transparency).
+Exports the board as a PNG file.
 
-**Parameters:**
-
-| Name         | Type     | Description                             |
+| Parameter    | Type     | Description                             |
 | ------------ | -------- | --------------------------------------- |
 | `config`     | object   | Export configuration object (see above) |
 | `fileName`   | string   | File name without extension             |
-| `onProgress` | function | `(0–100) => void` progress callback     |
+| `onProgress` | function | `(value: number) => void`, range 0–100  |
 
-**Returns:** `Promise<void>` — triggers browser download.
+Returns: `Promise<void>` — triggers browser download.
 
 ---
 
 ### `downloadJPEG(config, fileName, onProgress)`
 
-Exports the board as a JPEG file.
+Exports the board as a JPEG file. Same parameters as `downloadPNG`.
 
-**Parameters:** Same as `downloadPNG`.
+Returns: `Promise<void>` — triggers browser download.
 
-**Returns:** `Promise<void>` — triggers browser download.
+---
+
+### `downloadSVG(config, fileName, onProgress)`
+
+Exports the board as an SVG file. Same parameters as `downloadPNG`.
+
+Returns: `Promise<void>` — triggers browser download.
 
 ---
 
@@ -325,45 +308,33 @@ Exports the board as a JPEG file.
 
 Copies the board image to the system clipboard as PNG.
 
-**Parameters:**
+| Parameter | Type   | Description                 |
+| --------- | ------ | --------------------------- |
+| `config`  | object | Export configuration object |
 
-| Name     | Type   | Description                 |
-| -------- | ------ | --------------------------- |
-| `config` | object | Export configuration object |
-
-**Returns:** `Promise<void>`
-
----
-
-### `downloadSVG(config, fileName, onProgress)`
-
-Exports the board as an SVG file.
-
-**Parameters:** Same shape as `downloadPNG` / `downloadJPEG`.
-
-**Returns:** `Promise<void>` — triggers browser download.
+Returns: `Promise<void>`
 
 ---
 
 ### `getExportInfo(config)`
 
-Returns dimension and file-size information without triggering an export. Use this to show estimated output size to the user before exporting.
+Returns dimension and file-size information without triggering an export. Use this to show estimated output to the user before exporting.
 
-**Parameters:** `config` — partial config with `boardSize`, `showCoords`, `exportQuality`.
+Parameters: partial config with `boardSize`, `showCoords`, `exportQuality`.
 
-**Returns:**
+Returns:
 
-```javascript
+```typescript
 {
   displaySize: string,         // e.g. '3776 × 3776'
   exportWidth: number,
   exportHeight: number,
   requestedQuality: number,
-  actualQuality: number,       // May differ if capped by browser limit
+  actualQuality: number,       // may differ if capped by browser limit
   maxCanvasSize: number,
   willBeReduced: boolean,
-  fileSizeEstimate: object,    // { png: string, jpeg: string }
-  mode: string,                // 'print' | 'social'
+  fileSizeEstimate: { png: string, jpeg: string },
+  mode: 'print' | 'social',
   physicalSizeCm: number,
   effectiveDPI: number,
   forceCoordinateBorder: boolean
@@ -374,9 +345,8 @@ Returns dimension and file-size information without triggering an export. Use th
 
 ### `cancelExport()` / `pauseExport()` / `resumeExport()`
 
-Control an in-progress export. These functions mutate module-level state and take effect at the next checkpoint in the export loop.
+Control an in-progress export. These mutate module-level state and take effect at the next checkpoint in the export loop.
 
 ---
 
-**Last Updated:** May 6, 2026  
-**Version:** 5.0.0
+_Last updated: May 2026 — v6.0.0_

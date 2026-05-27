@@ -1,50 +1,45 @@
-# v5.0.0 — Major Update
+# v6.0.0 Release
 
-v5.0.0 is a major release focused on redesigning the core experience, improving usability, and adding new workflows around the chessboard. This version reworks both design and functionality from the ground up.
-
----
-
-## What's Coming in v5.0.0
-
-### Core Board Improvements
-
-- Refined board layout and spacing
-- Clearer coordinate alignment
-- Reduced visual clutter — no heavy shadows or unnecessary decorations
-- More focused board experience
-
-### Theme Presets System (Reworked)
-
-- Up to 48 total theme presets
-- Default presets plus user-created presets
-- Pagination and swipe navigation for large preset collections
-- Drag and drop and keyboard-based preset reordering
-- Dedicated custom theme workflow
-- Protected default themes (e.g. Wood theme cannot be deleted)
-
-### History System
-
-- Intelligent FEN history tracking
-- Automatic archiving of old positions
-- Visual freshness states: new / aging / about-to-archive
-- Search and filter by FEN
-- Clean separation between active history and archive
-
-### Export Enhancements
-
-- Improved export flow and hierarchy
-- Cleaner export settings UI
-- Batch export refinements
-- Optimized PNG/JPEG output
+v6.0.0 is a major release that introduces optional user accounts with end-to-end encrypted cloud sync, TypeScript 6 across the entire codebase, and a redesigned theme customization system.
 
 ---
 
-## Release Status
+## What's New in v6.0.0
 
-v5.0.0 is actively under development. Design and interaction details are still being finalized.
+### Authentication and Cloud Sync
 
-**Status: Coming soon.**
+- Optional email/password sign-in with TOTP-based multi-factor authentication
+- End-to-end encrypted cloud sync via Supabase — the server stores only ciphertext; the decryption key never leaves the device
+- Automatic migration of localStorage data on first sign-in
+- 90-day re-verification gate for privileged operations
+- Security lock screen with fail-closed behavior
+
+### TypeScript 6 Migration
+
+- Full strict-mode TypeScript 6 across all source files (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noImplicitAny`)
+- Canonical type definitions in `src/shared/types/` accessible via `@app-types` alias
+- Zero `any`, `@ts-ignore`, or non-null assertions in the codebase
+
+### Theme Customization
+
+- Up to 48 total theme presets (default + user-created)
+- Dedicated preset management: create, rename, delete, reorder
+- Protected default themes (cannot be deleted)
+- Custom color mixer with independent light/dark square controls
+
+### Export System
+
+- Unified dimension calculation across all quality tiers (8×, 16×, 24×, 32×)
+- Max export: 30,208 × 30,208 px at 9,600 DPI (32× Social, 8 cm board)
+- SVG export in Advanced FEN flow
+- Web Worker-based rasterization for exports above 4,000 px
+
+### FEN History
+
+- Freshness states: Fresh / Aging / Stale with timestamps
+- Archive system: move positions from active history to archive and back
+- Search and filter by FEN string
 
 ---
 
-This project remains free and open-source.
+This project remains free and open-source under the AGPL-3.0 license.
