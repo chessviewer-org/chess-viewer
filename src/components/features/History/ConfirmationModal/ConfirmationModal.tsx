@@ -2,10 +2,7 @@ import { memo } from 'react';
 
 import { AlertTriangle, X } from 'lucide-react';
 
-/**
- * @param {Object} props
- * @returns {JSX.Element}
- */
+/** Props for the `ConfirmationModal` destructive-action dialog. */
 export interface ConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;

@@ -1,6 +1,8 @@
+import { memo } from 'react';
 import { Checkbox } from '@shared/ui';
 import { QUALITY_PRESETS } from '@constants';
 
+/** Props for the `DisplayOptions` checkbox group. */
 export interface DisplayOptionsProps {
   showCoords: boolean;
   setShowCoords: (show: boolean) => void;
@@ -12,8 +14,10 @@ export interface DisplayOptionsProps {
 }
 
 /**
- * @param {DisplayOptionsProps} props
- * @returns {JSX.Element}
+ * Coordinate, border, and thin-frame display toggles.
+ *
+ * Some options are conditionally locked based on the active export quality preset
+ * (e.g., coordinate border is forced for high-DPI social presets).
  */
 function DisplayOptions({
   showCoords,
@@ -95,4 +99,4 @@ function DisplayOptions({
   );
 }
 
-export default DisplayOptions;
+export default memo(DisplayOptions);

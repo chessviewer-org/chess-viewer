@@ -4,10 +4,7 @@ import { AlertCircle, Circle, Zap } from 'lucide-react';
 
 import { calculateStatus } from '@utils';
 
-/**
- * @param {Object} props
- * @returns {JSX.Element}
- */
+/** Props for the `StatusBadge` freshness indicator. */
 export interface StatusBadgeProps {
   lastActiveAt: number;
   className?: string;

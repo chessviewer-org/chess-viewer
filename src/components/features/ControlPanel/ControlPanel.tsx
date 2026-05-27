@@ -17,6 +17,7 @@ import { useFENHistory } from '@hooks';
 import { MAX_FEN_LENGTH } from '@utils/validation';
 import type { NotificationType } from '@/components/features/Fen/FENInputField/FENInputField';
 
+/** Props for the `ControlPanel` sidebar component. */
 export interface ControlPanelProps {
   fen: string;
   setFen: (fen: string) => void;

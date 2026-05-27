@@ -25,15 +25,10 @@ export interface ActionButtonsProps {
 }
 
 /**
- * ActionButtons component renders the dashboard primary action controls:
- * PNG/JPEG download triggers, batch format config drawers, orientation flipping,
- * and board image clipboard copy buttons.
+ * Primary action bar for board export and manipulation.
  *
- * Designed with a strict minimalist philosophy, omitting heavy transformations
- * in favor of fast, responsive click feedback.
- *
- * @param props - Component configuration properties
- * @returns Clean, minimalist action bar row
+ * Renders PNG/JPEG download buttons, a batch-export format drawer,
+ * clipboard copy, board flip, and favorites toggle.
  */
 const ActionButtons = memo(function ActionButtons({
   onDownloadPNG,

@@ -14,10 +14,7 @@ import {
 
 import { CustomSelect, DatePicker } from '@shared/ui';
 
-/**
- * @param {Object} props
- * @returns {JSX.Element}
- */
+/** Active filter criteria for the FEN history list. */
 export interface HistoryFilterState {
   fenSearch?: string | undefined;
   status?: string | undefined;
@@ -27,6 +24,7 @@ export interface HistoryFilterState {
   dateTo?: number | undefined;
 }
 
+/** Props for the `HistoryFilters` filter bar. */
 export interface HistoryFiltersProps {
   filters: HistoryFilterState;
   onFiltersChange: (filters: HistoryFilterState) => void;

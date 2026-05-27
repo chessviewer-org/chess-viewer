@@ -5,6 +5,7 @@ import { ModalShell } from '@shared/ui';
 import { ExportConfig, ExportInfo, getExportInfo } from '@utils/canvasExporter';
 import { FileSizeEstimates } from '@utils/imageOptimizer';
 
+/** Props for the `ExportProgress` modal overlay. */
 export interface ExportProgressProps {
   isExporting: boolean;
   progress: number;
@@ -19,8 +20,10 @@ export interface ExportProgressProps {
 }
 
 /**
- * @param {ExportProgressProps} props
- * @returns {JSX.Element | null}
+ * Modal progress overlay for active export operations.
+ *
+ * Smoothly interpolates the progress bar and surfaces pause/resume/cancel controls.
+ * Returns `null` when no export is in progress.
  */
 const ExportProgress = memo(function ExportProgress({
   isExporting,

@@ -1,4 +1,4 @@
-import { memo, useEffect, useState, useCallback, useMemo } from 'react';
+import { memo, useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { Check, Copy, Trash2, X } from 'lucide-react';
 import { List, RowComponentProps } from 'react-window';
 
@@ -6,6 +6,7 @@ import { logger } from '@utils/logger';
 import { safeJSONParse } from '@utils/validation';
 import { useModal } from '@/contexts';
 
+/** Row item data passed to the virtualized list renderer. */
 export interface RowData {
   items: Array<string | { fen: string; timestamp: number }>;
   onSelect: (fen: string) => void;
@@ -74,6 +75,7 @@ const Row = ({ index, style, items, onSelect, onCopy, onRemove, copiedIndex }: R
 };
 Row.displayName = 'Row';
 
+/** Props for the `ClipboardHistory` panel. */
 export interface ClipboardHistoryProps {
   isOpen: boolean;
   onClose: () => void;
@@ -88,6 +90,13 @@ const ClipboardHistory = memo(function ClipboardHistory({
   const { showConfirm } = useModal();
   const [clipboardHistory, setClipboardHistory] = useState<Array<string | { fen: string; timestamp: number }>>([]);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const copiedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copiedTimeoutRef.current) clearTimeout(copiedTimeoutRef.current);
+    };
+  }, []);
 
   const loadHistory = useCallback(() => {
     try {
@@ -116,7 +125,8 @@ const ClipboardHistory = memo(function ClipboardHistory({
   const handleCopy = useCallback((fen: string, index: number) => {
     navigator.clipboard.writeText(fen);
     setCopiedIndex(index);
-    setTimeout(() => setCopiedIndex(null), 2000);
+    if (copiedTimeoutRef.current) clearTimeout(copiedTimeoutRef.current);
+    copiedTimeoutRef.current = setTimeout(() => setCopiedIndex(null), 2000);
   }, []);
 
   const handleRemove = useCallback((index: number) => {
