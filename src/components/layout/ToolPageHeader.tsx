@@ -4,6 +4,7 @@ import { ArrowLeft, Save } from 'lucide-react';
 
 import { Button } from '@shared/ui';
 
+/** Props for the `ToolPageHeader` full-screen page header. */
 export interface ToolPageHeaderProps {
   title: string;
   onBack: () => void;
@@ -13,12 +14,7 @@ export interface ToolPageHeaderProps {
   rightSlot?: React.ReactNode;
 }
 
-/**
- * Reusable header used by full-screen tool pages.
- *
- * @param {Object} props
- * @returns {JSX.Element}
- */
+/** Reusable back-and-save header bar used by full-screen tool pages. */
 const ToolPageHeader = memo(function ToolPageHeader({
   title,
   onBack,
