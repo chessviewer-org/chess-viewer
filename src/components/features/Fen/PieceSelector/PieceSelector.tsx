@@ -1,15 +1,14 @@
+import { memo } from 'react';
 import { SearchableSelect } from '@shared/ui';
 import { PIECE_SETS } from '@constants';
 
+/** Props for the `PieceSelector` searchable dropdown. */
 interface PieceSelectorProps {
   pieceStyle: string;
   setPieceStyle: (style: string) => void;
 }
 
-/**
- * @param {PieceSelectorProps} props
- * @returns {JSX.Element}
- */
+/** Searchable select for choosing the active piece set. */
 function PieceSelector({ pieceStyle, setPieceStyle }: PieceSelectorProps) {
   return (
     <SearchableSelect
@@ -22,4 +21,4 @@ function PieceSelector({ pieceStyle, setPieceStyle }: PieceSelectorProps) {
     />
   );
 }
-export default PieceSelector;
+export default memo(PieceSelector);
