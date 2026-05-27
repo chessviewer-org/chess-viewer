@@ -5,7 +5,7 @@ import {
   sortArchivedByArchiveDate
 } from './historyUtils';
 import { logger } from './logger';
-import { safeJSONParse } from './validation';
+import { getStoredValue, safeJSONParse } from './validation';
 
 const ARCHIVE_STORAGE_KEY = 'fen-history-archive';
 const MAX_ARCHIVE_SIZE = 10000;
@@ -28,11 +28,8 @@ export async function loadArchive() {
     logger.log('Cloud storage not available for archive');
   }
   try {
-    const localData = window.localStorage.getItem(ARCHIVE_STORAGE_KEY);
-    if (localData) {
-      const parsed = safeJSONParse(localData, null);
-      if (Array.isArray(parsed)) return parsed;
-    }
+    const parsed = getStoredValue(ARCHIVE_STORAGE_KEY, null);
+    if (Array.isArray(parsed)) return parsed;
   } catch (err) {
     logger.error('Failed to load archive:', err);
   }
@@ -169,10 +166,7 @@ export function getArchiveStatistics(archive) {
  */
 export async function performAutoArchival() {
   try {
-    const historyData = window.localStorage.getItem('fen-history');
-    if (!historyData) return { entries: [], archive: [], archivedCount: 0 };
-
-    const activeEntries = safeJSONParse(historyData, null);
+    const activeEntries = getStoredValue('fen-history', null);
     if (!Array.isArray(activeEntries)) {
       return { entries: [], archive: [], archivedCount: 0 };
     }

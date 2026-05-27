@@ -2,7 +2,7 @@ import { memo, useRef, useState } from 'react';
 
 import { Download, RotateCcw, Upload } from 'lucide-react';
 
-import { safeJSONParse } from '@/utils/validation';
+import { getStoredBackupValue, safeJSONParse } from '@/utils/validation';
 
 const STORAGE_KEYS = [
   'chess-fen',
@@ -35,7 +35,7 @@ const DataManagement = memo(function DataManagement() {
   function handleExportData() {
     const data = {};
     STORAGE_KEYS.forEach((key) => {
-      const value = localStorage.getItem(key);
+      const value = getStoredBackupValue(key);
       if (value !== null) {
         data[key] = value;
       }
