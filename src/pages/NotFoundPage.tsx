@@ -1,10 +1,7 @@
 import { ArrowLeft, Crown, Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-/**
- * @param {Object} props
- * @returns {JSX.Element}
- */
+/** 404 fallback page with navigation back to home. */
 function NotFoundPage() {
   return (
     <div className="w-full flex flex-col flex-1 items-center justify-center px-4 py-12 sm:py-16 bg-bg">

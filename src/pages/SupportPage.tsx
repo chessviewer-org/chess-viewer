@@ -9,10 +9,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 
-/**
- * @param {Object} props
- * @returns {JSX.Element}
- */
+/** Help and FAQ page with links to GitHub issues and documentation. */
 function SupportPage() {
   return (
     <div className="w-full pt-16 sm:pt-20 lg:pt-24 3xl:pt-32 pb-8 sm:pb-12 px-[2%] sm:px-[3%] lg:px-[4%]">
@@ -90,10 +87,7 @@ function SupportPage() {
     </div>
   );
 }
-/**
- * @param {Object} props
- * @returns {JSX.Element}
- */
+/** Props for an external support channel card. */
 interface SupportCardProps {
   icon: React.ReactNode;
   title: string;
@@ -130,6 +124,7 @@ function SupportCard({ icon, title, desc, link, linkText, primary = false }: Sup
   );
 }
 
+/** Props for a collapsible FAQ accordion item. */
 interface FAQItemProps {
   q: string;
   a: string;

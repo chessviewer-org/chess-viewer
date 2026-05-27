@@ -14,9 +14,7 @@ import {
   Zap
 } from 'lucide-react';
 
-/**
- * @returns {JSX.Element}
- */
+/** Static about page describing ChessVision features and usage. */
 function AboutPage() {
   return (
     <div className="w-full pt-16 sm:pt-20 lg:pt-24 3xl:pt-32 pb-8 sm:pb-12 px-[2%] sm:px-[3%] lg:px-[4%]">
@@ -171,6 +169,7 @@ function AboutPage() {
   );
 }
 
+/** Props for the export quality tier card. */
 interface QualityCardProps {
   level: string;
   label: string;
@@ -189,6 +188,7 @@ function QualityCard({ level, label, desc }: QualityCardProps) {
   );
 }
 
+/** Props for a quick-action feature card. */
 interface ActionCardProps {
   icon: React.ReactNode;
   title: string;

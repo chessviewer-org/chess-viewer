@@ -21,6 +21,7 @@ import {
 } from '@/pages/settings';
 import { TwoFactorSetup } from '@/features/auth/components/TwoFactorSetup';
 
+/** Controls surface to the parent header for the theme edit mode action buttons. */
 interface ThemeEditControls {
   editMode: boolean;
   onEnableEditMode: () => void;
@@ -61,6 +62,7 @@ const pageTabs = [
   }
 ];
 
+/** Full-page settings shell with tab-based navigation for profile, security, theme, export, and data sections. */
 const SettingsPage = memo(function SettingsPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -151,14 +153,14 @@ const SettingsPage = memo(function SettingsPage() {
               <button
                 key={id}
                 onClick={() => handleTabChange(id)}
-                className={`px-3 sm:px-5 py-3.5 sm:py-4 flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold transition-all duration-300 border-b-2 whitespace-nowrap ${
-                  activeTab === id 
-                    ? 'text-accent border-accent bg-accent/5' 
+                className={`px-3 sm:px-5 py-3.5 sm:py-4 flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold transition-colors duration-200 border-b-2 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset ${
+                  activeTab === id
+                    ? 'text-accent border-accent bg-accent/5'
                     : 'text-text-secondary hover:text-text-primary border-transparent hover:bg-surface-hover'
                 }`}
               >
                 <Icon
-                  className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-300 ${activeTab === id ? 'scale-110' : ''}`}
+                  className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-200 ${activeTab === id ? 'scale-110' : ''}`}
                 />
                 <span className="sm:hidden">{shortLabel}</span>
                 <span className="hidden sm:inline">{label}</span>
@@ -169,7 +171,7 @@ const SettingsPage = memo(function SettingsPage() {
       </div>
 
       <main className="flex-1 overflow-y-auto min-h-0">
-        <div className="h-full max-w-4xl mx-auto px-4 sm:px-8 py-6 sm:py-10">
+        <div className="h-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8 py-6 sm:py-10">
           {activeTab === 'profile' && (
             <div className="space-y-8 animate-pageEnter">
               <section>

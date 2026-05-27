@@ -9,9 +9,7 @@ import {
 } from 'lucide-react';
 import { useModal } from '@/contexts';
 
-/**
- * @returns {JSX.Element}
- */
+/** Page presenting web and PWA installation options. */
 function DownloadPage() {
   const { showAlert } = useModal();
 
@@ -143,6 +141,7 @@ function DownloadPage() {
   );
 }
 
+/** Props for a supported platform info card. */
 interface PlatformCardProps {
   icon: React.ReactNode;
   title: string;
