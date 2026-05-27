@@ -62,6 +62,61 @@ if (!titlePattern.test(pr.title)) {
   fail('**PR title must not end with a period.**');
 }
 
+// Every commit subject (first line) must also be a valid Conventional Commit.
+// Merge commits are exempt — they are generated, not authored.
+const commits = danger.git.commits;
+const nonConventionalCommits = commits.filter((c) => {
+  const subject = c.message.split('\n', 1)[0];
+  if (/^Merge /.test(subject)) return false;
+  return !titlePattern.test(subject);
+});
+
+if (nonConventionalCommits.length > 0) {
+  fail(
+    [
+      '**One or more commits are not valid Conventional Commits:**',
+      '',
+      ...nonConventionalCommits.map(
+        (c) => `- \`${c.sha.slice(0, 7)}\` ${c.message.split('\n', 1)[0]}`
+      ),
+      '',
+      'Rewrite the offending commits (`git rebase -i`) before merge.'
+    ].join('\n')
+  );
+}
+
+// ---------------------------------------------------------------------------
+// 1b. Sufficient commit context
+// ---------------------------------------------------------------------------
+const MIN_BODY_CHARS = 12;
+
+const contextlessCommits = commits.filter((c) => {
+  const subject = c.message.split('\n', 1)[0];
+  if (/^Merge /.test(subject)) return false;
+  return (
+    subject.replace(/^[a-z]+(\([\w$.\-*/ ]+\))?(!)?:\s*/, '').trim().length <
+    MIN_BODY_CHARS
+  );
+});
+
+if (commits.length === 0) {
+  warn(
+    '**This PR has no commits Danger can inspect.** Verify the branch is pushed.'
+  );
+} else if (contextlessCommits.length > 0) {
+  warn(
+    [
+      '**Some commits lack meaningful context** (subject too terse):',
+      '',
+      ...contextlessCommits.map(
+        (c) => `- \`${c.sha.slice(0, 7)}\` ${c.message.split('\n', 1)[0]}`
+      ),
+      '',
+      'Use a descriptive subject, and add a body explaining *why* for non-trivial changes.'
+    ].join('\n')
+  );
+}
+
 // ---------------------------------------------------------------------------
 // 2. Mandatory testing — source changes require test changes
 // ---------------------------------------------------------------------------
@@ -90,15 +145,15 @@ if (sourceChanges.length > 0 && testChanges.length === 0) {
 
 // fenParser is a hard invariant: any change requires its test to change too.
 const touchedFenParser = touched.some((f) =>
-  f.endsWith('src/utils/fenParser.ts')
+  f.endsWith('src/shared/utils/fenParser.ts')
 );
 const touchedFenParserTest = touched.some((f) =>
-  f.endsWith('src/utils/fenParser.test.js')
+  f.endsWith('src/shared/utils/fenParser.test.ts')
 );
 
 if (touchedFenParser && !touchedFenParserTest) {
   fail(
-    '**`fenParser.ts` changed without updating `fenParser.test.js`.** ' +
+    '**`fenParser.ts` changed without updating `fenParser.test.ts`.** ' +
       'Every change to the FEN parser requires a corresponding test (see CONTRIBUTING.md).'
   );
 }
