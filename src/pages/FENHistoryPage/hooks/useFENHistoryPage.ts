@@ -7,8 +7,10 @@ import { safeJSONParse } from '@utils/validation';
 import { HistoryFilterState } from '@/components/features/History/HistoryFilters/HistoryFilters';
 import { ActiveHistoryEntry, HistoryFilters } from '@app-types/history';
 
+/** Union of available history tab identifiers. */
 export type TabType = 'active' | 'favorites' | 'archive';
 
+/** Manages tab state, filters, delete confirmation, and board theme sync for FENHistoryPage. */
 export const useFENHistoryPage = () => {
   const navigate = useNavigate();
   const { showConfirm } = useModal();

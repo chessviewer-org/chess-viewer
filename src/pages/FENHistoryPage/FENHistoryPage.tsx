@@ -6,6 +6,7 @@ import { FENHistoryEmptyState } from './components/FENHistoryEmptyState';
 import { FENHistoryGridItem } from './components/FENHistoryGridItem';
 import { BaseHistoryEntry } from '@app-types/history';
 
+/** Paginated grid view of saved FEN positions across active, favorites, and archive tabs. */
 const FENHistoryPage: React.FC = memo(() => {
   const {
     activeTab,
@@ -75,7 +76,7 @@ const FENHistoryPage: React.FC = memo(() => {
           {currentData.length === 0 ? (
             <FENHistoryEmptyState activeTab={activeTab} />
           ) : (
-            <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {currentData.map((entry: BaseHistoryEntry, index: number) => (
                 <FENHistoryGridItem
                   key={entry.id}

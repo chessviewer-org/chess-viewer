@@ -2,10 +2,12 @@ import React, { memo } from 'react';
 import { Clock } from 'lucide-react';
 import { TabType } from '../hooks/useFENHistoryPage';
 
+/** Props for the empty state shown when the active history tab has no entries. */
 interface FENHistoryEmptyStateProps {
   activeTab: TabType;
 }
 
+/** Displays a contextual empty-state message depending on which history tab is active. */
 export const FENHistoryEmptyState: React.FC<FENHistoryEmptyStateProps> = memo(({ activeTab }) => {
   return (
     <div className="bg-surface border border-border rounded-2xl p-8 sm:p-12 text-center max-w-2xl mx-auto animate-fadeInScale">
