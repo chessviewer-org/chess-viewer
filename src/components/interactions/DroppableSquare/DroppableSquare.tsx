@@ -7,6 +7,7 @@ import DraggablePiece from '../DraggablePiece/DraggablePiece';
 import { ItemTypes } from '@constants';
 import type { PieceSymbol } from '@app-types/chess';
 
+/** The drag item payload passed between react-dnd sources and targets. */
 export interface DragItem {
   piece: PieceSymbol;
   pieceKey?: string;
@@ -15,6 +16,7 @@ export interface DragItem {
   isFromPalette: boolean;
 }
 
+/** Props for the `DroppableSquare` memo'd drop target cell. */
 export interface DroppableSquareProps {
   row: number;
   col: number;

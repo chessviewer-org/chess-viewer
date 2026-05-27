@@ -5,6 +5,7 @@ import { useDrop } from 'react-dnd';
 import { ItemTypes } from '@constants';
 import type { DragItem } from '../DroppableSquare/DroppableSquare';
 
+/** Props for the `TrashZone` drop-to-delete target. */
 export interface TrashZoneProps {
   onDrop?: (fromRow: number, fromCol: number) => void;
   className?: string;

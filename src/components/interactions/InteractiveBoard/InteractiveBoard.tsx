@@ -6,6 +6,7 @@ import DroppableSquare from '../DroppableSquare/DroppableSquare';
 import { ItemTypes } from '@constants';
 import type { PieceSymbol } from '@app-types/chess';
 
+/** Props for the `InteractiveBoard` DnD board grid. */
 export interface InteractiveBoardProps {
   board: (PieceSymbol | '')[][];
   lightSquare: string;
@@ -23,10 +24,6 @@ export interface InteractiveBoardProps {
   ) => void;
 }
 
-/**
- * @param {Object} props
- * @returns {JSX.Element}
- */
 export const InteractiveBoard = memo(function InteractiveBoard({
   board,
   lightSquare,

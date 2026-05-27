@@ -10,6 +10,7 @@ import {
 } from '@utils';
 import { ChessBoard } from '@app-types/chess';
 
+/** Props for the `useBoardCanvas` hook. */
 interface UseBoardCanvasProps {
   board: ChessBoard;
   pieceImages: Record<string, HTMLImageElement>;
@@ -21,6 +22,16 @@ interface UseBoardCanvasProps {
   isLoading: boolean;
 }
 
+/**
+ * Drives canvas rendering for the `ChessBoard` component.
+ *
+ * Maintains stable refs for all volatile props so `drawBoard` never needs
+ * to be recreated, preventing unnecessary `useEffect` firings. Rendering is
+ * throttled via `rafThrottle` and skipped when inputs have not changed.
+ *
+ * @param props - Board state and display settings.
+ * @returns A `RefObject` pointing at the managed `<canvas>` element.
+ */
 export function useBoardCanvas({
   board,
   pieceImages,
@@ -35,8 +46,8 @@ export function useBoardCanvas({
   const lastTotalSizeRef = useRef<number | null>(null);
   const lastRenderScaleRef = useRef<number | null>(null);
 
-  // Stable refs for all volatile props — lets drawBoard have an empty dep array
-  // while still reading the latest values on each invocation.
+  // Stable refs for volatile props — drawBoard reads these on each call without
+  // needing them in its dependency array, keeping it recreatable at zero cost.
   const boardRef = useRef(board);
   const pieceImagesRef = useRef(pieceImages);
   const showCoordsRef = useRef(showCoords);
@@ -55,7 +66,7 @@ export function useBoardCanvas({
   flippedRef.current = flipped;
   isLoadingRef.current = isLoading;
 
-  // Track previous state manually to avoid expensive JSON.stringify
+  // Track previous state to skip redraws when nothing has changed.
   const prevPropsRef = useRef({
     boardHash: '',
     showCoords,
@@ -66,8 +77,6 @@ export function useBoardCanvas({
     loadedCount: 0
   });
 
-  // Stable callback — reads all volatile state through refs so it never needs
-  // to be recreated, preventing the useEffect from firing on every render.
   const drawBoard = useCallback(() => {
     const board = boardRef.current;
     const pieceImages = pieceImagesRef.current;
@@ -87,7 +96,6 @@ export function useBoardCanvas({
 
     if (loadedCount === 0) return;
 
-    // Simple hash/fingerprint of the board array for quick change detection
     const boardHash = board.map(row => row.join('')).join('/');
 
     const hasChanged =
@@ -108,7 +116,7 @@ export function useBoardCanvas({
     const totalSize = boardSize + borderSize * 2;
     const deviceScale = window.devicePixelRatio || 1;
 
-    // Cap render scale at 2 for preview fluidity while keeping sharpness
+    // Capped at 2× — beyond that, memory cost outweighs sharpness gain for previews.
     const renderScale = Math.min(2, deviceScale);
 
     if (
@@ -123,7 +131,6 @@ export function useBoardCanvas({
       lastRenderScaleRef.current = renderScale;
     }
 
-    // Update refs for next frame
     prevPropsRef.current = {
       boardHash,
       showCoords,
@@ -137,7 +144,7 @@ export function useBoardCanvas({
     const ctx = canvas.getContext('2d', {
       alpha: true,
       willReadFrequently: false,
-      desynchronized: true // High performance hint
+      desynchronized: true
     });
 
     if (!ctx) {
@@ -152,14 +159,12 @@ export function useBoardCanvas({
     const squareSize = boardSize / 8;
     ctx.clearRect(0, 0, totalSize, totalSize);
 
-    // Optional subtle board border
     if (showCoords) {
       ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
       ctx.lineWidth = 1;
       ctx.strokeRect(borderSize, borderSize, boardSize, boardSize);
     }
 
-    // Draw squares
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
         const isLight = isLightSquare(row, col);
@@ -170,7 +175,6 @@ export function useBoardCanvas({
       }
     }
 
-    // Draw pieces
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
         const fenPiece = board[row]?.[col];
@@ -184,7 +188,6 @@ export function useBoardCanvas({
           const [displayRow, displayCol] = getDisplayCoordinates(row, col, flipped);
           const bounds = getSquareBounds(displayRow, displayCol, squareSize, borderSize, borderSize);
 
-          // Slight padding for pieces within squares for better aesthetics
           const padding = squareSize * 0.05;
           const pieceSize = squareSize - (padding * 2);
           const px = bounds.centerX - pieceSize / 2;
@@ -200,8 +203,6 @@ export function useBoardCanvas({
     }
   }, []);
 
-  // Re-schedule a draw whenever any prop changes. The callback itself is stable
-  // so this effect only re-runs when actual input values change, not on every render.
   useEffect(() => {
     const throttledDraw = rafThrottle(drawBoard);
     throttledDraw();

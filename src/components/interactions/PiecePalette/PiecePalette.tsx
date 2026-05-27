@@ -4,12 +4,14 @@ import DraggablePiece from '../DraggablePiece/DraggablePiece';
 import { getPieceImageKey, PALETTE_PIECES } from '@constants';
 import type { PieceSymbol } from '@app-types/chess';
 
+/** Props for the `PiecePalette` drag source sidebar. */
 export interface PiecePaletteProps {
   pieceImages: Record<string, HTMLImageElement | null>;
   isLoading: boolean;
   className?: string;
 }
 
+/** Internal structure of a palette piece entry. */
 interface PalettePiece {
   id: string;
   piece: PieceSymbol;
@@ -17,14 +19,7 @@ interface PalettePiece {
   name: string;
 }
 
-/**
- * Sidebar palette of all 12 draggable chess pieces (6 white, 6 black).
- * @param {Object} props
- * @param {Object} props.pieceImages - Map of piece keys to preloaded Image elements
- * @param {boolean} props.isLoading - Whether piece images are still loading
- * @param {string} [props.className=''] - Additional CSS classes
- * @returns {JSX.Element}
- */
+/** Sidebar grid of all 12 draggable chess pieces (6 white, 6 black). */
 const WHITE_PIECES = PALETTE_PIECES.filter((p: PalettePiece) => p.color === 'w');
 const BLACK_PIECES = PALETTE_PIECES.filter((p: PalettePiece) => p.color === 'b');
 

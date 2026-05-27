@@ -5,6 +5,7 @@ import { ItemTypes } from '@constants';
 
 import type { DragItem } from '../DroppableSquare/DroppableSquare';
 
+/** State collected from the react-dnd drag layer monitor. */
 interface CollectedDragState {
   item: DragItem | null;
   itemType: ReturnType<DragLayerMonitor['getItemType']>;
@@ -19,6 +20,7 @@ const selectDragState = (monitor: DragLayerMonitor): CollectedDragState => ({
   isDragging: monitor.isDragging()
 });
 
+/** Props for the `CustomDragLayer` portal overlay. */
 export interface CustomDragLayerProps {
   pieceImages: Record<string, HTMLImageElement | null>;
   boardSize?: number;

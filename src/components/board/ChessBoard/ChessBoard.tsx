@@ -2,6 +2,7 @@ import { useImperativeHandle, forwardRef, memo } from 'react';
 import { usePieceImages, useChessBoard } from '@hooks';
 import { useBoardCanvas } from './useBoardCanvas';
 
+/** Props for the `ChessBoard` canvas component. */
 interface ChessBoardProps {
   fen: string;
   pieceStyle: string;
@@ -12,6 +13,7 @@ interface ChessBoardProps {
   flipped: boolean;
 }
 
+/** Imperative handle exposed via `forwardRef` on `ChessBoard`. */
 export interface ChessBoardRef {
   getPieceImages: () => Record<string, HTMLImageElement>;
   getBoardState: () => string[][];

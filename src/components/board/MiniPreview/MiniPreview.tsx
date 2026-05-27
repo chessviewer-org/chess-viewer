@@ -3,10 +3,7 @@ import { memo, useEffect, useRef, useState } from 'react';
 import { usePieceImages } from '@hooks';
 import { logger, parseFEN } from '@utils';
 
-/**
- * @param {Object} props
- * @returns {JSX.Element}
- */
+/** Props for the `MiniPreview` canvas thumbnail component. */
 export interface MiniPreviewProps {
   fen: string;
   lightSquare?: string;
@@ -40,7 +37,6 @@ const MiniPreview = memo(
         return;
       }
 
-      // Default to theme-aware colors if not provided
       const style = getComputedStyle(document.documentElement);
       const defaultLight = lightSquare || style.getPropertyValue('--color-light-square').trim() || '#f0d9b5';
       const defaultDark = darkSquare || style.getPropertyValue('--color-dark-square').trim() || '#b58863';

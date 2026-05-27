@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 import { DndProvider as ReactDndProvider } from 'react-dnd';
 import { TouchBackend, TouchBackendOptions } from 'react-dnd-touch-backend';
 
+/** Props for the `DndProvider` wrapper. */
 export interface DndProviderProps {
   children: ReactNode;
 }

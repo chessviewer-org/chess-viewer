@@ -6,6 +6,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 import { getPieceImageKey, ItemTypes } from '@constants';
 import type { PieceSymbol } from '@app-types/chess';
 
+/** Props for the `DraggablePiece` memo'd drag source. */
 export interface DraggablePieceProps {
   piece: PieceSymbol | '';
   pieceImage: HTMLImageElement | null;
@@ -17,8 +18,9 @@ export interface DraggablePieceProps {
 }
 
 /**
- * @param {Object} props
- * @returns {JSX.Element}
+ * A single draggable chess piece rendered as an `<img>` wrapped in a react-dnd
+ * drag source. Uses an empty drag preview so `CustomDragLayer` renders the
+ * custom overlay instead of the browser's native ghost image.
  */
 export const DraggablePiece = memo(function DraggablePiece({
   piece,
