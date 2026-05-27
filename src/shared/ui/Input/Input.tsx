@@ -4,6 +4,7 @@ import { AlertCircle } from 'lucide-react';
 
 import { classNames, cn, getInputClasses } from '@utils';
 
+/** Props for the `Input` component. Extends all native `<input>` attributes. */
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
@@ -12,8 +13,10 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 /**
- * @param {InputProps} props
- * @returns {JSX.Element}
+ * Accessible text input with optional label, leading icon, and inline error message.
+ *
+ * Auto-generates a stable `id`/`aria-describedby` pair so the error message is
+ * always associated with the input for screen readers.
  */
 const Input = memo(function Input({
   type = 'text',

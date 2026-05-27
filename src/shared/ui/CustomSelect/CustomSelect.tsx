@@ -58,7 +58,7 @@ const CustomSelectComponent = <T extends string | number>({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent flex items-center justify-between gap-2 hover:bg-surface-hover transition-colors"
+        className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-sm text-text-primary focus:outline-none focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 flex items-center justify-between gap-2 hover:bg-surface-hover transition-colors"
       >
         <div className="flex items-center gap-2">
           {displayIcon && <span className="shrink-0">{displayIcon}</span>}

@@ -4,14 +4,14 @@ import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
 
 import { logger } from '@utils';
 
+/** Props for the `ErrorFallback` component. */
 interface ErrorFallbackProps {
   error: Error | null;
   resetErrorBoundary: () => void;
 }
 
 /**
- * @param {ErrorFallbackProps} props
- * @returns {JSX.Element}
+ * Full-page fallback UI displayed when `ErrorBoundary` catches an unhandled render error.
  */
 function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
   return (
@@ -71,6 +71,7 @@ function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
     </div>
   );
 }
+/** Props for the `ErrorBoundary` class component. */
 interface ErrorBoundaryProps {
   children: React.ReactNode;
   fallback?: React.ReactNode;
@@ -87,6 +88,13 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
+/**
+ * React class-based error boundary.
+ *
+ * Catches unhandled render errors in the subtree and renders a fallback UI.
+ * Supports custom `FallbackComponent`, a static `fallback` node, or defaults
+ * to `ErrorFallback`.
+ */
 class ErrorBoundary extends React.Component<
   ErrorBoundaryProps,
   ErrorBoundaryState

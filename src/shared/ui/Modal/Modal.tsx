@@ -2,8 +2,10 @@ import React, { memo, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, Info, XCircle, X } from 'lucide-react';
 
+/** Visual severity variant for the `Modal` component. */
 export type ModalType = 'warning' | 'info' | 'danger';
 
+/** Props for the `Modal` component. */
 export interface ModalProps {
   isOpen: boolean;
   title: string;
@@ -15,8 +17,9 @@ export interface ModalProps {
 }
 
 /**
- * A reusable, highly animated, and theme-aware modal component.
- * Replaces native window.alert and window.confirm.
+ * Animated, theme-aware modal dialog used as a replacement for native `alert`/`confirm`.
+ *
+ * Locks `<body>` scroll while open and animates in/out via Framer Motion.
  */
 const Modal = memo(({
   isOpen,

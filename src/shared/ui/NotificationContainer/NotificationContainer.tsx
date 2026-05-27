@@ -179,7 +179,7 @@ const Toast = memo(function Toast({
 
       {/* Icon Container */}
       <div
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-colors duration-300 ${style.iconBg} ${style.iconBorder} ${style.iconColor}`}
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-colors duration-200 ${style.iconBg} ${style.iconBorder} ${style.iconColor}`}
       >
         {style.icon}
       </div>
@@ -199,7 +199,7 @@ const Toast = memo(function Toast({
       {/* Dismiss Button */}
       <button
         onClick={onRemove}
-        className="shrink-0 -mr-1 rounded-full p-2 text-text-muted/60 transition-all duration-300 hover:bg-surface-hover hover:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent/30 active:scale-90"
+        className="shrink-0 -mr-1 rounded-full p-2 text-text-muted/60 transition-colors duration-200 hover:bg-surface-hover hover:text-text-primary focus:outline-none focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 active:scale-90"
         aria-label="Dismiss notification"
       >
         <X className="w-4.5 h-4.5" />

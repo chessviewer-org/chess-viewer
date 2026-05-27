@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 
 import { CheckCircle, ChevronDown, SearchX } from 'lucide-react';
 
@@ -121,4 +121,4 @@ function SearchableSelect({
   );
 }
 
-export default SearchableSelect;
+export default memo(SearchableSelect);

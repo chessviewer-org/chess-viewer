@@ -2,6 +2,7 @@ import { memo, ButtonHTMLAttributes, ReactNode, ElementType } from 'react';
 
 import { getButtonClasses, ButtonVariant, ButtonSize } from '@utils';
 
+/** Props for the `Button` component. Extends all native `<button>` attributes. */
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   variant?: Exclude<ButtonVariant, 'base' | 'size'>;
@@ -11,8 +12,9 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 /**
- * @param {ButtonProps} props
- * @returns {JSX.Element}
+ * Styled button primitive with variant, size, and optional leading icon support.
+ *
+ * Memoized to prevent unnecessary re-renders when used inside large component trees.
  */
 const Button = memo(function Button({
   children,
