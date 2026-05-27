@@ -7,6 +7,7 @@ import { ErrorBoundary } from '@/components/ui';
 import { FENBatchProvider, ThemeSettingsProvider } from '@/contexts';
 import Routes from '@/routes/Router';
 import { logger } from '@/utils/logger';
+import { getStoredString } from '@/utils/validation';
 
 declare global {
   interface Window {
@@ -68,7 +69,7 @@ function getInitialTheme(): Theme {
   }
 
   try {
-    const saved = localStorage.getItem('chess-theme');
+    const saved = getStoredString('chess-theme', '');
     if (saved && VALID_THEMES.has(saved)) {
       return saved as Theme;
     }
@@ -117,7 +118,7 @@ function App() {
 
     function handleMediaChange(event: MediaQueryListEvent) {
       try {
-        const manualOverride = localStorage.getItem('chess-theme');
+        const manualOverride = getStoredString('chess-theme', '');
         if (!manualOverride) {
           setTheme(event.matches ? 'dark' : 'light');
         }

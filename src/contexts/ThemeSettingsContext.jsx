@@ -7,7 +7,7 @@ import {
   useState
 } from 'react';
 
-import { safeJSONParse } from '@/utils/validation';
+import { getStoredValue } from '@/utils/validation';
 
 const ThemeSettingsContext = createContext(null);
 
@@ -60,8 +60,7 @@ const defaultSettings = {
 export function ThemeSettingsProvider({ children }) {
   const [settings, setSettings] = useState(() => {
     try {
-      const saved = localStorage.getItem('themeSettings');
-      const parsed = safeJSONParse(saved, null);
+      const parsed = getStoredValue('themeSettings', null);
       return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
         ? { ...defaultSettings, ...parsed }
         : defaultSettings;
@@ -72,8 +71,7 @@ export function ThemeSettingsProvider({ children }) {
 
   const [recentColors, setRecentColors] = useState(() => {
     try {
-      const saved = localStorage.getItem('recentColors');
-      const parsed = safeJSONParse(saved, null);
+      const parsed = getStoredValue('recentColors', null);
       return Array.isArray(parsed) ? parsed : [];
     } catch {
       return [];

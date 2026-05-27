@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { logger } from '@/utils/logger';
-import { safeJSONParse } from '@/utils/validation';
+import { getStoredValue, safeJSONParse } from '@/utils/validation';
 
 /**
  * Persists state to localStorage with debounced writes.
@@ -18,8 +18,7 @@ export function useLocalStorage(key, initialValue) {
       return initialValue;
     }
     try {
-      const item = window.localStorage.getItem(key);
-      return item ? safeJSONParse(item, initialValue) : initialValue;
+      return getStoredValue(key, initialValue);
     } catch (error) {
       logger.error(`Error loading ${key} from localStorage:`, error);
       return initialValue;
@@ -122,12 +121,9 @@ export function useHybridStorage(key, initialValue, useCloudStorage = false) {
             }
           }
         }
-        const item = window.localStorage.getItem(key);
-        if (item) {
-          const parsed = safeJSONParse(item, null);
-          if (parsed !== null) {
-            setStoredValue(parsed);
-          }
+        const parsed = getStoredValue(key, null);
+        if (parsed !== null) {
+          setStoredValue(parsed);
         }
       } catch (error) {
         logger.error(`Error loading ${key}:`, error);
