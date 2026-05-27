@@ -16,10 +16,12 @@ const FORMATS: { value: ExportFormat; label: string }[] = [
 const RESOLUTIONS: ExportResolution[] = [8, 16, 24, 32];
 const BOARD_PRESETS: BoardSizePreset[] = [4, 8, 12];
 
+/** Props for wizard step 3 — format, resolution, board size, and file naming. */
 export interface ExportSettingsStepProps {
   wizard: ReturnType<typeof useExportWizard>;
 }
 
+/** Wizard step 3: format toggles, resolution selector, board size control, and per-format file names. */
 export default function ExportSettingsStep({ wizard }: ExportSettingsStepProps) {
   return (
     <div className="h-full overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">

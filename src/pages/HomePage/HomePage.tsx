@@ -9,15 +9,7 @@ import { NotificationContainer } from '@shared/ui';
 import { motion } from 'framer-motion';
 import { useHome } from './hooks/useHome';
 
-/**
- * HomePage component serves as the primary workspace dashboard.
- * Encapsulates the Drag-and-Drop chess editor environment, control settings panels,
- * download actions, and real-time export progress.
- *
- * Employs a highly minimalist, ultra-subtle fade-in page mount transition.
- *
- * @returns Sneppy, instant React workspace panel layout
- */
+/** Primary workspace combining the DnD board editor, control panel, and export studio trigger. */
 const HomePage: React.FC = () => {
   const {
     fen,

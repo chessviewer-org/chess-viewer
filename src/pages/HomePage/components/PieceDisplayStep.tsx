@@ -3,10 +3,12 @@ import PieceSelector from '@/components/features/Fen/PieceSelector/PieceSelector
 
 import type { HomeStateForExport } from './ExportStudio.types';
 
+/** Props for wizard step 2 — piece set and display option configuration. */
 export interface PieceDisplayStepProps {
   homeState: HomeStateForExport;
 }
 
+/** Wizard step 2: piece style selector and display option toggles (coords, frame, etc.). */
 export default function PieceDisplayStep({ homeState }: PieceDisplayStepProps) {
   return (
     <div className="h-full overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">

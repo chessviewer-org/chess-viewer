@@ -6,6 +6,7 @@ import { GripVertical, Plus, Trash2, X } from 'lucide-react';
 import AddThemePanel from './AddThemePanel';
 import type { ThemeCard } from './ExportStudio.types';
 
+/** Props for wizard step 1 — theme selection and custom theme management. */
 export interface ThemeStudioStepProps {
   themeTab: 'main' | 'custom';
   setThemeTab: (tab: 'main' | 'custom') => void;
@@ -31,6 +32,7 @@ export interface ThemeStudioStepProps {
   onSaveNewTheme: (name: string, light: string, dark: string) => void;
 }
 
+/** Wizard step 1: paginated colour-theme picker with drag-reorder and add/delete in edit mode. */
 export default function ThemeStudioStep({
   themeTab,
   setThemeTab,
@@ -139,7 +141,7 @@ export default function ThemeStudioStep({
           setTouchStartX(null);
         }}
       >
-        <div className="grid grid-cols-4 sm:grid-cols-6 gap-x-3 gap-y-6">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-x-3 gap-y-6">
           {paginatedThemes.map((theme) => {
             const isSelected =
               selectedLight === theme.light && selectedDark === theme.dark;
@@ -175,7 +177,7 @@ export default function ThemeStudioStep({
                 <button
                   type="button"
                   onClick={() => onThemeSelect(theme)}
-                  className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 transition-all ${
+                  className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 transition-[border-color,box-shadow] duration-200 ${
                     isSelected
                       ? 'border-accent ring-2 ring-accent/20'
                       : 'border-border/60 hover:border-text-muted'
@@ -244,7 +246,7 @@ export default function ThemeStudioStep({
               key={pageIndex}
               type="button"
               onClick={() => setCurrentPage(pageIndex)}
-              className={`h-2 rounded-full transition-all ${
+              className={`h-2 rounded-full transition-[width,background-color] duration-200 ${
                 currentPage === pageIndex ? 'w-5 bg-accent' : 'w-2 bg-border'
               }`}
               aria-label={`Go to page ${pageIndex + 1}`}

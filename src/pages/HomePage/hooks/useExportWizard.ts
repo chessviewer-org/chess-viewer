@@ -1,8 +1,12 @@
 import { useCallback, useMemo, useReducer } from 'react';
 
+/** Supported output file formats for the export wizard. */
 export type ExportFormat = 'jpeg' | 'png' | 'svg';
+/** Available render density multipliers (8x – 32x). */
 export type ExportResolution = 8 | 16 | 24 | 32;
+/** Three-step wizard progression: theme → piece display → export settings. */
 export type WizardStep = 1 | 2 | 3;
+/** Preset board size options in centimetres, or 'custom' for free-form input. */
 export type BoardSizePreset = 4 | 8 | 12 | 'custom';
 
 const DEFAULT_FILE_NAME = 'chessboard';
@@ -10,6 +14,7 @@ const FORMAT_ORDER: ExportFormat[] = ['jpeg', 'png', 'svg'];
 const BOARD_SIZE_MIN = 4;
 const BOARD_SIZE_MAX = 16;
 
+/** Internal reducer state for the three-step export wizard. */
 interface ExportWizardState {
   currentStep: WizardStep;
   selectedFormats: ExportFormat[];
@@ -170,6 +175,7 @@ function getBoardSizeError(input: string): string | null {
   return null;
 }
 
+/** Drives the three-step export wizard: format selection, resolution, board size, and file naming. */
 export function useExportWizard() {
   const [state, dispatch] = useReducer(exportWizardReducer, initialState);
 

@@ -2,11 +2,13 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { hexToRgb, hsvToRgb, rgbToHex, rgbToHsv } from '@utils';
 
+/** Props for the inline panel used to create a new custom board theme. */
 export interface AddThemePanelProps {
   onSave: (name: string, light: string, dark: string) => void;
   onCancel: () => void;
 }
 
+/** Form for naming and colour-picking a new custom board theme before saving. */
 export default function AddThemePanel({ onSave, onCancel }: AddThemePanelProps) {
   const [name, setName] = useState('');
   const [light, setLight] = useState('#f0d9b5');

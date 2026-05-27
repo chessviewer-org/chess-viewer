@@ -1,8 +1,10 @@
+/** Optional overrides applied per batch export run, bypassing saved defaults. */
 export interface BatchExportOverrides {
   boardSize?: number;
   exportQuality?: number;
 }
 
+/** Slice of HomePage state passed down to ExportStudio for live preview and batch export. */
 export interface HomeStateForExport {
   fen: string;
   pieceStyle: string;
@@ -29,6 +31,7 @@ export interface HomeStateForExport {
   ) => Promise<void>;
 }
 
+/** A board color theme entry displayed in the theme carousel. */
 export interface ThemeCard {
   id: string;
   name: string;
@@ -39,6 +42,7 @@ export interface ThemeCard {
   timestamp?: number;
 }
 
+/** In-memory draft of a user-created custom theme before it is persisted. */
 export interface CustomThemeDraft {
   id: number;
   name: string;
@@ -47,6 +51,7 @@ export interface CustomThemeDraft {
   timestamp: number;
 }
 
+/** Minimal shape expected when mapping persisted presets to draft objects. */
 export interface ThemePresetLike {
   id: number;
   name: string;
