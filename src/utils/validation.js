@@ -62,6 +62,90 @@ export function safeJSONParse(jsonString, fallback = null) {
   }
 }
 
+function readLocalStorageItem(key) {
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return null;
+  }
+  return window.localStorage.getItem(key);
+}
+
+/**
+ * Reads and parses a localStorage value through the prototype-safe parser.
+ *
+ * @template T
+ * @param {string} key - localStorage key
+ * @param {T} [fallback=null] - Value returned when the key is missing or blocked
+ * @returns {T|unknown}
+ */
+export function getStoredValue(key, fallback = null) {
+  try {
+    const raw = readLocalStorageItem(key);
+    if (raw === null) {
+      return fallback;
+    }
+    return safeJSONParse(raw, fallback);
+  } catch {
+    return fallback;
+  }
+}
+
+/**
+ * Reads a string setting from localStorage.
+ *
+ * Legacy entries in this app sometimes store bare strings such as `dark` or
+ * `#f0d9b5`; those are returned as strings after the safe JSON parse fails.
+ *
+ * @param {string} key - localStorage key
+ * @param {string} fallback - Value returned on missing, invalid, or blocked reads
+ * @returns {string}
+ */
+export function getStoredString(key, fallback) {
+  try {
+    const raw = readLocalStorageItem(key);
+    if (raw === null) {
+      return fallback;
+    }
+    const parsed = safeJSONParse(raw, undefined);
+    if (typeof parsed === 'string') {
+      return parsed;
+    }
+    return parsed === undefined ? raw : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
+ * Reads a boolean setting from localStorage.
+ *
+ * @param {string} key - localStorage key
+ * @param {boolean} fallback - Value returned on missing, invalid, or blocked reads
+ * @returns {boolean}
+ */
+export function getStoredBoolean(key, fallback) {
+  const value = getStoredValue(key, fallback);
+  return typeof value === 'boolean' ? value : fallback;
+}
+
+/**
+ * Reads a localStorage entry for backup export, preserving legacy bare strings.
+ *
+ * @param {string} key - localStorage key
+ * @returns {unknown|null}
+ */
+export function getStoredBackupValue(key) {
+  try {
+    const raw = readLocalStorageItem(key);
+    if (raw === null) {
+      return null;
+    }
+    const parsed = safeJSONParse(raw, undefined);
+    return parsed === undefined ? raw : parsed;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Strips unsafe filename characters and enforces a max length of 100.
  *
