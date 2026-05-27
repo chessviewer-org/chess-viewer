@@ -11,7 +11,7 @@ import { BoardPreset } from '@app-types';
 /**
  * Builds the default preset list from built-in board themes.
  *
- * @returns {BoardPreset[]} Array of default preset objects
+ * @returns Array of default preset objects
  */
 export function getDefaultPresets(): BoardPreset[] {
   const themes = Object.entries(BOARD_THEMES).slice(
@@ -32,11 +32,11 @@ export function getDefaultPresets(): BoardPreset[] {
   ];
 }
 
-/** 
- * Ensures the Wood preset is always first and limits total count. 
- * 
- * @param {BoardPreset[]} presets - Array of presets
- * @returns {BoardPreset[]} Normalized array
+/**
+ * Ensures the Wood preset is always first and limits total count to `MAX_TOTAL_PRESETS`.
+ *
+ * @param presets - Array of presets to normalize
+ * @returns Normalized array
  */
 function normalizePresets(presets: BoardPreset[]): BoardPreset[] {
   const source = Array.isArray(presets) ? presets : [];
@@ -50,7 +50,7 @@ function normalizePresets(presets: BoardPreset[]): BoardPreset[] {
 /**
  * Loads saved presets from localStorage.
  *
- * @returns {BoardPreset[]} Loaded or default presets
+ * @returns Loaded presets, or the default list if nothing is stored or parsing fails
  */
 export function loadPresets(): BoardPreset[] {
   try {
@@ -70,7 +70,7 @@ export function loadPresets(): BoardPreset[] {
 /**
  * Saves presets to localStorage.
  *
- * @param {BoardPreset[]} presets - Array of presets to save
+ * @param presets - Array of presets to persist
  */
 export function savePresets(presets: BoardPreset[]): void {
   try {
@@ -86,9 +86,9 @@ export function savePresets(presets: BoardPreset[]): void {
 /**
  * Reads a square color from localStorage, stripping surrounding quotes.
  *
- * @param {string} key - localStorage key
- * @param {string} fallback - Value to return on error or missing key
- * @returns {string} Sanitized color string
+ * @param key - localStorage key
+ * @param fallback - Value to return on error or missing key
+ * @returns Sanitized color string
  */
 export function readSquare(key: string, fallback: string): string {
   try {

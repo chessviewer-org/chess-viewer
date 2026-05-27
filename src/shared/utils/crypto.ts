@@ -1,12 +1,17 @@
 import { logger } from './logger';
 
 /**
- * Robust End-to-End Encryption utility using Web Crypto API (AES-GCM).
- * This ensures user data is encrypted/decrypted only in the browser.
+ * End-to-end encryption utility backed by the Web Crypto API (AES-GCM, 256-bit).
+ *
+ * All cryptographic operations execute inside the browser; no plaintext is transmitted.
  */
 export const crypto = {
   /**
-   * Derives a cryptographic key from a user-provided passphrase.
+   * Derives an AES-GCM 256-bit key from a passphrase using PBKDF2.
+   *
+   * @param passphrase - User-supplied passphrase
+   * @param salt - Salt string to prevent rainbow-table attacks
+   * @returns Derived `CryptoKey` for use with `encrypt`/`decrypt`
    */
   async deriveKey(passphrase: string, salt: string): Promise<CryptoKey> {
     const encoder = new TextEncoder();
@@ -33,8 +38,16 @@ export const crypto = {
   },
 
   /**
-   * Encrypts a string value using the derived key.
-   * Returns a base64 string containing: salt.iv.ciphertext
+   * Encrypts a plaintext string with AES-GCM.
+   *
+   * The returned string is base64-encoded and contains a prepended random IV
+   * (format: `iv || ciphertext`).
+   *
+   * @param value - Plaintext to encrypt
+   * @param passphrase - Passphrase used for key derivation
+   * @param salt - Salt for PBKDF2 key derivation
+   * @returns Base64-encoded ciphertext
+   * @throws If the Web Crypto API fails or is unavailable
    */
   async encrypt(value: string, passphrase: string, salt: string = 'chess-vision-v1'): Promise<string> {
     try {
@@ -60,7 +73,13 @@ export const crypto = {
   },
 
   /**
-   * Decrypts a base64 string using the derived key.
+   * Decrypts a base64-encoded ciphertext produced by `encrypt`.
+   *
+   * @param encryptedData - Base64-encoded `iv || ciphertext` string
+   * @param passphrase - Passphrase used during encryption
+   * @param salt - Salt used during encryption
+   * @returns Decrypted plaintext string
+   * @throws If decryption fails due to an incorrect passphrase or corrupted data
    */
   async decrypt(encryptedData: string, passphrase: string, salt: string = 'chess-vision-v1'): Promise<string> {
     try {

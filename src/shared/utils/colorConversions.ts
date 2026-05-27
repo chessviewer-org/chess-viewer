@@ -1,8 +1,8 @@
-/** 
- * Converts a hex color string to an RGB object. 
- * 
- * @param {string} hex - Hex color string
- * @returns {{r: number, g: number, b: number}} RGB object
+/**
+ * Converts a hex color string to an RGB object.
+ *
+ * @param hex - Hex color string (e.g. `#ff0000`)
+ * @returns RGB components; defaults to `{r:0,g:0,b:0}` on invalid input
  */
 export function hexToRgb(hex: string): { r: number; g: number; b: number } {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -21,13 +21,13 @@ export function hexToRgb(hex: string): { r: number; g: number; b: number } {
   };
 }
 
-/** 
- * Converts RGB components to a hex color string. 
- * 
- * @param {number} r - Red (0-255)
- * @param {number} g - Green (0-255)
- * @param {number} b - Blue (0-255)
- * @returns {string} Hex color string
+/**
+ * Converts RGB components to a hex color string.
+ *
+ * @param r - Red channel (0–255)
+ * @param g - Green channel (0–255)
+ * @param b - Blue channel (0–255)
+ * @returns Lowercase hex string (e.g. `#ff0000`)
  */
 export function rgbToHex(r: number, g: number, b: number): string {
   return (
@@ -41,13 +41,13 @@ export function rgbToHex(r: number, g: number, b: number): string {
   );
 }
 
-/** 
- * Converts RGB components to HSV values. 
- * 
- * @param {number} r - Red (0-255)
- * @param {number} g - Green (0-255)
- * @param {number} b - Blue (0-255)
- * @returns {{h: number, s: number, v: number}} HSV object
+/**
+ * Converts RGB components to HSV values.
+ *
+ * @param r - Red channel (0–255)
+ * @param g - Green channel (0–255)
+ * @param b - Blue channel (0–255)
+ * @returns Hue (0–1), Saturation (0–1), Value (0–1)
  */
 export function rgbToHsv(r: number, g: number, b: number): { h: number; s: number; v: number } {
   const rNorm = r / 255;
@@ -82,13 +82,13 @@ export function rgbToHsv(r: number, g: number, b: number): { h: number; s: numbe
   return { h, s, v };
 }
 
-/** 
- * Converts HSV values to RGB components. 
- * 
- * @param {number} h - Hue (0-1)
- * @param {number} s - Saturation (0-1)
- * @param {number} v - Value (0-1)
- * @returns {{r: number, g: number, b: number}} RGB object
+/**
+ * Converts HSV values to RGB components.
+ *
+ * @param h - Hue (0–1)
+ * @param s - Saturation (0–1)
+ * @param v - Value/brightness (0–1)
+ * @returns RGB components in the 0–255 range
  */
 export function hsvToRgb(h: number, s: number, v: number): { r: number; g: number; b: number } {
   let r = 0, g = 0, b = 0;

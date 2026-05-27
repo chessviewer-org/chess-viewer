@@ -1,9 +1,11 @@
 /**
- * Returns a requestAnimationFrame-throttled version of a callback.
- * The returned function exposes a `.cancel()` method.
+ * Returns a `requestAnimationFrame`-throttled version of a callback.
  *
- * @param {Function} callback
- * @returns {Function & { cancel: () => void }}
+ * At most one pending frame is queued at a time; intermediate calls are dropped.
+ * The returned function exposes a `.cancel()` method to discard any queued frame.
+ *
+ * @param callback - The function to throttle
+ * @returns Throttled wrapper with a `.cancel()` method
  */
 export function rafThrottle<T extends unknown[]>(
   callback: (...args: T) => void
