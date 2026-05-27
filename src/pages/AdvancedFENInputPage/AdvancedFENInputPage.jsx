@@ -20,7 +20,7 @@ import {
   resumeExport,
   validateFEN
 } from '@/utils';
-import { MAX_FEN_LENGTH, safeJSONParse } from '@/utils/validation';
+import { getStoredValue, MAX_FEN_LENGTH } from '@/utils/validation';
 
 import BoardDisplay from './BoardDisplay';
 import PlaybackControls from './PlaybackControls';
@@ -80,8 +80,7 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage({
     return arr;
   }, [batchList]);
   const [favorites, setFavorites] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.FAVORITES);
-    const parsed = safeJSONParse(saved, null);
+    const parsed = getStoredValue(STORAGE_KEYS.FAVORITES, null);
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed
       : {};
@@ -95,8 +94,7 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage({
   const [duplicateWarning, setDuplicateWarning] = useState(null);
   const [activeTab, setActiveTab] = useState(TABS.POSITIONS);
   const [positionSettings, setPositionSettings] = useState(() => {
-    const saved = localStorage.getItem('advanced-fen-position-settings');
-    const parsed = safeJSONParse(saved, null);
+    const parsed = getStoredValue('advanced-fen-position-settings', null);
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed
       : {};

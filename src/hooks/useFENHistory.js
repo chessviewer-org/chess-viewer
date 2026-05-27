@@ -16,7 +16,7 @@ import {
   touchEntry
 } from '@/utils/historyUtils';
 import { logger } from '@/utils/logger';
-import { safeJSONParse } from '@/utils/validation';
+import { getStoredValue, safeJSONParse } from '@/utils/validation';
 
 const DRAG_INACTIVITY_TIMEOUT = 60000;
 
@@ -79,8 +79,7 @@ export function useFENHistory(fen, onFavoriteStatusChange) {
         }
 
         if (!data) {
-          const local = window.localStorage.getItem('fen-history');
-          if (local) data = safeJSONParse(local, null);
+          data = getStoredValue('fen-history', null);
         }
 
         if (Array.isArray(data) && isMountedRef.current) {

@@ -3,7 +3,7 @@ import { Check, Copy, Trash2, X } from 'lucide-react';
 import { List } from 'react-window';
 
 import { logger } from '@/utils/logger';
-import { safeJSONParse } from '@/utils/validation';
+import { getStoredValue } from '@/utils/validation';
 
 /**
  * @param {Object} props
@@ -90,8 +90,7 @@ const ClipboardHistory = memo(function ClipboardHistory({
 
   const loadHistory = useCallback(() => {
     try {
-      const saved = localStorage.getItem('fenClipboardHistory');
-      const history = safeJSONParse(saved, []);
+      const history = getStoredValue('fenClipboardHistory', []);
       setClipboardHistory(Array.isArray(history) ? history : []);
     } catch {
       setClipboardHistory([]);

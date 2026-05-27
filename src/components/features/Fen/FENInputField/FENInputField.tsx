@@ -22,7 +22,7 @@ import { useFENBatch } from '@/contexts';
 import { useDebouncedFENValidation } from '@/hooks/useDebouncedFENValidation';
 import { validateFEN } from '@/utils';
 import { logger } from '@/utils/logger';
-import { MAX_FEN_LENGTH, safeJSONParse } from '@/utils/validation';
+import { getStoredValue, MAX_FEN_LENGTH } from '@/utils/validation';
 
 export type NotificationType = 'success' | 'error' | 'warning' | 'info';
 
@@ -114,10 +114,7 @@ const FENInputField = memo(
     // ── Favorites check ──
     useEffect(() => {
       try {
-        const rawFavorites = safeJSONParse(
-          localStorage.getItem('favoriteFens'),
-          {}
-        );
+        const rawFavorites = getStoredValue('favoriteFens', {});
         if (isRecord(rawFavorites)) {
           setIsFavorite(!!rawFavorites[fen]);
         } else {
@@ -135,10 +132,7 @@ const FENInputField = memo(
         const currentFen = localFen.trim();
         if (currentFen && validateFEN(currentFen)) {
           try {
-            const rawHistory = safeJSONParse(
-              localStorage.getItem('fenClipboardHistory'),
-              []
-            );
+            const rawHistory = getStoredValue('fenClipboardHistory', []);
 
             const history: FENHistoryEntry[] = Array.isArray(rawHistory)
               ? rawHistory.filter(
@@ -203,10 +197,7 @@ const FENInputField = memo(
       }
 
       try {
-        const rawFavorites = safeJSONParse(
-          localStorage.getItem('favoriteFens'),
-          {}
-        );
+        const rawFavorites = getStoredValue('favoriteFens', {});
 
         const favorites: Record<string, boolean> = {};
         if (isRecord(rawFavorites)) {
