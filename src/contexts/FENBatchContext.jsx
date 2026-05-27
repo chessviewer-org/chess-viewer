@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { validateFEN } from '@/utils';
-import { safeJSONParse } from '@/utils/validation';
+import { getStoredValue } from '@/utils/validation';
 import { FENBatchContext } from './FENBatchStore';
 
 /**
@@ -13,8 +13,7 @@ import { FENBatchContext } from './FENBatchStore';
 export function FENBatchProvider({ children }) {
   const [batchList, setBatchList] = useState(() => {
     try {
-      const saved = localStorage.getItem('fenBatchList');
-      const parsed = safeJSONParse(saved, null);
+      const parsed = getStoredValue('fenBatchList', null);
       return Array.isArray(parsed) ? parsed : [];
     } catch {
       return [];

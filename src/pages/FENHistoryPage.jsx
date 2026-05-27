@@ -17,6 +17,7 @@ import {
 } from '@/components/features/History';
 import { useFENHistory } from '@/hooks';
 import { logger } from '@/utils/logger';
+import { getStoredBoolean, getStoredString } from '@/utils/validation';
 
 /**
  * Full-page FEN history manager with tabs for active entries, favorites, and archive.
@@ -31,7 +32,7 @@ const FENHistoryPage = memo(function FENHistoryPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState(null);
   const [doNotAskAgain, setDoNotAskAgain] = useState(() => {
-    return localStorage.getItem('fen-history-skip-delete-confirm') === 'true';
+    return getStoredBoolean('fen-history-skip-delete-confirm', false);
   });
 
   const {
@@ -62,28 +63,21 @@ const FENHistoryPage = memo(function FENHistoryPage() {
     setArchiveFiltersHook(archiveFilters);
   }, [archiveFilters, setArchiveFiltersHook]);
 
-  const [lightSquare, setLightSquare] = useState(
-    () =>
-      localStorage.getItem('chess-light-square')?.replace(/"/g, '') || '#f0d9b5'
+  const [lightSquare, setLightSquare] = useState(() =>
+    getStoredString('chess-light-square', '#f0d9b5')
   );
-  const [darkSquare, setDarkSquare] = useState(
-    () =>
-      localStorage.getItem('chess-dark-square')?.replace(/"/g, '') || '#b58863'
+  const [darkSquare, setDarkSquare] = useState(() =>
+    getStoredString('chess-dark-square', '#b58863')
   );
-  const [pieceStyle, setPieceStyle] = useState(
-    () =>
-      localStorage.getItem('chess-piece-style')?.replace(/"/g, '') || 'cburnett'
+  const [pieceStyle, setPieceStyle] = useState(() =>
+    getStoredString('chess-piece-style', 'cburnett')
   );
 
   useEffect(() => {
     const handleStorageChange = () => {
-      const light = localStorage.getItem('chess-light-square');
-      const dark = localStorage.getItem('chess-dark-square');
-      const style = localStorage.getItem('chess-piece-style');
-
-      setLightSquare(light?.replace(/"/g, '') || '#f0d9b5');
-      setDarkSquare(dark?.replace(/"/g, '') || '#b58863');
-      setPieceStyle(style?.replace(/"/g, '') || 'cburnett');
+      setLightSquare(getStoredString('chess-light-square', '#f0d9b5'));
+      setDarkSquare(getStoredString('chess-dark-square', '#b58863'));
+      setPieceStyle(getStoredString('chess-piece-style', 'cburnett'));
     };
 
     handleStorageChange();

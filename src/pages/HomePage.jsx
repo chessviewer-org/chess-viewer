@@ -21,7 +21,7 @@ import {
   shouldForceCoordinateBorder,
   validateFEN
 } from '@/utils';
-import { safeJSONParse, sanitizeHexColor } from '@/utils/validation';
+import { getStoredString, sanitizeHexColor } from '@/utils/validation';
 
 /**
  * Export state reducer - PERFORMANCE OPTIMIZED
@@ -105,26 +105,14 @@ function HomePage() {
 
   useEffect(() => {
     const handleStorageChange = () => {
-      const light = localStorage.getItem('chess-light-square');
-      const dark = localStorage.getItem('chess-dark-square');
+      const light = getStoredString('chess-light-square', '');
+      const dark = getStoredString('chess-dark-square', '');
 
       if (light) {
-        try {
-          const parsed = safeJSONParse(light, null);
-          const color = typeof parsed === 'string' ? parsed : light;
-          setLightSquare(sanitizeHexColor(color, '#f0d9b5'));
-        } catch {
-          setLightSquare(sanitizeHexColor(light, '#f0d9b5'));
-        }
+        setLightSquare(sanitizeHexColor(light, '#f0d9b5'));
       }
       if (dark) {
-        try {
-          const parsed = safeJSONParse(dark, null);
-          const color = typeof parsed === 'string' ? parsed : dark;
-          setDarkSquare(sanitizeHexColor(color, '#b58863'));
-        } catch {
-          setDarkSquare(sanitizeHexColor(dark, '#b58863'));
-        }
+        setDarkSquare(sanitizeHexColor(dark, '#b58863'));
       }
     };
 

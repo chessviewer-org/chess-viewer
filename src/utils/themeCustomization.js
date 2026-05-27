@@ -5,7 +5,7 @@ import {
   STORAGE_KEYS,
   WOOD_PRESET
 } from '@/constants';
-import { safeJSONParse } from '@/utils/validation';
+import { getStoredString, getStoredValue } from '@/utils/validation';
 
 /**
  * Builds the default preset list from built-in board themes.
@@ -45,9 +45,8 @@ function normalizePresets(presets) {
  */
 export function loadPresets() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.PRESETS);
-    if (raw) {
-      const loaded = safeJSONParse(raw);
+    const loaded = getStoredValue(STORAGE_KEYS.PRESETS, null);
+    if (loaded) {
       return normalizePresets(loaded);
     }
   } catch {
@@ -79,8 +78,7 @@ export function savePresets(presets) {
  */
 export function readSquare(key, fallback) {
   try {
-    const v = localStorage.getItem(key);
-    return v ? v.replace(/"/g, '') : fallback;
+    return getStoredString(key, fallback);
   } catch {
     return fallback;
   }
