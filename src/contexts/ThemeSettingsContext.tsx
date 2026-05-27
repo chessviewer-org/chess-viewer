@@ -14,6 +14,7 @@ function isPlainObject(val: unknown): val is Record<string, unknown> {
   return typeof val === 'object' && val !== null && !Array.isArray(val);
 }
 
+/** Persisted UI behavior flags for the theme editor. */
 export interface ThemeSettings {
   autoApply: boolean;
   showRGB: boolean;
@@ -27,6 +28,7 @@ export interface ThemeSettings {
   enableColorBlindMode: boolean;
 }
 
+/** The value provided by `ThemeSettingsContext`. */
 export interface ThemeSettingsContextValue {
   settings: ThemeSettings;
   updateSetting: <K extends keyof ThemeSettings>(key: K, value: ThemeSettings[K]) => void;
@@ -49,10 +51,7 @@ const ThemeSettingsContext = createContext<ThemeSettingsContextValue | null>(nul
 
 let _sharedAudioCtx: AudioContext | null = null;
 
-/**
- * Returns the shared AudioContext singleton.
- * @returns {AudioContext}
- */
+/** Returns the shared `AudioContext` singleton, creating it on first call. */
 function getAudioCtx(): AudioContext {
   if (!_sharedAudioCtx) {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -62,8 +61,9 @@ function getAudioCtx(): AudioContext {
 }
 
 /**
- * @returns {ThemeSettingsContextValue} Theme settings context value
- * @throws {Error} If used outside a ThemeSettingsProvider
+ * Provides theme settings, recent colors, and the `playSound` action.
+ *
+ * @throws If used outside of `<ThemeSettingsProvider>`
  */
 // eslint-disable-next-line react-refresh/only-export-components
 export function useThemeSettings() {
@@ -90,9 +90,9 @@ const defaultSettings: ThemeSettings = {
 };
 
 /**
- * Provides theme settings state to the component subtree.
- * @param {{ children: React.ReactNode }} props
- * @returns {JSX.Element}
+ * Provides theme settings, recent colors, and synthesised sound effects to the component subtree.
+ *
+ * Persists `themeSettings` and `recentColors` to `localStorage`.
  */
 export function ThemeSettingsProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<ThemeSettings>(() => {
@@ -157,37 +157,18 @@ export function ThemeSettingsProvider({ children }: { children: React.ReactNode 
     localStorage.setItem('recentColors', JSON.stringify(recentColors));
   }, [recentColors]);
 
-  /**
-   * Update a single setting by key.
-   *
-   * @param {string} key - Setting key
-   * @param {*} value - New value
-   */
   const updateSetting = useCallback(<K extends keyof ThemeSettings>(key: K, value: ThemeSettings[K]) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   }, []);
 
-  /**
-   * Replace all settings with a new settings object.
-   *
-   * @param {ThemeSettings} newSettings - Complete settings object
-   */
   const updateSettings = useCallback((newSettings: ThemeSettings) => {
     setSettings(newSettings);
   }, []);
 
-  /**
-   * Reset all settings to their default values.
-   */
   const resetSettings = useCallback(() => {
     setSettings(defaultSettings);
   }, []);
 
-  /**
-   * Add a hex color to the top of the recent colors list (max 12 entries).
-   *
-   * @param {string} color - Hex color to add
-   */
   const addRecentColor = useCallback((color: string) => {
     if (!color) return;
     setRecentColors((prev) => {
@@ -196,18 +177,10 @@ export function ThemeSettingsProvider({ children }: { children: React.ReactNode 
     });
   }, []);
 
-  /**
-   * Clear all recent colors.
-   */
   const clearRecentColors = useCallback(() => {
     setRecentColors([]);
   }, []);
 
-  /**
-   * Play a brief synthesised beep if sound effects are enabled.
-   *
-   * @param {'click'|'success'|'error'} [type='click'] - Sound type
-   */
   const playSound = useCallback(
     async (type: 'click' | 'success' | 'error' = 'click') => {
       if (!settings.enableSoundEffects) return;

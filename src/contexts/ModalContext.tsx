@@ -10,6 +10,7 @@ interface ModalState {
   onCancel: () => void;
 }
 
+/** Imperative modal API exposed via `useModal`. */
 interface ModalContextType {
   showAlert: (title: string, message: string, type?: ModalType) => Promise<void>;
   showConfirm: (title: string, message: string, type?: ModalType) => Promise<boolean>;
@@ -17,6 +18,10 @@ interface ModalContextType {
 
 const ModalContext = createContext<ModalContextType | undefined>(undefined);
 
+/**
+ * Mounts the singleton `Modal` component and exposes `showAlert`/`showConfirm`
+ * as promise-based imperatives through `ModalContext`.
+ */
 export function ModalProvider({ children }: { children: React.ReactNode }) {
   const [modalState, setModalState] = useState<ModalState>({
     isOpen: false,
@@ -85,6 +90,12 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * Provides imperative modal actions (`showAlert`, `showConfirm`).
+ *
+ * @throws If used outside of `<ModalProvider>`
+ */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useModal() {
   const context = useContext(ModalContext);
   if (!context) {

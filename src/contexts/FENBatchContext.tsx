@@ -5,11 +5,9 @@ import { safeJSONParse } from '@utils/validation';
 import { FENBatchContext, FENBatchContextValue } from './FENBatchStore';
 
 /**
- * Provides FEN batch state to the component subtree.
+ * Provides FEN batch list state to the component subtree.
  *
- * @param {Object} props
- * @param {React.ReactNode} props.children
- * @returns {JSX.Element}
+ * Persists the batch list to `localStorage` on every change.
  */
 export function FENBatchProvider({ children }: { children: React.ReactNode }) {
   const [batchList, setBatchList] = useState<string[]>(() => {

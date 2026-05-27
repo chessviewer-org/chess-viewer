@@ -1,5 +1,6 @@
 import { createContext } from 'react';
 
+/** The value provided by `FENBatchContext`. */
 export interface FENBatchContextValue {
   batchList: string[];
   addToBatch: (fen: string) => boolean;
