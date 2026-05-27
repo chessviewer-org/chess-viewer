@@ -1,3 +1,13 @@
+## [5.5.9](https://github.com/BilgeGates/chess-vision/compare/v5.5.8...v5.5.9) (2026-05-27)
+
+### Bug Fixes
+
+* add safe stored-value readers ([5ec30fe](https://github.com/BilgeGates/chess-vision/commit/5ec30fe758d24d876959595de4b52f68a2468145))
+* harden app context storage reads ([10a2875](https://github.com/BilgeGates/chess-vision/commit/10a28751c25953fcab1d70e9504b1f84bf7ce5ff))
+* harden export storage reads ([01d2368](https://github.com/BilgeGates/chess-vision/commit/01d2368b19b46abac3c9b57d33fe5dc0ead3a6c8))
+* harden FEN history storage reads ([30bb802](https://github.com/BilgeGates/chess-vision/commit/30bb8025291aa489f3c3661bf4aad7dc6e5fe245))
+* harden theme storage reads ([95b2755](https://github.com/BilgeGates/chess-vision/commit/95b2755b2f7510916e401c781d4e56fbba07a82b))
+
 ## [5.5.8](https://github.com/BilgeGates/chess-vision/compare/v5.5.7...v5.5.8) (2026-05-26)
 
 ### Bug Fixes
