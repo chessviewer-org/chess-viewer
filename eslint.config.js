@@ -67,6 +67,22 @@ export default [
 
       'no-console': 'error',
 
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            "CallExpression[callee.object.name='localStorage'][callee.property.name='getItem']",
+          message:
+            'Use getStoredValue/getStoredString from src/utils/validation.js for localStorage reads.'
+        },
+        {
+          selector:
+            "CallExpression[callee.object.property.name='localStorage'][callee.property.name='getItem']",
+          message:
+            'Use getStoredValue/getStoredString from src/utils/validation.js for localStorage reads.'
+        }
+      ],
+
       'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
 
       'no-var': 'error',
@@ -133,11 +149,41 @@ export default [
 
       'no-console': 'error',
 
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            "CallExpression[callee.object.name='localStorage'][callee.property.name='getItem']",
+          message:
+            'Use getStoredValue/getStoredString from src/utils/validation.js for localStorage reads.'
+        },
+        {
+          selector:
+            "CallExpression[callee.object.property.name='localStorage'][callee.property.name='getItem']",
+          message:
+            'Use getStoredValue/getStoredString from src/utils/validation.js for localStorage reads.'
+        }
+      ],
+
       'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
 
       'no-var': 'error',
       'prefer-const': 'warn',
       eqeqeq: ['error', 'always', { null: 'ignore' }]
+    }
+  },
+
+  {
+    files: ['src/utils/validation.js'],
+    rules: {
+      'no-restricted-syntax': 'off'
+    }
+  },
+
+  {
+    files: ['public/theme-init.js'],
+    rules: {
+      'no-restricted-syntax': 'off'
     }
   },
 
