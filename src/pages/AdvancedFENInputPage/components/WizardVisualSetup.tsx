@@ -7,11 +7,13 @@ import type { useAdvancedFEN } from '../hooks/useAdvancedFEN';
 
 type AdvancedFENReturn = ReturnType<typeof useAdvancedFEN>;
 
+/** Props for the visual configuration wizard panel (theme, piece style, coord options). */
 interface WizardVisualSetupProps {
   state: AdvancedFENReturn['state'];
   handlers: AdvancedFENReturn['handlers'];
 }
 
+/** Wizard step 1: theme preset picker, piece style toggle strip, and display option checkboxes. */
 const WizardVisualSetup = memo(function WizardVisualSetup({
   state,
   handlers
@@ -39,7 +41,7 @@ const WizardVisualSetup = memo(function WizardVisualSetup({
                 onClick={() =>
                   handlers.handleApplyPresetTheme(theme.light, theme.dark)
                 }
-                className="group relative flex flex-col items-center gap-1 focus:outline-none"
+                className="group relative flex flex-col items-center gap-1 focus:outline-none focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 rounded-md"
                 title={theme.name}
               >
                 <div

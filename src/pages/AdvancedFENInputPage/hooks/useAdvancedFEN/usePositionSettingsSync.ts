@@ -1,9 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { safeJSONParse } from '@utils/validation';
+import { isRecord, safeJSONParse } from '@utils/validation';
 
 import type { ExportFormat, PositionSettings } from './useAdvancedFEN.types';
 
+function isPositionSettings(value: unknown): value is PositionSettings {
+  if (!isRecord(value)) return false;
+  return Object.keys(value).every((key) => {
+    const entry = value[key];
+    return entry === undefined || isRecord(entry);
+  });
+}
+
+/** Arguments for the usePositionSettingsSync hook. */
 interface UsePositionSettingsSyncArgs {
   currentFen: string;
   currentIndex: number;
@@ -74,7 +83,8 @@ export function usePositionSettingsSync(args: UsePositionSettingsSyncArgs) {
 
   const [positionSettings, setPositionSettings] = useState<PositionSettings>(() => {
     const saved = localStorage.getItem('advanced-fen-position-settings');
-    return safeJSONParse(saved, {} as PositionSettings);
+    const parsed = safeJSONParse<unknown>(saved, null);
+    return isPositionSettings(parsed) ? parsed : {};
   });
 
   useEffect(() => {

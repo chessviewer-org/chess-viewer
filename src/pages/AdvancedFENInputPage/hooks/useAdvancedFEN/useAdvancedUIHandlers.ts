@@ -6,6 +6,7 @@ import type { ExportFormat, PositionSettings } from './useAdvancedFEN.types';
 
 const { TABS } = ADVANCED_FEN_CONFIG;
 
+/** Arguments for the useAdvancedUIHandlers hook. */
 interface UseAdvancedUIHandlersArgs {
   isChained: boolean;
   safeCurrentIndex: number;
@@ -41,6 +42,7 @@ interface UseAdvancedUIHandlersArgs {
   setPositionSettings: React.Dispatch<React.SetStateAction<PositionSettings>>;
 }
 
+/** Derives all user-facing event handlers for the preview/export tab, including chain-mode auto-unlink on per-position changes. */
 export function useAdvancedUIHandlers(args: UseAdvancedUIHandlersArgs) {
   const {
     isChained,

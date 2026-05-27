@@ -4,6 +4,7 @@ import { cancelExport, pauseExport, resumeExport } from '@utils';
 
 import type { ExportState } from './useAdvancedFEN.types';
 
+/** Tracks export progress state and delegates pause/resume/cancel to the shared exportState machine. */
 export function useExportProgress() {
   const [exportState, setExportState] = useState<ExportState>({
     isExporting: false,

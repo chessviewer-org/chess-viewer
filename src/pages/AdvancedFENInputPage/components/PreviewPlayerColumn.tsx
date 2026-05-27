@@ -12,11 +12,13 @@ const { INTERVAL_OPTIONS } = ADVANCED_FEN_CONFIG;
 
 type AdvancedFENReturn = ReturnType<typeof useAdvancedFEN>;
 
+/** Props for the sticky board preview and playback column in the Preview/Export tab. */
 interface PreviewPlayerColumnProps {
   state: AdvancedFENReturn['state'];
   handlers: AdvancedFENReturn['handlers'];
 }
 
+/** Sticky column containing the live board display, playback controls, and single/batch download buttons. */
 const PreviewPlayerColumn = memo(function PreviewPlayerColumn({
   state,
   handlers

@@ -5,11 +5,13 @@ import type { useAdvancedFEN } from '../hooks/useAdvancedFEN';
 
 type AdvancedFENReturn = ReturnType<typeof useAdvancedFEN>;
 
+/** Props for the export settings wizard panel (format, resolution, smart naming, batch export). */
 interface WizardExportSettingsProps {
   state: AdvancedFENReturn['state'];
   handlers: AdvancedFENReturn['handlers'];
 }
 
+/** Wizard step 2: format selector, resolution picker, smart file naming, and single/batch export triggers. */
 const WizardExportSettings = memo(function WizardExportSettings({
   state,
   handlers

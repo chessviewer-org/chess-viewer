@@ -8,6 +8,7 @@ import { MAX_FEN_LENGTH, safeJSONParse } from '@utils/validation';
 
 const { MAX_FENS, STORAGE_KEYS } = ADVANCED_FEN_CONFIG;
 
+/** Bridges FENBatchContext with local validation, duplicate detection, clipboard paste, and favorites state. */
 export function useFENBatchSync() {
   const location = useLocation();
   const { batchList, removeFromBatch, updateBatchItem, addToBatch } = useFENBatch();
@@ -65,12 +66,13 @@ export function useFENBatchSync() {
   useEffect(() => {
     const state = location.state as Record<string, unknown> | null;
     if (state?.['addFen'] && !addedFenRef.current) {
-      const rawFenToAdd = state['addFen'] as string;
-      const fenToAdd =
+      const rawFenToAdd = state['addFen'];
+      const candidate =
         typeof rawFenToAdd === 'string'
           ? rawFenToAdd.slice(0, MAX_FEN_LENGTH)
           : '';
-      if (!fens.some((f) => f.trim() === fenToAdd)) {
+      const fenToAdd = candidate && validateFEN(candidate) ? candidate : '';
+      if (fenToAdd && !fens.some((f) => f.trim() === fenToAdd)) {
         const emptyIndex = fens.findIndex((f) => !f.trim());
         if (emptyIndex !== -1 && emptyIndex < batchList.length) {
           updateBatchItem(emptyIndex, fenToAdd);

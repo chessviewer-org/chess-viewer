@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 
+/** Props for the lightweight canvas-free board renderer used in the batch preview player. */
 export interface BoardDisplayProps {
   boardState: string[][];
   isFlipped: boolean;
@@ -10,6 +11,7 @@ export interface BoardDisplayProps {
   darkSquare: string;
 }
 
+/** CSS-grid board that renders a BoardMatrix with optional coordinate labels and piece images. */
 const BoardDisplay = memo(function BoardDisplay({
   boardState,
   isFlipped,

@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 
+/** Props for the batch position playback control bar. */
 export interface PlaybackControlsProps {
   isPlaying: boolean;
   interval: number;
@@ -16,11 +17,7 @@ export interface PlaybackControlsProps {
 }
 
 /**
- * PlaybackControls renders the active position slider bar.
- * Designed as a modern, floating capsule card to offer snappier transitions.
- *
- * @param props - Component configuration properties
- * @returns Clean, floating playback capsule component
+ * Floating capsule bar for play/pause, interval selection, and prev/next navigation through batch positions.
  */
 const PlaybackControls = memo(function PlaybackControls({
   isPlaying,

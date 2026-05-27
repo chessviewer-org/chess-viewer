@@ -1,3 +1,4 @@
+/** Optional initial overrides forwarded to useAdvancedFEN when the page is mounted with preset values. */
 export interface AdvancedFENInitialProps {
   pieceStyle?: string;
   boardSize?: number;
@@ -10,6 +11,7 @@ export interface AdvancedFENInitialProps {
   darkSquare?: string;
 }
 
+/** Live state of an in-progress batch or single export operation. */
 export interface ExportState {
   isExporting: boolean;
   progress: number;
@@ -17,6 +19,7 @@ export interface ExportState {
   status: string;
 }
 
+/** Per-FEN visual and export settings keyed by FEN string, persisted to localStorage. */
 export interface PositionSettings {
   [fen: string]: {
     pieceStyle?: string;
@@ -34,4 +37,5 @@ export interface PositionSettings {
   };
 }
 
+/** Supported output file formats for the advanced FEN export. */
 export type ExportFormat = 'png' | 'jpeg' | 'svg';

@@ -5,6 +5,7 @@ import { downloadJPEG, downloadPNG, downloadSVG, logger } from '@utils';
 import { parseSmartNaming } from './parseSmartNaming';
 import type { ExportFormat, PositionSettings } from './useAdvancedFEN.types';
 
+/** Arguments for the useAdvancedExportActions hook. */
 interface UseAdvancedExportActionsArgs {
   currentFen: string;
   validFens: string[];
@@ -29,6 +30,7 @@ interface UseAdvancedExportActionsArgs {
   handleExportFinish: () => void;
 }
 
+/** Builds export config, parses smart file names, and handles single and batch export execution. */
 export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
   const {
     currentFen,

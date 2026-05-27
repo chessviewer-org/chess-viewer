@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 
+/** Arguments for the useKeyboardNavigation hook. */
 interface UseKeyboardNavigationArgs {
   validFensLength: number;
   handleBack: () => void;
@@ -8,6 +9,7 @@ interface UseKeyboardNavigationArgs {
   setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+/** Registers global keyboard shortcuts: Escape → back, ArrowLeft/Right → navigate, Space → play/pause. */
 export function useKeyboardNavigation({
   validFensLength,
   handleBack,

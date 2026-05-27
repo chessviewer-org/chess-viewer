@@ -5,6 +5,7 @@ import { AlertCircle, Check, Clipboard, Heart, Trash2 } from 'lucide-react';
 import { validateFEN } from '@utils';
 import { MAX_FEN_LENGTH } from '@utils/validation';
 
+/** Props for the animated FEN input grid on the Positions tab. */
 export interface PositionsTabProps {
   fens: string[];
   displayFensCount?: number;
@@ -18,6 +19,7 @@ export interface PositionsTabProps {
   onPasteFEN: (index: number) => void;
 }
 
+/** Two-column animated grid of FEN input slots with validation, duplicate detection, and clipboard paste. */
 const PositionsTab = memo(function PositionsTab({
   fens,
   fenErrors,

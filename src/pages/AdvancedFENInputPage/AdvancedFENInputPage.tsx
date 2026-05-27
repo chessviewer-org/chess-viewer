@@ -19,6 +19,7 @@ import WizardVisualSetup from './components/WizardVisualSetup';
 
 const { TABS } = ADVANCED_FEN_CONFIG;
 
+/** Batch FEN studio page with positions list, visual setup wizard, and multi-format export. */
 const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
   props: AdvancedFENInitialProps
 ): React.JSX.Element {
@@ -30,7 +31,7 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
   ];
 
   return (
-    <div className="flex flex-col bg-bg min-h-screen">
+    <div className="flex flex-col bg-bg min-h-dvh">
       <ToolPageHeader title="Advanced FEN Editor" onBack={handlers.handleBack} />
 
       <div className="shrink-0 bg-surface border-b border-border">
@@ -40,7 +41,7 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
               <button
                 key={id}
                 onClick={() => handlers.setActiveTab(id)}
-                className={`px-3 sm:px-5 py-2.5 sm:py-3 flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold transition-all border-b-2 whitespace-nowrap ${
+                className={`px-3 sm:px-5 py-2.5 sm:py-3 flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold transition-colors duration-200 border-b-2 whitespace-nowrap ${
                   state.activeTab === id
                     ? 'text-accent border-accent bg-accent/5'
                     : 'text-text-secondary hover:text-text-primary border-transparent hover:bg-surface-hover'
@@ -55,7 +56,7 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
       </div>
 
       <main className="flex-1 overflow-hidden min-h-0">
-        <div className="w-full px-[2%] sm:px-[3%] lg:px-[4%] py-8 sm:py-12">
+        <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8 py-8 sm:py-12">
           {state.activeTab === TABS.POSITIONS && (
             <PositionsTab
               fens={state.fens}
@@ -92,7 +93,7 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start max-w-7xl mx-auto w-full px-4 sm:px-0">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 items-start max-w-7xl mx-auto w-full px-4 sm:px-0">
                   <div className="lg:col-span-6 w-full bg-surface border border-border/40 rounded-2xl p-5 sm:p-6 shadow-sm min-h-125 flex flex-col">
                     <div className="flex items-center gap-2 border-b border-border/40 pb-4 mb-6">
                       <button
