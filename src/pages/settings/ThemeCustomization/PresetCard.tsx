@@ -107,13 +107,13 @@ const PresetCard = memo(function PresetCard({
         <div className="relative overflow-hidden rounded-lg">
           <div className="flex w-full h-14" aria-hidden="true">
             <div
-              className="flex-1 transition-colors duration-300"
+              className="flex-1 transition-colors duration-200"
               style={{
                 backgroundColor: preset.light
               }}
             />
             <div
-              className="flex-1 transition-colors duration-300"
+              className="flex-1 transition-colors duration-200"
               style={{
                 backgroundColor: preset.dark
               }}
@@ -126,7 +126,7 @@ const PresetCard = memo(function PresetCard({
           )}
           {!editMode && (
             <div
-              className={`absolute bottom-0 left-0 right-0 px-1.5 py-1 ${isActive ? 'bg-accent/85' : 'bg-black/55'}`}
+              className={`absolute bottom-0 left-0 right-0 px-1.5 py-1 transition-colors duration-150 ${isActive ? 'bg-accent/85' : 'bg-black/55'}`}
             >
               <span className="block text-white text-[11px] font-semibold tracking-wide text-center truncate">
                 {preset.name}
@@ -135,7 +135,7 @@ const PresetCard = memo(function PresetCard({
           )}
         </div>
         {editMode && !isWood && (
-          <div className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <div className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-in-out">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -195,7 +195,7 @@ const PresetCard = memo(function PresetCard({
         </div>
       )}
       {editMode && (
-        <div className="text-[9px] text-text-muted text-center mt-0.5 truncate px-0.5 font-medium">
+        <div className="text-[10px] text-text-muted text-center mt-0.5 truncate px-0.5 font-medium">
           {preset.name}
         </div>
       )}

@@ -56,13 +56,13 @@ const DuplicateWarningDialog = memo(function DuplicateWarningDialog({
         <div className="flex flex-col gap-2">
           <button
             onClick={onRename}
-            className="w-full py-2.5 px-4 rounded-lg bg-accent hover:bg-accent-hover text-bg text-sm font-semibold transition-all"
+            className="w-full py-2.5 px-4 rounded-lg bg-accent hover:bg-accent-hover text-bg text-sm font-semibold transition-colors duration-200"
           >
             Keep Both (Rename)
           </button>
           <button
             onClick={onMerge}
-            className="w-full py-2.5 px-4 rounded-lg bg-surface-elevated hover:bg-surface-hover border border-border text-text-secondary text-sm font-semibold transition-all"
+            className="w-full py-2.5 px-4 rounded-lg bg-surface-elevated hover:bg-surface-hover border border-border text-text-secondary text-sm font-semibold transition-colors duration-200"
           >
             Merge into Existing
           </button>

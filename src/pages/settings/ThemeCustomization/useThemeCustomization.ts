@@ -1,11 +1,15 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-
-import { MAX_TOTAL_PRESETS, STORAGE_KEYS, WOOD_PRESET } from '@constants';
-import { loadPresets, readSquare, savePresets } from '@utils';
+import { useCallback, useEffect, useState } from 'react';
+import { MAX_TOTAL_PRESETS, WOOD_PRESET } from '@constants';
 import type { BoardPreset } from '@/shared/types';
+import { usePresetColors } from './hooks/usePresetColors';
+import { usePresetDnd } from './hooks/usePresetDnd';
+import {
+  PAGE_SIZE,
+  TOTAL_PRESET_PAGES,
+  usePresetPagination
+} from './hooks/usePresetPagination';
 
-export const PAGE_SIZE = 40;
-export const TOTAL_PRESET_PAGES = 2;
+export { PAGE_SIZE, TOTAL_PRESET_PAGES };
 
 export interface ThemeEditControls {
   editMode: boolean;
@@ -27,53 +31,37 @@ interface UseThemeCustomizationOptions {
 export function useThemeCustomization({
   onEditControlsChange
 }: UseThemeCustomizationOptions) {
-  const [savedLight, setSavedLight] = useState<string>(() =>
-    readSquare(STORAGE_KEYS.LIGHT_SQUARE, '#f0d9b5')
-  );
-  const [savedDark, setSavedDark] = useState<string>(() =>
-    readSquare(STORAGE_KEYS.DARK_SQUARE, '#b58863')
-  );
-  const [previewLight, setPreviewLight] = useState<string>(savedLight);
-  const [previewDark, setPreviewDark] = useState<string>(savedDark);
-  const [presets, setPresets] = useState<BoardPreset[]>(loadPresets);
+  const {
+    savedLight,
+    savedDark,
+    previewLight,
+    previewDark,
+    setPreviewLight,
+    setPreviewDark,
+    presets,
+    setPresets,
+    persist,
+    restoreSaved
+  } = usePresetColors();
+
+  const {
+    visiblePresets,
+    presetPages,
+    hasSecondPresetPage,
+    currentPresetPage,
+    setPresetPage
+  } = usePresetPagination(presets);
+
+  const dnd = usePresetDnd({ setPresets });
+
   const [presetsBackup, setPresetsBackup] = useState<BoardPreset[] | null>(null);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [editingPresetId, setEditingPresetId] = useState<string | null>(null);
-  const [draggedPreset, setDraggedPreset] = useState<BoardPreset | null>(null);
-  const [dragOverId, setDragOverId] = useState<string | null>(null);
   const [duplicateCheck, setDuplicateCheck] = useState<DuplicateCheck | null>(null);
   const [isAddingNew, setIsAddingNew] = useState<boolean>(false);
   const [activePanelTab, setActivePanelTab] = useState<'main' | 'custom'>('main');
-  const [presetPage, setPresetPage] = useState<number>(0);
   const [draftPresetName, setDraftPresetName] = useState<string>('');
 
-  const sortedPresets = useMemo(() => {
-    const defaults = presets.filter((p) => p.isDefault);
-    const customs = presets.filter((p) => !p.isDefault);
-    return [...defaults, ...customs];
-  }, [presets]);
-
-  const visiblePresets = useMemo(
-    () => sortedPresets.slice(0, MAX_TOTAL_PRESETS),
-    [sortedPresets]
-  );
-
-  const presetPages = useMemo(
-    () => [
-      {
-        id: 'page-1',
-        items: visiblePresets.slice(0, PAGE_SIZE)
-      },
-      {
-        id: 'page-2',
-        items: visiblePresets.slice(PAGE_SIZE, PAGE_SIZE * 2)
-      }
-    ],
-    [visiblePresets]
-  );
-
-  const hasSecondPresetPage = (presetPages[1]?.items.length ?? 0) > 0;
-  const currentPresetPage = hasSecondPresetPage ? presetPage : 0;
   const hasChanges = previewLight !== savedLight || previewDark !== savedDark;
   const canAddPreset = visiblePresets.length < MAX_TOTAL_PRESETS;
   const customPresetCount = visiblePresets.filter((p) => !p.isDefault).length;
@@ -92,268 +80,168 @@ export function useThemeCustomization({
     [presets]
   );
 
-  const handleEnableEditMode = useCallback(
-    function handleEnableEditMode() {
-      setPresetsBackup(structuredClone(presets));
-      setEditMode(true);
-      setEditingPresetId(null);
-      setIsAddingNew(false);
-      setDraftPresetName('');
-      setActivePanelTab('main');
-    },
-    [presets]
-  );
+  const resetUiState = useCallback(() => {
+    setEditingPresetId(null);
+    setIsAddingNew(false);
+    setDraftPresetName('');
+    setActivePanelTab('main');
+  }, []);
 
-  const handleCancelEditMode = useCallback(
-    function handleCancelEditMode() {
-      if (presetsBackup) setPresets(presetsBackup);
-      setPresetsBackup(null);
-      setEditMode(false);
-      setEditingPresetId(null);
-      setIsAddingNew(false);
-      setDraftPresetName('');
-      setActivePanelTab('main');
-      setPreviewLight(savedLight);
-      setPreviewDark(savedDark);
-    },
-    [presetsBackup, savedLight, savedDark]
-  );
+  const handleEnableEditMode = useCallback(() => {
+    setPresetsBackup(structuredClone(presets));
+    setEditMode(true);
+    resetUiState();
+  }, [presets, resetUiState]);
 
-  const handleApplyChanges = useCallback(
-    function handleApplyChanges() {
-      savePresets(presets);
-      localStorage.setItem(STORAGE_KEYS.LIGHT_SQUARE, previewLight);
-      localStorage.setItem(STORAGE_KEYS.DARK_SQUARE, previewDark);
-      setSavedLight(previewLight);
-      setSavedDark(previewDark);
-      setPresetsBackup(null);
-      setEditMode(false);
-      setEditingPresetId(null);
-      setIsAddingNew(false);
-      setDraftPresetName('');
-      setActivePanelTab('main');
-      window.dispatchEvent(new Event('storage'));
-    },
-    [presets, previewLight, previewDark]
-  );
+  const handleCancelEditMode = useCallback(() => {
+    if (presetsBackup) setPresets(presetsBackup);
+    setPresetsBackup(null);
+    setEditMode(false);
+    resetUiState();
+    restoreSaved();
+  }, [presetsBackup, restoreSaved, resetUiState, setPresets]);
+
+  const handleApplyChanges = useCallback(() => {
+    persist(presets, previewLight, previewDark);
+    setPresetsBackup(null);
+    setEditMode(false);
+    resetUiState();
+  }, [presets, previewLight, previewDark, persist, resetUiState]);
 
   const handlePresetClick = useCallback(
-    function handlePresetClick(preset: BoardPreset) {
+    (preset: BoardPreset) => {
       if (editMode) return;
       setPreviewLight(preset.light);
       setPreviewDark(preset.dark);
     },
-    [editMode]
+    [editMode, setPreviewLight, setPreviewDark]
   );
 
-  const handleSave = useCallback(
-    function handleSave() {
-      localStorage.setItem(STORAGE_KEYS.LIGHT_SQUARE, previewLight);
-      localStorage.setItem(STORAGE_KEYS.DARK_SQUARE, previewDark);
-      savePresets(presets);
-      setSavedLight(previewLight);
-      setSavedDark(previewDark);
-      window.dispatchEvent(new Event('storage'));
+  const handleSave = useCallback(() => {
+    persist(presets, previewLight, previewDark);
+  }, [presets, previewLight, previewDark, persist]);
+
+  const handleCustomColorChange = useCallback(
+    (light: string, dark: string) => {
+      setPreviewLight(light);
+      setPreviewDark(dark);
     },
-    [previewLight, previewDark, presets]
+    [setPreviewLight, setPreviewDark]
   );
-
-  const handleCustomColorChange = useCallback(function handleCustomColorChange(
-    light: string,
-    dark: string
-  ) {
-    setPreviewLight(light);
-    setPreviewDark(dark);
-  }, []);
 
   const handleEditColorChange = useCallback(
-    function handleEditColorChange(light: string, dark: string) {
+    (light: string, dark: string) => {
       setPreviewLight(light);
       setPreviewDark(dark);
       if (editingPresetId !== null) {
         setPresets((prev) =>
           prev.map((preset) =>
-            preset.id === editingPresetId
-              ? {
-                  ...preset,
-                  light,
-                  dark
-                }
-              : preset
+            preset.id === editingPresetId ? { ...preset, light, dark } : preset
           )
         );
       }
     },
-    [editingPresetId]
+    [editingPresetId, setPresets, setPreviewLight, setPreviewDark]
   );
 
-  const handleEditPreset = useCallback(function handleEditPreset(preset: BoardPreset) {
-    setEditingPresetId(preset.id);
-    setPreviewLight(preset.light);
-    setPreviewDark(preset.dark);
-    setDraftPresetName(preset.name);
-    setIsAddingNew(false);
-    setActivePanelTab('custom');
-  }, []);
-
-  const handleDeletePreset = useCallback(
-    function handleDeletePreset(id: string) {
-      if (id === WOOD_PRESET.id) return;
-      setPresets((prev) => prev.filter((preset) => preset.id !== id));
-      if (editingPresetId === id) {
-        setEditingPresetId(null);
-        setIsAddingNew(false);
-        setDraftPresetName('');
-        setActivePanelTab('main');
-      }
-    },
-    [editingPresetId]
-  );
-
-  const handleRenamePreset = useCallback(function handleRenamePreset(
-    id: string,
-    newName: string
-  ) {
-    const trimmedName = newName.trim();
-    setPresets((prev) =>
-      prev.map((preset) =>
-        preset.id === id
-          ? {
-              ...preset,
-              name: trimmedName || preset.name
-            }
-          : preset
-      )
-    );
-  }, []);
-
-  const handleAddPreset = useCallback(
-    function handleAddPreset() {
-      if (!canAddPreset) return;
-      const nextCustomIndex = getNextCustomIndex();
-      setEditingPresetId(null);
-      setIsAddingNew(true);
-      setDraftPresetName(`Custom ${nextCustomIndex}`);
-      setPreviewLight('#e8d5b5');
-      setPreviewDark('#a0784c');
+  const handleEditPreset = useCallback(
+    (preset: BoardPreset) => {
+      setEditingPresetId(preset.id);
+      setPreviewLight(preset.light);
+      setPreviewDark(preset.dark);
+      setDraftPresetName(preset.name);
+      setIsAddingNew(false);
       setActivePanelTab('custom');
     },
-    [canAddPreset, getNextCustomIndex]
+    [setPreviewLight, setPreviewDark]
   );
 
-  const handleConfirmAdd = useCallback(
-    function handleConfirmAdd() {
-      const duplicate = presets.find(
-        (preset) =>
-          preset.light.toLowerCase() === previewLight.toLowerCase() &&
-          preset.dark.toLowerCase() === previewDark.toLowerCase()
+  const handleDeletePreset = useCallback(
+    (id: string) => {
+      if (id === WOOD_PRESET.id) return;
+      setPresets((prev) => prev.filter((preset) => preset.id !== id));
+      if (editingPresetId === id) resetUiState();
+    },
+    [editingPresetId, setPresets, resetUiState]
+  );
+
+  const handleRenamePreset = useCallback(
+    (id: string, newName: string) => {
+      const trimmed = newName.trim();
+      setPresets((prev) =>
+        prev.map((preset) =>
+          preset.id === id ? { ...preset, name: trimmed || preset.name } : preset
+        )
       );
+    },
+    [setPresets]
+  );
 
-      if (duplicate) {
-        setDuplicateCheck({
-          light: previewLight,
-          dark: previewDark,
-          existingId: duplicate.id
-        });
-        return;
-      }
+  const handleAddPreset = useCallback(() => {
+    if (!canAddPreset) return;
+    const nextCustomIndex = getNextCustomIndex();
+    setEditingPresetId(null);
+    setIsAddingNew(true);
+    setDraftPresetName(`Custom ${nextCustomIndex}`);
+    setPreviewLight('#e8d5b5');
+    setPreviewDark('#a0784c');
+    setActivePanelTab('custom');
+  }, [canAddPreset, getNextCustomIndex, setPreviewLight, setPreviewDark]);
 
+  const appendPreset = useCallback(
+    (name: string) => {
       const nextCustomIndex = getNextCustomIndex();
-      const nextName = draftPresetName.trim() || `Custom ${nextCustomIndex}`;
-
       const newPreset: BoardPreset = {
         id: `custom-${nextCustomIndex}`,
-        name: nextName,
+        name: name.trim() || `Custom ${nextCustomIndex}`,
         light: previewLight,
         dark: previewDark,
         isDefault: false,
         isDeletable: true
       };
-
       setPresets((prev) => [...prev, newPreset]);
-      setIsAddingNew(false);
-      setDraftPresetName('');
-      setActivePanelTab('main');
       const nextCount = Math.min(presets.length + 1, MAX_TOTAL_PRESETS);
       setPresetPage(nextCount > PAGE_SIZE ? 1 : 0);
     },
-    [presets, previewLight, previewDark, draftPresetName, getNextCustomIndex]
+    [presets, previewLight, previewDark, getNextCustomIndex, setPresets, setPresetPage]
   );
 
-  const handleDuplicateRename = useCallback(
-    function handleDuplicateRename() {
-      const nextCustomIndex = getNextCustomIndex();
-      const nextName = draftPresetName.trim() || `Custom ${nextCustomIndex}`;
-
-      const newPreset: BoardPreset = {
-        id: `custom-${nextCustomIndex}`,
-        name: nextName,
+  const handleConfirmAdd = useCallback(() => {
+    const duplicate = presets.find(
+      (preset) =>
+        preset.light.toLowerCase() === previewLight.toLowerCase() &&
+        preset.dark.toLowerCase() === previewDark.toLowerCase()
+    );
+    if (duplicate) {
+      setDuplicateCheck({
         light: previewLight,
         dark: previewDark,
-        isDefault: false,
-        isDeletable: true
-      };
+        existingId: duplicate.id
+      });
+      return;
+    }
+    appendPreset(draftPresetName);
+    setIsAddingNew(false);
+    setDraftPresetName('');
+    setActivePanelTab('main');
+  }, [presets, previewLight, previewDark, draftPresetName, appendPreset]);
 
-      setPresets((prev) => [...prev, newPreset]);
-      setDuplicateCheck(null);
-      setIsAddingNew(false);
-      setDraftPresetName('');
-      setActivePanelTab('main');
-      const nextCount = Math.min(presets.length + 1, MAX_TOTAL_PRESETS);
-      setPresetPage(nextCount > PAGE_SIZE ? 1 : 0);
-    },
-    [presets, previewLight, previewDark, draftPresetName, getNextCustomIndex]
-  );
+  const handleDuplicateRename = useCallback(() => {
+    appendPreset(draftPresetName);
+    setDuplicateCheck(null);
+    setIsAddingNew(false);
+    setDraftPresetName('');
+    setActivePanelTab('main');
+  }, [draftPresetName, appendPreset]);
 
-  const handleDuplicateMerge = useCallback(function handleDuplicateMerge() {
+  const handleDuplicateMerge = useCallback(() => {
     setDuplicateCheck(null);
     setIsAddingNew(false);
     setDraftPresetName('');
     setActivePanelTab('main');
   }, []);
 
-  const handleDuplicateCancel = useCallback(function handleDuplicateCancel() {
-    setDuplicateCheck(null);
-  }, []);
-
-  const handleDragStart = useCallback(function handleDragStart(_event: React.DragEvent, preset: BoardPreset) {
-    setDraggedPreset(preset);
-  }, []);
-
-  const handleDragOver = useCallback(function handleDragOver(event: React.DragEvent, preset: BoardPreset) {
-    event.preventDefault();
-    setDragOverId(preset.id);
-  }, []);
-
-  const handleDragEnd = useCallback(function handleDragEnd() {
-    setDraggedPreset(null);
-    setDragOverId(null);
-  }, []);
-
-  const handleDrop = useCallback(
-    function handleDrop(_event: React.DragEvent, targetPreset: BoardPreset) {
-      if (!draggedPreset || draggedPreset.id === targetPreset.id) return;
-
-      setPresets((prev) => {
-        const nextPresets = [...prev];
-        const dragIndex = nextPresets.findIndex(
-          (preset) => preset.id === draggedPreset.id
-        );
-        const targetIndex = nextPresets.findIndex(
-          (preset) => preset.id === targetPreset.id
-        );
-
-        if (dragIndex === -1 || targetIndex === -1) return prev;
-        const [removed] = nextPresets.splice(dragIndex, 1);
-        nextPresets.splice(targetIndex, 0, removed!);
-        return nextPresets;
-      });
-
-      setDraggedPreset(null);
-      setDragOverId(null);
-    },
-    [draggedPreset]
-  );
+  const handleDuplicateCancel = useCallback(() => setDuplicateCheck(null), []);
 
   const handleChangePanelTab = useCallback(
     (tabId: 'main' | 'custom') => {
@@ -384,24 +272,12 @@ export function useThemeCustomization({
     handleRenamePreset
   ]);
 
-  const handleCustomDoneClick = useCallback(() => {
-    setIsAddingNew(false);
-    setEditingPresetId(null);
-    setDraftPresetName('');
-    setActivePanelTab('main');
-  }, []);
-
-  useEffect(() => {
-    if (!hasSecondPresetPage && presetPage !== 0) {
-      setPresetPage(0);
-    }
-  }, [hasSecondPresetPage, presetPage]);
+  const handleCustomDoneClick = useCallback(() => resetUiState(), [resetUiState]);
 
   useEffect(() => {
     function handleEscapeKey(event: KeyboardEvent) {
       if (event.key === 'Escape' && editMode) handleCancelEditMode();
     }
-
     window.addEventListener('keydown', handleEscapeKey);
     return () => window.removeEventListener('keydown', handleEscapeKey);
   }, [editMode, handleCancelEditMode]);
@@ -445,7 +321,7 @@ export function useThemeCustomization({
     isAddingNew,
     activePanelTab,
     duplicateCheck,
-    dragOverId,
+    dragOverId: dnd.dragOverId,
     draftPresetName,
     setDraftPresetName,
     setPresetPage,
@@ -461,10 +337,10 @@ export function useThemeCustomization({
     handleDuplicateRename,
     handleDuplicateMerge,
     handleDuplicateCancel,
-    handleDragStart,
-    handleDragOver,
-    handleDragEnd,
-    handleDrop,
+    handleDragStart: dnd.handleDragStart,
+    handleDragOver: dnd.handleDragOver,
+    handleDragEnd: dnd.handleDragEnd,
+    handleDrop: dnd.handleDrop,
     handleChangePanelTab,
     handlePresetNameCommit,
     handleCustomDoneClick

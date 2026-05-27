@@ -64,13 +64,13 @@ const DataManagement = memo(function DataManagement() {
       return;
     }
     STORAGE_KEYS.forEach((key) => {
-      if (Object.prototype.hasOwnProperty.call(data, key)) {
-        const value = data[key];
-        localStorage.setItem(
-          key,
-          typeof value === 'string' ? value : JSON.stringify(value)
-        );
-      }
+      if (!Object.prototype.hasOwnProperty.call(data, key)) return;
+      const raw = data[key];
+      if (typeof raw !== 'string') return;
+      if (raw.length > 1_000_000) return;
+      const reparsed = safeJSONParse<unknown>(raw, null);
+      const safeValue = reparsed === null ? raw : JSON.stringify(reparsed);
+      localStorage.setItem(key, safeValue);
     });
     setMessage('Data imported. Refresh the page to see all changes.');
     event.target.value = '';
