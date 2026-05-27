@@ -29,9 +29,9 @@ export interface UseInteractiveBoardResult {
 /**
  * Manages an interactive chess board with drag-and-drop piece editing.
  *
- * @param {string} initialFen - Starting FEN position
- * @param {function(string): void} [onFenChange] - Called whenever the position changes
- * @returns {UseInteractiveBoardResult} Board state and action handlers
+ * @param initialFen - Starting FEN position
+ * @param onFenChange - Optional callback fired with the updated FEN whenever the position changes
+ * @returns Board state and action handlers
  */
 export function useInteractiveBoard(
   initialFen: string,
@@ -86,9 +86,8 @@ export function useInteractiveBoard(
       const parsedBoard = parseFEN(fen);
       if (isChessBoard(parsedBoard)) {
         setBoard((prevBoard) => {
-          // Deep equality check using FEN representation
           if (boardToFEN(prevBoard) === boardToFEN(parsedBoard)) {
-            return prevBoard; // Break the cycle
+            return prevBoard;
           }
           return parsedBoard;
         });
@@ -121,7 +120,6 @@ export function useInteractiveBoard(
             targetRow[toCol] = piece;
           }
         }
-        // Trigger external notification immediately using the newly calculated state
         notifyFenChange(newBoard);
         return newBoard;
       });

@@ -22,6 +22,7 @@ import { useArchiveManager } from './fenHistory/useArchiveManager';
 import { useHistoryDragDebounce } from './fenHistory/useHistoryDragDebounce';
 import { useHistoryHydration } from './fenHistory/useHistoryHydration';
 
+/** Return type of `useFENHistory` — exposes filtered views, mutation actions, and archive management. */
 export interface UseFENHistoryResult {
   fenHistory: ActiveHistoryEntry[];
   rawHistory: ActiveHistoryEntry[];
@@ -50,6 +51,16 @@ export interface UseFENHistoryResult {
   ) => FreshnessStatus;
 }
 
+/**
+ * Manages the FEN position history, including favorites, archival, and filtering.
+ *
+ * Persists the active list to `localStorage` and syncs bidirectionally with
+ * Supabase when a user is authenticated.
+ *
+ * @param fen - The currently displayed FEN position
+ * @param onFavoriteStatusChange - Optional callback fired when the current FEN's favorite status changes
+ * @returns History state and all mutation/query actions
+ */
 export function useFENHistory(
   fen: string,
   onFavoriteStatusChange?: (isFavorite: boolean) => void

@@ -29,12 +29,6 @@ export function useLocalStorage<T>(key: string, initialValue: T): [T, React.Disp
     }
   });
 
-  /** 
-   * Internal helper to write the value to localStorage with a delay. 
-   * 
-   * @param storageKey - The key to write to
-   * @param value - The value to store
-   */
   const debouncedWrite = useCallback((storageKey: string, value: T): void => {
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
@@ -77,11 +71,6 @@ export function useLocalStorage<T>(key: string, initialValue: T): [T, React.Disp
     };
   }, [key]);
 
-  /** 
-   * Updates the stored value and schedules a write to localStorage. 
-   * 
-   * @param value - New value or a function that produces the new value
-   */
   const setValue = useCallback(
     (value: T | ((val: T) => T)) => {
       try {

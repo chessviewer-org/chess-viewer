@@ -3,6 +3,7 @@ import type { HistorySource } from '@app-types/history';
 
 const DRAG_INACTIVITY_TIMEOUT = 60000;
 
+/** Arguments for `useHistoryDragDebounce`. */
 interface UseHistoryDragDebounceArgs {
   commitToHistory: (
     fenToSave: string,
@@ -12,6 +13,12 @@ interface UseHistoryDragDebounceArgs {
   latestFenRef: React.MutableRefObject<string>;
 }
 
+/**
+ * Debounces drag-originated FEN history commits.
+ *
+ * A single history entry is committed per drag session after 60 seconds of
+ * inactivity; consecutive drag moves within that window are collapsed.
+ */
 export function useHistoryDragDebounce({
   commitToHistory,
   latestFenRef

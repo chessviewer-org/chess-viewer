@@ -37,32 +37,26 @@ export function useDebouncedFENValidation(
     return trimmed.length > 0 && validateFEN(trimmed);
   });
 
-  // Refs keep timer IDs across renders without causing re-renders
   const validationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const boardSyncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onValidFenRef = useRef(onValidFen);
 
-  // Always point at the latest callback without invalidating the effect
   useEffect(() => {
     onValidFenRef.current = onValidFen;
   }, [onValidFen]);
 
-  // Core debounce effect — runs on every keystroke
   useEffect(() => {
-    // Cancel any pending timers from the previous keystroke
     if (validationTimerRef.current) clearTimeout(validationTimerRef.current);
     if (boardSyncTimerRef.current) clearTimeout(boardSyncTimerRef.current);
 
     const trimmed = localFen.trim();
 
-    // Empty input → reset everything silently
     if (trimmed.length === 0) {
       setDebouncedError(null);
       setIsValid(false);
       return;
     }
 
-    // --- Validation debounce (500 ms) ---
     validationTimerRef.current = setTimeout(() => {
       const result = validateFENDetailed(trimmed);
 
@@ -70,20 +64,17 @@ export function useDebouncedFENValidation(
         setDebouncedError(null);
         setIsValid(true);
       } else {
-        // Show only the first error — the user fixes one thing at a time
         setDebouncedError(result.errorMessage);
         setIsValid(false);
       }
     }, VALIDATION_DELAY_MS);
 
-    // --- Board sync debounce (200 ms) — only if valid ---
     boardSyncTimerRef.current = setTimeout(() => {
       if (validateFEN(trimmed)) {
         onValidFenRef.current(trimmed);
       }
     }, BOARD_SYNC_DELAY_MS);
 
-    // Cleanup on unmount or next keystroke
     return () => {
       if (validationTimerRef.current) clearTimeout(validationTimerRef.current);
       if (boardSyncTimerRef.current) clearTimeout(boardSyncTimerRef.current);

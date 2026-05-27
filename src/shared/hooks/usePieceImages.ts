@@ -4,6 +4,14 @@ import { PIECE_MAP } from '@constants';
 import { logger } from '@utils/logger';
 import { preloadPieceStyle, setCachedPieces } from '@utils/pieceImageCache';
 
+/**
+ * Loads and caches all piece images for the given piece style.
+ *
+ * Cancels any in-flight load when the style changes to prevent stale updates.
+ *
+ * @param pieceStyle - Piece style identifier (e.g. `'cburnett'`, `'merida'`)
+ * @returns Loaded image map, loading state, error message, and granular progress (0–100)
+ */
 export function usePieceImages(pieceStyle: string): {
   pieceImages: Record<string, HTMLImageElement>;
   isLoading: boolean;
@@ -87,6 +95,13 @@ export function usePieceImages(pieceStyle: string): {
   );
 }
 
+/**
+ * Creates a 100×100 canvas placeholder image labelled with the piece name,
+ * used when the real SVG fails to load.
+ *
+ * @param pieceName - Piece key used as the label (e.g. `'wP'`)
+ * @returns An `HTMLImageElement` with a data-URL src
+ */
 function createPlaceholderImage(pieceName: string): HTMLImageElement {
   logger.log('Creating placeholder for:', pieceName);
   const canvas = document.createElement('canvas');

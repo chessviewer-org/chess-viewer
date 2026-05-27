@@ -5,6 +5,15 @@ import type { ActiveHistoryEntry } from '@app-types/history';
 
 import { persistHistory } from './persistHistory';
 
+/**
+ * Hydrates the FEN history from Supabase (preferred) or `localStorage` on mount,
+ * and schedules debounced persistence on every subsequent history change.
+ *
+ * @param fenHistory - Current history list (used to trigger persistence)
+ * @param setFenHistory - Setter to populate history after hydration
+ * @param isMountedRef - Guard ref to prevent state updates after unmount
+ * @returns `isHydrated` flag — `true` once the initial load has completed
+ */
 export function useHistoryHydration(
   fenHistory: ActiveHistoryEntry[],
   setFenHistory: React.Dispatch<React.SetStateAction<ActiveHistoryEntry[]>>,
@@ -22,7 +31,7 @@ export function useHistoryHydration(
           if (cloud?.value)
             data = safeJSONParse<ActiveHistoryEntry[]>(cloud.value, []);
         } catch {
-          // Cloud failure is handled silently, fallback to local
+          // Cloud unavailable — silently fall through to local storage
         }
 
         if (!data) {

@@ -22,14 +22,12 @@ export function useOutsideClick(
   useEffect(() => {
     if (!enabled) return;
 
-    /** Internal click outside handler. */
     const handleClickOutside = (event: MouseEvent | TouchEvent): void => {
       if (ref.current && !ref.current.contains(event.target as Node)) {
         handlerRef.current(event as unknown as MouseEvent);
       }
     };
 
-    /** Internal Escape key handler. */
     const handleEscape = (event: KeyboardEvent): void => {
       if (event.key === 'Escape') {
         handlerRef.current(event);

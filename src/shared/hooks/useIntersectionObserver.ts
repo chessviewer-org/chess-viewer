@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 
+/** Configuration for `useIntersectionObserver`. */
 interface IntersectionObserverOptions {
   threshold?: number;
   rootMargin?: string;
 }
 
 /**
- * Observes an element and returns whether it is visible in the viewport.
+ * Observes an element and returns whether it is currently visible in the viewport.
  *
- * @param {IntersectionObserverOptions} [options={}]
- * @returns {{ ref: React.RefObject<T | null>, isVisible: boolean }}
+ * @param options - Threshold and root margin for the `IntersectionObserver`
+ * @returns A ref to attach to the target element and a boolean visibility flag
  */
 export function useIntersectionObserver<T extends HTMLElement>({
   threshold = 0.1,

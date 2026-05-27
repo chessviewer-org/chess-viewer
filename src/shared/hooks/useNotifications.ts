@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+/** A single in-app notification message. */
 export interface Notification {
   id: number;
   message: string;
@@ -25,11 +26,6 @@ export function useNotifications() {
     };
   }, []);
 
-  /** 
-   * Removes a specific notification by its ID and clears its auto-dismiss timer. 
-   * 
-   * @param id - The unique ID of the notification
-   */
   const removeNotification = useCallback((id: number): void => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
     const timeout = timeoutRefs.current[id];
@@ -39,13 +35,6 @@ export function useNotifications() {
     }
   }, []);
 
-  /** 
-   * Internal helper to add a notification to the stack. 
-   * 
-   * @param message - Text to display
-   * @param type - Severity level
-   * @param duration - Auto-dismiss delay in ms
-   */
   const addNotification = useCallback(
     (message: string, type: Notification['type'] = 'info', duration = 5000): void => {
       setNotifications([]);
@@ -69,12 +58,6 @@ export function useNotifications() {
     [removeNotification]
   );
 
-  /** 
-   * Shows a success notification. 
-   * 
-   * @param message - Text to display
-   * @param duration - Auto-dismiss delay in ms
-   */
   const success = useCallback(
     (message: string, duration = 5000): void => {
       addNotification(message, 'success', duration);
@@ -82,12 +65,6 @@ export function useNotifications() {
     [addNotification]
   );
 
-  /** 
-   * Shows an error notification. 
-   * 
-   * @param message - Text to display
-   * @param duration - Auto-dismiss delay in ms
-   */
   const error = useCallback(
     (message: string, duration = 5000): void => {
       addNotification(message, 'error', duration);
@@ -95,12 +72,6 @@ export function useNotifications() {
     [addNotification]
   );
 
-  /** 
-   * Shows an informational notification. 
-   * 
-   * @param message - Text to display
-   * @param duration - Auto-dismiss delay in ms
-   */
   const info = useCallback(
     (message: string, duration = 5000): void => {
       addNotification(message, 'info', duration);
@@ -108,12 +79,6 @@ export function useNotifications() {
     [addNotification]
   );
 
-  /** 
-   * Shows a warning notification. 
-   * 
-   * @param message - Text to display
-   * @param duration - Auto-dismiss delay in ms
-   */
   const warning = useCallback(
     (message: string, duration = 5000): void => {
       addNotification(message, 'warning', duration);

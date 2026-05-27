@@ -12,10 +12,16 @@ import type {
   ArchivedHistoryEntry
 } from '@app-types/history';
 
+/** Arguments for `useArchiveManager`. */
 interface UseArchiveManagerArgs {
   setFenHistory: React.Dispatch<React.SetStateAction<ActiveHistoryEntry[]>>;
 }
 
+/**
+ * Manages the FEN archive — loading, reactivating, deleting, and clearing archived entries.
+ *
+ * @param args - Requires `setFenHistory` to restore entries to the active list on reactivation
+ */
 export function useArchiveManager({ setFenHistory }: UseArchiveManagerArgs) {
   const [archive, setArchive] = useState<ArchivedHistoryEntry[]>([]);
   const [isLoadingArchive, setIsLoadingArchive] = useState(false);
