@@ -68,7 +68,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'signin' }: AuthModalP
         className="relative w-full max-w-md sm:max-w-lg max-h-[90vh] flex flex-col rounded-2xl border border-border bg-bg shadow-2xl overflow-hidden"
       >
         {/* Header — fixed height */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-bg shrink-0">
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-border bg-bg shrink-0">
           <h2 className="text-xl font-bold font-display text-text-primary">
             {activeTab === 'signin' && 'Welcome Back'}
             {activeTab === 'signup' && 'Create Account'}
@@ -77,7 +77,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'signin' }: AuthModalP
           </h2>
           <button 
             onClick={onClose}
-            className="p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors focus:outline-none focus:ring-2 focus:ring-accent"
+            className="p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
@@ -90,13 +90,13 @@ export function AuthModal({ isOpen, onClose, initialTab = 'signin' }: AuthModalP
             <>
               <div className="flex gap-2 mb-5 bg-surface-elevated p-1.5 rounded-xl border border-border">
                 <button 
-                  className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${activeTab === 'signin' ? 'bg-bg text-text-primary shadow-sm ring-1 ring-border' : 'text-text-secondary hover:text-text-primary'}`}
+                  className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${activeTab === 'signin' ? 'bg-bg text-text-primary shadow-sm ring-1 ring-border' : 'text-text-secondary hover:text-text-primary'}`}
                   onClick={() => setActiveTab('signin')}
                 >
                   Sign In
                 </button>
                 <button 
-                  className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${activeTab === 'signup' ? 'bg-bg text-text-primary shadow-sm ring-1 ring-border' : 'text-text-secondary hover:text-text-primary'}`}
+                  className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${activeTab === 'signup' ? 'bg-bg text-text-primary shadow-sm ring-1 ring-border' : 'text-text-secondary hover:text-text-primary'}`}
                   onClick={() => setActiveTab('signup')}
                 >
                   Sign Up

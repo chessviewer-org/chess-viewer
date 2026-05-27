@@ -43,7 +43,7 @@ export function useSupabaseSync() {
               .single<UserDataValueRow>();
               
             if (error) {
-              if (error.code === 'PGRST116') return null; // Not found
+              if (error.code === 'PGRST116') return null;
               throw error;
             }
             return { value: data?.value ?? '' };

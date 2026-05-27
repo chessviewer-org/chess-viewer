@@ -23,7 +23,6 @@ export const dataMigration = {
       for (const key of keysToMigrate) {
         const localData = localStorage.getItem(key);
         if (localData) {
-          // Check if cloud already has data to avoid overwriting newer cloud data with old local data
           const cloudData = await syncStorage.get(key);
           
           if (!cloudData) {

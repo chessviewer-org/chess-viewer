@@ -5,8 +5,7 @@ import { supabase } from '../services/supabaseClient';
 import { dataMigration } from '../services/dataMigration';
 import { logger } from '@utils/logger';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
+/** Shape of the value provided by `AuthContext`. */
 export interface AuthContextValue {
   /** Current Supabase session (null for guests). */
   session: Session | null;
@@ -20,12 +19,14 @@ export interface AuthContextValue {
   signOut: () => Promise<void>;
 }
 
-// ─── Context ──────────────────────────────────────────────────────────────────
-
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-// ─── Provider ─────────────────────────────────────────────────────────────────
-
+/**
+ * Resolves the initial Supabase session, subscribes to auth state changes,
+ * and triggers the `localStorage → Supabase` data migration on first login.
+ *
+ * Wrap the application root with this provider before any component calls `useAuth`.
+ */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -35,7 +36,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let subscription: { unsubscribe: () => void } | null = null;
 
     async function init() {
-      // 1. Resolve initial session first — subscriber attaches only after this settles.
       try {
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         if (!cancelled) setSession(currentSession);
@@ -47,7 +47,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (cancelled) return;
 
-      // 2. Subscribe only after initial state is committed.
       const { data } = supabase.auth.onAuthStateChange((_event, newSession) => {
         if (cancelled) return;
         setSession(newSession);
@@ -95,12 +94,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
-
 /**
- * Access the global auth context.
- * Must be used inside `<AuthProvider>`.
+ * Provides the current auth session, user, loading state, and `signOut` action.
+ *
+ * @throws If used outside of `<AuthProvider>`
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
   if (!ctx) {

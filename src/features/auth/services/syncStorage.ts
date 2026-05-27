@@ -12,9 +12,10 @@ interface UserDataValueRow {
 
 const isTableMissingError = (err: unknown) => err && typeof err === 'object' && 'code' in err && (err as { code: string }).code === '42P01';
 
+const MAX_USER_DATA_VALUE_LENGTH = 10_000;
+
 let currentUser: User | null = null;
 
-// Initialize and listen to auth changes
 supabase.auth.getUser().then(({ data: { user } }) => {
   currentUser = user;
 });
@@ -24,12 +25,20 @@ supabase.auth.onAuthStateChange((_event, session) => {
 });
 
 /**
- * Gets the local encryption key. If not set, returns null (E2EE disabled).
+ * Retrieves the E2EE encryption key from localStorage.
+ *
+ * @returns The passphrase used for AES-GCM encryption, or `null` if E2EE is not configured
  */
 function getEncryptionKey(): string | null {
   return localStorage.getItem(ENCRYPTION_KEY_STORAGE);
 }
 
+/**
+ * Key-value store backed by the `user_data` Supabase table with transparent E2EE.
+ *
+ * Values are encrypted with AES-GCM before upload when a `cv_privacy_key` is present in
+ * `localStorage`. Falls back to a no-op when no authenticated user session is active.
+ */
 export const syncStorage = {
   get: async (key: string): Promise<{ value: string } | null> => {
     if (!currentUser) return null;
@@ -76,6 +85,14 @@ export const syncStorage = {
       if (encryptionKey) {
         const encrypted = await crypto.encrypt(value, encryptionKey);
         valueToStore = `enc:${encrypted}`;
+      }
+
+      if (valueToStore.length > MAX_USER_DATA_VALUE_LENGTH) {
+        logger.warn('syncStorage.set rejected: value exceeds server cap', {
+          key,
+          length: valueToStore.length,
+        });
+        return;
       }
 
       const { error } = await supabase

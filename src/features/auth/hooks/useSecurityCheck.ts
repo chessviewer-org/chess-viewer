@@ -63,12 +63,10 @@ export function useSecurityCheck() {
       setIsLoading(false);
     }
 
-    // Initial check
     supabase.auth.getUser()
       .then(({ data: { user } }) => { checkSecurity(user); })
       .catch((err: unknown) => { if (!signal.aborted) console.warn('useSecurityCheck: getUser failed', err); });
 
-    // Listen for auth changes
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       checkSecurity(session?.user ?? null);
     });
@@ -82,7 +80,6 @@ export function useSecurityCheck() {
   const unlock = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      // Use RPC instead of direct update to bypass disabled UPDATE policy
       const { error } = await supabase.rpc('refresh_security_session');
         
       if (!error) {

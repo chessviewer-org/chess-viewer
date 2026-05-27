@@ -7,8 +7,10 @@ import { supabase } from '../services/supabaseClient';
 import type { SecurityLockModalProps } from '../types';
 
 /**
- * Full-screen lock overlay that requires re-authentication after 90 days.
- * HARDENED: Now correctly handles MFA/TOTP verification.
+ * Full-screen lock overlay requiring re-authentication after 90 days of inactivity.
+ *
+ * Supports password, TOTP, and backup-code verification flows. Rendered via a
+ * portal so it sits above all other content.
  */
 export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
   const [password, setPassword] = useState<string>('');
@@ -170,7 +172,7 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
             <div className="flex gap-2 mb-5 bg-surface-elevated p-1.5 rounded-xl border border-border">
               <button
                 type="button"
-                className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${
                   mode === 'password'
                     ? 'bg-bg text-text-primary shadow-sm ring-1 ring-border'
                     : 'text-text-secondary hover:text-text-primary'
@@ -181,7 +183,7 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
               </button>
               <button
                 type="button"
-                className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${
                   mode === 'backup'
                     ? 'bg-bg text-text-primary shadow-sm ring-1 ring-border'
                     : 'text-text-secondary hover:text-text-primary'
@@ -203,7 +205,7 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
                   type="password"
                   autoComplete="current-password"
                   placeholder="Enter your password"
-                  className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:border-accent focus:ring-2 focus:ring-accent/35 outline-none transition-all"
+                  className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:border-accent focus:ring-2 focus:ring-accent/35 outline-none transition-colors duration-200"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -231,7 +233,7 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
                   inputMode="numeric"
                   placeholder="000000"
                   maxLength={6}
-                  className="w-full text-center text-lg tracking-[0.2em] font-mono rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-text-primary focus:border-accent focus:ring-2 focus:ring-accent/35 outline-none transition-all"
+                  className="w-full text-center text-lg tracking-[0.2em] font-mono rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-text-primary focus:border-accent focus:ring-2 focus:ring-accent/35 outline-none transition-colors duration-200"
                   value={totpCode}
                   onChange={(e) => setTotpCode(e.target.value.replace(/\\D/g, ''))}
                   required
@@ -269,7 +271,7 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
                 <input
                   type="text"
                   placeholder="Enter an unused backup code"
-                  className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:border-accent focus:ring-2 focus:ring-accent/35 outline-none transition-all font-mono"
+                  className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:border-accent focus:ring-2 focus:ring-accent/35 outline-none transition-colors duration-200 font-mono"
                   value={backupCode}
                   onChange={(e) => setBackupCode(e.target.value)}
                   required

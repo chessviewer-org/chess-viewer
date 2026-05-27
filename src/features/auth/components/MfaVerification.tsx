@@ -3,6 +3,7 @@ import { ShieldAlert, KeyRound, ArrowLeft } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
 import { logger } from '@utils/logger';
 
+/** Props for the `MfaVerification` TOTP/backup-code form. */
 interface MfaVerificationProps {
   onSuccess: () => void;
   onBack: () => void;
@@ -103,7 +104,7 @@ export function MfaVerification({ onSuccess, onBack }: MfaVerificationProps) {
         <input
           type="text"
           placeholder={mode === 'totp' ? "000000" : "ABC12345"}
-          className="w-full text-center text-lg tracking-[0.2em] font-mono rounded-xl border border-border bg-surface-elevated px-4 py-3 text-text-primary focus:border-accent focus:ring-2 focus:ring-accent/35 outline-none transition-all"
+          className="w-full text-center text-lg tracking-[0.2em] font-mono rounded-xl border border-border bg-surface-elevated px-4 py-3 text-text-primary focus:border-accent focus:ring-2 focus:ring-accent/35 outline-none transition-colors duration-200"
           value={code}
           onChange={(e) => setCode(e.target.value)}
           maxLength={mode === 'totp' ? 6 : 8}
@@ -114,7 +115,7 @@ export function MfaVerification({ onSuccess, onBack }: MfaVerificationProps) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-accent text-bg px-4 py-3 rounded-xl hover:bg-accent-hover transition-all font-semibold shadow-md disabled:opacity-50"
+          className="w-full bg-accent text-bg px-4 py-3 rounded-xl hover:bg-accent-hover transition-colors duration-200 font-semibold shadow-md disabled:opacity-50"
         >
           {isSubmitting ? 'Verifying...' : 'Verify & Sign In'}
         </button>
