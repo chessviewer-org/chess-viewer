@@ -12,6 +12,7 @@ import {
 
 import PickerModal from './PickerModal';
 
+/** Props for the `ColorPicker` component. */
 export interface ColorPickerProps {
   label?: string;
   value?: string;
@@ -20,8 +21,9 @@ export interface ColorPickerProps {
 }
 
 /**
- * @param {ColorPickerProps} props
- * @returns {JSX.Element}
+ * Inline color picker with a canvas gradient, hue slider, hex input, and palette presets.
+ *
+ * Renders a swatch that opens a `PickerModal` on click. Closes on outside click.
  */
 function ColorPicker({
   label,

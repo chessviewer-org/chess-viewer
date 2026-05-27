@@ -1,6 +1,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Check, CheckCheck, Copy } from 'lucide-react';
 
+/** Props for the `SelectedPreview` color confirmation panel. */
 export interface SelectedPreviewProps {
   tempColor: string;
   getRgbValues: () => string;
@@ -8,10 +9,7 @@ export interface SelectedPreviewProps {
   onApply: () => void;
 }
 
-/**
- * @param {SelectedPreviewProps} props
- * @returns {JSX.Element}
- */
+/** Displays the currently selected color with Copy and Apply actions. */
 const SelectedPreview = memo(
   function SelectedPreview({ tempColor, getRgbValues, onCopy, onApply }: SelectedPreviewProps) {
     const [copied, setCopied] = useState(false);
@@ -52,7 +50,7 @@ const SelectedPreview = memo(
         <div className="relative flex items-center gap-4 p-5">
           <div className="relative group">
             <div
-              className="w-20 h-20 rounded-2xl border-2 border-border shadow-2xl transition-all duration-300 group-hover:shadow-md"
+              className="w-20 h-20 rounded-2xl border-2 border-border shadow-2xl transition-shadow duration-200 group-hover:shadow-md"
               style={{
                 background: tempColor,
                 boxShadow: `0 10px 40px ${tempColor}40, 0 0 0 1px ${tempColor}20`
@@ -98,7 +96,7 @@ const SelectedPreview = memo(
           <button
             onClick={handleApply}
             disabled={applied}
-            className="relative px-6 py-4 bg-linear-to-br from-accent to-accent/90 hover:from-accent/90 hover:to-accent/80 disabled:from-success/80 disabled:to-success text-bg font-bold rounded-xl transition-all duration-300  shadow-xl hover:shadow-2xl outline-none group overflow-hidden"
+            className="relative px-6 py-4 bg-linear-to-br from-accent to-accent/90 hover:from-accent/90 hover:to-accent/80 disabled:from-success/80 disabled:to-success text-bg font-bold rounded-xl transition-[background-color,box-shadow] duration-200 shadow-xl hover:shadow-2xl outline-none group overflow-hidden"
             style={{
               boxShadow: applied
                 ? `0 10px 40px rgb(var(--color-success) / 0.4)`

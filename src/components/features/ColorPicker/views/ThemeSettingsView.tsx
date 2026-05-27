@@ -6,21 +6,19 @@ import { safeJSONParse } from '@utils/validation';
 
 const STORAGE_KEY = 'chess-vision-settings';
 
+/** Shape of the performance and accessibility toggle settings. */
 export interface ThemeSettings {
   reduceAnimations: boolean;
   lowQualityPreview: boolean;
   compactBoard: boolean;
 }
 
+/** Props for `ThemeSettingsView`. */
 export interface ThemeSettingsViewProps {
   onSettingsChange?: (settings: ThemeSettings) => void;
 }
 
-/**
- * Settings panel inside the color picker for performance and accessibility tweaks.
- * @param {ThemeSettingsViewProps} props
- * @returns {JSX.Element}
- */
+/** Settings panel inside the color picker for performance and accessibility toggles. */
 function ThemeSettingsView({ onSettingsChange }: ThemeSettingsViewProps) {
   const [settings, setSettings] = useState<ThemeSettings>(() => {
     const defaults: ThemeSettings = {
@@ -53,17 +51,10 @@ function ThemeSettingsView({ onSettingsChange }: ThemeSettingsViewProps) {
     }
   }, [settings, onSettingsChange]);
 
-  /**
-   * Toggles a boolean setting by its key.
-   * @param {keyof ThemeSettings} key - Setting key to toggle
-   */
   const handleToggle = useCallback((key: keyof ThemeSettings) => {
     setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
   }, []);
 
-  /**
-   * Resets all settings to their default values.
-   */
   const handleReset = useCallback(() => {
     const defaults: ThemeSettings = {
       reduceAnimations: false,

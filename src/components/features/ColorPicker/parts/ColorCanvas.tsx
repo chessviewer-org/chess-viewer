@@ -1,14 +1,12 @@
 import { MouseEvent, RefObject } from 'react';
 
+/** Props for the `ColorCanvas` gradient picker canvas. */
 export interface ColorCanvasProps {
   canvasRef: RefObject<HTMLCanvasElement | null>;
   onClick: (e: MouseEvent<HTMLCanvasElement>) => void;
 }
 
-/**
- * @param {ColorCanvasProps} props
- * @returns {JSX.Element}
- */
+/** Renders the HSV gradient canvas and a hover hint overlay. */
 function ColorCanvas({ canvasRef, onClick }: ColorCanvasProps) {
   return (
     <div className="relative group">

@@ -1,6 +1,7 @@
 import { memo, useCallback } from 'react';
 import { Copy, RotateCcw, Shuffle } from 'lucide-react';
 
+/** Props for the `PrimaryActions` color picker action buttons. */
 export interface PrimaryActionsProps {
   onRandom: () => void;
   onReset: () => void;
@@ -9,10 +10,7 @@ export interface PrimaryActionsProps {
   tempColor: string;
 }
 
-/**
- * @param {PrimaryActionsProps} props
- * @returns {JSX.Element}
- */
+/** Three-button row for Random, Reset, and Copy actions in the color picker. */
 const PrimaryActions = memo(
   function PrimaryActions({
     onRandom,

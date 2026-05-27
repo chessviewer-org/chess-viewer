@@ -1,15 +1,13 @@
 import { memo, useCallback, useMemo, useState, ChangeEvent } from 'react';
 
+/** Props for the `HueSlider` range control. */
 export interface HueSliderProps {
   value?: number;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   getCurrentHue: () => number;
 }
 
-/**
- * @param {HueSliderProps} props
- * @returns {JSX.Element}
- */
+/** Full-spectrum hue range slider with degree markers and a color-name readout. */
 const HueSlider = memo(
   function HueSlider({ value: _value, onChange, getCurrentHue }: HueSliderProps) {
     const [isDragging, setIsDragging] = useState(false);

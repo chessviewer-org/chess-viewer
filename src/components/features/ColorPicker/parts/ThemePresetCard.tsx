@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { Check } from 'lucide-react';
 import { ThemeConfig } from '@app-types';
 
+/** Props for the `ThemePresetCard` selectable theme tile. */
 export interface ThemePresetCardProps {
   theme: ThemeConfig;
   themeKey: string;
@@ -12,10 +13,7 @@ export interface ThemePresetCardProps {
   onClick: (themeKey: string, theme: ThemeConfig) => void;
 }
 
-/**
- * @param {ThemePresetCardProps} props
- * @returns {JSX.Element}
- */
+/** A board-theme preset card showing light/dark square split with an active checkmark. */
 const ThemePresetCard = memo(
   function ThemePresetCard({
     theme,
@@ -33,7 +31,7 @@ const ThemePresetCard = memo(
         onMouseLeave={onLeave}
         className={`
         group relative px-3 py-4 rounded-xl text-xs text-text-secondary
-        transition-all duration-300 overflow-hidden
+        transition-[background-color,border-color,transform] duration-200 overflow-hidden
         ${isActive ? 'bg-accent/30 border-2 border-accent scale-105' : 'bg-bg border-2 border-border hover:border-accent/50'}
         ${isHovered ? 'scale-105' : ''}
       `}

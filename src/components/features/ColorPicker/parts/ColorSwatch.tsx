@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { Check } from 'lucide-react';
 
+/** Props for the `ColorSwatch` clickable color tile. */
 export interface ColorSwatchProps {
   color: string;
   isSelected: boolean;
@@ -8,10 +9,7 @@ export interface ColorSwatchProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-/**
- * @param {ColorSwatchProps} props
- * @returns {JSX.Element}
- */
+/** A single selectable color tile with a checkmark indicator when active. */
 const ColorSwatch = memo(
   function ColorSwatch({ color, isSelected, onClick, size = 'md' }: ColorSwatchProps) {
     const sizes = {

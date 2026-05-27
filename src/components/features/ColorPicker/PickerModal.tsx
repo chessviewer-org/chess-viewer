@@ -2,6 +2,7 @@ import { useState, ChangeEvent, MouseEvent, RefObject } from 'react';
 import { ArrowLeft, X } from 'lucide-react';
 import { ThemeSettingsView } from './views';
 
+/** Props for the `PickerModal` dropdown dialog. */
 export interface PickerModalProps {
   isOpen: boolean;
   tempColor: string;
@@ -24,8 +25,11 @@ export interface PickerModalProps {
 type ActiveView = 'main' | 'palettes' | 'settings';
 
 /**
- * @param {PickerModalProps} props
- * @returns {JSX.Element | null}
+ * Floating color picker dialog anchored to its parent container.
+ *
+ * Manages its own view state (`main` | `palettes` | `settings`) and renders
+ * the gradient canvas, hue slider, and quick-action buttons. Returns `null`
+ * while closed to avoid unnecessary DOM nodes.
  */
 function PickerModal({
   isOpen,

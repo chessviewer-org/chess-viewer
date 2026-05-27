@@ -1,6 +1,7 @@
 import { memo, useCallback, ChangeEvent, FocusEvent } from 'react';
 import { Pipette } from 'lucide-react';
 
+/** Props for the `ColorInput` swatch-and-hex control. */
 export interface ColorInputProps {
   value: string;
   hexInput: string;
@@ -9,10 +10,7 @@ export interface ColorInputProps {
   getRgbValues: () => string;
 }
 
-/**
- * @param {ColorInputProps} props
- * @returns {JSX.Element}
- */
+/** Color swatch button paired with a hex text input and RGB readout. */
 const ColorInput = memo(
   function ColorInput({
     value,

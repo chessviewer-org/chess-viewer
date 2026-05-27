@@ -1,6 +1,7 @@
 import { memo, useCallback, useMemo } from 'react';
 import { ColorSwatch } from '@/components/features/ColorPicker/parts';
 
+/** Props for the `ColorPalettes` preset swatch grid. */
 export interface ColorPalettesProps {
   activePalette: string;
   setActivePalette: (palette: string) => void;
@@ -8,10 +9,7 @@ export interface ColorPalettesProps {
   onColorSelect: (color: string) => void;
 }
 
-/**
- * @param {ColorPalettesProps} props
- * @returns {JSX.Element}
- */
+/** Tabbed palette grid with named color groups (basic, grays, warm, cool, etc.). */
 const ColorPalettes = memo(
   function ColorPalettes({
     activePalette,

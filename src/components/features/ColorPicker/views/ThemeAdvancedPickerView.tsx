@@ -2,6 +2,7 @@ import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Sliders } from 'lucide-react';
 import { hexToRgb, hsvToRgb, rgbToHex, rgbToHsv } from '@utils';
 
+/** Props for the `ThemeAdvancedPickerView` full-screen color editor. */
 export interface ThemeAdvancedPickerViewProps {
   activeSquare: 'light' | 'dark';
   setActiveSquare: (square: 'light' | 'dark') => void;
@@ -12,8 +13,8 @@ export interface ThemeAdvancedPickerViewProps {
 }
 
 /**
- * @param {ThemeAdvancedPickerViewProps} props
- * @returns {JSX.Element}
+ * Side-by-side board preview and HSV canvas picker for individually editing
+ * the light and dark square colors of the active board theme.
  */
 const ThemeAdvancedPickerView = memo(
   function ThemeAdvancedPickerView({
