@@ -1,7 +1,9 @@
 import { ProgressCallback, ExportConfig, ExportInfo } from './canvasExporter';
 import { calculateRenderSurfaceSize, getMaxCanvasSize, getExportMode, estimateFileSizes, shouldForceCoordinateBorder } from './imageOptimizer';
 import { isSvgRasterWorkerSupported } from './workerRasterExport';
+import { MAX_FEN_LENGTH, isValidHexColor } from './validation';
 
+/** Shared mutable state controlling the in-flight export operation lifecycle. */
 export interface ExportState {
   cancelled: boolean;
   paused: boolean;
@@ -12,8 +14,10 @@ export let exportState: ExportState = {
   paused: false
 };
 
+/** Cancel function for the currently active worker raster task, if any. */
 export let activeRasterTaskCancel: (() => void) | null = null;
 
+/** Clears the active raster task cancel handle after it resolves or is cancelled. */
 export function clearActiveRasterTask() {
   activeRasterTaskCancel = null;
 }
@@ -66,14 +70,22 @@ export function checkCancellation() {
 }
 
 /**
- * Sets the progress callback if it exists.
+ * Invokes the progress callback with a value and label, if provided.
+ *
+ * @param onProgress - Optional callback to notify
+ * @param value - Progress percentage (0–100)
+ * @param label - Human-readable stage label
  */
 export function setProgress(onProgress: ProgressCallback | undefined, value: number, label: string | null) {
   onProgress?.(value, label);
 }
 
 /**
- * Estimates the memory required in MB for a given width and height.
+ * Estimates the GPU memory footprint in MB for a canvas of the given dimensions.
+ *
+ * @param width - Canvas width in pixels
+ * @param height - Canvas height in pixels
+ * @returns Estimated memory in megabytes (4 bytes per pixel)
  */
 export function estimateMemoryMB(width: number, height: number): number {
   return Math.round((width * height * 4) / 1024 / 1024);
@@ -138,7 +150,10 @@ export function getExportInfo(config: ExportConfig): ExportInfo {
 }
 
 /**
- * Validates the export configuration object.
+ * Validates an export configuration object and throws a descriptive error if it is invalid.
+ *
+ * @param config - The export configuration to validate
+ * @throws If any required field is missing, out of range, or has an invalid value
  */
 export function validateExportConfig(config: ExportConfig) {
   const errors: string[] = [];
@@ -150,9 +165,18 @@ export function validateExportConfig(config: ExportConfig) {
     }
     if (!config.fen) {
       errors.push('FEN is missing');
+    } else if (config.fen.length > MAX_FEN_LENGTH) {
+      errors.push(`FEN exceeds maximum length of ${MAX_FEN_LENGTH} characters`);
     }
     if (!config.lightSquare || !config.darkSquare) {
       errors.push('Square colors are missing');
+    } else {
+      if (!isValidHexColor(config.lightSquare)) {
+        errors.push('lightSquare is not a valid hex color');
+      }
+      if (!isValidHexColor(config.darkSquare)) {
+        errors.push('darkSquare is not a valid hex color');
+      }
     }
     if (!config.pieceImages) {
       errors.push('pieceImages is null or undefined');
@@ -163,6 +187,6 @@ export function validateExportConfig(config: ExportConfig) {
     }
   }
   if (errors.length > 0) {
-    throw new Error(`Invalid export config: ${errors.join(', ')}`);
+    throw new Error(`Invalid board state or settings: ${errors.join(', ')}`);
   }
 }

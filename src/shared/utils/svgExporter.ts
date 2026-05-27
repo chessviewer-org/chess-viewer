@@ -1,13 +1,17 @@
 import { parseFEN } from './fenParser';
 import { shouldForceCoordinateBorder } from './imageOptimizer';
-import { logger } from './logger';
 import { sanitizeFileName, sanitizeInput } from './validation';
 import { ChessBoard, isChessBoard } from '../types/index';
+import {
+  getPieceKey,
+  imageToEmbeddableDataURL,
+  waitForPieceImage
+} from './svgPieceLoader';
 
 const SVG_BOARD_PX = 800;
 const SVG_COORD_BORDER_RATIO = 0.05;
-const pieceDataUrlCache = new Map<string, string>();
 
+/** Board render settings for the SVG export path. */
 interface SVGExportConfig {
   boardSize: number;
   showCoords: boolean;
@@ -22,149 +26,13 @@ interface SVGExportConfig {
 }
 
 /**
- * Returns the image key for a FEN piece character.
+ * Generates an SVG string representing the chess board position.
  *
- * @param fenPiece - FEN piece character (e.g. 'P', 'k')
- * @returns Image key (e.g. 'wP', 'bk') or null if empty
- */
-function getPieceKey(fenPiece: string): string | null {
-  if (!fenPiece) return null;
-  const isWhite = fenPiece === fenPiece.toUpperCase();
-  return (isWhite ? 'w' : 'b') + fenPiece.toUpperCase();
-}
-
-/**
- * Converts an image element to a base64 PNG data URL.
- * 
- * @param img - The HTML image element to convert
- * @returns Promise resolving to a base64 data URL
- */
-async function imageToDataURL(img: HTMLImageElement): Promise<string> {
-  return new Promise((resolve) => {
-    try {
-      const size = Math.max(img.naturalWidth || 64, img.naturalHeight || 64, 1);
-      const canvas = document.createElement('canvas');
-      canvas.width = size;
-      canvas.height = size;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        resolve('');
-        return;
-      }
-      ctx.drawImage(img, 0, 0, size, size);
-      resolve(canvas.toDataURL('image/png'));
-    } catch (err) {
-      logger.warn('SVG export: failed to convert piece image to base64:', err);
-      resolve('');
-    }
-  });
-}
-
-/**
- * Waits for an image to load or time out.
- * 
- * @param img - The image element to wait for
- * @returns Promise resolving when the image is ready
- */
-async function waitForPieceImage(img: HTMLImageElement): Promise<void> {
-  if (!img || img.complete) {
-    return;
-  }
-  await new Promise<void>((resolve) => {
-    const timeout = setTimeout(resolve, 10000);
-    const onLoad = () => {
-      clearTimeout(timeout);
-      img.removeEventListener('load', onLoad);
-      img.removeEventListener('error', onError);
-      resolve();
-    };
-    const onError = () => {
-      clearTimeout(timeout);
-      img.removeEventListener('load', onLoad);
-      img.removeEventListener('error', onError);
-      resolve();
-    };
-    img.addEventListener('load', onLoad, { once: true });
-    img.addEventListener('error', onError, { once: true });
-  });
-}
-
-/**
- * Converts UTF-8 text into a base64 data URL payload.
- * 
- * @param text - The text string to encode
- * @returns Base64 encoded string
- */
-function toBase64Utf8(text: string): string {
-  const utf8 = new TextEncoder().encode(text);
-  let binary = '';
-  const chunkSize = 0x8000;
-  for (let i = 0; i < utf8.length; i += chunkSize) {
-    const chunk = utf8.subarray(i, i + chunkSize);
-    binary += String.fromCharCode(...Array.from(chunk));
-  }
-  return btoa(binary);
-}
-
-/**
- * Returns an embeddable data URL for piece assets, utilizing cache.
- * 
- * @param img - The image element to convert
- * @returns Promise resolving to a data URL
- */
-async function imageToEmbeddableDataURL(img: HTMLImageElement): Promise<string> {
-  if (!img) return '';
-  const src = img.currentSrc || img.src || '';
-  if (!src) return '';
-  
-  const cached = pieceDataUrlCache.get(src);
-  if (cached) return cached;
-
-  let dataUrl = '';
-  if (src.startsWith('data:')) {
-    dataUrl = src;
-  } else {
-    let parsedUrl: URL;
-    try {
-      parsedUrl = new URL(src);
-    } catch {
-      logger.warn('SVG export: rejecting piece src with unparseable URL:', src);
-      return '';
-    }
-    if (parsedUrl.protocol !== 'https:' && parsedUrl.protocol !== 'http:') {
-      logger.warn('SVG export: rejecting piece src with disallowed protocol:', parsedUrl.protocol);
-      return '';
-    }
-
-    const lowerSrc = src.toLowerCase();
-    const isSvgSource = lowerSrc.endsWith('.svg') || lowerSrc.includes('image/svg+xml');
-
-    if (isSvgSource) {
-      try {
-        const response = await fetch(src, { cache: 'force-cache' });
-        if (response.ok) {
-          const svgText = await response.text();
-          dataUrl = `data:image/svg+xml;base64,${toBase64Utf8(svgText)}`;
-        }
-      } catch (err) {
-        logger.warn('SVG export: failed to inline vector piece source:', err);
-      }
-    }
-  }
-
-  if (!dataUrl) {
-    dataUrl = await imageToDataURL(img);
-  }
-  
-  pieceDataUrlCache.set(src, dataUrl);
-  return dataUrl;
-}
-
-/**
- * Generates an SVG string representing the full chess board with pieces.
+ * Piece images are embedded as base64 data URLs so the SVG is self-contained.
  *
- * @param config - Board configuration options
- * @returns Promise resolving to the SVG markup string
+ * @param config - Board render configuration
+ * @returns SVG markup string
+ * @throws If the FEN is invalid or the board cannot be parsed
  */
 export async function generateBoardSVG(config: SVGExportConfig): Promise<string> {
   const {
@@ -183,20 +51,21 @@ export async function generateBoardSVG(config: SVGExportConfig): Promise<string>
   const boardPx = SVG_BOARD_PX;
   const squarePx = boardPx / 8;
   const withCoords = !!showCoords;
-  
+
   const borderPx = withCoords
     ? Math.round(Math.max(18, Math.min(800, boardPx * SVG_COORD_BORDER_RATIO)))
     : 0;
-    
-  const withBorder = withCoords && (showCoordinateBorder || shouldForceCoordinateBorder(exportQuality));
+
+  const withBorder =
+    withCoords && (showCoordinateBorder || shouldForceCoordinateBorder(exportQuality));
   const withFrame = !!showThinFrame && (exportQuality === 8 || exportQuality === 16);
   const framePx = withFrame ? Math.max(2, Math.round(boardPx * 0.003)) * 2 : 0;
-  
+
   const totalWidth = borderPx + boardPx + framePx;
   const totalHeight = boardPx + borderPx + framePx;
   const boardX = borderPx + (withFrame ? framePx / 2 : 0);
   const boardY = withFrame ? framePx / 2 : 0;
-  
+
   const parsedBoard = parseFEN(fen);
   if (!isChessBoard(parsedBoard)) {
     throw new Error('Invalid FEN: unable to parse board');
@@ -205,7 +74,7 @@ export async function generateBoardSVG(config: SVGExportConfig): Promise<string>
 
   const pieceDataURLs: Record<string, string> = {};
   await Promise.all(Object.values(pieceImages).map((img) => waitForPieceImage(img)));
-  
+
   await Promise.all(
     Object.entries(pieceImages).map(async ([key, img]) => {
       if (img && img.complete && img.naturalWidth > 0) {
@@ -325,15 +194,16 @@ export async function generateBoardSVG(config: SVGExportConfig): Promise<string>
 }
 
 /**
- * Generates an SVG and triggers a download.
- * 
- * @param config - The export configuration
- * @param fileName - Target filename
- * @param onProgress - Progress callback function
+ * Generates an SVG of the board position and triggers a browser download.
+ *
+ * @param config - Board render configuration
+ * @param fileName - Base name for the downloaded file (without extension)
+ * @param onProgress - Optional progress callback
+ * @throws If rendering fails or required config fields are missing
  */
 export async function downloadSVG(
-  config: SVGExportConfig, 
-  fileName: string, 
+  config: SVGExportConfig,
+  fileName: string,
   onProgress?: (progress: number, label?: string | null) => void
 ): Promise<void> {
   try {
@@ -343,9 +213,9 @@ export async function downloadSVG(
       throw new Error('pieceImages is empty or missing');
     }
     const safeFileName = sanitizeFileName(fileName);
-    if (onProgress) onProgress(5, 'Preparing');
+    onProgress?.(5, 'Preparing');
     const svgString = await generateBoardSVG(config);
-    if (onProgress) onProgress(80, 'SVG ready');
+    onProgress?.(80, 'SVG ready');
     const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -353,12 +223,15 @@ export async function downloadSVG(
     link.download = `${safeFileName}.svg`;
     document.body.appendChild(link);
     link.click();
-    if (onProgress) onProgress(100, 'Done');
+    onProgress?.(100, 'Done');
     setTimeout(() => {
       if (document.body.contains(link)) document.body.removeChild(link);
       URL.revokeObjectURL(url);
     }, 100);
   } catch (err) {
-    throw new Error(`SVG export failed: ${err instanceof Error ? err.message : String(err)}`, { cause: err });
+    throw new Error(
+      `SVG export failed: ${err instanceof Error ? err.message : String(err)}`,
+      { cause: err }
+    );
   }
 }

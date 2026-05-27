@@ -58,7 +58,10 @@ export function getMaxCanvasSize(): number {
     if (/Safari/.test(ua) && !/Chrome/.test(ua)) {
       _cachedMaxCanvasSize = 16384;
     } else {
-      _cachedMaxCanvasSize = 32767;
+      const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : Infinity;
+      const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio ?? 1) : 1;
+      const isMobileDevice = viewportWidth <= 768 && dpr >= 2;
+      _cachedMaxCanvasSize = isMobileDevice ? 8192 : 32767;
     }
   } catch {
     _cachedMaxCanvasSize = 16384;
