@@ -123,15 +123,6 @@ const HomePage: React.FC = () => {
               <ControlPanel
                 fen={fen}
                 setFen={setFen}
-                pieceStyle={pieceStyle}
-                setPieceStyle={setPieceStyle}
-                showCoords={showCoords}
-                setShowCoords={setShowCoords}
-                showCoordinateBorder={showCoordinateBorder}
-                setShowCoordinateBorder={setShowCoordinateBorder}
-                showThinFrame={showThinFrame}
-                setShowThinFrame={setShowThinFrame}
-                exportQuality={exportQuality}
                 addToFavoritesRef={addToFavoritesRef}
                 onFavoriteStatusChange={setIsFavorite}
                 saveManualFen={saveManualFen}
