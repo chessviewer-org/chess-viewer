@@ -1045,13 +1045,6 @@ html[data-theme-transition='to-dark'] {
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
   }
-
-  .h-screen,
-  [class*='min-h-screen'] {
-    min-height: min(100vh, 100dvh);
-    height: min(100vh, 100dvh);
-    max-height: min(100vh, 100dvh);
-  }
 }
 
 /* Prevent text size inflation on mobile Safari */
