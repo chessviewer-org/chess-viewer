@@ -1,9 +1,7 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { AnimatePresence, motion } from 'framer-motion';
 import { Copy, RotateCcw, Settings, X } from 'lucide-react';
 
-import ThemeMainView from '@/components/features/ColorPicker/views/ThemeMainView';
 import CustomDragLayer from '../CustomDragLayer/CustomDragLayer';
 import InteractiveBoard from '../InteractiveBoard/InteractiveBoard';
 import PiecePalette from '../PiecePalette/PiecePalette';
@@ -11,6 +9,7 @@ import TrashZone from '../TrashZone/TrashZone';
 import { useInteractiveBoard, usePieceImages, useTheme } from '@hooks';
 import { FileCoordinates, RankCoordinates } from './EditorCoordinates';
 import { useEditorBoardSize } from './useEditorBoardSize';
+import QuickThemePopover from './QuickThemePopover';
 
 /** Props for the `ChessEditor` interactive board wrapper. */
 export interface ChessEditorProps {
@@ -40,8 +39,19 @@ export const ChessEditor = memo(function ChessEditor({
   const { boardSize, gutterSize, containerRef } = useEditorBoardSize(showCoords);
   const cellSize = useMemo(() => boardSize / 8, [boardSize]);
 
-  const [isVisualSettingsOpen, setIsVisualSettingsOpen] = useState(false);
+  const [isQuickThemeOpen, setIsQuickThemeOpen] = useState(false);
+  const themeAnchorRef = useRef<HTMLDivElement>(null);
   const { applyCustomTheme } = useTheme();
+
+  const handleApplyQuickTheme = useCallback(
+    (light: string, dark: string) => {
+      applyCustomTheme(light, dark);
+      setIsQuickThemeOpen(false);
+    },
+    [applyCustomTheme]
+  );
+
+  const closeQuickTheme = useCallback(() => setIsQuickThemeOpen(false), []);
 
   const pieceImagesRef = useRef(pieceImages);
   useEffect(() => {
@@ -83,15 +93,27 @@ export const ChessEditor = memo(function ChessEditor({
             }}
           >
             <div className="flex justify-between items-center mb-2 w-full">
-              <button
-                type="button"
-                onClick={() => setIsVisualSettingsOpen((prev) => !prev)}
-                className={`p-1.5 rounded-lg transition-colors duration-200 ${isVisualSettingsOpen ? 'bg-accent/10 text-accent' : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'}`}
-                title="Visual Settings"
-                aria-label="Toggle Visual Settings"
-              >
-                <Settings className="w-5 h-5" />
-              </button>
+              <div ref={themeAnchorRef} className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsQuickThemeOpen((prev) => !prev)}
+                  className={`p-1.5 rounded-lg transition-colors duration-200 ${isQuickThemeOpen ? 'bg-accent/10 text-accent' : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'}`}
+                  title="Quick Theme"
+                  aria-label="Open Quick Theme picker"
+                  aria-haspopup="dialog"
+                  aria-expanded={isQuickThemeOpen}
+                >
+                  <Settings className="w-5 h-5" />
+                </button>
+                <QuickThemePopover
+                  open={isQuickThemeOpen}
+                  currentLight={lightSquare}
+                  currentDark={darkSquare}
+                  onApply={handleApplyQuickTheme}
+                  onClose={closeQuickTheme}
+                  anchorRef={themeAnchorRef}
+                />
+              </div>
               <button
                 type="button"
                 onClick={() => navigator.clipboard.writeText(fen)}
@@ -165,39 +187,11 @@ export const ChessEditor = memo(function ChessEditor({
 
         <div className="flex flex-col gap-4 sm:gap-6 flex-1 w-full lg:w-auto min-w-0 lg:self-stretch">
           <div className="flex-1 w-full overflow-hidden rounded-xl border border-border/40 bg-surface-elevated min-h-50 sm:min-h-60 relative">
-            <AnimatePresence mode="wait" initial={false}>
-              {isVisualSettingsOpen ? (
-                <motion.div
-                  key="theme-view"
-                  className="w-full h-full"
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-                >
-                  <ThemeMainView
-                    currentLight={lightSquare}
-                    currentDark={darkSquare}
-                    onThemeApply={(l: string, d: string) => applyCustomTheme(l, d)}
-                  />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="palette-view"
-                  className="w-full h-full"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 10 }}
-                  transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-                >
-                  <PiecePalette
-                    pieceImages={pieceImages}
-                    isLoading={isLoading}
-                    className="w-full h-full p-2 sm:p-4"
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <PiecePalette
+              pieceImages={pieceImages}
+              isLoading={isLoading}
+              className="w-full h-full p-2 sm:p-4"
+            />
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 w-full">
