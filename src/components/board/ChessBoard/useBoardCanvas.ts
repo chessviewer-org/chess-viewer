@@ -43,8 +43,16 @@ export function useBoardCanvas({
   isLoading
 }: UseBoardCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const lastTotalSizeRef = useRef<number | null>(null);
   const lastRenderScaleRef = useRef<number | null>(null);
+
+  // Observed wrapper width in CSS px. The on-screen board is rasterized to fill
+  // this, not the `boardSize` prop (which is physical-cm for export math). A
+  // ResizeObserver keeps the bitmap re-rasterized on container resize so the
+  // board never blurs from CSS-only scaling. Falls back to `boardSize` until
+  // the first observation lands.
+  const containerWidthRef = useRef<number>(boardSize);
 
   // Stable refs for volatile props — drawBoard reads these on each call without
   // needing them in its dependency array, keeping it recreatable at zero cost.
@@ -72,7 +80,7 @@ export function useBoardCanvas({
     showCoords,
     lightSquare,
     darkSquare,
-    boardSize,
+    renderWidth: 0,
     flipped,
     loadedCount: 0
   });
@@ -83,7 +91,6 @@ export function useBoardCanvas({
     const showCoords = showCoordsRef.current;
     const lightSquare = lightSquareRef.current;
     const darkSquare = darkSquareRef.current;
-    const boardSize = boardSizeRef.current;
     const flipped = flippedRef.current;
     const isLoading = isLoadingRef.current;
 
@@ -98,12 +105,24 @@ export function useBoardCanvas({
 
     const boardHash = board.map(row => row.join('')).join('/');
 
+    // On-screen extent comes from the observed container, not the prop. The
+    // outer square (`totalSize`) fills the wrapper; the 8×8 grid is inset by a
+    // proportional coordinate border so labels never clip and the board never
+    // overflows or blurs on resize.
+    const totalSize = Math.max(0, Math.round(containerWidthRef.current));
+    const borderSize = showCoords
+      ? Math.min(getCoordinateParams(totalSize).borderSize, Math.floor(totalSize / 4))
+      : 0;
+    const playSize = totalSize - borderSize * 2;
+
+    if (totalSize <= 0 || playSize <= 0) return;
+
     const hasChanged =
       prevPropsRef.current.boardHash !== boardHash ||
       prevPropsRef.current.showCoords !== showCoords ||
       prevPropsRef.current.lightSquare !== lightSquare ||
       prevPropsRef.current.darkSquare !== darkSquare ||
-      prevPropsRef.current.boardSize !== boardSize ||
+      prevPropsRef.current.renderWidth !== totalSize ||
       prevPropsRef.current.flipped !== flipped ||
       prevPropsRef.current.loadedCount !== loadedCount;
 
@@ -112,8 +131,6 @@ export function useBoardCanvas({
     }
 
     const canvas = canvasRef.current;
-    const borderSize = showCoords ? getCoordinateParams(boardSize).borderSize : 0;
-    const totalSize = boardSize + borderSize * 2;
     const deviceScale = window.devicePixelRatio || 1;
 
     // Capped at 2× — beyond that, memory cost outweighs sharpness gain for previews.
@@ -136,7 +153,7 @@ export function useBoardCanvas({
       showCoords,
       lightSquare,
       darkSquare,
-      boardSize,
+      renderWidth: totalSize,
       flipped,
       loadedCount
     };
@@ -156,13 +173,13 @@ export function useBoardCanvas({
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
 
-    const squareSize = boardSize / 8;
+    const squareSize = playSize / 8;
     ctx.clearRect(0, 0, totalSize, totalSize);
 
     if (showCoords) {
       ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
       ctx.lineWidth = 1;
-      ctx.strokeRect(borderSize, borderSize, boardSize, boardSize);
+      ctx.strokeRect(borderSize, borderSize, playSize, playSize);
     }
 
     for (let row = 0; row < 8; row++) {
@@ -199,7 +216,7 @@ export function useBoardCanvas({
     }
 
     if (showCoords) {
-      drawCoordinates(ctx, squareSize, borderSize, flipped, boardSize, false, true);
+      drawCoordinates(ctx, squareSize, borderSize, flipped, totalSize, false, true);
     }
   }, []);
 
@@ -211,6 +228,29 @@ export function useBoardCanvas({
     };
   }, [drawBoard, board, pieceImages, showCoords, lightSquare, darkSquare, boardSize, flipped, isLoading]);
 
+  // Re-rasterize on container resize so the bitmap tracks CSS px (no blur).
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper || typeof ResizeObserver === 'undefined') return;
+
+    const throttledDraw = rafThrottle(drawBoard);
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+      const width = entry.contentRect.width;
+      if (width > 0 && width !== containerWidthRef.current) {
+        containerWidthRef.current = width;
+        throttledDraw();
+      }
+    });
+
+    observer.observe(wrapper);
+    return () => {
+      observer.disconnect();
+      throttledDraw.cancel();
+    };
+  }, [drawBoard]);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     return () => {
@@ -221,6 +261,6 @@ export function useBoardCanvas({
     };
   }, []);
 
-  return canvasRef;
+  return { canvasRef, wrapperRef };
 }
 

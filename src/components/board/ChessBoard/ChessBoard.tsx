@@ -34,7 +34,7 @@ const ChessBoard = forwardRef<ChessBoardRef, ChessBoardProps>((props, ref) => {
   const { pieceImages, isLoading, error: pieceError, loadProgress } = usePieceImages(pieceStyle);
   const { board, error: fenError } = useChessBoard(fen);
 
-  const canvasRef = useBoardCanvas({
+  const { canvasRef, wrapperRef } = useBoardCanvas({
     board,
     pieceImages,
     showCoords,
@@ -56,6 +56,7 @@ const ChessBoard = forwardRef<ChessBoardRef, ChessBoardProps>((props, ref) => {
 
   return (
     <div
+      ref={wrapperRef}
       className="relative block w-full max-w-full"
       role="img"
       aria-label={boardDescription}
