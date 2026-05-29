@@ -83,5 +83,3 @@ export function useDebouncedFENValidation(
 
   return { debouncedError, isValid };
 }
-
-export default useDebouncedFENValidation;
