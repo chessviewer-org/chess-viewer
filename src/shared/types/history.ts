@@ -36,9 +36,3 @@ export interface HistoryFilters {
   favoritesOnly?: boolean;
 }
 
-/** Aggregate statistics computed over the archive. */
-export interface ArchiveStatistics {
-  total: number;
-  bySource: Record<HistorySource, number>;
-  favorites: number;
-}

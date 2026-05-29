@@ -1,5 +1,4 @@
 export * from './logger';
-export * from './themeCustomization';
 export * from './colorConversions';
 export * from './fenParser';
 export * from './coordinateCalculations';

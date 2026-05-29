@@ -4,7 +4,6 @@ import { logger } from './logger';
 // so users who swap pieces don't accumulate dead Image elements forever.
 const MAX_CACHED_IMAGES = 36;
 const pieceCache = new Map<string, HTMLImageElement>();
-let currentPieceStyle = 'cburnett';
 
 /**
  * Evicts the oldest cached entries (FIFO via Map insertion order) when the
@@ -70,46 +69,8 @@ export async function preloadPieceStyle(
     });
   });
 
-  currentPieceStyle = style;
   await Promise.all(promises);
   return result;
-}
-
-/** 
- * Returns the cached image for a specific piece and style. 
- * 
- * @param piece - Piece key (e.g. 'wP', 'bk')
- * @param style - Piece style name
- * @returns The HTML image element or undefined if not cached
- */
-export function getCachedPiece(piece: string, style: string): HTMLImageElement | undefined {
-  return pieceCache.get(`${style}_${piece}`);
-}
-
-/** 
- * Returns all cached images for the current style. 
- * 
- * @returns Map of piece keys to image elements
- */
-export function getCachedPieces(): Record<string, HTMLImageElement> {
-  const result: Record<string, HTMLImageElement> = {};
-  const prefix = `${currentPieceStyle}_`;
-  pieceCache.forEach((img, key) => {
-    if (key.startsWith(prefix)) {
-      result[key.replace(prefix, '')] = img;
-    }
-  });
-  return result;
-}
-
-/**
- * Releases all cached piece images and clears the cache.
- */
-export function clearPieceCache(): void {
-  pieceCache.forEach((img) => {
-    img.src = '';
-  });
-  pieceCache.clear();
 }
 
 /**

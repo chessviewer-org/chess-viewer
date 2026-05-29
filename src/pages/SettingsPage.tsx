@@ -1,33 +1,15 @@
 import { memo, useCallback, useEffect, useState } from 'react';
-import { 
-  Check, 
-  Database, 
-  Download, 
-  Palette, 
-  Pencil, 
-  X, 
-  ShieldCheck, 
+import {
+  Database,
+  ShieldCheck,
   User
 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { ToolPageHeader } from '@/components/layout';
 import { Button } from '@shared/ui';
-import { useLocalStorage } from '@hooks';
-import {
-  DataManagement,
-  ExportCustomization,
-  ThemeCustomization
-} from '@/pages/settings';
+import { DataManagement } from '@/pages/settings';
 import { TwoFactorSetup } from '@/features/auth/components/TwoFactorSetup';
-
-/** Controls surface to the parent header for the theme edit mode action buttons. */
-interface ThemeEditControls {
-  editMode: boolean;
-  onEnableEditMode: () => void;
-  onCancelEditMode: () => void;
-  onApplyChanges: () => void;
-}
 
 const pageTabs = [
   {
@@ -43,18 +25,6 @@ const pageTabs = [
     icon: ShieldCheck
   },
   {
-    id: 'theme',
-    label: 'Theme Customization',
-    shortLabel: 'Theme',
-    icon: Palette
-  },
-  {
-    id: 'export',
-    label: 'Export Customization',
-    shortLabel: 'Export',
-    icon: Download
-  },
-  {
     id: 'data',
     label: 'Data Management',
     shortLabel: 'Data',
@@ -62,18 +32,26 @@ const pageTabs = [
   }
 ];
 
-/** Full-page settings shell with tab-based navigation for profile, security, theme, export, and data sections. */
+const VALID_TAB_IDS = new Set(pageTabs.map((t) => t.id));
+const DEFAULT_TAB = 'profile';
+
+/** Full-page settings shell with tab-based navigation for profile, security, export, and data sections. */
 const SettingsPage = memo(function SettingsPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = searchParams.get('tab') || 'profile';
-  
+  const requestedTab = searchParams.get('tab');
+  const initialTab =
+    requestedTab && VALID_TAB_IDS.has(requestedTab) ? requestedTab : DEFAULT_TAB;
+
   const [activeTab, setActiveTab] = useState(initialTab);
-  const [themeEditControls, setThemeEditControls] = useState<ThemeEditControls | null>(null);
-  
-  const [boardSize, setBoardSize] = useLocalStorage('chess-board-size', 4);
-  const [fileName, setFileName] = useLocalStorage('chess-file-name', 'chess-position');
-  const [exportQuality, setExportQuality] = useLocalStorage('chess-export-quality', 16);
+
+  // Redirect a retired tab key (e.g. ?tab=theme, ?tab=export) to the default
+  // tab so old bookmarks land on a valid page instead of an empty content area.
+  useEffect(() => {
+    if (requestedTab && !VALID_TAB_IDS.has(requestedTab)) {
+      setSearchParams({ tab: DEFAULT_TAB }, { replace: true });
+    }
+  }, [requestedTab, setSearchParams]);
 
   const handleBack = useCallback(() => navigate(-1), [navigate]);
 
@@ -90,60 +68,12 @@ const SettingsPage = memo(function SettingsPage() {
     setSearchParams({ tab: tabId });
   };
 
-  const handleThemeEditControlsChange = useCallback((controls: ThemeEditControls | null) => {
-    setThemeEditControls(controls);
-  }, []);
-
-  useEffect(() => {
-    if (activeTab !== 'theme' && themeEditControls !== null) {
-      setThemeEditControls(null);
-    }
-  }, [activeTab, themeEditControls]);
-
-  const themeHeaderRightSlot =
-    activeTab === 'theme' && themeEditControls ? (
-      <div className="flex items-center gap-2">
-        {themeEditControls.editMode ? (
-          <>
-            <Button
-              onClick={themeEditControls.onCancelEditMode}
-              variant="outline"
-              size="sm"
-              icon={X}
-              className="px-3 sm:px-4 py-2 text-xs sm:text-sm"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={themeEditControls.onApplyChanges}
-              size="sm"
-              icon={Check}
-              className="px-3 sm:px-5 py-2 text-xs sm:text-sm font-semibold"
-            >
-              Apply
-            </Button>
-          </>
-        ) : (
-          <Button
-            onClick={themeEditControls.onEnableEditMode}
-            variant="outline"
-            size="sm"
-            icon={Pencil}
-            className="px-3 sm:px-4 py-2 text-xs sm:text-sm"
-          >
-            Edit Mode
-          </Button>
-        )}
-      </div>
-    ) : null;
-
   return (
     <div className="h-full max-h-full flex flex-col bg-bg overflow-hidden">
       <ToolPageHeader
         title="Account Preferences"
         onBack={handleBack}
         showSave={false}
-        rightSlot={themeHeaderRightSlot}
       />
 
       <div className="shrink-0 bg-surface-elevated border-b border-border animate-fadeIn scrollbar-hide">
@@ -208,27 +138,6 @@ const SettingsPage = memo(function SettingsPage() {
                   </div>
                 </div>
               </section>
-            </div>
-          )}
-
-          {activeTab === 'theme' && (
-            <div className="h-full animate-pageEnter">
-              <ThemeCustomization
-                onEditControlsChange={handleThemeEditControlsChange}
-              />
-            </div>
-          )}
-
-          {activeTab === 'export' && (
-            <div className="h-full animate-pageEnter">
-              <ExportCustomization
-                boardSize={boardSize}
-                setBoardSize={setBoardSize}
-                fileName={fileName}
-                setFileName={setFileName}
-                exportQuality={exportQuality}
-                setExportQuality={setExportQuality}
-              />
             </div>
           )}
 

@@ -17,7 +17,7 @@ export const dataMigration = {
 
     logger.log('Starting data migration to Supabase...');
 
-    const keysToMigrate = ['fen-history', 'chess-theme', 'fen-history-archive', 'themeSettings', 'recentColors'];
+    const keysToMigrate = ['fen-history', 'chess-theme', 'fen-history-archive'];
 
     try {
       for (const key of keysToMigrate) {

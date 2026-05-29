@@ -120,25 +120,8 @@ export function convertToArchivedEntry(
   };
 }
 
-/** 
- * Converts an archived entry back to an active history entry shape. 
- * 
- * @param archived - Archived entry
- * @returns Active entry object
- */
-export function convertFromArchivedEntry(archived: ArchivedHistoryEntry): ActiveHistoryEntry {
-  return {
-    id: archived.id,
-    fen: archived.fen,
-    createdAt: archived.createdAt,
-    lastActiveAt: Date.now(),
-    source: archived.source,
-    isFavorite: archived.isFavorite,
-  };
-}
-
-/** 
- * Returns a copy of the entry with `lastActiveAt` updated to now. 
+/**
+ * Returns a copy of the entry with `lastActiveAt` updated to now.
  * 
  * @param entry - The entry to update
  * @returns New entry object with updated timestamp

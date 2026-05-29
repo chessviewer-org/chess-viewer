@@ -216,5 +216,3 @@ export function useInteractiveBoard(
     ]
   );
 }
-
-export default useInteractiveBoard;

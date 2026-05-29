@@ -4,27 +4,6 @@ import { logger } from './logger';
 
 export const CM_PER_INCH = 2.54;
 export const PRINT_DPI = 300;
-export const CM_TO_PIXELS = PRINT_DPI / CM_PER_INCH;
-
-/**
- * Converts centimetres to pixels at PRINT_DPI.
- *
- * @param cm - Value in centimetres
- * @returns Pixel count
- */
-export function cmToPixels(cm: number): number {
-  return Math.round((cm / CM_PER_INCH) * PRINT_DPI);
-}
-
-/**
- * Converts pixels to centimetres at PRINT_DPI.
- *
- * @param pixels - Value in pixels
- * @returns Value in centimetres
- */
-export function pixelsToCm(pixels: number): number {
-  return (pixels / PRINT_DPI) * CM_PER_INCH;
-}
 
 /**
  * Converts physical board size + quality multiplier into board pixels.
@@ -231,24 +210,6 @@ export function calculateRenderSurfaceSize(
     effectiveDPI: exportSize.effectiveDPI,
     scaleFactor: exportSize.scaleFactor
   };
-}
-
-/**
- * Returns the effective scale factor after applying quality constraints.
- *
- * @param boardSizeCm - Physical board size in centimetres
- * @param showCoords - Whether to include coordinate labels
- * @param requestedQuality - The multiplier requested by the user
- * @returns Scale factor (1.0 = no reduction)
- */
-export function calculateOptimalQuality(
-  boardSizeCm: number,
-  showCoords: boolean,
-  requestedQuality?: number
-): number {
-  const quality = requestedQuality ?? 1;
-  const exportSize = calculateExportSize(boardSizeCm, showCoords, quality);
-  return exportSize.scaleFactor;
 }
 
 export interface FileSizeEstimates {

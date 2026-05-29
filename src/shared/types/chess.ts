@@ -34,13 +34,3 @@ export function isChessBoard(val: unknown): val is ChessBoard {
   );
 }
 
-/** Full parsed FEN representation including metadata fields. */
-export interface ChessPosition {
-  fen: string;
-  board: ChessBoard;
-  activeColor?: 'w' | 'b';
-  castlingAvailability?: string;
-  enPassantTarget?: string;
-  halfmoveClock?: number;
-  fullmoveNumber?: number;
-}

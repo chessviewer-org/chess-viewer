@@ -11,8 +11,7 @@ import {
 import { History, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-import DisplayOptions from '@/components/features/DisplayOptions';
-import { FENInputField, PieceSelector } from '@/components/features/Fen';
+import { FENInputField } from '@/components/features/Fen';
 import { useFENHistory } from '@hooks';
 import { MAX_FEN_LENGTH } from '@utils/validation';
 import type { NotificationType } from '@/components/features/Fen/FENInputField/FENInputField';
@@ -21,15 +20,6 @@ import type { NotificationType } from '@/components/features/Fen/FENInputField/F
 export interface ControlPanelProps {
   fen: string;
   setFen: (fen: string) => void;
-  pieceStyle: string;
-  setPieceStyle: (style: string) => void;
-  showCoords: boolean;
-  setShowCoords: (show: boolean) => void;
-  showCoordinateBorder: boolean;
-  setShowCoordinateBorder: (show: boolean) => void;
-  showThinFrame: boolean;
-  setShowThinFrame: (show: boolean) => void;
-  exportQuality: number;
   addToFavoritesRef?: Ref<() => void>;
   onFavoriteStatusChange?: (status: boolean) => void;
   onNotification?: (message: string, type: NotificationType) => void;
@@ -44,15 +34,6 @@ export interface ControlPanelProps {
 const ControlPanel = memo(function ControlPanel({
   fen,
   setFen,
-  pieceStyle,
-  setPieceStyle,
-  showCoords,
-  setShowCoords,
-  showCoordinateBorder,
-  setShowCoordinateBorder,
-  showThinFrame,
-  setShowThinFrame,
-  exportQuality,
   addToFavoritesRef,
   onFavoriteStatusChange,
   onNotification,
@@ -146,7 +127,7 @@ const ControlPanel = memo(function ControlPanel({
 
   return (
     <>
-      <div className="bg-surface border border-border/40 rounded-xl p-4 sm:p-5 lg:p-6 space-y-5 sm:space-y-6">
+      <div className="bg-surface border border-border/40 rounded-xl p-4 sm:p-5 lg:p-6">
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-2">
             <label className="text-sm font-semibold text-text-primary">
@@ -179,18 +160,6 @@ const ControlPanel = memo(function ControlPanel({
             {...(onNotification && { onNotification })}
           />
         </div>
-
-        <div className="h-px bg-border/50" />
-        <PieceSelector pieceStyle={pieceStyle} setPieceStyle={setPieceStyle} />
-        <DisplayOptions
-          showCoords={showCoords}
-          setShowCoords={setShowCoords}
-          showCoordinateBorder={showCoordinateBorder}
-          setShowCoordinateBorder={setShowCoordinateBorder}
-          showThinFrame={showThinFrame}
-          setShowThinFrame={setShowThinFrame}
-          exportQuality={exportQuality}
-        />
       </div>
     </>
   );

@@ -22,8 +22,6 @@ const STORAGE_KEYS = [
   'fenBatchList',
   'advancedFENFavorites',
   'advanced-fen-position-settings',
-  'themeSettings',
-  'recentColors',
   'customThemePresets'
 ];
 
