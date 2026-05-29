@@ -3,7 +3,7 @@ import {
   QualityPreset,
   AdvancedFenConfig,
   PieceSet
-} from '../types';
+} from '@app-types';
 
 export const PIECE_MAP: Record<string, string> = {
   wK: 'wK',
