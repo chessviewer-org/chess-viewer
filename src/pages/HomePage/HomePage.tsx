@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
+
+import { motion } from 'framer-motion';
+
 import {
   ControlPanel,
   ExportProgress
 } from '@/components/features';
-import ExportStudio from './components/ExportStudio';
 import { ChessEditor, DndProvider } from '@/components/interactions';
+
 import { NotificationContainer } from '@shared/ui';
-import { motion } from 'framer-motion';
+import ExportStudio from './components/ExportStudio';
 import { useHome } from './hooks/useHome';
 
 /** Primary workspace combining the DnD board editor, control panel, and export studio trigger. */

@@ -1,5 +1,5 @@
+import type { BoardMatrix, FENString, PieceSymbol,ValidationResult } from '../types/index.ts';
 import { MAX_FEN_LENGTH } from './validation.ts';
-import type { BoardMatrix, ValidationResult, FENString, PieceSymbol } from '../types/index.ts';
 
 const VALID_PIECES = new Set([
   'p', 'n', 'b', 'r', 'q', 'k',

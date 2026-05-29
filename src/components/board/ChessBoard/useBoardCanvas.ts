@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useRef } from 'react';
+
+import { ChessBoard } from '@app-types/chess';
+
 import { 
-  getCoordinateParams,
-  getSquareBounds, 
   drawCoordinates, 
-  isLightSquare,
+  getCoordinateParams,
   getDisplayCoordinates,
+  getSquareBounds, 
+  isLightSquare,
   logger, 
   rafThrottle 
 } from '@utils';
-import { ChessBoard } from '@app-types/chess';
 
 /** Props for the `useBoardCanvas` hook. */
 interface UseBoardCanvasProps {

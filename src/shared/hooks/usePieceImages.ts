@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { PIECE_MAP } from '@constants';
+
 import { logger } from '@utils/logger';
 import { preloadPieceStyle, setCachedPieces } from '@utils/pieceImageCache';
 

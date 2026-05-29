@@ -1,8 +1,9 @@
 import { memo, useCallback } from 'react';
 
-import DraggablePiece from '../DraggablePiece/DraggablePiece';
 import { getPieceImageKey, PALETTE_PIECES } from '@constants';
 import type { PieceSymbol } from '@app-types/chess';
+
+import DraggablePiece from '../DraggablePiece/DraggablePiece';
 
 /** Props for the `PiecePalette` drag source sidebar. */
 export interface PiecePaletteProps {

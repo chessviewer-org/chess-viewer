@@ -1,6 +1,8 @@
 import { memo } from 'react';
-import { SearchableSelect } from '@shared/ui';
+
 import { PIECE_SETS } from '@constants';
+
+import { SearchableSelect } from '@shared/ui';
 
 /** Props for the `PieceSelector` searchable dropdown. */
 interface PieceSelectorProps {

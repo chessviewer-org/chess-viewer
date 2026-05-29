@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
+
 import { useNavigate } from 'react-router-dom';
-import { useFENHistory } from '@hooks';
+
+import { HistoryFilterState } from '@/components/features/History/HistoryFilters/HistoryFilters';
 import { useModal } from '@/contexts';
+import { useFENHistory } from '@hooks';
+import { ActiveHistoryEntry, HistoryFilters } from '@app-types/history';
+
 import { logger } from '@utils/logger';
 import { safeJSONParse } from '@utils/validation';
-import { HistoryFilterState } from '@/components/features/History/HistoryFilters/HistoryFilters';
-import { ActiveHistoryEntry, HistoryFilters } from '@app-types/history';
 
 /** Union of available history tab identifiers. */
 export type TabType = 'active' | 'favorites' | 'archive';

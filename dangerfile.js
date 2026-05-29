@@ -15,7 +15,7 @@
  * `fail()` blocks the PR; `warn()` / `message()` are advisory.
  */
 
-import { danger, fail, warn, message, markdown } from 'danger';
+import { danger, fail, markdown, message, warn } from 'danger';
 
 const pr = danger.github.pr;
 const modified = danger.git.modified_files;

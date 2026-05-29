@@ -1,4 +1,5 @@
 import { memo } from 'react';
+
 import { ChevronDown, ChevronUp, Moon, Sun } from 'lucide-react';
 
 type SubmenuKey = 'settings' | 'theme' | null;

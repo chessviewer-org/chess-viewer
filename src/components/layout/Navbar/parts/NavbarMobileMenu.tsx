@@ -1,5 +1,6 @@
 import { memo } from 'react';
-import { Link } from 'react-router-dom';
+
+import type { Session } from '@supabase/supabase-js';
 import {
   HelpCircle,
   LogIn,
@@ -10,7 +11,7 @@ import {
   User,
   UserPlus
 } from 'lucide-react';
-import type { Session } from '@supabase/supabase-js';
+import { Link } from 'react-router-dom';
 
 /** Props for the `NavbarMobileMenu` slide-down panel. */
 interface NavbarMobileMenuProps {

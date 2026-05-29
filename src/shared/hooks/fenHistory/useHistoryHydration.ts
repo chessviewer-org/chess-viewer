@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
+
 import { syncStorage } from '@/features/auth/services/syncStorage';
-import { safeJSONParse } from '@utils/validation';
 import type { ActiveHistoryEntry } from '@app-types/history';
 
+import { safeJSONParse } from '@utils/validation';
 import { persistHistory } from './persistHistory';
 
 /**

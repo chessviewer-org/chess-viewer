@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { BOARD_THEMES } from '@constants';
+
 import { useThemePresets } from '@hooks';
+import { BOARD_THEMES } from '@constants';
+
 import {
   type CustomThemeDraft,
   MAX_THEMES,
   type ThemeCard,
-  THEMES_PER_PAGE,
-  type ThemePresetLike
-} from './ExportStudio.types';
+  type ThemePresetLike,
+  THEMES_PER_PAGE} from './ExportStudio.types';
 
 function mapPresetToDraft(preset: ThemePresetLike): CustomThemeDraft {
   return {

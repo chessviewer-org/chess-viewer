@@ -1,4 +1,10 @@
 import { useCallback, useState } from 'react';
+
+import type {
+  ActiveHistoryEntry,
+  ArchivedHistoryEntry
+} from '@app-types/history';
+
 import {
   clearArchive as clearArchiveUtil,
   deleteArchivedEntry as deleteArchivedEntryUtil,
@@ -7,10 +13,6 @@ import {
 } from '@utils/archiveManager';
 import { sortByMostRecent } from '@utils/historyUtils';
 import { logger } from '@utils/logger';
-import type {
-  ActiveHistoryEntry,
-  ArchivedHistoryEntry
-} from '@app-types/history';
 
 /** Arguments for `useArchiveManager`. */
 interface UseArchiveManagerArgs {

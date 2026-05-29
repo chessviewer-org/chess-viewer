@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+
 import Modal, { ModalType } from '@shared/ui/Modal/Modal';
 
 interface ModalState {

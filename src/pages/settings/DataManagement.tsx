@@ -1,7 +1,10 @@
 import React, { memo, useRef, useState } from 'react';
+
 import { Download, RotateCcw, Upload } from 'lucide-react';
-import { safeJSONParse } from '@utils/validation';
+
 import { useModal } from '@/contexts';
+
+import { safeJSONParse } from '@utils/validation';
 
 const STORAGE_KEYS = [
   'chess-fen',

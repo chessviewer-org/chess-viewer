@@ -1,6 +1,9 @@
 import { useCallback, useEffect } from 'react';
+
 import { useLocation, useNavigate } from 'react-router-dom';
+
 import { ADVANCED_FEN_CONFIG } from '@constants';
+
 import { logger } from '@utils';
 
 /** Options for the useAdvancedNavigation hook. */

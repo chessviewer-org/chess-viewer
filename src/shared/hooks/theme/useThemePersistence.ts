@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
+
 import { syncStorage } from '@/features/auth/services/syncStorage';
+
 import { logger } from '@utils/logger';
 import { safeJSONParse, sanitizeHexColor } from '@utils/validation';
 import type { ThemeHistoryItem } from './types';

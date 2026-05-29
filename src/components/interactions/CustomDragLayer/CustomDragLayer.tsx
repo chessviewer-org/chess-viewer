@@ -1,6 +1,8 @@
-import { memo, useRef, useEffect, useCallback } from 'react';
+import { memo, useCallback,useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { useDragLayer, DragLayerMonitor } from 'react-dnd';
+
+import { DragLayerMonitor,useDragLayer } from 'react-dnd';
+
 import { ItemTypes } from '@constants';
 
 import type { DragItem } from '../DroppableSquare/DroppableSquare';

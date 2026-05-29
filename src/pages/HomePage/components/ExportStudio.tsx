@@ -1,18 +1,18 @@
 import { useCallback } from 'react';
+
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { useExportWizard } from '../hooks/useExportWizard';
-
 import ExportSettingsStep from './ExportSettingsStep';
-import ExportStudioPreview from './ExportStudioPreview';
-import PieceDisplayStep from './PieceDisplayStep';
-import ThemeStudioStep from './ThemeStudioStep';
-import { useExportStudioThemes } from './useExportStudioThemes';
 import {
   type BatchExportOverrides,
   type HomeStateForExport,
   type ThemeCard
 } from './ExportStudio.types';
+import ExportStudioPreview from './ExportStudioPreview';
+import PieceDisplayStep from './PieceDisplayStep';
+import ThemeStudioStep from './ThemeStudioStep';
+import { useExportStudioThemes } from './useExportStudioThemes';
 
 /** Props for the full-screen export studio overlay. */
 interface ExportStudioProps {

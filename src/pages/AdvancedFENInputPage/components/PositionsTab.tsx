@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
-import { motion, AnimatePresence, Transition } from 'framer-motion';
+
+import { AnimatePresence, motion, Transition } from 'framer-motion';
 import { AlertCircle, Check, Clipboard, Heart, Trash2 } from 'lucide-react';
 
 import { validateFEN } from '@utils';

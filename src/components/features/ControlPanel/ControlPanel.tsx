@@ -1,20 +1,20 @@
 import {
   memo,
+  Ref,
   useCallback,
   useEffect,
   useImperativeHandle,
   useRef,
-  useState,
-  Ref
-} from 'react';
+  useState} from 'react';
 
 import { History, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import { FENInputField } from '@/components/features/Fen';
-import { useFENHistory } from '@hooks';
-import { MAX_FEN_LENGTH } from '@utils/validation';
 import type { NotificationType } from '@/components/features/Fen/FENInputField/FENInputField';
+import { useFENHistory } from '@hooks';
+
+import { MAX_FEN_LENGTH } from '@utils/validation';
 
 /** Props for the `ControlPanel` sidebar component. */
 export interface ControlPanelProps {

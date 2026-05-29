@@ -1,12 +1,14 @@
-import { lazy, Suspense, memo } from 'react';
+import { lazy, memo,Suspense } from 'react';
+
 import { motion } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 
 import Logo from '@/assets/Logo.png';
 import HelpCenter from '@/components/features/HelpCenter';
-import { useNavbarState } from './useNavbarState';
+
 import { NavbarDesktopDropdown } from './parts/NavbarDesktopDropdown';
 import { NavbarMobileMenu } from './parts/NavbarMobileMenu';
+import { useNavbarState } from './useNavbarState';
 
 const AuthModal = lazy(() =>
   import('@/features/auth/components/AuthModal').then((m) => ({

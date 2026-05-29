@@ -1,10 +1,11 @@
-import { memo, useCallback, useEffect, useRef, useState, ChangeEvent } from 'react';
+import { ChangeEvent,memo, useCallback, useEffect, useRef, useState } from 'react';
 
 import { AlertCircle } from 'lucide-react';
 
 import { useFENBatch } from '@/contexts';
 import ClipboardHistory from '@components/features/ClipboardHistory';
 import { useDebouncedFENValidation } from '@hooks/useDebouncedFENValidation';
+
 import { validateFEN } from '@utils';
 import { MAX_FEN_LENGTH } from '@utils/validation';
 import FENInputToolbar from './FENInputToolbar';

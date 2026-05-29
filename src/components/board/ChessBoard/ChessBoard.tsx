@@ -1,5 +1,7 @@
-import { useImperativeHandle, forwardRef, memo } from 'react';
-import { usePieceImages, useChessBoard } from '@hooks';
+import { forwardRef, memo,useImperativeHandle } from 'react';
+
+import { useChessBoard,usePieceImages } from '@hooks';
+
 import { useBoardCanvas } from './useBoardCanvas';
 
 /** Props for the `ChessBoard` canvas component. */

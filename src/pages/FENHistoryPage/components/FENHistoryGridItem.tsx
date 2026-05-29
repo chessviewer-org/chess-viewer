@@ -1,7 +1,10 @@
 import React, { memo } from 'react';
+
 import { Archive as ArchiveIcon, Clock, Star, Trash2 } from 'lucide-react';
+
 import { MiniPreview } from '@/components/board';
 import { StatusBadge } from '@/components/features/History';
+
 import { TabType } from '../hooks/useFENHistoryPage';
 
 /** Shape of a single FEN history record rendered by this component. */

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { ShieldAlert, KeyRound, ArrowLeft } from 'lucide-react';
-import { supabase } from '../services/supabaseClient';
+
+import { ArrowLeft,KeyRound, ShieldAlert } from 'lucide-react';
+
 import { logger } from '@utils/logger';
+import { supabase } from '../services/supabaseClient';
 
 /** Props for the `MfaVerification` TOTP/backup-code form. */
 interface MfaVerificationProps {

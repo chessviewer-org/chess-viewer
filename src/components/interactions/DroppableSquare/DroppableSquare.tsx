@@ -3,9 +3,10 @@ import { memo, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useDrop } from 'react-dnd';
 
-import DraggablePiece from '../DraggablePiece/DraggablePiece';
 import { ItemTypes } from '@constants';
 import type { PieceSymbol } from '@app-types/chess';
+
+import DraggablePiece from '../DraggablePiece/DraggablePiece';
 
 /** The drag item payload passed between react-dnd sources and targets. */
 export interface DragItem {

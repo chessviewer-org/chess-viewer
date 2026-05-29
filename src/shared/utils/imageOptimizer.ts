@@ -1,4 +1,5 @@
 import { QUALITY_PRESETS } from '@constants';
+
 import { getCoordinateParams } from './coordinateCalculations';
 import { logger } from './logger';
 

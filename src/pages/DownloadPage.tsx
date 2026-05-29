@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   CheckCircle,
   Download,
@@ -7,6 +8,7 @@ import {
   Smartphone,
   Tablet
 } from 'lucide-react';
+
 import { useModal } from '@/contexts';
 
 /** Page presenting web and PWA installation options. */

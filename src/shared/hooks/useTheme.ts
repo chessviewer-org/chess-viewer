@@ -1,12 +1,13 @@
 import React, { useCallback, useMemo, useState } from 'react';
+
 import { logger } from '@utils/logger';
-import { useThemePersistence } from './theme/useThemePersistence';
 import {
   adjustBrightness,
   generateComplementary,
   getContrastRatio
 } from './theme/themeColorMath';
 import type { ThemeHistoryItem } from './theme/types';
+import { useThemePersistence } from './theme/useThemePersistence';
 
 export type { ThemeHistoryItem };
 

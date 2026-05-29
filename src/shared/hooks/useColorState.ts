@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+
 import { logger } from '@utils/logger';
 
 /** Return type of `useColorState` — all hex color input state and interaction handlers. */

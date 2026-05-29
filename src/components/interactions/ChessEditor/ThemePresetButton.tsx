@@ -1,4 +1,5 @@
 import { memo } from 'react';
+
 import { useIntersectionObserver } from '@hooks';
 import { ThemeConfig } from '@app-types';
 

@@ -1,10 +1,12 @@
 import { memo, useCallback, useMemo, useRef } from 'react';
+
 import { motion } from 'framer-motion';
 import { Palette } from 'lucide-react';
 
+import { useOutsideClick } from '@hooks';
 import { BOARD_THEMES } from '@constants';
 import { ThemeConfig } from '@app-types';
-import { useOutsideClick } from '@hooks';
+
 import ThemePresetButton from './ThemePresetButton';
 
 /** Props for the in-board Quick Theme popover. */

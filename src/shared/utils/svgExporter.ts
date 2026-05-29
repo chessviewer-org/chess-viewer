@@ -1,12 +1,12 @@
+import { ChessBoard, isChessBoard } from '../types/index';
 import { parseFEN } from './fenParser';
 import { shouldForceCoordinateBorder } from './imageOptimizer';
-import { sanitizeFileName, sanitizeInput } from './validation';
-import { ChessBoard, isChessBoard } from '../types/index';
 import {
   getPieceKey,
   imageToEmbeddableDataURL,
   waitForPieceImage
 } from './svgPieceLoader';
+import { sanitizeFileName, sanitizeInput } from './validation';
 
 const SVG_BOARD_PX = 800;
 const SVG_COORD_BORDER_RATIO = 0.05;

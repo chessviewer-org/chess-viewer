@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
 import { useLocation } from 'react-router-dom';
 
-import { ADVANCED_FEN_CONFIG } from '@constants';
 import { useFENBatch } from '@/contexts/useFENBatch';
+import { ADVANCED_FEN_CONFIG } from '@constants';
+
 import { getFENValidationError, logger, validateFEN } from '@utils';
 import { MAX_FEN_LENGTH, safeJSONParse } from '@utils/validation';
 

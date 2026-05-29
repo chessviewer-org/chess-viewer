@@ -1,5 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
 import { syncStorage } from '@/features/auth/services/syncStorage';
+import {
+  ActiveHistoryEntry,
+  ArchivedHistoryEntry,
+  FreshnessStatus,
+  HistoryFilters,
+  HistorySource
+} from '@app-types/history';
+
 import { validateFEN } from '@utils';
 import { archiveEntries as archiveEntriesUtil, performAutoArchival } from '@utils/archiveManager';
 import {
@@ -10,14 +19,6 @@ import {
   touchEntry
 } from '@utils/historyUtils';
 import { logger } from '@utils/logger';
-import {
-  ActiveHistoryEntry,
-  ArchivedHistoryEntry,
-  HistoryFilters,
-  FreshnessStatus,
-  HistorySource
-} from '@app-types/history';
-
 import { useArchiveManager } from './fenHistory/useArchiveManager';
 import { useHistoryDragDebounce } from './fenHistory/useHistoryDragDebounce';
 import { useHistoryHydration } from './fenHistory/useHistoryHydration';

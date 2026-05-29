@@ -1,6 +1,9 @@
 import { memo, useMemo } from 'react';
+
 import { Layout } from 'lucide-react';
+
 import ChessBoard from '@/components/board/ChessBoard/ChessBoard';
+
 import type { HomeStateForExport } from './ExportStudio.types';
 
 /** Props for the sticky live-preview panel rendered alongside the wizard steps. */

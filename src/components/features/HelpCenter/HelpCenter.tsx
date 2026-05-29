@@ -1,13 +1,14 @@
 import { memo, useMemo, useState } from 'react';
+
 import { AnimatePresence, motion } from 'framer-motion';
 import { HelpCircle, Search, X } from 'lucide-react';
+
 import {
   CONTENT,
-  SECTIONS,
-  TAB_CONFIG,
   searchHelp,
-  type SectionId
-} from './helpContent';
+  type SectionId,
+  SECTIONS,
+  TAB_CONFIG} from './helpContent';
 
 /** Props for the `HelpCenterDrawer` overlay. */
 export interface HelpCenterProps {

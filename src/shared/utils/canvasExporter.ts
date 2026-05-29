@@ -1,20 +1,19 @@
 import { createUltraQualityCanvas } from './canvasRenderer';
 import { changeDPI } from './dpiEncoder';
-import { sanitizeFileName } from './validation';
-import {
-  getExportInfo,
-  validateExportConfig,
-  setProgress,
-  waitWhilePaused,
-  checkCancellation,
-  resetExportState,
-  exportState,
-  cancelExport,
-  pauseExport,
-  resumeExport
-} from './exportState';
 import { createRasterBlob } from './exportRaster';
+import {
+  cancelExport,
+  checkCancellation,
+  exportState,
+  getExportInfo,
+  pauseExport,
+  resetExportState,
+  resumeExport,
+  setProgress,
+  validateExportConfig,
+  waitWhilePaused} from './exportState';
 import { FileSizeEstimates } from './imageOptimizer';
+import { sanitizeFileName } from './validation';
 
 /** Callback invoked at each stage of an export operation with a 0–100 progress value. */
 export type ProgressCallback = (progress: number, label?: string | null) => void;
@@ -56,7 +55,7 @@ export interface ExportInfo {
   renderEngine: string;
 }
 
-export { cancelExport, pauseExport, resumeExport, resetExportState, getExportInfo };
+export { cancelExport, getExportInfo,pauseExport, resetExportState, resumeExport };
 
 function triggerDownload(blob: Blob, fileName: string, extension: string): void {
   const url = URL.createObjectURL(blob);

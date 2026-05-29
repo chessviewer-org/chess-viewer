@@ -1,5 +1,5 @@
-import { syncStorage } from './syncStorage';
 import { logger } from '@utils/logger';
+import { syncStorage } from './syncStorage';
 
 const MIGRATION_LOCK_KEY = 'supabase_migration_complete';
 

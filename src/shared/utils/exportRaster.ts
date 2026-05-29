@@ -1,4 +1,11 @@
+import type { ExportConfig, ProgressCallback } from './canvasExporter';
 import { createUltraQualityCanvas } from './canvasRenderer';
+import {
+  checkCancellation,
+  clearActiveRasterTask,
+  exportState,
+  setProgress,
+  waitWhilePaused} from './exportState';
 import { calculateRenderSurfaceSize } from './imageOptimizer';
 import { logger } from './logger';
 import { generateBoardSVG } from './svgExporter';
@@ -6,14 +13,6 @@ import {
   isSvgRasterWorkerSupported,
   startSvgRasterWorkerTask
 } from './workerRasterExport';
-import {
-  setProgress,
-  waitWhilePaused,
-  checkCancellation,
-  exportState,
-  clearActiveRasterTask
-} from './exportState';
-import type { ExportConfig, ProgressCallback } from './canvasExporter';
 
 function canvasToBlob(
   canvas: HTMLCanvasElement,

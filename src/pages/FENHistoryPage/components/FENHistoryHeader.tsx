@@ -1,5 +1,7 @@
 import React, { memo } from 'react';
+
 import { Archive as ArchiveIcon, ArrowLeft, Clock, Star } from 'lucide-react';
+
 import { TabType } from '../hooks/useFENHistoryPage';
 
 /** Props for the FEN history page header with tab counts and clear-all action. */

@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+
 import type { AdvancedFENInitialProps, ExportFormat } from './useAdvancedFEN.types';
 
 /** Initialises all visual and export settings state from props, with stable initial-value ref for position sync resets. */

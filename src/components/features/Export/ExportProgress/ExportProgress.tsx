@@ -1,9 +1,10 @@
 import { memo, useEffect, useState } from 'react';
+
 import { FileImage, Pause, Play, XCircle } from 'lucide-react';
 
-import { ModalShell } from '@shared/ui';
 import { ExportConfig, ExportInfo, getExportInfo } from '@utils/canvasExporter';
 import { FileSizeEstimates } from '@utils/imageOptimizer';
+import { ModalShell } from '@shared/ui';
 
 /** Props for the `ExportProgress` modal overlay. */
 export interface ExportProgressProps {

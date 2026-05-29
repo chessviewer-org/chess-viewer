@@ -1,10 +1,12 @@
 import React, { memo } from 'react';
+
 import { ConfirmationModal, HistoryFilters } from '@/components/features/History';
-import { useFENHistoryPage } from './hooks/useFENHistoryPage';
-import { FENHistoryHeader } from './components/FENHistoryHeader';
+import { BaseHistoryEntry } from '@app-types/history';
+
 import { FENHistoryEmptyState } from './components/FENHistoryEmptyState';
 import { FENHistoryGridItem } from './components/FENHistoryGridItem';
-import { BaseHistoryEntry } from '@app-types/history';
+import { FENHistoryHeader } from './components/FENHistoryHeader';
+import { useFENHistoryPage } from './hooks/useFENHistoryPage';
 
 /** Paginated grid view of saved FEN positions across active, favorites, and archive tabs. */
 const FENHistoryPage: React.FC = memo(() => {

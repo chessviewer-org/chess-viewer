@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { QRCodeSVG } from 'qrcode.react';
 
 /** Props for the `TwoFactorVerify` QR-code and TOTP entry step. */

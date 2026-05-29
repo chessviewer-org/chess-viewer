@@ -1,4 +1,5 @@
 import { memo } from 'react';
+
 import { Link, Link2Off, Sparkles } from 'lucide-react';
 
 import type { useAdvancedFEN } from '../hooks/useAdvancedFEN';

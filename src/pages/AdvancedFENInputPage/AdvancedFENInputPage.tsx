@@ -1,21 +1,22 @@
 import React, { memo } from 'react';
+
 import {
-  Eye,
-  List,
   ChevronRight,
+  Eye,
   Globe,
+  List,
   Sliders
 } from 'lucide-react';
 
-import { ToolPageHeader } from '@/components/layout';
 import { ExportProgress } from '@/components/features';
+import { ToolPageHeader } from '@/components/layout';
 import { ADVANCED_FEN_CONFIG } from '@constants';
-import { useAdvancedFEN, AdvancedFENInitialProps } from './hooks/useAdvancedFEN';
 
 import PositionsTab from './components/PositionsTab';
 import PreviewPlayerColumn from './components/PreviewPlayerColumn';
 import WizardExportSettings from './components/WizardExportSettings';
 import WizardVisualSetup from './components/WizardVisualSetup';
+import { AdvancedFENInitialProps,useAdvancedFEN } from './hooks/useAdvancedFEN';
 
 const { TABS } = ADVANCED_FEN_CONFIG;
 

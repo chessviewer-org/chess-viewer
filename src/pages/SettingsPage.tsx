@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useState } from 'react';
+
 import {
   Database,
   ShieldCheck,
@@ -7,9 +8,10 @@ import {
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { ToolPageHeader } from '@/components/layout';
-import { Button } from '@shared/ui';
-import { DataManagement } from '@/pages/settings';
 import { TwoFactorSetup } from '@/features/auth/components/TwoFactorSetup';
+import { DataManagement } from '@/pages/settings';
+
+import { Button } from '@shared/ui';
 
 const pageTabs = [
   {

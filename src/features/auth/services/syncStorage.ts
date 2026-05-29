@@ -1,8 +1,8 @@
 import type { User } from '@supabase/supabase-js';
 
-import { supabase } from './supabaseClient';
-import { logger } from '@utils/logger';
 import { crypto } from '@utils/crypto';
+import { logger } from '@utils/logger';
+import { supabase } from './supabaseClient';
 
 const ENCRYPTION_KEY_STORAGE = 'cv_privacy_key';
 

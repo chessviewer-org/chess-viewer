@@ -1,9 +1,10 @@
 import { memo } from 'react';
+
 import { Copy, Download, FlipVertical2 } from 'lucide-react';
 
 import { ADVANCED_FEN_CONFIG } from '@constants';
-import { logger } from '@utils';
 
+import { logger } from '@utils';
 import type { useAdvancedFEN } from '../hooks/useAdvancedFEN';
 import BoardDisplay from './BoardDisplay';
 import PlaybackControls from './PlaybackControls';

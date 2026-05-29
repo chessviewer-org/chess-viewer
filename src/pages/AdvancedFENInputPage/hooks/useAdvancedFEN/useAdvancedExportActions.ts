@@ -1,7 +1,6 @@
 import { useCallback, useMemo } from 'react';
 
 import { downloadJPEG, downloadPNG, downloadSVG, logger } from '@utils';
-
 import { parseSmartNaming } from './parseSmartNaming';
 import type { ExportFormat, PositionSettings } from './useAdvancedFEN.types';
 

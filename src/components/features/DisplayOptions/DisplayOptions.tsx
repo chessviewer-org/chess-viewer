@@ -1,6 +1,8 @@
 import { memo } from 'react';
-import { Checkbox } from '@shared/ui';
+
 import { QUALITY_PRESETS } from '@constants';
+
+import { Checkbox } from '@shared/ui';
 
 /** Props for the `DisplayOptions` checkbox group. */
 export interface DisplayOptionsProps {

@@ -1,5 +1,7 @@
 import React, { memo } from 'react';
+
 import { Clock } from 'lucide-react';
+
 import { TabType } from '../hooks/useFENHistoryPage';
 
 /** Props for the empty state shown when the active history tab has no entries. */

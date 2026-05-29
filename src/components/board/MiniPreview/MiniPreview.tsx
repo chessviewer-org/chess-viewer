@@ -1,6 +1,7 @@
 import { memo, useEffect, useRef, useState } from 'react';
 
 import { usePieceImages } from '@hooks';
+
 import { logger, parseFEN } from '@utils';
 
 /** Props for the `MiniPreview` canvas thumbnail component. */

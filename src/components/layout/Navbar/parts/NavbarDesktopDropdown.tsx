@@ -1,5 +1,6 @@
 import { memo } from 'react';
-import { Link } from 'react-router-dom';
+
+import type { Session } from '@supabase/supabase-js';
 import {
   Database,
   HelpCircle,
@@ -8,8 +9,9 @@ import {
   User,
   UserCircle
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
 import { ThemeSubmenu } from './ThemeSubmenu';
-import type { Session } from '@supabase/supabase-js';
 
 type SubmenuKey = 'settings' | 'theme' | null;
 

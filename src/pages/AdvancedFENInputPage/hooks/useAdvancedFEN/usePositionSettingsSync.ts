@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { isRecord, safeJSONParse } from '@utils/validation';
-
 import type { ExportFormat, PositionSettings } from './useAdvancedFEN.types';
 
 function isPositionSettings(value: unknown): value is PositionSettings {

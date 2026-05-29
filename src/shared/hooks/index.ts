@@ -1,13 +1,12 @@
 export { useChessBoard } from './useChessBoard';
-export { usePieceImages } from './usePieceImages';
+export { useColorState } from './useColorState';
 export { useFENHistory } from './useFENHistory';
 export { useInteractiveBoard } from './useInteractiveBoard';
+export { useIntersectionObserver } from './useIntersectionObserver';
+export { useLocalStorage } from './useLocalStorage';
+export { useNotifications } from './useNotifications';
+export { useOutsideClick } from './useOutsideClick';
+export { usePieceImages } from './usePieceImages';
 export { useTheme } from './useTheme';
 export { useThemePresets } from './useThemePresets';
-export { useNotifications } from './useNotifications';
-export { useLocalStorage } from './useLocalStorage';
-export { useColorState } from './useColorState';
-
-export { useOutsideClick } from './useOutsideClick';
-export { useIntersectionObserver } from './useIntersectionObserver';
 export { useFENBatch } from '@/contexts/useFENBatch';

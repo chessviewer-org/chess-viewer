@@ -1,6 +1,9 @@
 import { useEffect } from 'react';
+
 import { useLocation } from 'react-router-dom';
+
 import { useLocalStorage } from '@hooks';
+
 import { safeJSONParse } from '@utils/validation';
 
 /** Persists all board display settings to localStorage and syncs square colors on cross-tab storage events. */

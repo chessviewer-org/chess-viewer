@@ -1,10 +1,12 @@
-import { memo, useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { memo, useCallback, useEffect, useMemo,useRef, useState } from 'react';
+
 import { Check, Copy, Trash2, X } from 'lucide-react';
 import { List, RowComponentProps } from 'react-window';
 
+import { useModal } from '@/contexts';
+
 import { logger } from '@utils/logger';
 import { safeJSONParse } from '@utils/validation';
-import { useModal } from '@/contexts';
 
 /** Row item data passed to the virtualized list renderer. */
 export interface RowData {

@@ -1,12 +1,13 @@
+import { syncStorage } from '@/features/auth/services/syncStorage';
 import { ActiveHistoryEntry, ArchivedHistoryEntry } from '@app-types/history';
+
 import {
   convertToArchivedEntry,
   partitionByArchiveStatus,
   sortArchivedByArchiveDate,
 } from './historyUtils';
-import { syncStorage } from '@/features/auth/services/syncStorage';
-import { safeJSONParse } from './validation';
 import { logger } from './logger';
+import { safeJSONParse } from './validation';
 
 const ARCHIVE_STORAGE_KEY = 'fen-archive';
 

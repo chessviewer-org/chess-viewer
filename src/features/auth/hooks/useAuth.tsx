@@ -1,9 +1,10 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+
 import type { Session, User } from '@supabase/supabase-js';
 
-import { supabase } from '../services/supabaseClient';
-import { dataMigration } from '../services/dataMigration';
 import { logger } from '@utils/logger';
+import { dataMigration } from '../services/dataMigration';
+import { supabase } from '../services/supabaseClient';
 
 /** Shape of the value provided by `AuthContext`. */
 export interface AuthContextValue {

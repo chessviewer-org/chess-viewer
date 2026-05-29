@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { ShieldCheck, ShieldAlert,  ArrowLeft } from 'lucide-react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+
+import { AnimatePresence,motion } from 'framer-motion';
+import { ArrowLeft,ShieldAlert,  ShieldCheck } from 'lucide-react';
 
 import { supabase } from '../services/supabaseClient';
 import type { SecurityLockModalProps } from '../types';

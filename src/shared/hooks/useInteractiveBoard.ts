@@ -1,8 +1,9 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 
+import { ChessBoard, isChessBoard, PieceSymbol } from '@app-types/chess';
+
 import { logger, parseFEN, validateFEN } from '@utils';
 import { boardToFEN, createEmptyBoard, isBoardEmpty } from '@utils/boardUtils';
-import { ChessBoard, isChessBoard, PieceSymbol } from '@app-types/chess';
 
 function cloneBoard(board: ChessBoard): ChessBoard {
   return board.map((row) => [...row] as PieceSymbol[]) as ChessBoard;

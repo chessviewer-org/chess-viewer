@@ -1,11 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { ADVANCED_FEN_CONFIG } from '@constants';
 import { useChessBoard, usePieceImages, useTheme } from '@hooks';
-import { validateFEN } from '@utils';
+import { ADVANCED_FEN_CONFIG } from '@constants';
 
+import { validateFEN } from '@utils';
 import { parseSmartNaming } from './useAdvancedFEN/parseSmartNaming';
 import { useAdvancedExportActions } from './useAdvancedFEN/useAdvancedExportActions';
+import type {
+  AdvancedFENInitialProps,
+  ExportState,
+  PositionSettings
+} from './useAdvancedFEN/useAdvancedFEN.types';
 import { useAdvancedNavigation } from './useAdvancedFEN/useAdvancedNavigation';
 import { useAdvancedSettingsState } from './useAdvancedFEN/useAdvancedSettingsState';
 import { useAdvancedUIHandlers } from './useAdvancedFEN/useAdvancedUIHandlers';
@@ -13,11 +18,6 @@ import { useExportProgress } from './useAdvancedFEN/useExportProgress';
 import { useFENBatchSync } from './useAdvancedFEN/useFENBatchSync';
 import { useKeyboardNavigation } from './useAdvancedFEN/useKeyboardNavigation';
 import { usePositionSettingsSync } from './useAdvancedFEN/usePositionSettingsSync';
-import type {
-  AdvancedFENInitialProps,
-  ExportState,
-  PositionSettings
-} from './useAdvancedFEN/useAdvancedFEN.types';
 
 export type { AdvancedFENInitialProps, ExportState, PositionSettings };
 export { parseSmartNaming };

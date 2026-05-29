@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+
+import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
+
+import type { AuthModalProps, AuthTab } from '../types';
+import { MfaVerification } from './MfaVerification';
 import { SignIn } from './SignIn';
 import { SignUp } from './SignUp';
 import { TwoFactorSetup } from './TwoFactorSetup';
-import { MfaVerification } from './MfaVerification';
-import { motion } from 'framer-motion';
-
-import type { AuthModalProps, AuthTab } from '../types';
 
 export function AuthModal({ isOpen, onClose, initialTab = 'signin' }: AuthModalProps) {
   const [activeTab, setActiveTab] = useState<AuthTab | 'mfa'>(initialTab);

@@ -1,4 +1,5 @@
 import { memo } from 'react';
+
 import { Check, Maximize2 } from 'lucide-react';
 
 import { BOARD_THEMES, PIECE_SETS } from '@/shared/constants/chessConstants';

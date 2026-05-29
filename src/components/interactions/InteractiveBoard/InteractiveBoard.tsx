@@ -2,9 +2,10 @@ import { memo, useCallback, useMemo, useRef } from 'react';
 
 import { useDrop } from 'react-dnd';
 
-import DroppableSquare from '../DroppableSquare/DroppableSquare';
 import { ItemTypes } from '@constants';
 import type { PieceSymbol } from '@app-types/chess';
+
+import DroppableSquare from '../DroppableSquare/DroppableSquare';
 
 /** Props for the `InteractiveBoard` DnD board grid. */
 export interface InteractiveBoardProps {

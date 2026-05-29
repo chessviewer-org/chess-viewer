@@ -1,5 +1,7 @@
 import { useState } from 'react';
+
 import { supabase } from '@/features/auth/services/supabaseClient';
+
 import { generateBackupCodes, getMfaErrorMessage, isMfa422Error } from './mfaErrors';
 
 /**

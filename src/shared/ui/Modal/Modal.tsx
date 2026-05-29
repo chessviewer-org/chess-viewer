@@ -1,6 +1,7 @@
 import React, { memo, useEffect } from 'react';
+
 import { AnimatePresence, motion } from 'framer-motion';
-import { AlertTriangle, Info, XCircle, X } from 'lucide-react';
+import { AlertTriangle, Info, X,XCircle } from 'lucide-react';
 
 /** Visual severity variant for the `Modal` component. */
 export type ModalType = 'warning' | 'info' | 'danger';

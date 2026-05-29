@@ -2,14 +2,15 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Copy, RotateCcw, Settings, X } from 'lucide-react';
 
+import { useInteractiveBoard, usePieceImages, useTheme } from '@hooks';
+
 import CustomDragLayer from '../CustomDragLayer/CustomDragLayer';
 import InteractiveBoard from '../InteractiveBoard/InteractiveBoard';
 import PiecePalette from '../PiecePalette/PiecePalette';
 import TrashZone from '../TrashZone/TrashZone';
-import { useInteractiveBoard, usePieceImages, useTheme } from '@hooks';
 import { FileCoordinates, RankCoordinates } from './EditorCoordinates';
-import { useEditorBoardSize } from './useEditorBoardSize';
 import QuickThemePopover from './QuickThemePopover';
+import { useEditorBoardSize } from './useEditorBoardSize';
 
 /** Props for the `ChessEditor` interactive board wrapper. */
 export interface ChessEditorProps {

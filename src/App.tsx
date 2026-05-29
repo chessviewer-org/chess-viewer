@@ -3,13 +3,14 @@ import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useState } fro
 import { useLocation } from 'react-router-dom';
 
 import { Navbar } from '@/components/layout';
-import { ErrorBoundary } from '@shared/ui';
 import { FENBatchProvider } from '@/contexts/FENBatchContext';
 import { ModalProvider } from '@/contexts/ModalContext';
-import Routes from '@/routes/Router';
-import { logger } from '@utils/logger';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useSecurityCheck } from '@/features/auth/hooks/useSecurityCheck';
+import Routes from '@/routes/Router';
+
+import { logger } from '@utils/logger';
+import { ErrorBoundary } from '@shared/ui';
 
 /** Lazy-loaded: only needed when an authenticated user hits the 90-day lock. */
 const SecurityLockModal = lazy(() =>
