@@ -2,7 +2,7 @@ export { default as Button } from './Button/Button';
 export { default as Checkbox } from './Checkbox/Checkbox';
 export { default as CustomSelect } from './CustomSelect/CustomSelect';
 export { default as DatePicker } from './DatePicker/DatePicker';
-export { default as ErrorBoundary } from './ErrorBoundary/ErrorBoundary';
+export { ErrorBoundary } from './ErrorBoundary/ErrorBoundary';
 export { default as Input } from './Input/Input';
 export { default as Modal } from './Modal/Modal';
 export { default as ModalShell } from './Modal/ModalShell';
