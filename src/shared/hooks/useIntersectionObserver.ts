@@ -47,5 +47,3 @@ export function useIntersectionObserver<T extends HTMLElement>({
     isVisible
   };
 }
-
-export default useIntersectionObserver;
