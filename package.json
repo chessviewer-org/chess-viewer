@@ -39,8 +39,8 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.5.3",
-    "@commitlint/config-conventional": "^20.5.3",
+    "@commitlint/cli": "^21.0.1",
+    "@commitlint/config-conventional": "^21.0.1",
     "@eslint/js": "9.39.4",
     "@tailwindcss/postcss": "^4.3.0",
     "@types/node": "^25.9.1",
