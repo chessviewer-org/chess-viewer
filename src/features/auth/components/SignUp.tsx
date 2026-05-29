@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
-import { supabase } from '../services/supabaseClient';
+import { supabase } from '@/features/auth/services/supabaseClient';
+
 import type { SignUpProps } from '../types';
 
 export function SignUp({ onSuccess }: SignUpProps) {

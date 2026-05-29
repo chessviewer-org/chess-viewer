@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import type { User } from '@supabase/supabase-js';
 
-import { supabase } from '../services/supabaseClient';
+import { supabase } from '@/features/auth/services/supabaseClient';
 
 /** Shape of a `user_security` row (only the field we query). */
 interface SecurityRow {

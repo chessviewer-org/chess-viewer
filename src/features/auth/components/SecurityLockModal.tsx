@@ -4,7 +4,8 @@ import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, ShieldAlert, ShieldCheck } from 'lucide-react';
 
-import { supabase } from '../services/supabaseClient';
+import { supabase } from '@/features/auth/services/supabaseClient';
+
 import type { SecurityLockModalProps } from '../types';
 
 /**
