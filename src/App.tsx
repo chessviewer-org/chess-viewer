@@ -5,7 +5,6 @@ import { useLocation } from 'react-router-dom';
 import { Navbar } from '@/components/layout';
 import { ErrorBoundary } from '@shared/ui';
 import { FENBatchProvider } from '@/contexts/FENBatchContext';
-import { ThemeSettingsProvider } from '@/contexts/ThemeSettingsContext';
 import { ModalProvider } from '@/contexts/ModalContext';
 import Routes from '@/routes/Router';
 import { logger } from '@utils/logger';
@@ -191,9 +190,8 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <ThemeSettingsProvider>
-        <FENBatchProvider>
-          <ModalProvider>
+      <FENBatchProvider>
+        <ModalProvider>
             <div className="min-h-dvh sm:h-dvh flex flex-col sm:overflow-hidden bg-linear-to-br from-bg-gradient-start to-bg-gradient-end text-[clamp(0.9375rem,0.25vw+0.875rem,1rem)] transition-colors duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
             <a
               href="#main-content"
@@ -227,8 +225,7 @@ function App() {
           </div>
         </ModalProvider>
       </FENBatchProvider>
-    </ThemeSettingsProvider>
-  </ErrorBoundary>
+    </ErrorBoundary>
   );
 }
 
