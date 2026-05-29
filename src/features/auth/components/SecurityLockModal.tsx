@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import { AnimatePresence,motion } from 'framer-motion';
-import { ArrowLeft,ShieldAlert,  ShieldCheck } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowLeft, ShieldAlert, ShieldCheck } from 'lucide-react';
 
 import { supabase } from '../services/supabaseClient';
 import type { SecurityLockModalProps } from '../types';
@@ -26,7 +26,9 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
     setError('');
     setIsSubmitting(true);
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
     if (!user?.email) {
       setError('Unable to retrieve account email.');
       setIsSubmitting(false);
@@ -35,7 +37,7 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
 
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email: user.email,
-      password,
+      password
     });
 
     if (signInError) {
@@ -45,15 +47,19 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
     }
 
     // Check if MFA is enabled
-    const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
-    const hasVerifiedMfa = !factorsError && factors && factors.totp.some(f => f.status === 'verified');
+    const { data: factors, error: factorsError } =
+      await supabase.auth.mfa.listFactors();
+    const hasVerifiedMfa =
+      !factorsError &&
+      factors &&
+      factors.totp.some((f) => f.status === 'verified');
 
     if (hasVerifiedMfa) {
       setMode('mfa');
     } else {
       onUnlock();
     }
-    
+
     setIsSubmitting(false);
   };
 
@@ -63,10 +69,11 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
     setIsSubmitting(true);
 
     try {
-      const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
+      const { data: factors, error: factorsError } =
+        await supabase.auth.mfa.listFactors();
       if (factorsError) throw factorsError;
 
-      const totpFactor = factors.totp.find(f => f.status === 'verified');
+      const totpFactor = factors.totp.find((f) => f.status === 'verified');
       if (!totpFactor) {
         setError('No verified TOTP factor found.');
         setMode('password');
@@ -74,9 +81,10 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
         return;
       }
 
-      const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({
-        factorId: totpFactor.id
-      });
+      const { data: challenge, error: challengeError } =
+        await supabase.auth.mfa.challenge({
+          factorId: totpFactor.id
+        });
       if (challengeError) throw challengeError;
 
       const { error: verifyError } = await supabase.auth.mfa.verify({
@@ -102,9 +110,12 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
     setError('');
     setIsSubmitting(true);
 
-    const { data: isValid, error: verifyError } = await supabase.rpc('verify_recovery_code', {
-      code: backupCode
-    });
+    const { data: isValid, error: verifyError } = await supabase.rpc(
+      'verify_recovery_code',
+      {
+        code: backupCode
+      }
+    );
 
     if (verifyError || !isValid) {
       setError(verifyError?.message || 'Invalid or already used backup code.');
@@ -127,7 +138,7 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
       />
 
       {/* Card */}
-      <motion.div 
+      <motion.div
         variants={{
           hidden: { opacity: 0, scale: 0.95 },
           visible: { opacity: 1, scale: 1 },
@@ -142,14 +153,20 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
         {/* Header */}
         <div className="flex flex-col items-center gap-3 px-6 pt-8 pb-4 text-center">
           <div className="w-14 h-14 rounded-full bg-warning/10 flex items-center justify-center">
-            {mode === 'mfa' ? <ShieldAlert className="w-7 h-7 text-accent" /> : <ShieldCheck className="w-7 h-7 text-warning" />}
+            {mode === 'mfa' ? (
+              <ShieldAlert className="w-7 h-7 text-accent" />
+            ) : (
+              <ShieldCheck className="w-7 h-7 text-warning" />
+            )}
           </div>
           <h2 className="text-xl font-bold font-display text-text-primary">
-            {mode === 'mfa' ? 'Two-Factor Authentication' : 'Security Verification Required'}
+            {mode === 'mfa'
+              ? 'Two-Factor Authentication'
+              : 'Security Verification Required'}
           </h2>
           <p className="text-text-secondary text-sm leading-relaxed max-w-[320px]">
-            {mode === 'mfa' 
-              ? 'Enter the 6-digit code from your authenticator app.' 
+            {mode === 'mfa'
+              ? 'Enter the 6-digit code from your authenticator app.'
               : 'It has been 90 days since your last security check. Please verify your identity to continue.'}
           </p>
         </div>
@@ -158,7 +175,7 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
         <div className="px-6 pb-8">
           <AnimatePresence mode="wait">
             {error && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-5 rounded-lg border border-error/30 bg-error/10 px-3 py-2.5 text-sm text-error text-center font-medium"
@@ -197,7 +214,10 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
           )}
 
           {mode === 'password' && (
-            <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-4">
+            <form
+              onSubmit={handlePasswordSubmit}
+              className="flex flex-col gap-4"
+            >
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
                   Current Password
@@ -236,7 +256,9 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
                   maxLength={6}
                   className="w-full text-center text-lg tracking-[0.2em] font-mono rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-text-primary focus:border-accent focus:ring-2 focus:ring-accent/35 outline-none transition-colors duration-200"
                   value={totpCode}
-                  onChange={(e) => setTotpCode(e.target.value.replace(/\\D/g, ''))}
+                  onChange={(e) =>
+                    setTotpCode(e.target.value.replace(/\\D/g, ''))
+                  }
                   required
                   autoFocus
                 />
@@ -291,6 +313,6 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
         </div>
       </motion.div>
     </div>,
-    document.body,
+    document.body
   );
 }

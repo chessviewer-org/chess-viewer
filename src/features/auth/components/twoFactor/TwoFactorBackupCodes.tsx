@@ -3,7 +3,9 @@ interface TwoFactorBackupCodesProps {
   backupCodes: string[];
 }
 
-export function TwoFactorBackupCodes({ backupCodes }: TwoFactorBackupCodesProps) {
+export function TwoFactorBackupCodes({
+  backupCodes
+}: TwoFactorBackupCodesProps) {
   return (
     <div className="flex flex-col gap-6 p-2">
       <div className="flex flex-col items-center text-center gap-4 mt-2">
@@ -15,8 +17,8 @@ export function TwoFactorBackupCodes({ backupCodes }: TwoFactorBackupCodesProps)
             2FA Enabled Successfully
           </h3>
           <p className="text-text-secondary text-sm leading-relaxed">
-            Save these backup codes in a secure place. They can be used to recover your
-            account if you lose access to your authenticator app.
+            Save these backup codes in a secure place. They can be used to
+            recover your account if you lose access to your authenticator app.
           </p>
         </div>
       </div>

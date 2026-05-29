@@ -35,4 +35,3 @@ export interface HistoryFilters {
   source?: HistorySource;
   favoritesOnly?: boolean;
 }
-

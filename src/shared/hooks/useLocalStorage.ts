@@ -4,7 +4,7 @@ import { logger } from '@utils/logger';
 import { safeJSONParse } from '@utils/validation';
 
 /**
- * Persists state to localStorage with debounced writes to improve performance 
+ * Persists state to localStorage with debounced writes to improve performance
  * and prevent UI jank during high-frequency updates.
  *
  * @template T - The type of the value being stored
@@ -12,7 +12,10 @@ import { safeJSONParse } from '@utils/validation';
  * @param initialValue - Default value used if the key is not found in storage
  * @returns A stateful value and a function to update it
  */
-export function useLocalStorage<T>(key: string, initialValue: T): [T, React.Dispatch<React.SetStateAction<T>>] {
+export function useLocalStorage<T>(
+  key: string,
+  initialValue: T
+): [T, React.Dispatch<React.SetStateAction<T>>] {
   const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingValueRef = useRef<T | null>(null);
 
@@ -49,7 +52,10 @@ export function useLocalStorage<T>(key: string, initialValue: T): [T, React.Disp
               `localStorage quota exceeded for key: ${storageKey}. Data could not be saved. Please clear some space in Settings > Data Management.`
             );
           } else {
-            logger.error(`Error saving ${storageKey} to localStorage:`, storageError);
+            logger.error(
+              `Error saving ${storageKey} to localStorage:`,
+              storageError
+            );
           }
         }
       }
@@ -62,7 +68,10 @@ export function useLocalStorage<T>(key: string, initialValue: T): [T, React.Disp
         clearTimeout(debounceTimeoutRef.current);
         if (pendingValueRef.current !== null && typeof window !== 'undefined') {
           try {
-            window.localStorage.setItem(key, JSON.stringify(pendingValueRef.current));
+            window.localStorage.setItem(
+              key,
+              JSON.stringify(pendingValueRef.current)
+            );
           } catch (error) {
             logger.error(`Error flushing ${key} on unmount:`, error);
           }

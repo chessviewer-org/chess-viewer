@@ -17,7 +17,11 @@ function DownloadPage() {
 
   const handleInstallPWA = () => {
     if (window.matchMedia('(display-mode: standalone)').matches) {
-      showAlert('Already Installed', 'The app is already installed and running in standalone mode.', 'info');
+      showAlert(
+        'Already Installed',
+        'The app is already installed and running in standalone mode.',
+        'info'
+      );
       return;
     }
     showAlert(

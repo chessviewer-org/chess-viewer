@@ -33,7 +33,11 @@ export interface UseThemeResult {
     contrastRatio: string;
     timestamp: number;
   };
-  importTheme: (themeData: { light: string; dark: string; name?: string }) => void;
+  importTheme: (themeData: {
+    light: string;
+    dark: string;
+    name?: string;
+  }) => void;
   getContrastRatio: (color1: string, color2: string) => string;
   hasGoodContrast: () => boolean;
   generateComplementary: (hex: string) => string;
@@ -162,7 +166,11 @@ export function useTheme({
       if (!themeData || !themeData.light || !themeData.dark) {
         throw new Error('Invalid theme data');
       }
-      applyCustomTheme(themeData.light, themeData.dark, themeData.name || 'Imported');
+      applyCustomTheme(
+        themeData.light,
+        themeData.dark,
+        themeData.name || 'Imported'
+      );
     },
     [applyCustomTheme]
   );

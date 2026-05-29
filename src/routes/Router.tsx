@@ -1,4 +1,4 @@
-import { lazy, ReactNode,Suspense } from 'react';
+import { lazy, ReactNode, Suspense } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { Route, Routes, useLocation } from 'react-router-dom';
@@ -9,8 +9,12 @@ const DownloadPage = lazy(() => import('@/pages/DownloadPage'));
 const SupportPage = lazy(() => import('@/pages/SupportPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'));
-const FENHistoryPage = lazy(() => import('@/pages/FENHistoryPage/FENHistoryPage'));
-const AdvancedFENInputPage = lazy(() => import('@/pages/AdvancedFENInputPage/AdvancedFENInputPage'));
+const FENHistoryPage = lazy(
+  () => import('@/pages/FENHistoryPage/FENHistoryPage')
+);
+const AdvancedFENInputPage = lazy(
+  () => import('@/pages/AdvancedFENInputPage/AdvancedFENInputPage')
+);
 
 import type { Transition } from 'framer-motion';
 
@@ -18,7 +22,10 @@ const pageTransition = {
   initial: { opacity: 0, y: 8 },
   animate: { opacity: 1, y: 0 },
   exit: { opacity: 0, y: -8 },
-  transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] } as Transition
+  transition: {
+    duration: 0.2,
+    ease: [0.4, 0, 0.2, 1] as [number, number, number, number]
+  } as Transition
 };
 
 /** Suspense fallback spinner displayed while lazy page chunks load. */

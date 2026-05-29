@@ -10,7 +10,11 @@ import { SignIn } from './SignIn';
 import { SignUp } from './SignUp';
 import { TwoFactorSetup } from './TwoFactorSetup';
 
-export function AuthModal({ isOpen, onClose, initialTab = 'signin' }: AuthModalProps) {
+export function AuthModal({
+  isOpen,
+  onClose,
+  initialTab = 'signin'
+}: AuthModalProps) {
   const [activeTab, setActiveTab] = useState<AuthTab | 'mfa'>(initialTab);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -24,7 +28,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'signin' }: AuthModalP
         onClose();
       }
     };
-    
+
     if (isOpen) {
       document.body.style.overflow = 'hidden';
       document.addEventListener('keydown', handleKeyDown);
@@ -43,7 +47,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'signin' }: AuthModalP
   return createPortal(
     <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6">
       {/* Backdrop */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -51,9 +55,9 @@ export function AuthModal({ isOpen, onClose, initialTab = 'signin' }: AuthModalP
         onClick={onClose}
         aria-hidden="true"
       />
-      
+
       {/* Modal Content — max-h + overflow for viewport safety */}
-      <motion.div 
+      <motion.div
         ref={modalRef}
         role="dialog"
         aria-modal="true"
@@ -76,7 +80,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'signin' }: AuthModalP
             {activeTab === 'security' && 'Security Settings'}
             {activeTab === 'mfa' && 'Security Verification'}
           </h2>
-          <button 
+          <button
             onClick={onClose}
             className="p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
             aria-label="Close modal"
@@ -90,13 +94,13 @@ export function AuthModal({ isOpen, onClose, initialTab = 'signin' }: AuthModalP
           {activeTab !== 'security' && activeTab !== 'mfa' && (
             <>
               <div className="flex gap-2 mb-5 bg-surface-elevated p-1.5 rounded-xl border border-border">
-                <button 
+                <button
                   className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${activeTab === 'signin' ? 'bg-bg text-text-primary shadow-sm ring-1 ring-border' : 'text-text-secondary hover:text-text-primary'}`}
                   onClick={() => setActiveTab('signin')}
                 >
                   Sign In
                 </button>
-                <button 
+                <button
                   className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${activeTab === 'signup' ? 'bg-bg text-text-primary shadow-sm ring-1 ring-border' : 'text-text-secondary hover:text-text-primary'}`}
                   onClick={() => setActiveTab('signup')}
                 >
@@ -111,15 +115,15 @@ export function AuthModal({ isOpen, onClose, initialTab = 'signin' }: AuthModalP
 
           <div className="mt-2">
             {activeTab === 'signin' && (
-              <SignIn 
-                onSuccess={onClose} 
+              <SignIn
+                onSuccess={onClose}
                 onMfaRequired={() => setActiveTab('mfa')}
               />
             )}
             {activeTab === 'signup' && <SignUp />}
             {activeTab === 'mfa' && (
-              <MfaVerification 
-                onSuccess={onClose} 
+              <MfaVerification
+                onSuccess={onClose}
                 onBack={() => setActiveTab('signin')}
               />
             )}
@@ -132,7 +136,7 @@ export function AuthModal({ isOpen, onClose, initialTab = 'signin' }: AuthModalP
         </div>
       </motion.div>
     </div>,
-    document.body,
+    document.body
   );
 }
 

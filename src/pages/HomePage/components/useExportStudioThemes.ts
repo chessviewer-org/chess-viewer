@@ -8,7 +8,8 @@ import {
   MAX_THEMES,
   type ThemeCard,
   type ThemePresetLike,
-  THEMES_PER_PAGE} from './ExportStudio.types';
+  THEMES_PER_PAGE
+} from './ExportStudio.types';
 
 function mapPresetToDraft(preset: ThemePresetLike): CustomThemeDraft {
   return {
@@ -45,7 +46,9 @@ export function useExportStudioThemes() {
   const [isAddingTheme, setIsAddingTheme] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [draggingThemeId, setDraggingThemeId] = useState<number | null>(null);
-  const [draftCustomThemes, setDraftCustomThemes] = useState<CustomThemeDraft[]>([]);
+  const [draftCustomThemes, setDraftCustomThemes] = useState<
+    CustomThemeDraft[]
+  >([]);
 
   const systemThemes = useMemo<ThemeCard[]>(
     () =>
@@ -84,7 +87,10 @@ export function useExportStudioThemes() {
     return source.slice(0, MAX_THEMES);
   }, [customThemes, systemThemes, themeTab]);
 
-  const totalPages = Math.max(1, Math.ceil(visibleThemes.length / THEMES_PER_PAGE));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(visibleThemes.length / THEMES_PER_PAGE)
+  );
 
   useEffect(() => {
     if (currentPage > totalPages - 1) setCurrentPage(0);
@@ -133,7 +139,9 @@ export function useExportStudioThemes() {
   const handleDropTheme = useCallback(
     (targetId: number) => {
       if (draggingThemeId === null) return;
-      setDraftCustomThemes((prev) => reorderThemes(prev, draggingThemeId, targetId));
+      setDraftCustomThemes((prev) =>
+        reorderThemes(prev, draggingThemeId, targetId)
+      );
       setDraggingThemeId(null);
     },
     [draggingThemeId]
@@ -150,7 +158,9 @@ export function useExportStudioThemes() {
   );
 
   const canAddTheme =
-    !isEditMode && customThemes.length < MAX_THEMES && currentPage === totalPages - 1;
+    !isEditMode &&
+    customThemes.length < MAX_THEMES &&
+    currentPage === totalPages - 1;
 
   return {
     themeTab,

@@ -109,7 +109,11 @@ export const NavbarMobileMenu = memo(function NavbarMobileMenu({
           }}
           className="flex w-full items-center space-x-3 px-3 py-3 min-h-11 rounded-lg transition-colors duration-200 text-text-secondary hover:text-text-primary hover:bg-surface-hover active:bg-surface-elevated"
         >
-          {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          {theme === 'dark' ? (
+            <Sun className="w-5 h-5" />
+          ) : (
+            <Moon className="w-5 h-5" />
+          )}
           <span className="font-medium text-base">Toggle Theme</span>
         </button>
         <button

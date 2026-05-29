@@ -26,7 +26,10 @@ export function useChessBoard(fen: string): UseChessBoardResult {
     try {
       const parsed = parseFEN(fen);
       if (!isChessBoard(parsed)) {
-        return { board: createEmptyBoard(), error: 'Parsed board has unexpected structure' };
+        return {
+          board: createEmptyBoard(),
+          error: 'Parsed board has unexpected structure'
+        };
       }
       return { board: parsed, error: null };
     } catch (error) {
@@ -34,7 +37,10 @@ export function useChessBoard(fen: string): UseChessBoardResult {
         return { board: createEmptyBoard(), error: error.message };
       }
       logger.error('Failed to parse FEN in useChessBoard:', error);
-      return { board: createEmptyBoard(), error: 'An unexpected error occurred while parsing FEN' };
+      return {
+        board: createEmptyBoard(),
+        error: 'An unexpected error occurred while parsing FEN'
+      };
     }
   }, [fen]);
 }

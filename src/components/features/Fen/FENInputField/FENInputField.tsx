@@ -1,4 +1,11 @@
-import { ChangeEvent,memo, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  ChangeEvent,
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 
 import { AlertCircle } from 'lucide-react';
 
@@ -41,7 +48,10 @@ const FENInputField = memo(
   }: FENInputFieldProps) {
     const [isClipboardOpen, setIsClipboardOpen] = useState<boolean>(false);
     const { addToBatch } = useFENBatch();
-    const { isFavorite, toggleFavorite } = useFavoriteFen({ fen, onNotification });
+    const { isFavorite, toggleFavorite } = useFavoriteFen({
+      fen,
+      onNotification
+    });
 
     const [localFen, setLocalFen] = useState<string>(fen);
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -63,7 +73,10 @@ const FENInputField = memo(
       [onChange]
     );
 
-    const { debouncedError } = useDebouncedFENValidation(localFen, handleValidFenSync);
+    const { debouncedError } = useDebouncedFENValidation(
+      localFen,
+      handleValidFenSync
+    );
     const visibleError = debouncedError || externalError || '';
 
     const handleCopyWithHistory = useCallback(async () => {
@@ -178,7 +191,9 @@ const FENInputField = memo(
 
           <div
             className={`grid transition-all duration-300 ease-out ${
-              visibleError ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+              visibleError
+                ? 'grid-rows-[1fr] opacity-100'
+                : 'grid-rows-[0fr] opacity-0'
             }`}
           >
             <div className="overflow-hidden">
@@ -187,7 +202,10 @@ const FENInputField = memo(
                 className="flex items-center gap-2 text-error text-xs mt-1"
                 role="alert"
               >
-                <AlertCircle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                <AlertCircle
+                  className="w-3.5 h-3.5 shrink-0"
+                  aria-hidden="true"
+                />
                 <span>{visibleError}</span>
               </div>
             </div>

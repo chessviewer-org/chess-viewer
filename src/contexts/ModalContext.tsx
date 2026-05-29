@@ -1,4 +1,10 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState
+} from 'react';
 
 import Modal, { ModalType } from '@shared/ui/Modal/Modal';
 
@@ -13,8 +19,16 @@ interface ModalState {
 
 /** Imperative modal API exposed via `useModal`. */
 interface ModalContextType {
-  showAlert: (title: string, message: string, type?: ModalType) => Promise<void>;
-  showConfirm: (title: string, message: string, type?: ModalType) => Promise<boolean>;
+  showAlert: (
+    title: string,
+    message: string,
+    type?: ModalType
+  ) => Promise<void>;
+  showConfirm: (
+    title: string,
+    message: string,
+    type?: ModalType
+  ) => Promise<boolean>;
 }
 
 const ModalContext = createContext<ModalContextType | undefined>(undefined);
@@ -33,43 +47,49 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
     onCancel: () => {}
   });
 
-  const showAlert = useCallback((title: string, message: string, type: ModalType = 'info') => {
-    return new Promise<void>((resolve) => {
-      setModalState({
-        isOpen: true,
-        title,
-        message,
-        type,
-        onConfirm: () => {
-          setModalState((prev) => ({ ...prev, isOpen: false }));
-          resolve();
-        },
-        onCancel: () => {
-          setModalState((prev) => ({ ...prev, isOpen: false }));
-          resolve();
-        }
+  const showAlert = useCallback(
+    (title: string, message: string, type: ModalType = 'info') => {
+      return new Promise<void>((resolve) => {
+        setModalState({
+          isOpen: true,
+          title,
+          message,
+          type,
+          onConfirm: () => {
+            setModalState((prev) => ({ ...prev, isOpen: false }));
+            resolve();
+          },
+          onCancel: () => {
+            setModalState((prev) => ({ ...prev, isOpen: false }));
+            resolve();
+          }
+        });
       });
-    });
-  }, []);
+    },
+    []
+  );
 
-  const showConfirm = useCallback((title: string, message: string, type: ModalType = 'warning') => {
-    return new Promise<boolean>((resolve) => {
-      setModalState({
-        isOpen: true,
-        title,
-        message,
-        type,
-        onConfirm: () => {
-          setModalState((prev) => ({ ...prev, isOpen: false }));
-          resolve(true);
-        },
-        onCancel: () => {
-          setModalState((prev) => ({ ...prev, isOpen: false }));
-          resolve(false);
-        }
+  const showConfirm = useCallback(
+    (title: string, message: string, type: ModalType = 'warning') => {
+      return new Promise<boolean>((resolve) => {
+        setModalState({
+          isOpen: true,
+          title,
+          message,
+          type,
+          onConfirm: () => {
+            setModalState((prev) => ({ ...prev, isOpen: false }));
+            resolve(true);
+          },
+          onCancel: () => {
+            setModalState((prev) => ({ ...prev, isOpen: false }));
+            resolve(false);
+          }
+        });
       });
-    });
-  }, []);
+    },
+    []
+  );
 
   const value = useMemo(
     () => ({ showAlert, showConfirm }),

@@ -80,11 +80,13 @@ export function usePositionSettingsSync(args: UsePositionSettingsSyncArgs) {
 
   const isSyncingRef = useRef(false);
 
-  const [positionSettings, setPositionSettings] = useState<PositionSettings>(() => {
-    const saved = localStorage.getItem('advanced-fen-position-settings');
-    const parsed = safeJSONParse<unknown>(saved, null);
-    return isPositionSettings(parsed) ? parsed : {};
-  });
+  const [positionSettings, setPositionSettings] = useState<PositionSettings>(
+    () => {
+      const saved = localStorage.getItem('advanced-fen-position-settings');
+      const parsed = safeJSONParse<unknown>(saved, null);
+      return isPositionSettings(parsed) ? parsed : {};
+    }
+  );
 
   useEffect(() => {
     localStorage.setItem(
@@ -102,15 +104,23 @@ export function usePositionSettingsSync(args: UsePositionSettingsSyncArgs) {
       const settings = positionSettings[currentFen];
 
       if (!isChained && settings) {
-        setters.setPieceStyle(settings.pieceStyle ?? initialSettings.pieceStyle);
+        setters.setPieceStyle(
+          settings.pieceStyle ?? initialSettings.pieceStyle
+        );
         setters.setBoardSize(settings.boardSize ?? initialSettings.boardSize);
         setters.setFileName(settings.fileName ?? initialSettings.fileName);
-        setters.setExportQuality(settings.exportQuality ?? initialSettings.exportQuality);
-        setters.setShowCoordsLocal(settings.showCoords ?? initialSettings.showCoords);
+        setters.setExportQuality(
+          settings.exportQuality ?? initialSettings.exportQuality
+        );
+        setters.setShowCoordsLocal(
+          settings.showCoords ?? initialSettings.showCoords
+        );
         setters.setShowCoordinateBorder(
           settings.showCoordinateBorder ?? initialSettings.showCoordinateBorder
         );
-        setters.setShowThinFrame(settings.showThinFrame ?? initialSettings.showThinFrame);
+        setters.setShowThinFrame(
+          settings.showThinFrame ?? initialSettings.showThinFrame
+        );
         setters.setIsFlipped(settings.isFlipped ?? false);
         setters.setShowCoordinates(settings.showCoordinates ?? true);
         if (settings.lightSquare && settings.darkSquare) {

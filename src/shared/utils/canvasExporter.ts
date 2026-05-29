@@ -11,12 +11,16 @@ import {
   resumeExport,
   setProgress,
   validateExportConfig,
-  waitWhilePaused} from './exportState';
+  waitWhilePaused
+} from './exportState';
 import { FileSizeEstimates } from './imageOptimizer';
 import { sanitizeFileName } from './validation';
 
 /** Callback invoked at each stage of an export operation with a 0–100 progress value. */
-export type ProgressCallback = (progress: number, label?: string | null) => void;
+export type ProgressCallback = (
+  progress: number,
+  label?: string | null
+) => void;
 
 /** Board state and render settings required for any export operation. */
 export interface ExportConfig {
@@ -55,9 +59,19 @@ export interface ExportInfo {
   renderEngine: string;
 }
 
-export { cancelExport, getExportInfo,pauseExport, resetExportState, resumeExport };
+export {
+  cancelExport,
+  getExportInfo,
+  pauseExport,
+  resetExportState,
+  resumeExport
+};
 
-function triggerDownload(blob: Blob, fileName: string, extension: string): void {
+function triggerDownload(
+  blob: Blob,
+  fileName: string,
+  extension: string
+): void {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
@@ -191,4 +205,3 @@ export async function copyToClipboard(config: ExportConfig): Promise<boolean> {
     resetExportState();
   }
 }
-

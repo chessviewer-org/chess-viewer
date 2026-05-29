@@ -19,7 +19,9 @@ export function usePieceImages(pieceStyle: string): {
   error: string | null;
   loadProgress: number;
 } {
-  const [pieceImages, setPieceImages] = useState<Record<string, HTMLImageElement>>({});
+  const [pieceImages, setPieceImages] = useState<
+    Record<string, HTMLImageElement>
+  >({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [loadProgress, setLoadProgress] = useState(0);
@@ -109,7 +111,7 @@ function createPlaceholderImage(pieceName: string): HTMLImageElement {
   canvas.width = 100;
   canvas.height = 100;
   const ctx = canvas.getContext('2d');
-  
+
   if (ctx) {
     ctx.fillStyle = '#f0f0f0';
     ctx.fillRect(0, 0, 100, 100);
@@ -122,7 +124,7 @@ function createPlaceholderImage(pieceName: string): HTMLImageElement {
     ctx.textBaseline = 'middle';
     ctx.fillText(pieceName, 50, 50);
   }
-  
+
   const img = new Image();
   img.src = canvas.toDataURL();
   return img;

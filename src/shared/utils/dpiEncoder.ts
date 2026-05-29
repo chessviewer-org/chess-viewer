@@ -21,7 +21,7 @@ const crcTable = new Uint32Array(256);
 for (let n = 0; n < 256; n++) {
   let c = n;
   for (let k = 0; k < 8; k++) {
-    c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+    c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
   }
   crcTable[n] = c;
 }
@@ -130,8 +130,24 @@ async function changeJpegDPI(blob: Blob, dpi: number): Promise<Blob> {
   }
 
   const jfifHeader = new Uint8Array([
-    0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01, 0x01, 0x01,
-    (dpi >> 8) & 0xff, dpi & 0xff, (dpi >> 8) & 0xff, dpi & 0xff, 0x00, 0x00
+    0xff,
+    0xe0,
+    0x00,
+    0x10,
+    0x4a,
+    0x46,
+    0x49,
+    0x46,
+    0x00,
+    0x01,
+    0x01,
+    0x01,
+    (dpi >> 8) & 0xff,
+    dpi & 0xff,
+    (dpi >> 8) & 0xff,
+    dpi & 0xff,
+    0x00,
+    0x00
   ]);
 
   const finalBytes = new Uint8Array(bytes.length + jfifHeader.length);

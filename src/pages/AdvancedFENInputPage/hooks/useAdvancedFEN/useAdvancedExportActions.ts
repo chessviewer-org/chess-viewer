@@ -25,7 +25,11 @@ interface UseAdvancedExportActionsArgs {
   positionSettings: PositionSettings;
   smartNamingInput: string;
   handleExportStart: (format: string) => void;
-  handleExportProgress: (progress: number, format: string, status?: string) => void;
+  handleExportProgress: (
+    progress: number,
+    format: string,
+    status?: string
+  ) => void;
   handleExportFinish: () => void;
 }
 
@@ -61,7 +65,8 @@ export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
   );
 
   const activeFileName = useMemo(
-    () => parsedNames[safeCurrentIndex] || `${fileName}-${safeCurrentIndex + 1}`,
+    () =>
+      parsedNames[safeCurrentIndex] || `${fileName}-${safeCurrentIndex + 1}`,
     [parsedNames, safeCurrentIndex, fileName]
   );
 
@@ -136,13 +141,21 @@ export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
         if (!fen) continue;
 
         const settings = positionSettings[fen] || {};
-        const activeStyle = isChained ? pieceStyle : (settings.pieceStyle ?? pieceStyle);
+        const activeStyle = isChained
+          ? pieceStyle
+          : (settings.pieceStyle ?? pieceStyle);
         const activeQuality = isChained
           ? exportQuality
           : (settings.exportQuality ?? exportQuality);
-        const activeLight = isChained ? lightSquare : (settings.lightSquare ?? lightSquare);
-        const activeDark = isChained ? darkSquare : (settings.darkSquare ?? darkSquare);
-        const activeFlipped = isChained ? isFlipped : (settings.isFlipped ?? isFlipped);
+        const activeLight = isChained
+          ? lightSquare
+          : (settings.lightSquare ?? lightSquare);
+        const activeDark = isChained
+          ? darkSquare
+          : (settings.darkSquare ?? darkSquare);
+        const activeFlipped = isChained
+          ? isFlipped
+          : (settings.isFlipped ?? isFlipped);
         const activeShowCoords = isChained
           ? showCoordsLocal
           : (settings.showCoords ?? showCoordsLocal);
@@ -152,7 +165,9 @@ export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
         const activeShowFrame = isChained
           ? showThinFrame
           : (settings.showThinFrame ?? showThinFrame);
-        const format = isChained ? exportFormat : (settings.exportFormat ?? exportFormat);
+        const format = isChained
+          ? exportFormat
+          : (settings.exportFormat ?? exportFormat);
 
         const numberedName = parsedNames[i] || `${fileName}-${i + 1}`;
 
@@ -172,7 +187,11 @@ export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
 
         const reportProgress = (progress: number, _label?: string | null) => {
           const totalProgress = ((i + progress / 100) / validFens.length) * 100;
-          handleExportProgress(totalProgress, format, `${i + 1}/${validFens.length}`);
+          handleExportProgress(
+            totalProgress,
+            format,
+            `${i + 1}/${validFens.length}`
+          );
         };
 
         if (format === 'png') {

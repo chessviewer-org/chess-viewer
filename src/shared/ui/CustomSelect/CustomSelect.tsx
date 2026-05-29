@@ -103,5 +103,7 @@ const CustomSelectComponent = <T extends string | number>({
   );
 };
 
-const CustomSelect = memo(CustomSelectComponent) as typeof CustomSelectComponent;
+const CustomSelect = memo(
+  CustomSelectComponent
+) as typeof CustomSelectComponent;
 export default CustomSelect;

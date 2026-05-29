@@ -5,7 +5,8 @@ import {
   clearActiveRasterTask,
   exportState,
   setProgress,
-  waitWhilePaused} from './exportState';
+  waitWhilePaused
+} from './exportState';
 import { calculateRenderSurfaceSize } from './imageOptimizer';
 import { logger } from './logger';
 import { generateBoardSVG } from './svgExporter';
@@ -112,7 +113,12 @@ async function createWorkerRasterBlob(
 ): Promise<Blob | null> {
   if (!isSvgRasterWorkerSupported()) return null;
 
-  const { boardSize, showCoords, exportQuality, showThinFrame = false } = config;
+  const {
+    boardSize,
+    showCoords,
+    exportQuality,
+    showThinFrame = false
+  } = config;
 
   setProgress(onProgress, 20, 'Building SVG');
   const svgString = await generateBoardSVG(config);

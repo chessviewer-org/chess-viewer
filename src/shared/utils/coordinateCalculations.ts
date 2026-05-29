@@ -24,7 +24,7 @@ export function getCoordinateParams(boardSize: number): CoordinateParams {
     fontSize,
     borderSize,
     fontWeight: 600,
-    offset: Math.round(borderSize / 2),
+    offset: Math.round(borderSize / 2)
   };
 }
 
@@ -64,13 +64,13 @@ export function getSquareBounds(
     width: x1 - x0,
     height: y1 - y0,
     centerX: Math.round((x0 + x1) / 2),
-    centerY: Math.round((y0 + y1) / 2),
+    centerY: Math.round((y0 + y1) / 2)
   };
 }
 
 /**
  * Determines whether a given square index is light or dark.
- * 
+ *
  * @param row - 0-indexed row (0 is top)
  * @param col - 0-indexed column (0 is left)
  * @returns True if light, false if dark
@@ -81,42 +81,51 @@ export function isLightSquare(row: number, col: number): boolean {
 
 /**
  * Gets the actual row and column indices based on whether the board is flipped.
- * 
+ *
  * @param row - Display row index
  * @param col - Display column index
  * @param flipped - Whether the board is viewed from black's perspective
  * @returns Array containing actual row and column [actualRow, actualCol]
  */
-export function getDisplayCoordinates(row: number, col: number, flipped: boolean): [number, number] {
-  return [
-    flipped ? 7 - row : row,
-    flipped ? 7 - col : col
-  ];
+export function getDisplayCoordinates(
+  row: number,
+  col: number,
+  flipped: boolean
+): [number, number] {
+  return [flipped ? 7 - row : row, flipped ? 7 - col : col];
 }
 
-/** 
- * Calculates the center pixel of the square at the given index. 
- * 
+/**
+ * Calculates the center pixel of the square at the given index.
+ *
  * @param borderSize - Width of the border
  * @param squareSize - Size of one square
  * @param index - Index of the square
  * @returns Center coordinate
  */
-function getCellCenter(borderSize: number, squareSize: number, index: number): number {
+function getCellCenter(
+  borderSize: number,
+  squareSize: number,
+  index: number
+): number {
   const start = Math.round(borderSize + index * squareSize);
   const end = Math.round(borderSize + (index + 1) * squareSize);
   return Math.round((start + end) / 2);
 }
 
-/** 
- * Measures text ascent/descent from the canvas context. 
- * 
+/**
+ * Measures text ascent/descent from the canvas context.
+ *
  * @param ctx - Canvas context
  * @param sample - Text to measure
  * @param fontSize - Font size used
  * @returns Object with metrics
  */
-function getTextMetrics(ctx: CanvasRenderingContext2D, sample: string, fontSize: number): TextMetricsExt {
+function getTextMetrics(
+  ctx: CanvasRenderingContext2D,
+  sample: string,
+  fontSize: number
+): TextMetricsExt {
   const metrics = ctx.measureText(sample);
   let ascent = fontSize * 0.8;
   if (Number.isFinite(metrics.actualBoundingBoxAscent)) {
@@ -129,14 +138,17 @@ function getTextMetrics(ctx: CanvasRenderingContext2D, sample: string, fontSize:
   return { ascent, descent, height: ascent + descent };
 }
 
-/** 
- * Gets the vertical baseline offset for centering. 
- * 
+/**
+ * Gets the vertical baseline offset for centering.
+ *
  * @param centerY - Center Y coordinate
  * @param metrics - Text metrics
  * @returns Baseline coordinate
  */
-function getBaselineFromCenter(centerY: number, metrics: TextMetricsExt): number {
+function getBaselineFromCenter(
+  centerY: number,
+  metrics: TextMetricsExt
+): number {
   return Math.round(centerY + (metrics.ascent - metrics.descent) / 2);
 }
 
@@ -165,12 +177,12 @@ export function drawCoordinates(
   const coordParams = getCoordinateParams(boardSize);
   const { fontSize, fontWeight } = coordParams;
   const effectiveBorder = borderSize ?? coordParams.borderSize;
-  
+
   const boardY = boardStartY ?? (forExport ? 0 : effectiveBorder);
 
   ctx.save();
   ctx.font = `${fontWeight} ${fontSize}px "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif`;
-  ctx.fillStyle = forExport ? '#000000' : (displayWhite ? '#ffffff' : '#000000');
+  ctx.fillStyle = forExport ? '#000000' : displayWhite ? '#ffffff' : '#000000';
   ctx.textRendering = 'optimizeLegibility';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
@@ -192,7 +204,9 @@ export function drawCoordinates(
     const fileIndex = flipped ? 7 - col : col;
     const file = String.fromCharCode(97 + fileIndex);
     const xPos = getCellCenter(effectiveBorder, squareSize, col);
-    const bottomCenter = Math.round(boardY + boardSize + effectiveBorder * 0.55);
+    const bottomCenter = Math.round(
+      boardY + boardSize + effectiveBorder * 0.55
+    );
     const yPos = getBaselineFromCenter(bottomCenter, fileMetrics);
     ctx.fillText(file, xPos, yPos);
   }

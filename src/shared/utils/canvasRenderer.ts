@@ -1,7 +1,4 @@
-import { 
-  drawCoordinates, 
-  getSquareBounds 
-} from './coordinateCalculations';
+import { drawCoordinates, getSquareBounds } from './coordinateCalculations';
 import { parseFEN } from './fenParser';
 import {
   calculateRenderSurfaceSize,
@@ -42,7 +39,9 @@ function getPieceKey(fenPiece: string): string | null {
  * @param config - Render configuration options
  * @returns Promise resolving to a high-quality canvas element
  */
-export async function createUltraQualityCanvas(config: RenderConfig): Promise<HTMLCanvasElement> {
+export async function createUltraQualityCanvas(
+  config: RenderConfig
+): Promise<HTMLCanvasElement> {
   const {
     boardSize: boardSizeCm,
     showCoords,
@@ -58,7 +57,8 @@ export async function createUltraQualityCanvas(config: RenderConfig): Promise<HT
   } = config;
 
   const forceCoordBorder = shouldForceCoordinateBorder(exportQuality);
-  const effectiveCoordBorder = showCoords && (forceCoordBorder || showCoordinateBorder);
+  const effectiveCoordBorder =
+    showCoords && (forceCoordBorder || showCoordinateBorder);
 
   if (!boardSizeCm || boardSizeCm < 1) {
     throw new Error(`Invalid board size: ${boardSizeCm}cm (minimum 1cm)`);
@@ -71,8 +71,15 @@ export async function createUltraQualityCanvas(config: RenderConfig): Promise<HT
   }
 
   const board = parseFEN(fen);
-  if (!board || !Array.isArray(board) || board.length !== 8 || board.some(row => !Array.isArray(row) || row.length !== 8)) {
-    throw new Error('Invalid FEN: Failed to parse board or board structure is incorrect');
+  if (
+    !board ||
+    !Array.isArray(board) ||
+    board.length !== 8 ||
+    board.some((row) => !Array.isArray(row) || row.length !== 8)
+  ) {
+    throw new Error(
+      'Invalid FEN: Failed to parse board or board structure is incorrect'
+    );
   }
   if (!pieceImages || Object.keys(pieceImages).length === 0) {
     throw new Error('Invalid board or piece images');
@@ -80,7 +87,7 @@ export async function createUltraQualityCanvas(config: RenderConfig): Promise<HT
 
   /**
    * Resolves once a piece image has finished loading or timed out.
-   * 
+   *
    * @param img - The image element to wait for
    * @returns Promise resolving when the image is ready
    */
@@ -129,7 +136,7 @@ export async function createUltraQualityCanvas(config: RenderConfig): Promise<HT
   const canvas = document.createElement('canvas');
   canvas.width = canvasWidth;
   canvas.height = canvasHeight;
-  
+
   const ctx = canvas.getContext('2d', {
     alpha: true,
     desynchronized: false,
@@ -194,7 +201,13 @@ export async function createUltraQualityCanvas(config: RenderConfig): Promise<HT
       ctx.fillStyle = (row + col) % 2 === 0 ? lightSquare : darkSquare;
       const drawRow = flipped ? 7 - row : row;
       const drawCol = flipped ? 7 - col : col;
-      const bounds = getSquareBounds(drawRow, drawCol, squareSize, boardX, boardY);
+      const bounds = getSquareBounds(
+        drawRow,
+        drawCol,
+        squareSize,
+        boardX,
+        boardY
+      );
       ctx.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
     }
   }
@@ -205,7 +218,7 @@ export async function createUltraQualityCanvas(config: RenderConfig): Promise<HT
     for (let col = 0; col < 8; col++) {
       const fenPiece = board[row]?.[col];
       if (!fenPiece) continue;
-      
+
       const pieceKey = getPieceKey(fenPiece);
       if (!pieceKey) continue;
 
@@ -214,12 +227,18 @@ export async function createUltraQualityCanvas(config: RenderConfig): Promise<HT
 
       const drawRow = flipped ? 7 - row : row;
       const drawCol = flipped ? 7 - col : col;
-      const bounds = getSquareBounds(drawRow, drawCol, squareSize, boardX, boardY);
-      
+      const bounds = getSquareBounds(
+        drawRow,
+        drawCol,
+        squareSize,
+        boardX,
+        boardY
+      );
+
       const pieceSize = Math.min(bounds.width, bounds.height);
       const px = bounds.centerX - pieceSize / 2;
       const py = bounds.centerY - pieceSize / 2;
-      
+
       try {
         ctx.drawImage(img, px, py, pieceSize, pieceSize);
       } catch (err) {

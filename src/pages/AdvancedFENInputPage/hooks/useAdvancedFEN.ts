@@ -83,13 +83,21 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
     initialDark: initialDarkSquare
   });
 
-  const themePayload = { lightSquare, darkSquare, setLightSquare, setDarkSquare };
+  const themePayload = {
+    lightSquare,
+    darkSquare,
+    setLightSquare,
+    setDarkSquare
+  };
 
   const validFens = fens.filter((f) => f.trim() && validateFEN(f));
   const hasValidFens = validFens.length > 0;
   const displayFensCount = Math.max(batchList.length, 3);
-  const safeCurrentIndex = Math.min(currentIndex, Math.max(0, validFens.length - 1));
-  const currentFen = hasValidFens ? validFens[safeCurrentIndex] ?? '' : '';
+  const safeCurrentIndex = Math.min(
+    currentIndex,
+    Math.max(0, validFens.length - 1)
+  );
+  const currentFen = hasValidFens ? (validFens[safeCurrentIndex] ?? '') : '';
   const renderFen = currentFen || DEFAULT_FENS[0] || '';
 
   const { board: boardState } = useChessBoard(renderFen);
@@ -176,12 +184,13 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
     handleExportFinish
   });
 
-  const { handleBack, handleSettingsClick, handleNotification } = useAdvancedNavigation({
-    favorites,
-    positionSettings,
-    activeTab,
-    setActiveTab
-  });
+  const { handleBack, handleSettingsClick, handleNotification } =
+    useAdvancedNavigation({
+      favorites,
+      positionSettings,
+      activeTab,
+      setActiveTab
+    });
 
   useEffect(() => {
     if (!isPlaying || validFens.length === 0) return undefined;
@@ -193,7 +202,9 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
 
   const handlePrevious = useCallback(() => {
     if (validFens.length > 0)
-      setCurrentIndex((prev) => (prev - 1 + validFens.length) % validFens.length);
+      setCurrentIndex(
+        (prev) => (prev - 1 + validFens.length) % validFens.length
+      );
   }, [validFens.length, setCurrentIndex]);
 
   const handleNext = useCallback(() => {

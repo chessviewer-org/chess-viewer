@@ -49,12 +49,16 @@ export const crypto = {
    * @returns Base64-encoded ciphertext
    * @throws If the Web Crypto API fails or is unavailable
    */
-  async encrypt(value: string, passphrase: string, salt: string = 'chess-vision-v1'): Promise<string> {
+  async encrypt(
+    value: string,
+    passphrase: string,
+    salt: string = 'chess-vision-v1'
+  ): Promise<string> {
     try {
       const key = await this.deriveKey(passphrase, salt);
       const iv = window.crypto.getRandomValues(new Uint8Array(12));
       const encoder = new TextEncoder();
-      
+
       const ciphertext = await window.crypto.subtle.encrypt(
         { name: 'AES-GCM', iv },
         key,
@@ -81,11 +85,17 @@ export const crypto = {
    * @returns Decrypted plaintext string
    * @throws If decryption fails due to an incorrect passphrase or corrupted data
    */
-  async decrypt(encryptedData: string, passphrase: string, salt: string = 'chess-vision-v1'): Promise<string> {
+  async decrypt(
+    encryptedData: string,
+    passphrase: string,
+    salt: string = 'chess-vision-v1'
+  ): Promise<string> {
     try {
       const key = await this.deriveKey(passphrase, salt);
       const combined = new Uint8Array(
-        atob(encryptedData).split('').map(c => c.charCodeAt(0))
+        atob(encryptedData)
+          .split('')
+          .map((c) => c.charCodeAt(0))
       );
 
       const iv = combined.slice(0, 12);
@@ -100,7 +110,9 @@ export const crypto = {
       return new TextDecoder().decode(decrypted);
     } catch (error) {
       logger.error('Decryption failed:', error);
-      throw new Error('Failed to decrypt data. Incorrect passphrase or corrupted data.');
+      throw new Error(
+        'Failed to decrypt data. Incorrect passphrase or corrupted data.'
+      );
     }
   }
 };

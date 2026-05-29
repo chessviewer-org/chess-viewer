@@ -19,9 +19,9 @@ function enforceCacheCap(): void {
   }
 }
 
-/** 
- * Preloads all piece images for a given style. 
- * 
+/**
+ * Preloads all piece images for a given style.
+ *
  * @param style - The piece style name (e.g. 'cburnett', 'merida')
  * @param pieceMap - Record of piece names to load
  * @param onProgress - Optional callback for loading progress (0-100)
@@ -39,7 +39,7 @@ export async function preloadPieceStyle(
 
   const promises = pieces.map((piece) => {
     const key = `${style}_${piece}`;
-    
+
     return new Promise<void>((resolve) => {
       const finishOne = (img?: HTMLImageElement) => {
         loadedCount++;
@@ -79,7 +79,10 @@ export async function preloadPieceStyle(
  * @param style - The piece style name
  * @param pieces - Map of piece keys to image elements
  */
-export function setCachedPieces(style: string, pieces: Record<string, HTMLImageElement>): void {
+export function setCachedPieces(
+  style: string,
+  pieces: Record<string, HTMLImageElement>
+): void {
   Object.entries(pieces).forEach(([key, img]) => {
     pieceCache.set(`${style}_${key}`, img);
   });

@@ -38,10 +38,7 @@ const BoardDisplay = memo(function BoardDisplay({
     <div className="flex flex-col w-full max-w-100">
       <div className="flex w-full">
         {showCoordinates && (
-          <div
-            className="flex flex-col shrink-0"
-            style={{ width: '5%' }}
-          >
+          <div className="flex flex-col shrink-0" style={{ width: '5%' }}>
             {ranks.map((rank) => (
               <div
                 key={rank}
@@ -86,10 +83,7 @@ const BoardDisplay = memo(function BoardDisplay({
         </div>
       </div>
       {showCoordinates && (
-        <div
-          className="flex w-full"
-          style={{ paddingLeft: '5%' }}
-        >
+        <div className="flex w-full" style={{ paddingLeft: '5%' }}>
           {files.map((file) => (
             <div
               key={file}

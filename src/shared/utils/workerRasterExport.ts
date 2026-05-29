@@ -39,14 +39,20 @@ function getSharedWorker(): Worker {
     sharedWorker.onmessage = (e: MessageEvent) => {
       const { type, payload, taskId } = e.data as {
         type: string;
-        payload: { blob?: Blob; progress?: number; label?: string; message?: string };
+        payload: {
+          blob?: Blob;
+          progress?: number;
+          label?: string;
+          message?: string;
+        };
         taskId: number;
       };
       const task = pendingTasks.get(taskId);
       if (!task) return;
 
       if (type === 'progress') {
-        if (!task.cancelled) task.onProgress?.(payload.progress ?? 0, payload.label);
+        if (!task.cancelled)
+          task.onProgress?.(payload.progress ?? 0, payload.label);
       } else if (type === 'done') {
         pendingTasks.delete(taskId);
         workerBusy = false;
@@ -130,7 +136,12 @@ export function startSvgRasterWorkerTask(
   const id = nextTaskId++;
 
   const promise = new Promise<Blob>((resolve, reject) => {
-    pendingTasks.set(id, { resolve, reject, onProgress: options.onProgress, cancelled: false });
+    pendingTasks.set(id, {
+      resolve,
+      reject,
+      onProgress: options.onProgress,
+      cancelled: false
+    });
   });
 
   taskQueue.push({ id, options });

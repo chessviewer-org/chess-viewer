@@ -35,7 +35,10 @@ export type ExportAction =
   | { type: 'COMPLETE' }
   | { type: 'TOGGLE_PROGRESS' };
 
-const exportReducer = (state: ExportState, action: ExportAction): ExportState => {
+const exportReducer = (
+  state: ExportState,
+  action: ExportAction
+): ExportState => {
   switch (action.type) {
     case 'START_EXPORT':
       return {
@@ -140,7 +143,9 @@ export function useHomeExport(opts: UseHomeExportOptions) {
     (overrides?: BatchExportOverrides): ExportConfig => {
       const effectiveExportQuality = overrides?.exportQuality ?? exportQuality;
       const effectiveBoardSize = overrides?.boardSize ?? boardSize;
-      const forceCoordBorder = shouldForceCoordinateBorder(effectiveExportQuality);
+      const forceCoordBorder = shouldForceCoordinateBorder(
+        effectiveExportQuality
+      );
       const effectiveCoordBorder = forceCoordBorder || showCoordinateBorder;
 
       return {
@@ -263,12 +268,24 @@ export function useHomeExport(opts: UseHomeExportOptions) {
           dispatchExport({ type: 'START_EXPORT', format });
 
           if (format === 'png') {
-            await downloadPNG(getExportConfig(overrides), currentFileName, updateProgress);
+            await downloadPNG(
+              getExportConfig(overrides),
+              currentFileName,
+              updateProgress
+            );
           } else if (format === 'jpeg') {
-            await downloadJPEG(getExportConfig(overrides), currentFileName, updateProgress);
+            await downloadJPEG(
+              getExportConfig(overrides),
+              currentFileName,
+              updateProgress
+            );
           } else if (format === 'svg') {
             const { downloadSVG } = await import('@utils/svgExporter');
-            await downloadSVG(getExportConfig(overrides), currentFileName, updateProgress);
+            await downloadSVG(
+              getExportConfig(overrides),
+              currentFileName,
+              updateProgress
+            );
           }
         }
         notify.success(`Exported ${formats.length} formats successfully`);

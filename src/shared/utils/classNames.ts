@@ -33,13 +33,15 @@ export type InputState = 'normal' | 'error';
  * @param classes - Class name strings, booleans, or null/undefined values
  * @returns Combined class names
  */
-export function cn(...classes: Array<string | boolean | undefined | null>): string {
+export function cn(
+  ...classes: Array<string | boolean | undefined | null>
+): string {
   return classes.filter(Boolean).join(' ');
 }
 
 /**
  * Returns combined Tailwind classes for a button element.
- * 
+ *
  * @param variant - The button style variant
  * @param size - The button size
  * @param className - Additional class names
@@ -60,12 +62,15 @@ export function getButtonClasses(
 
 /**
  * Returns combined Tailwind classes for an input element.
- * 
+ *
  * @param state - The validation state of the input
  * @param className - Additional class names
  * @returns Combined class string
  */
-export function getInputClasses(state: InputState = 'normal', className = ''): string {
+export function getInputClasses(
+  state: InputState = 'normal',
+  className = ''
+): string {
   let stateClass = '';
   if (state === 'error') {
     stateClass = classNames.input.error;

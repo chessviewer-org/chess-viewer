@@ -37,7 +37,8 @@ export const ChessEditor = memo(function ChessEditor({
   className = ''
 }: ChessEditorProps) {
   const { pieceImages, isLoading } = usePieceImages(pieceStyle);
-  const { boardSize, gutterSize, containerRef } = useEditorBoardSize(showCoords);
+  const { boardSize, gutterSize, containerRef } =
+    useEditorBoardSize(showCoords);
   const cellSize = useMemo(() => boardSize / 8, [boardSize]);
 
   const [isQuickThemeOpen, setIsQuickThemeOpen] = useState(false);
@@ -59,8 +60,14 @@ export const ChessEditor = memo(function ChessEditor({
     pieceImagesRef.current = pieceImages;
   }, [pieceImages]);
 
-  const { board, handlePieceDrop, handlePieceRemove, clearBoard, resetBoard, syncFromFen } =
-    useInteractiveBoard(fen, onFenChange);
+  const {
+    board,
+    handlePieceDrop,
+    handlePieceRemove,
+    clearBoard,
+    resetBoard,
+    syncFromFen
+  } = useInteractiveBoard(fen, onFenChange);
 
   useEffect(() => {
     syncFromFen(fen);
@@ -226,7 +233,10 @@ export const ChessEditor = memo(function ChessEditor({
             </div>
 
             <div className="shrink-0 w-full sm:w-auto h-12 sm:h-auto min-h-11">
-              <TrashZone onDrop={handleTrashDrop} className="h-full w-full rounded-lg" />
+              <TrashZone
+                onDrop={handleTrashDrop}
+                className="h-full w-full rounded-lg"
+              />
             </div>
           </div>
         </div>

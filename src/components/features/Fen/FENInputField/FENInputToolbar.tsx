@@ -1,13 +1,6 @@
 import { memo } from 'react';
 
-import {
-  CheckCircle,
-  Clipboard,
-  Copy,
-  Heart,
-  List,
-  Plus
-} from 'lucide-react';
+import { CheckCircle, Clipboard, Copy, Heart, List, Plus } from 'lucide-react';
 
 /** Props for the `FENInputToolbar` action button row. */
 interface FENInputToolbarProps {
@@ -54,7 +47,11 @@ const FENInputToolbar = memo(function FENInputToolbar({
         aria-label="Paste FEN from clipboard"
         type="button"
       >
-        <Clipboard className="w-3.5 h-3.5" strokeWidth={2.5} aria-hidden="true" />
+        <Clipboard
+          className="w-3.5 h-3.5"
+          strokeWidth={2.5}
+          aria-hidden="true"
+        />
         <span className="hidden sm:inline">Paste</span>
       </button>
 
@@ -84,7 +81,11 @@ const FENInputToolbar = memo(function FENInputToolbar({
           </>
         ) : (
           <>
-            <Copy className="w-3.5 h-3.5" strokeWidth={2.5} aria-hidden="true" />
+            <Copy
+              className="w-3.5 h-3.5"
+              strokeWidth={2.5}
+              aria-hidden="true"
+            />
             <span className="hidden sm:inline">Copy</span>
           </>
         )}

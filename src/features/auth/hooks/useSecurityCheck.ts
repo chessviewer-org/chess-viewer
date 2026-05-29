@@ -1,4 +1,4 @@
-import { useCallback,useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import type { User } from '@supabase/supabase-js';
 
@@ -25,7 +25,10 @@ export function useSecurityCheck() {
     async function checkSecurity(user: User | null) {
       if (signal.aborted) return;
       if (!user) {
-        if (!signal.aborted) { setIsLocked(false); setIsLoading(false); }
+        if (!signal.aborted) {
+          setIsLocked(false);
+          setIsLoading(false);
+        }
         return;
       }
 
@@ -64,9 +67,15 @@ export function useSecurityCheck() {
       setIsLoading(false);
     }
 
-    supabase.auth.getUser()
-      .then(({ data: { user } }) => { checkSecurity(user); })
-      .catch((err: unknown) => { if (!signal.aborted) console.warn('useSecurityCheck: getUser failed', err); });
+    supabase.auth
+      .getUser()
+      .then(({ data: { user } }) => {
+        checkSecurity(user);
+      })
+      .catch((err: unknown) => {
+        if (!signal.aborted)
+          console.warn('useSecurityCheck: getUser failed', err);
+      });
 
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       checkSecurity(session?.user ?? null);
@@ -79,10 +88,12 @@ export function useSecurityCheck() {
   }, []);
 
   const unlock = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
     if (user) {
       const { error } = await supabase.rpc('refresh_security_session');
-        
+
       if (!error) {
         setIsLocked(false);
       }

@@ -1,4 +1,11 @@
-import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState
+} from 'react';
 
 import { useLocation } from 'react-router-dom';
 
@@ -15,8 +22,8 @@ import { ErrorBoundary } from '@shared/ui';
 /** Lazy-loaded: only needed when an authenticated user hits the 90-day lock. */
 const SecurityLockModal = lazy(() =>
   import('@/features/auth/components/SecurityLockModal').then((m) => ({
-    default: m.SecurityLockModal,
-  })),
+    default: m.SecurityLockModal
+  }))
 );
 
 declare global {
@@ -193,7 +200,7 @@ function App() {
     <ErrorBoundary>
       <FENBatchProvider>
         <ModalProvider>
-            <div className="min-h-dvh sm:h-dvh flex flex-col sm:overflow-hidden bg-linear-to-br from-bg-gradient-start to-bg-gradient-end text-[clamp(0.9375rem,0.25vw+0.875rem,1rem)] transition-colors duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
+          <div className="min-h-dvh sm:h-dvh flex flex-col sm:overflow-hidden bg-linear-to-br from-bg-gradient-start to-bg-gradient-end text-[clamp(0.9375rem,0.25vw+0.875rem,1rem)] transition-colors duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
             <a
               href="#main-content"
               className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-100 focus:px-6 focus:py-3 focus:bg-accent focus:text-bg focus:rounded-xl focus:shadow-lg focus:font-semibold"

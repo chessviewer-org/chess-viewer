@@ -40,7 +40,9 @@ const ExportStudio = ({ homeState, onClose }: ExportStudioProps) => {
     }
 
     const selectedFormats = [...wizard.selectedFormats];
-    const names = selectedFormats.map((format) => wizard.resolvedFileNames[format]);
+    const names = selectedFormats.map(
+      (format) => wizard.resolvedFileNames[format]
+    );
     const overrides: BatchExportOverrides = {
       boardSize: wizard.activeBoardSize,
       exportQuality: wizard.resolution
@@ -83,7 +85,9 @@ const ExportStudio = ({ homeState, onClose }: ExportStudioProps) => {
               onClick={handlePrimaryNavigation}
               className="text-accent hover:text-accent-hover transition-colors"
             >
-              {wizard.currentStep < 3 ? `${wizard.currentStep}/3 Next >` : 'Finish'}
+              {wizard.currentStep < 3
+                ? `${wizard.currentStep}/3 Next >`
+                : 'Finish'}
             </button>
           </div>
         </header>

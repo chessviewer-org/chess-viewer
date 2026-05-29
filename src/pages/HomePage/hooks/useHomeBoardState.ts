@@ -30,10 +30,8 @@ export function useHomeBoardState() {
     'chess-show-coords',
     true
   );
-  const [showCoordinateBorder, setShowCoordinateBorder] = useLocalStorage<boolean>(
-    'chess-show-coordinate-border',
-    true
-  );
+  const [showCoordinateBorder, setShowCoordinateBorder] =
+    useLocalStorage<boolean>('chess-show-coordinate-border', true);
   const [showThinFrame, setShowThinFrame] = useLocalStorage<boolean>(
     'chess-show-thin-frame',
     false
@@ -69,8 +67,14 @@ export function useHomeBoardState() {
     };
   }, [setLightSquare, setDarkSquare]);
 
-  const [boardSize, setBoardSize] = useLocalStorage<number>('chess-board-size', 4);
-  const [flipped, setFlipped] = useLocalStorage<boolean>('chess-flipped', false);
+  const [boardSize, setBoardSize] = useLocalStorage<number>(
+    'chess-board-size',
+    4
+  );
+  const [flipped, setFlipped] = useLocalStorage<boolean>(
+    'chess-flipped',
+    false
+  );
   const [fileName, setFileName] = useLocalStorage<string>(
     'chess-file-name',
     'chess-position'

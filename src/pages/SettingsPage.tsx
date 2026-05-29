@@ -1,10 +1,6 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 
-import {
-  Database,
-  ShieldCheck,
-  User
-} from 'lucide-react';
+import { Database, ShieldCheck, User } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { ToolPageHeader } from '@/components/layout';
@@ -43,7 +39,9 @@ const SettingsPage = memo(function SettingsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedTab = searchParams.get('tab');
   const initialTab =
-    requestedTab && VALID_TAB_IDS.has(requestedTab) ? requestedTab : DEFAULT_TAB;
+    requestedTab && VALID_TAB_IDS.has(requestedTab)
+      ? requestedTab
+      : DEFAULT_TAB;
 
   const [activeTab, setActiveTab] = useState(initialTab);
 
@@ -108,15 +106,21 @@ const SettingsPage = memo(function SettingsPage() {
             <div className="space-y-8 animate-pageEnter">
               <section>
                 <h3 className="text-xl font-bold text-text-primary font-display flex items-center gap-2 mb-4">
-                   <User className="w-5 h-5 text-accent" />
-                   Profile Information
+                  <User className="w-5 h-5 text-accent" />
+                  Profile Information
                 </h3>
                 <div className="bg-surface-elevated border border-border rounded-2xl p-6 space-y-4">
                   <div className="flex flex-col gap-1">
-                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">Email Address</label>
-                    <p className="text-text-primary font-medium">Logged in with your Supabase account.</p>
+                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">
+                      Email Address
+                    </label>
+                    <p className="text-text-primary font-medium">
+                      Logged in with your Supabase account.
+                    </p>
                   </div>
-                  <p className="text-sm text-text-secondary italic">Profile editing is coming soon in v6.1.0</p>
+                  <p className="text-sm text-text-secondary italic">
+                    Profile editing is coming soon in v6.1.0
+                  </p>
                 </div>
               </section>
             </div>
@@ -126,17 +130,24 @@ const SettingsPage = memo(function SettingsPage() {
             <div className="space-y-10 animate-pageEnter">
               <section>
                 <h3 className="text-xl font-bold text-text-primary font-display flex items-center gap-2 mb-4">
-                   <ShieldCheck className="w-5 h-5 text-accent" />
-                   Security Settings
+                  <ShieldCheck className="w-5 h-5 text-accent" />
+                  Security Settings
                 </h3>
                 <div className="bg-surface-elevated border border-border rounded-2xl overflow-hidden">
                   <div className="p-6 border-b border-border/50">
                     <TwoFactorSetup />
                   </div>
                   <div className="p-6 bg-surface-primary/30">
-                     <h4 className="text-sm font-bold text-text-primary mb-2">Password Management</h4>
-                     <p className="text-xs text-text-secondary mb-4">You can request a password reset email if you wish to change your login credentials.</p>
-                     <Button size="sm" variant="outline" className="text-xs">Request Password Reset</Button>
+                    <h4 className="text-sm font-bold text-text-primary mb-2">
+                      Password Management
+                    </h4>
+                    <p className="text-xs text-text-secondary mb-4">
+                      You can request a password reset email if you wish to
+                      change your login credentials.
+                    </p>
+                    <Button size="sm" variant="outline" className="text-xs">
+                      Request Password Reset
+                    </Button>
                   </div>
                 </div>
               </section>
@@ -145,23 +156,28 @@ const SettingsPage = memo(function SettingsPage() {
 
           {activeTab === 'data' && (
             <div className="space-y-8 animate-pageEnter">
-               <section>
+              <section>
                 <h3 className="text-xl font-bold text-text-primary font-display flex items-center gap-2 mb-4">
-                   <Database className="w-5 h-5 text-accent" />
-                   Data & Privacy
+                  <Database className="w-5 h-5 text-accent" />
+                  Data & Privacy
                 </h3>
                 <DataManagement />
-               </section>
-               
-               <section className="pt-8 border-t border-error/20">
-                 <div className="bg-error/5 border border-error/20 rounded-2xl p-6">
-                    <h4 className="text-lg font-bold text-error mb-2">Danger Zone</h4>
-                    <p className="text-sm text-text-secondary mb-4">Permanently delete your account and all associated cloud data. This action cannot be undone.</p>
-                    <button className="px-6 py-2.5 bg-error text-white rounded-xl font-bold text-sm hover:bg-error/90 transition-all">
-                      Delete Account Forever
-                    </button>
-                 </div>
-               </section>
+              </section>
+
+              <section className="pt-8 border-t border-error/20">
+                <div className="bg-error/5 border border-error/20 rounded-2xl p-6">
+                  <h4 className="text-lg font-bold text-error mb-2">
+                    Danger Zone
+                  </h4>
+                  <p className="text-sm text-text-secondary mb-4">
+                    Permanently delete your account and all associated cloud
+                    data. This action cannot be undone.
+                  </p>
+                  <button className="px-6 py-2.5 bg-error text-white rounded-xl font-bold text-sm hover:bg-error/90 transition-all">
+                    Delete Account Forever
+                  </button>
+                </div>
+              </section>
             </div>
           )}
         </div>

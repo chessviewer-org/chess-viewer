@@ -41,7 +41,10 @@ export const RankCoordinates = memo(function RankCoordinates({
     : ['8', '7', '6', '5', '4', '3', '2', '1'];
 
   return (
-    <div className="flex flex-col shrink-0" style={{ width: `${gutterSize}px` }}>
+    <div
+      className="flex flex-col shrink-0"
+      style={{ width: `${gutterSize}px` }}
+    >
       {ranks.map((rank) => (
         <div
           key={rank}

@@ -1,12 +1,6 @@
 import React, { memo } from 'react';
 
-import {
-  ChevronRight,
-  Eye,
-  Globe,
-  List,
-  Sliders
-} from 'lucide-react';
+import { ChevronRight, Eye, Globe, List, Sliders } from 'lucide-react';
 
 import { ExportProgress } from '@/components/features';
 import { ToolPageHeader } from '@/components/layout';
@@ -16,7 +10,10 @@ import PositionsTab from './components/PositionsTab';
 import PreviewPlayerColumn from './components/PreviewPlayerColumn';
 import WizardExportSettings from './components/WizardExportSettings';
 import WizardVisualSetup from './components/WizardVisualSetup';
-import { AdvancedFENInitialProps,useAdvancedFEN } from './hooks/useAdvancedFEN';
+import {
+  AdvancedFENInitialProps,
+  useAdvancedFEN
+} from './hooks/useAdvancedFEN';
 
 const { TABS } = ADVANCED_FEN_CONFIG;
 
@@ -33,7 +30,10 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
 
   return (
     <div className="flex flex-col bg-bg min-h-dvh">
-      <ToolPageHeader title="Advanced FEN Editor" onBack={handlers.handleBack} />
+      <ToolPageHeader
+        title="Advanced FEN Editor"
+        onBack={handlers.handleBack}
+      />
 
       <div className="shrink-0 bg-surface border-b border-border">
         <div className="px-3 sm:px-6 overflow-x-auto">
@@ -126,7 +126,10 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
                       {state.wizardStep === 1 ? (
                         <WizardVisualSetup state={state} handlers={handlers} />
                       ) : (
-                        <WizardExportSettings state={state} handlers={handlers} />
+                        <WizardExportSettings
+                          state={state}
+                          handlers={handlers}
+                        />
                       )}
                     </div>
                   </div>

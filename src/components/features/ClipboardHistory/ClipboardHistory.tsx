@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo,useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Check, Copy, Trash2, X } from 'lucide-react';
 import { List, RowComponentProps } from 'react-window';
@@ -17,11 +17,19 @@ export interface RowData {
   copiedIndex: number | null;
 }
 
-const Row = ({ index, style, items, onSelect, onCopy, onRemove, copiedIndex }: RowComponentProps<RowData>) => {
+const Row = ({
+  index,
+  style,
+  items,
+  onSelect,
+  onCopy,
+  onRemove,
+  copiedIndex
+}: RowComponentProps<RowData>) => {
   const item = items[index];
   if (!item) return null;
 
-  const fen = typeof item === 'string' ? item : (item.fen || '');
+  const fen = typeof item === 'string' ? item : item.fen || '';
   const timestamp = typeof item === 'string' ? undefined : item.timestamp;
 
   return (
@@ -90,7 +98,9 @@ const ClipboardHistory = memo(function ClipboardHistory({
   onSelectFen
 }: ClipboardHistoryProps) {
   const { showConfirm } = useModal();
-  const [clipboardHistory, setClipboardHistory] = useState<Array<string | { fen: string; timestamp: number }>>([]);
+  const [clipboardHistory, setClipboardHistory] = useState<
+    Array<string | { fen: string; timestamp: number }>
+  >([]);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const copiedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -104,7 +114,12 @@ const ClipboardHistory = memo(function ClipboardHistory({
     try {
       const saved = localStorage.getItem('fenClipboardHistory');
       if (saved) {
-        setClipboardHistory(safeJSONParse<Array<string | { fen: string; timestamp: number }>>(saved, []));
+        setClipboardHistory(
+          safeJSONParse<Array<string | { fen: string; timestamp: number }>>(
+            saved,
+            []
+          )
+        );
       }
     } catch (err) {
       logger.error('Failed to load history:', err);
@@ -117,12 +132,15 @@ const ClipboardHistory = memo(function ClipboardHistory({
     }
   }, [isOpen, loadHistory]);
 
-  const handleSelect = useCallback((fen: string) => {
-    if (onSelectFen) {
-      onSelectFen(fen);
-    }
-    onClose();
-  }, [onSelectFen, onClose]);
+  const handleSelect = useCallback(
+    (fen: string) => {
+      if (onSelectFen) {
+        onSelectFen(fen);
+      }
+      onClose();
+    },
+    [onSelectFen, onClose]
+  );
 
   const handleCopy = useCallback((fen: string, index: number) => {
     navigator.clipboard.writeText(fen);
@@ -152,13 +170,16 @@ const ClipboardHistory = memo(function ClipboardHistory({
     }
   }, [showConfirm]);
 
-  const itemData = useMemo<RowData>(() => ({
-    items: clipboardHistory,
-    onSelect: handleSelect,
-    onCopy: handleCopy,
-    onRemove: handleRemove,
-    copiedIndex
-  }), [clipboardHistory, handleSelect, handleCopy, handleRemove, copiedIndex]);
+  const itemData = useMemo<RowData>(
+    () => ({
+      items: clipboardHistory,
+      onSelect: handleSelect,
+      onCopy: handleCopy,
+      onRemove: handleRemove,
+      copiedIndex
+    }),
+    [clipboardHistory, handleSelect, handleCopy, handleRemove, copiedIndex]
+  );
 
   const ITEM_HEIGHT = 100;
   const listHeight = Math.min(clipboardHistory.length * ITEM_HEIGHT, 400);

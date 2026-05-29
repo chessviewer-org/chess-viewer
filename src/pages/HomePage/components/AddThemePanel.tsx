@@ -9,7 +9,10 @@ export interface AddThemePanelProps {
 }
 
 /** Form for naming and colour-picking a new custom board theme before saving. */
-export default function AddThemePanel({ onSave, onCancel }: AddThemePanelProps) {
+export default function AddThemePanel({
+  onSave,
+  onCancel
+}: AddThemePanelProps) {
   const [name, setName] = useState('');
   const [light, setLight] = useState('#f0d9b5');
   const [dark, setDark] = useState('#b58863');
@@ -88,7 +91,9 @@ export default function AddThemePanel({ onSave, onCancel }: AddThemePanelProps) 
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <label className="block text-xs font-semibold text-text-secondary">Color Picker</label>
+          <label className="block text-xs font-semibold text-text-secondary">
+            Color Picker
+          </label>
           <input
             type="color"
             value={selectedColor}
@@ -98,7 +103,9 @@ export default function AddThemePanel({ onSave, onCancel }: AddThemePanelProps) 
         </div>
 
         <div className="space-y-2">
-          <label className="block text-xs font-semibold text-text-secondary">Hue Slider</label>
+          <label className="block text-xs font-semibold text-text-secondary">
+            Hue Slider
+          </label>
           <input
             type="range"
             min={0}

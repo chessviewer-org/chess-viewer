@@ -1,7 +1,7 @@
-import { memo, useCallback,useEffect, useRef } from 'react';
+import { memo, useCallback, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
-import { DragLayerMonitor,useDragLayer } from 'react-dnd';
+import { DragLayerMonitor, useDragLayer } from 'react-dnd';
 
 import { ItemTypes } from '@constants';
 
@@ -37,7 +37,6 @@ const LAYER_STYLES: React.CSSProperties = {
   right: 0,
   bottom: 0
 };
-
 
 const CustomDragLayer = memo(function CustomDragLayer({
   pieceImages,

@@ -2,14 +2,14 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import { ChessBoard } from '@app-types/chess';
 
-import { 
-  drawCoordinates, 
+import {
+  drawCoordinates,
   getCoordinateParams,
   getDisplayCoordinates,
-  getSquareBounds, 
+  getSquareBounds,
   isLightSquare,
-  logger, 
-  rafThrottle 
+  logger,
+  rafThrottle
 } from '@utils';
 
 /** Props for the `useBoardCanvas` hook. */
@@ -101,11 +101,13 @@ export function useBoardCanvas({
     }
 
     const loadedKeys = Object.keys(pieceImages);
-    const loadedCount = loadedKeys.filter(k => pieceImages[k]?.complete).length;
+    const loadedCount = loadedKeys.filter(
+      (k) => pieceImages[k]?.complete
+    ).length;
 
     if (loadedCount === 0) return;
 
-    const boardHash = board.map(row => row.join('')).join('/');
+    const boardHash = board.map((row) => row.join('')).join('/');
 
     // On-screen extent comes from the observed container, not the prop. The
     // outer square (`totalSize`) fills the wrapper; the 8×8 grid is inset by a
@@ -113,7 +115,10 @@ export function useBoardCanvas({
     // overflows or blurs on resize.
     const totalSize = Math.max(0, Math.round(containerWidthRef.current));
     const borderSize = showCoords
-      ? Math.min(getCoordinateParams(totalSize).borderSize, Math.floor(totalSize / 4))
+      ? Math.min(
+          getCoordinateParams(totalSize).borderSize,
+          Math.floor(totalSize / 4)
+        )
       : 0;
     const playSize = totalSize - borderSize * 2;
 
@@ -188,8 +193,18 @@ export function useBoardCanvas({
       for (let col = 0; col < 8; col++) {
         const isLight = isLightSquare(row, col);
         ctx.fillStyle = isLight ? lightSquare : darkSquare;
-        const [displayRow, displayCol] = getDisplayCoordinates(row, col, flipped);
-        const bounds = getSquareBounds(displayRow, displayCol, squareSize, borderSize, borderSize);
+        const [displayRow, displayCol] = getDisplayCoordinates(
+          row,
+          col,
+          flipped
+        );
+        const bounds = getSquareBounds(
+          displayRow,
+          displayCol,
+          squareSize,
+          borderSize,
+          borderSize
+        );
         ctx.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
       }
     }
@@ -204,11 +219,21 @@ export function useBoardCanvas({
         const img = pieceImages[pieceKey];
 
         if (img && img.complete && img.naturalWidth > 0) {
-          const [displayRow, displayCol] = getDisplayCoordinates(row, col, flipped);
-          const bounds = getSquareBounds(displayRow, displayCol, squareSize, borderSize, borderSize);
+          const [displayRow, displayCol] = getDisplayCoordinates(
+            row,
+            col,
+            flipped
+          );
+          const bounds = getSquareBounds(
+            displayRow,
+            displayCol,
+            squareSize,
+            borderSize,
+            borderSize
+          );
 
           const padding = squareSize * 0.05;
-          const pieceSize = squareSize - (padding * 2);
+          const pieceSize = squareSize - padding * 2;
           const px = bounds.centerX - pieceSize / 2;
           const py = bounds.centerY - pieceSize / 2;
 
@@ -218,7 +243,15 @@ export function useBoardCanvas({
     }
 
     if (showCoords) {
-      drawCoordinates(ctx, squareSize, borderSize, flipped, totalSize, false, true);
+      drawCoordinates(
+        ctx,
+        squareSize,
+        borderSize,
+        flipped,
+        totalSize,
+        false,
+        true
+      );
     }
   }, []);
 
@@ -228,7 +261,17 @@ export function useBoardCanvas({
     return () => {
       throttledDraw.cancel();
     };
-  }, [drawBoard, board, pieceImages, showCoords, lightSquare, darkSquare, boardSize, flipped, isLoading]);
+  }, [
+    drawBoard,
+    board,
+    pieceImages,
+    showCoords,
+    lightSquare,
+    darkSquare,
+    boardSize,
+    flipped,
+    isLoading
+  ]);
 
   // Re-rasterize on container resize so the bitmap tracks CSS px (no blur).
   useEffect(() => {
@@ -265,4 +308,3 @@ export function useBoardCanvas({
 
   return { canvasRef, wrapperRef };
 }
-

@@ -102,7 +102,9 @@ function toBase64Utf8(text: string): string {
  * @param img - Loaded piece image element
  * @returns Base64 data URL string, or an empty string if conversion fails
  */
-export async function imageToEmbeddableDataURL(img: HTMLImageElement): Promise<string> {
+export async function imageToEmbeddableDataURL(
+  img: HTMLImageElement
+): Promise<string> {
   if (!img) return '';
   const src = img.currentSrc || img.src || '';
   if (!src) return '';
@@ -137,7 +139,10 @@ export async function imageToEmbeddableDataURL(img: HTMLImageElement): Promise<s
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 2000);
       try {
-        const response = await fetch(src, { cache: 'force-cache', signal: controller.signal });
+        const response = await fetch(src, {
+          cache: 'force-cache',
+          signal: controller.signal
+        });
         if (response.ok) {
           const svgText = await response.text();
           dataUrl = `data:image/svg+xml;base64,${toBase64Utf8(svgText)}`;

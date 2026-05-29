@@ -1,4 +1,11 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState
+} from 'react';
 
 import type { Session, User } from '@supabase/supabase-js';
 
@@ -38,7 +45,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     async function init() {
       try {
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        const {
+          data: { session: currentSession }
+        } = await supabase.auth.getSession();
         if (!cancelled) setSession(currentSession);
       } catch (error) {
         logger.warn('Failed to get initial session:', error);
@@ -87,9 +96,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user: session?.user ?? null,
       isLoading,
       isAuthenticated: !!session?.user,
-      signOut,
+      signOut
     }),
-    [session, isLoading, signOut],
+    [session, isLoading, signOut]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

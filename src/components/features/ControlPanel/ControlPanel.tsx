@@ -5,7 +5,8 @@ import {
   useEffect,
   useImperativeHandle,
   useRef,
-  useState} from 'react';
+  useState
+} from 'react';
 
 import { History, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';

@@ -8,7 +8,8 @@ import {
   searchHelp,
   type SectionId,
   SECTIONS,
-  TAB_CONFIG} from './helpContent';
+  TAB_CONFIG
+} from './helpContent';
 
 /** Props for the `HelpCenterDrawer` overlay. */
 export interface HelpCenterProps {
@@ -20,7 +21,9 @@ const HelpCenterDrawer = memo(function HelpCenterDrawer({
   isOpen,
   onClose
 }: HelpCenterProps) {
-  const [activeSection, setActiveSection] = useState<SectionId>(SECTIONS.FEATURES);
+  const [activeSection, setActiveSection] = useState<SectionId>(
+    SECTIONS.FEATURES
+  );
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredContent = useMemo(
@@ -50,7 +53,9 @@ const HelpCenterDrawer = memo(function HelpCenterDrawer({
                     setSearchQuery('');
                   }}
                 >
-                  <h4 className="font-bold text-text-primary mb-1">{result.title}</h4>
+                  <h4 className="font-bold text-text-primary mb-1">
+                    {result.title}
+                  </h4>
                   <p className="text-sm text-text-secondary line-clamp-2">
                     {result.content}
                   </p>
@@ -68,7 +73,9 @@ const HelpCenterDrawer = memo(function HelpCenterDrawer({
     return (
       <div className="space-y-6">
         <div>
-          <h3 className="text-2xl font-bold text-text-primary mb-3">{content.title}</h3>
+          <h3 className="text-2xl font-bold text-text-primary mb-3">
+            {content.title}
+          </h3>
         </div>
 
         <div className="space-y-4">
@@ -80,7 +87,9 @@ const HelpCenterDrawer = memo(function HelpCenterDrawer({
               <h4 className="text-lg font-bold text-text-primary mb-2">
                 {section.title}
               </h4>
-              <p className="text-text-secondary leading-relaxed">{section.content}</p>
+              <p className="text-text-secondary leading-relaxed">
+                {section.content}
+              </p>
             </div>
           ))}
         </div>
@@ -89,7 +98,11 @@ const HelpCenterDrawer = memo(function HelpCenterDrawer({
   };
 
   const contentKey = searchQuery ? 'search' : activeSection;
-  const contentTransition = { type: 'spring', duration: 0.4, bounce: 0 } as const;
+  const contentTransition = {
+    type: 'spring',
+    duration: 0.4,
+    bounce: 0
+  } as const;
 
   return (
     <AnimatePresence>

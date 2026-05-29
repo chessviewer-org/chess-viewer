@@ -18,10 +18,14 @@ export function useNavbarState() {
   const { session, isAuthenticated, signOut } = useAuth();
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authModalTab, setAuthModalTab] = useState<'signin' | 'signup' | 'security'>('signin');
+  const [authModalTab, setAuthModalTab] = useState<
+    'signin' | 'signup' | 'security'
+  >('signin');
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [openSubmenu, setOpenSubmenu] = useState<'settings' | 'theme' | null>(null);
+  const [openSubmenu, setOpenSubmenu] = useState<'settings' | 'theme' | null>(
+    null
+  );
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const navigate = useNavigate();
@@ -81,6 +85,6 @@ export function useNavbarState() {
     handleCloseHelp,
     toggleMobileMenu,
     openAuthModal,
-    handleSignOut,
+    handleSignOut
   };
 }

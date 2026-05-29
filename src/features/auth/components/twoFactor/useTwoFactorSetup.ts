@@ -2,7 +2,11 @@ import { useState } from 'react';
 
 import { supabase } from '@/features/auth/services/supabaseClient';
 
-import { generateBackupCodes, getMfaErrorMessage, isMfa422Error } from './mfaErrors';
+import {
+  generateBackupCodes,
+  getMfaErrorMessage,
+  isMfa422Error
+} from './mfaErrors';
 
 /**
  * Drives the three-step TOTP setup flow: start → QR verify → backup codes.
@@ -39,18 +43,23 @@ export function useTwoFactorSetup() {
       return;
     }
 
-    const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
+    const { data: factors, error: factorsError } =
+      await supabase.auth.mfa.listFactors();
 
     if (factorsError || !factors) {
       if (isMfa422Error(factorsError)) setIsMfaUnavailable(true);
       setError(
-        factorsError ? getMfaErrorMessage(factorsError) : 'Failed to list 2FA factors.'
+        factorsError
+          ? getMfaErrorMessage(factorsError)
+          : 'Failed to list 2FA factors.'
       );
       setIsSubmitting(false);
       return;
     }
 
-    const hasVerifiedTotp = factors.totp.some((factor) => factor.status === 'verified');
+    const hasVerifiedTotp = factors.totp.some(
+      (factor) => factor.status === 'verified'
+    );
     if (hasVerifiedTotp) {
       setError('2FA is already enabled for this account.');
       setIsSubmitting(false);
@@ -65,7 +74,9 @@ export function useTwoFactorSetup() {
         factorId: factor.id
       });
       if (unenrollError) {
-        setError('Failed to clear previous incomplete 2FA setup. Please try again.');
+        setError(
+          'Failed to clear previous incomplete 2FA setup. Please try again.'
+        );
         setIsSubmitting(false);
         return;
       }
@@ -82,7 +93,11 @@ export function useTwoFactorSetup() {
 
     if (enrollError || !data) {
       if (isMfa422Error(enrollError)) setIsMfaUnavailable(true);
-      setError(enrollError ? getMfaErrorMessage(enrollError) : 'Failed to enroll in 2FA.');
+      setError(
+        enrollError
+          ? getMfaErrorMessage(enrollError)
+          : 'Failed to enroll in 2FA.'
+      );
       setIsSubmitting(false);
       return;
     }
@@ -109,11 +124,14 @@ export function useTwoFactorSetup() {
     setError('');
     setIsSubmitting(true);
 
-    const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
+    const { data: factors, error: factorsError } =
+      await supabase.auth.mfa.listFactors();
     if (factorsError || !factors) {
       if (isMfa422Error(factorsError)) setIsMfaUnavailable(true);
       setError(
-        factorsError ? getMfaErrorMessage(factorsError) : 'Failed to list 2FA factors.'
+        factorsError
+          ? getMfaErrorMessage(factorsError)
+          : 'Failed to list 2FA factors.'
       );
       setIsSubmitting(false);
       return;
@@ -123,7 +141,9 @@ export function useTwoFactorSetup() {
       (factor) => (factor.status as string) === 'unverified'
     );
     if (!unverifiedFactor) {
-      setError('No active unverified TOTP factor found. Please restart the setup.');
+      setError(
+        'No active unverified TOTP factor found. Please restart the setup.'
+      );
       setStep(1);
       setIsSubmitting(false);
       return;

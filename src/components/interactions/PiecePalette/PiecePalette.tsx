@@ -21,15 +21,18 @@ interface PalettePiece {
 }
 
 /** Sidebar grid of all 12 draggable chess pieces (6 white, 6 black). */
-const WHITE_PIECES = PALETTE_PIECES.filter((p: PalettePiece) => p.color === 'w');
-const BLACK_PIECES = PALETTE_PIECES.filter((p: PalettePiece) => p.color === 'b');
+const WHITE_PIECES = PALETTE_PIECES.filter(
+  (p: PalettePiece) => p.color === 'w'
+);
+const BLACK_PIECES = PALETTE_PIECES.filter(
+  (p: PalettePiece) => p.color === 'b'
+);
 
 export const PiecePalette = memo(function PiecePalette({
   pieceImages,
   isLoading,
   className = ''
 }: PiecePaletteProps) {
-
   const renderPieceGroup = useCallback(
     (pieces: PalettePiece[], label: string) => (
       <div className="space-y-2 sm:space-y-2.5">

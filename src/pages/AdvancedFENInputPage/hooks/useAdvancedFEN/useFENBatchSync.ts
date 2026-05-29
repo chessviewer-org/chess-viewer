@@ -13,9 +13,12 @@ const { MAX_FENS, STORAGE_KEYS } = ADVANCED_FEN_CONFIG;
 /** Bridges FENBatchContext with local validation, duplicate detection, clipboard paste, and favorites state. */
 export function useFENBatchSync() {
   const location = useLocation();
-  const { batchList, removeFromBatch, updateBatchItem, addToBatch } = useFENBatch();
+  const { batchList, removeFromBatch, updateBatchItem, addToBatch } =
+    useFENBatch();
 
-  const duplicateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const duplicateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
   const pastedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const addedFenRef = useRef(false);
 
@@ -60,7 +63,8 @@ export function useFENBatchSync() {
 
   useEffect(() => {
     return () => {
-      if (duplicateTimeoutRef.current) clearTimeout(duplicateTimeoutRef.current);
+      if (duplicateTimeoutRef.current)
+        clearTimeout(duplicateTimeoutRef.current);
       if (pastedTimeoutRef.current) clearTimeout(pastedTimeoutRef.current);
     };
   }, []);
@@ -89,7 +93,14 @@ export function useFENBatchSync() {
       addedFenRef.current = true;
       window.history.replaceState({}, document.title);
     }
-  }, [location.state, fens, batchList.length, updateBatchItem, addToBatch, batchList]);
+  }, [
+    location.state,
+    fens,
+    batchList.length,
+    updateBatchItem,
+    addToBatch,
+    batchList
+  ]);
 
   const removeFenInput = useCallback(
     (index: number) => {
@@ -148,7 +159,10 @@ export function useFENBatchSync() {
           updateFen(index, text.trim());
           setPastedIndex(index);
           if (pastedTimeoutRef.current) clearTimeout(pastedTimeoutRef.current);
-          pastedTimeoutRef.current = setTimeout(() => setPastedIndex(null), 2000);
+          pastedTimeoutRef.current = setTimeout(
+            () => setPastedIndex(null),
+            2000
+          );
         }
       } catch (err) {
         logger.error('Failed to paste:', err);

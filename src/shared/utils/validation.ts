@@ -4,7 +4,11 @@
 export const MAX_FEN_LENGTH = 93;
 
 /** Keys that would pollute the prototype chain. */
-const PROTOTYPE_POISON_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+const PROTOTYPE_POISON_KEYS = new Set([
+  '__proto__',
+  'constructor',
+  'prototype'
+]);
 
 /**
  * Prototype-pollution-safe JSON parser.
@@ -15,7 +19,10 @@ const PROTOTYPE_POISON_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
  * @param fallback - Fallback value on parse failure
  * @returns Parsed object or fallback
  */
-export function safeJSONParse<T>(jsonString: string | null | undefined, fallback: T): T {
+export function safeJSONParse<T>(
+  jsonString: string | null | undefined,
+  fallback: T
+): T {
   if (!jsonString || typeof jsonString !== 'string') {
     return fallback;
   }
@@ -26,7 +33,7 @@ export function safeJSONParse<T>(jsonString: string | null | undefined, fallback
       }
       return value;
     });
-    return (parsed !== null && parsed !== undefined) ? parsed : fallback;
+    return parsed !== null && parsed !== undefined ? parsed : fallback;
   } catch {
     return fallback;
   }
@@ -47,7 +54,7 @@ export function sanitizeFileName(fileName?: string | null): string {
   sanitized = sanitized.replace(/^\.+/, '');
   sanitized = sanitized.replace(/\.+$/, '');
   sanitized = sanitized.trim();
-  
+
   if (sanitized.length > 100) {
     sanitized = sanitized.substring(0, 100);
   }
@@ -57,9 +64,9 @@ export function sanitizeFileName(fileName?: string | null): string {
   return sanitized;
 }
 
-/** 
+/**
  * Checks if color is a valid 6-digit hex string.
- * 
+ *
  * @param color - The color value to validate
  * @returns True if the value is a valid hex color string
  */
@@ -68,9 +75,9 @@ export function isValidHexColor(color: unknown): color is string {
   return /^#[0-9A-Fa-f]{6}$/.test(color);
 }
 
-/** 
+/**
  * Returns the color if it is a valid hex, otherwise returns the fallback.
- * 
+ *
  * @param color - The color value to sanitize
  * @param fallback - Fallback color if the input is invalid
  * @returns Valid hex color string
@@ -80,16 +87,16 @@ export function sanitizeHexColor(color: unknown, fallback = '#ffffff'): string {
   return fallback;
 }
 
-/** 
+/**
  * HTML-encodes a string and truncates it.
- * 
+ *
  * @param input - The input string to sanitize
  * @param maxLength - Maximum allowed length
  * @returns Sanitized string
  */
 export function sanitizeInput(input: unknown, maxLength = 500): string {
   if (!input || typeof input !== 'string') return '';
-  
+
   let sanitized = input
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -97,7 +104,7 @@ export function sanitizeInput(input: unknown, maxLength = 500): string {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#x27;')
     .replace(/\//g, '&#x2F;');
-    
+
   sanitized = sanitized.trim();
   if (sanitized.length > maxLength) {
     sanitized = sanitized.substring(0, maxLength);

@@ -10,7 +10,10 @@ import {
 } from '@app-types/history';
 
 import { validateFEN } from '@utils';
-import { archiveEntries as archiveEntriesUtil, performAutoArchival } from '@utils/archiveManager';
+import {
+  archiveEntries as archiveEntriesUtil,
+  performAutoArchival
+} from '@utils/archiveManager';
 import {
   applyFilters,
   calculateStatus,
@@ -82,7 +85,11 @@ export function useFENHistory(
     fenHistoryRef.current = fenHistory;
   }, [fenHistory]);
 
-  const { isHydrated } = useHistoryHydration(fenHistory, setFenHistory, isMountedRef);
+  const { isHydrated } = useHistoryHydration(
+    fenHistory,
+    setFenHistory,
+    isMountedRef
+  );
 
   const {
     archive,

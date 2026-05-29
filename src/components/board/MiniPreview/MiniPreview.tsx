@@ -39,8 +39,14 @@ const MiniPreview = memo(
       }
 
       const style = getComputedStyle(document.documentElement);
-      const defaultLight = lightSquare || style.getPropertyValue('--color-light-square').trim() || '#f0d9b5';
-      const defaultDark = darkSquare || style.getPropertyValue('--color-dark-square').trim() || '#b58863';
+      const defaultLight =
+        lightSquare ||
+        style.getPropertyValue('--color-light-square').trim() ||
+        '#f0d9b5';
+      const defaultDark =
+        darkSquare ||
+        style.getPropertyValue('--color-dark-square').trim() ||
+        '#b58863';
 
       const squareSize = size / 8;
       const scale = 2;

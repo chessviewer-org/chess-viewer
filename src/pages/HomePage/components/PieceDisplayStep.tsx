@@ -13,7 +13,9 @@ export default function PieceDisplayStep({ homeState }: PieceDisplayStepProps) {
   return (
     <div className="h-full overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
       <div className="space-y-1">
-        <h2 className="text-xl sm:text-2xl font-bold text-text-primary">Piece Style & Display</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-text-primary">
+          Piece Style & Display
+        </h2>
         <p className="text-sm text-text-secondary">
           Configure piece set and display options.
         </p>

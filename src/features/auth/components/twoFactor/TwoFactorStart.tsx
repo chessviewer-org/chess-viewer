@@ -22,9 +22,9 @@ export function TwoFactorStart({
           Two-Factor Authentication
         </h3>
         <p className="text-text-secondary text-sm leading-relaxed px-2">
-          Protect your account with an extra layer of security. Once configured, you'll be
-          required to enter both your password and an authentication code from your mobile
-          device to sign in.
+          Protect your account with an extra layer of security. Once configured,
+          you'll be required to enter both your password and an authentication
+          code from your mobile device to sign in.
         </p>
       </div>
       <button

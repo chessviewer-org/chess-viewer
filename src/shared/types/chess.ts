@@ -3,16 +3,37 @@
  * for an empty square. Uppercase = white, lowercase = black.
  */
 export type PieceSymbol =
-  | 'P' | 'N' | 'B' | 'R' | 'Q' | 'K'
-  | 'p' | 'n' | 'b' | 'r' | 'q' | 'k'
+  | 'P'
+  | 'N'
+  | 'B'
+  | 'R'
+  | 'Q'
+  | 'K'
+  | 'p'
+  | 'n'
+  | 'b'
+  | 'r'
+  | 'q'
+  | 'k'
   | '';
 
 /** 8×8 matrix of `PieceSymbol` values representing a board position. */
 export type ChessBoard = PieceSymbol[][];
 
 const PIECE_SYMBOL_SET = new Set<string>([
-  'P', 'N', 'B', 'R', 'Q', 'K',
-  'p', 'n', 'b', 'r', 'q', 'k', '',
+  'P',
+  'N',
+  'B',
+  'R',
+  'Q',
+  'K',
+  'p',
+  'n',
+  'b',
+  'r',
+  'q',
+  'k',
+  ''
 ]);
 
 /** Type guard for `PieceSymbol`. */
@@ -27,10 +48,7 @@ export function isChessBoard(val: unknown): val is ChessBoard {
     val.length === 8 &&
     val.every(
       (row) =>
-        Array.isArray(row) &&
-        row.length === 8 &&
-        row.every(isPieceSymbol)
+        Array.isArray(row) && row.length === 8 && row.every(isPieceSymbol)
     )
   );
 }
-

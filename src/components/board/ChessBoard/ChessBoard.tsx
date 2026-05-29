@@ -1,6 +1,6 @@
-import { forwardRef, memo,useImperativeHandle } from 'react';
+import { forwardRef, memo, useImperativeHandle } from 'react';
 
-import { useChessBoard,usePieceImages } from '@hooks';
+import { useChessBoard, usePieceImages } from '@hooks';
 
 import { useBoardCanvas } from './useBoardCanvas';
 
@@ -33,7 +33,12 @@ const ChessBoard = forwardRef<ChessBoardRef, ChessBoardProps>((props, ref) => {
     flipped
   } = props;
 
-  const { pieceImages, isLoading, error: pieceError, loadProgress } = usePieceImages(pieceStyle);
+  const {
+    pieceImages,
+    isLoading,
+    error: pieceError,
+    loadProgress
+  } = usePieceImages(pieceStyle);
   const { board, error: fenError } = useChessBoard(fen);
 
   const { canvasRef, wrapperRef } = useBoardCanvas({
@@ -53,7 +58,9 @@ const ChessBoard = forwardRef<ChessBoardRef, ChessBoardProps>((props, ref) => {
     getCanvas: () => canvasRef.current
   }));
 
-  const boardDescription = fen ? `Chess board showing position: ${fen.split(' ')[0]}` : 'Empty chess board';
+  const boardDescription = fen
+    ? `Chess board showing position: ${fen.split(' ')[0]}`
+    : 'Empty chess board';
   const combinedError = fenError || pieceError;
 
   return (
@@ -73,14 +80,10 @@ const ChessBoard = forwardRef<ChessBoardRef, ChessBoardProps>((props, ref) => {
         }}
         aria-hidden="true"
       />
-      
-      {isLoading && (
-        <BoardLoadingOverlay progress={loadProgress} />
-      )}
-      
-      {combinedError && (
-        <BoardErrorOverlay message={combinedError} />
-      )}
+
+      {isLoading && <BoardLoadingOverlay progress={loadProgress} />}
+
+      {combinedError && <BoardErrorOverlay message={combinedError} />}
     </div>
   );
 });

@@ -37,7 +37,9 @@ const ExportStudioPreview = memo(function ExportStudioPreview({
     [activeBoardSize]
   );
   const previewFrameSize = useMemo(
-    () => previewBoardSize + getCoordinateBorder(previewBoardSize, homeState.showCoords),
+    () =>
+      previewBoardSize +
+      getCoordinateBorder(previewBoardSize, homeState.showCoords),
     [homeState.showCoords, previewBoardSize]
   );
 

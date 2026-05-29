@@ -20,7 +20,11 @@ export const SECTIONS = {
 
 export type SectionId = (typeof SECTIONS)[keyof typeof SECTIONS];
 
-export const TAB_CONFIG: Array<{ id: SectionId; label: string; icon: ElementType }> = [
+export const TAB_CONFIG: Array<{
+  id: SectionId;
+  label: string;
+  icon: ElementType;
+}> = [
   { id: SECTIONS.FEATURES, label: 'Features', icon: BookOpen },
   { id: SECTIONS.ABOUT, label: 'About', icon: Info },
   { id: SECTIONS.SUPPORT, label: 'Support', icon: HelpCircle },

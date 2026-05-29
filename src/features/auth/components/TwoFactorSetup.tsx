@@ -27,7 +27,8 @@ export function TwoFactorSetup() {
       )}
       {isMfaUnavailable && (
         <div className="p-3 bg-amber-500/10 text-amber-500 border border-amber-500/20 text-sm rounded-lg">
-          Supabase MFA is not enabled in this project. Repeated requests are paused.
+          Supabase MFA is not enabled in this project. Repeated requests are
+          paused.
         </div>
       )}
 

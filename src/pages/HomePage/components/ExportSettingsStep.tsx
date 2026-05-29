@@ -22,18 +22,24 @@ export interface ExportSettingsStepProps {
 }
 
 /** Wizard step 3: format toggles, resolution selector, board size control, and per-format file names. */
-export default function ExportSettingsStep({ wizard }: ExportSettingsStepProps) {
+export default function ExportSettingsStep({
+  wizard
+}: ExportSettingsStepProps) {
   return (
     <div className="h-full overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
       <div className="space-y-1">
-        <h2 className="text-xl sm:text-2xl font-bold text-text-primary">Export Settings</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-text-primary">
+          Export Settings
+        </h2>
         <p className="text-sm text-text-secondary">
           Select formats, render density, board size and naming.
         </p>
       </div>
 
       <section className="space-y-3">
-        <h3 className="text-sm font-semibold text-text-primary">Download Formats</h3>
+        <h3 className="text-sm font-semibold text-text-primary">
+          Download Formats
+        </h3>
         <div className="grid grid-cols-3 gap-2">
           {FORMATS.map((format) => (
             <button
@@ -64,7 +70,9 @@ export default function ExportSettingsStep({ wizard }: ExportSettingsStepProps) 
       </section>
 
       <section className="space-y-3">
-        <h3 className="text-sm font-semibold text-text-primary">Export Settings</h3>
+        <h3 className="text-sm font-semibold text-text-primary">
+          Export Settings
+        </h3>
         <div className="grid grid-cols-4 gap-2">
           {RESOLUTIONS.map((resolution) => (
             <button
@@ -84,7 +92,9 @@ export default function ExportSettingsStep({ wizard }: ExportSettingsStepProps) 
       </section>
 
       <section className="space-y-3">
-        <h3 className="text-sm font-semibold text-text-primary">BoardSize Control</h3>
+        <h3 className="text-sm font-semibold text-text-primary">
+          BoardSize Control
+        </h3>
         <div className="flex flex-wrap items-center gap-2">
           {BOARD_PRESETS.map((preset) => (
             <button
@@ -120,7 +130,9 @@ export default function ExportSettingsStep({ wizard }: ExportSettingsStepProps) 
             step={0.1}
             value={wizard.customBoardSizeInput}
             onFocus={() => wizard.selectBoardSizePreset('custom')}
-            onChange={(event) => wizard.updateCustomBoardSize(event.target.value)}
+            onChange={(event) =>
+              wizard.updateCustomBoardSize(event.target.value)
+            }
             placeholder="4-16"
             className="w-24 rounded-lg border border-border/60 bg-surface px-2 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
           />
@@ -142,7 +154,8 @@ export default function ExportSettingsStep({ wizard }: ExportSettingsStepProps) 
           <p className="text-xs text-error">{wizard.fileNameError}</p>
         )}
         <p className="text-xs text-text-secondary">
-          Use comma-separated names. Unfilled slots fall back to <strong>chessboard</strong>.
+          Use comma-separated names. Unfilled slots fall back to{' '}
+          <strong>chessboard</strong>.
         </p>
       </section>
     </div>

@@ -63,7 +63,9 @@ export default function ThemeStudioStep({
     <div className="h-full p-4 sm:p-6 lg:p-8 flex flex-col gap-5 overflow-hidden">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl sm:text-2xl font-bold text-text-primary">Theme Studio</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-text-primary">
+            Theme Studio
+          </h2>
 
           {!isEditMode ? (
             <button
@@ -145,7 +147,8 @@ export default function ThemeStudioStep({
           {paginatedThemes.map((theme) => {
             const isSelected =
               selectedLight === theme.light && selectedDark === theme.dark;
-            const isEditable = isEditMode && !theme.isSystem && typeof theme.rawId === 'number';
+            const isEditable =
+              isEditMode && !theme.isSystem && typeof theme.rawId === 'number';
 
             return (
               <div
@@ -183,8 +186,14 @@ export default function ThemeStudioStep({
                       : 'border-border/60 hover:border-text-muted'
                   }`}
                 >
-                  <div className="h-1/2 w-full" style={{ backgroundColor: theme.light }} />
-                  <div className="h-1/2 w-full" style={{ backgroundColor: theme.dark }} />
+                  <div
+                    className="h-1/2 w-full"
+                    style={{ backgroundColor: theme.light }}
+                  />
+                  <div
+                    className="h-1/2 w-full"
+                    style={{ backgroundColor: theme.dark }}
+                  />
                 </button>
 
                 {isEditable ? (
@@ -265,7 +274,9 @@ export default function ThemeStudioStep({
           >
             <div className="h-full flex flex-col">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-text-primary">Add Custom Theme</h3>
+                <h3 className="text-lg font-semibold text-text-primary">
+                  Add Custom Theme
+                </h3>
                 <button
                   type="button"
                   onClick={() => setIsAddingTheme(false)}

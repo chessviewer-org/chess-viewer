@@ -14,7 +14,9 @@ export interface FENHistoryEntry {
 /** Options for `useFavoriteFen`. */
 interface UseFavoriteFenOptions {
   fen: string;
-  onNotification?: ((message: string, type: NotificationType) => void) | undefined;
+  onNotification?:
+    | ((message: string, type: NotificationType) => void)
+    | undefined;
 }
 
 /**
@@ -31,7 +33,10 @@ export function useFavoriteFen({ fen, onNotification }: UseFavoriteFenOptions) {
 
   useEffect(() => {
     try {
-      const rawFavorites = safeJSONParse(localStorage.getItem('favoriteFens'), {});
+      const rawFavorites = safeJSONParse(
+        localStorage.getItem('favoriteFens'),
+        {}
+      );
       if (isRecord(rawFavorites)) {
         setIsFavorite(!!rawFavorites[fen]);
       } else {
@@ -55,7 +60,10 @@ export function useFavoriteFen({ fen, onNotification }: UseFavoriteFenOptions) {
       }
 
       try {
-        const rawFavorites = safeJSONParse(localStorage.getItem('favoriteFens'), {});
+        const rawFavorites = safeJSONParse(
+          localStorage.getItem('favoriteFens'),
+          {}
+        );
         const favorites: Record<string, boolean> = {};
         if (isRecord(rawFavorites)) {
           for (const key in rawFavorites) {

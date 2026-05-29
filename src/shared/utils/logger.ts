@@ -18,5 +18,5 @@ export const logger = {
   // Always logs errors — silent production errors mask real failures.
   error(...args: unknown[]): void {
     console.error(...args);
-  },
+  }
 };

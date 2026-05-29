@@ -70,10 +70,13 @@ export function useThemePersistence({
 
         const localTheme = window.localStorage.getItem('chess-theme');
         if (localTheme) {
-          const saved = safeJSONParse<{ light: string; dark: string }>(localTheme, {
-            light: initialLight,
-            dark: initialDark
-          });
+          const saved = safeJSONParse<{ light: string; dark: string }>(
+            localTheme,
+            {
+              light: initialLight,
+              dark: initialDark
+            }
+          );
           if (saved && typeof saved === 'object') {
             setLightSquare(sanitizeHexColor(saved.light, initialLight));
             setDarkSquare(sanitizeHexColor(saved.dark, initialDark));

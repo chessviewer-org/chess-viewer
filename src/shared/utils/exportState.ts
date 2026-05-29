@@ -1,6 +1,12 @@
-import { ExportConfig, ExportInfo,ProgressCallback } from './canvasExporter';
-import { calculateRenderSurfaceSize, estimateFileSizes, getExportMode, getMaxCanvasSize, shouldForceCoordinateBorder } from './imageOptimizer';
-import { isValidHexColor,MAX_FEN_LENGTH } from './validation';
+import { ExportConfig, ExportInfo, ProgressCallback } from './canvasExporter';
+import {
+  calculateRenderSurfaceSize,
+  estimateFileSizes,
+  getExportMode,
+  getMaxCanvasSize,
+  shouldForceCoordinateBorder
+} from './imageOptimizer';
+import { isValidHexColor, MAX_FEN_LENGTH } from './validation';
 import { isSvgRasterWorkerSupported } from './workerRasterExport';
 
 /** Shared mutable state controlling the in-flight export operation lifecycle. */
@@ -76,7 +82,11 @@ export function checkCancellation() {
  * @param value - Progress percentage (0–100)
  * @param label - Human-readable stage label
  */
-export function setProgress(onProgress: ProgressCallback | undefined, value: number, label: string | null) {
+export function setProgress(
+  onProgress: ProgressCallback | undefined,
+  value: number,
+  label: string | null
+) {
   onProgress?.(value, label);
 }
 

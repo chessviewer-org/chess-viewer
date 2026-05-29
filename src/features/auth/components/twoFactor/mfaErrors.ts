@@ -24,7 +24,11 @@ export function getMfaErrorMessage(error: unknown): string {
 
   if (error instanceof Error && error.message) {
     msg = error.message;
-  } else if (typeof error === 'object' && error !== null && 'message' in error) {
+  } else if (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error
+  ) {
     const record = error as { status?: unknown; message?: unknown };
     msg = String(record.message);
   }

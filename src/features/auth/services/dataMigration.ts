@@ -24,7 +24,7 @@ export const dataMigration = {
         const localData = localStorage.getItem(key);
         if (localData) {
           const cloudData = await syncStorage.get(key);
-          
+
           if (!cloudData) {
             await syncStorage.set(key, localData);
             logger.log(`Migrated key: ${key}`);

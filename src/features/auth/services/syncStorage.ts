@@ -10,7 +10,11 @@ interface UserDataValueRow {
   value: string;
 }
 
-const isTableMissingError = (err: unknown) => err && typeof err === 'object' && 'code' in err && (err as { code: string }).code === '42P01';
+const isTableMissingError = (err: unknown) =>
+  err &&
+  typeof err === 'object' &&
+  'code' in err &&
+  (err as { code: string }).code === '42P01';
 
 const MAX_USER_DATA_VALUE_LENGTH = 10_000;
 
@@ -49,22 +53,29 @@ export const syncStorage = {
         .eq('user_id', currentUser.id)
         .eq('key', key)
         .maybeSingle<UserDataValueRow>();
-        
+
       if (error) {
         if (isTableMissingError(error)) return null;
         throw error;
       }
-      
-      if (!data || typeof data.value !== 'string' || data.value === '') return null;
+
+      if (!data || typeof data.value !== 'string' || data.value === '')
+        return null;
 
       const encryptionKey = getEncryptionKey();
       if (encryptionKey && data.value.startsWith('enc:')) {
         try {
-          const decrypted = await crypto.decrypt(data.value.replace('enc:', ''), encryptionKey);
+          const decrypted = await crypto.decrypt(
+            data.value.replace('enc:', ''),
+            encryptionKey
+          );
           if (typeof decrypted !== 'string') return null;
           return { value: decrypted };
         } catch (decErr) {
-          logger.warn('Failed to decrypt cloud data. Returning raw value.', decErr);
+          logger.warn(
+            'Failed to decrypt cloud data. Returning raw value.',
+            decErr
+          );
           return { value: data.value };
         }
       }
@@ -75,7 +86,7 @@ export const syncStorage = {
       return null;
     }
   },
-  
+
   set: async (key: string, value: string): Promise<void> => {
     if (!currentUser) return;
     try {
@@ -90,18 +101,21 @@ export const syncStorage = {
       if (valueToStore.length > MAX_USER_DATA_VALUE_LENGTH) {
         logger.warn('syncStorage.set rejected: value exceeds server cap', {
           key,
-          length: valueToStore.length,
+          length: valueToStore.length
         });
         return;
       }
 
-      const { error } = await supabase
-        .from('user_data')
-        .upsert(
-          { user_id: currentUser.id, key, value: valueToStore, updated_at: new Date().toISOString() },
-          { onConflict: 'user_id,key' },
-        );
-        
+      const { error } = await supabase.from('user_data').upsert(
+        {
+          user_id: currentUser.id,
+          key,
+          value: valueToStore,
+          updated_at: new Date().toISOString()
+        },
+        { onConflict: 'user_id,key' }
+      );
+
       if (error) {
         if (isTableMissingError(error)) return;
         throw error;
@@ -110,7 +124,7 @@ export const syncStorage = {
       logger.error('Supabase sync set error:', error);
     }
   },
-  
+
   delete: async (key: string): Promise<void> => {
     if (!currentUser) return;
     try {
@@ -119,7 +133,7 @@ export const syncStorage = {
         .delete()
         .eq('user_id', currentUser.id)
         .eq('key', key);
-        
+
       if (error) {
         if (isTableMissingError(error)) return;
         throw error;
@@ -127,5 +141,5 @@ export const syncStorage = {
     } catch (error: unknown) {
       logger.error('Supabase sync delete error:', error);
     }
-  },
+  }
 };

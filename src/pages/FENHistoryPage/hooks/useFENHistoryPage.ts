@@ -19,8 +19,9 @@ export const useFENHistoryPage = () => {
   const { showConfirm } = useModal();
   const [activeTab, setActiveTab] = useState<TabType>('active');
   const [filters, setFilters] = useState<HistoryFilterState>({});
-  const [favoritesFilters, setFavoritesFilters] =
-    useState<HistoryFilterState>({});
+  const [favoritesFilters, setFavoritesFilters] = useState<HistoryFilterState>(
+    {}
+  );
   const [archiveFilters, setArchiveFilters] = useState<HistoryFilterState>({});
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
@@ -56,21 +57,27 @@ export const useFENHistoryPage = () => {
     setArchiveFiltersHook(archiveFilters as HistoryFilters);
   }, [archiveFilters, setArchiveFiltersHook]);
 
-  const [lightSquare, setLightSquare] = useState<string>(
-    () => safeJSONParse(localStorage.getItem('chess-light-square'), '#f0d9b5')
+  const [lightSquare, setLightSquare] = useState<string>(() =>
+    safeJSONParse(localStorage.getItem('chess-light-square'), '#f0d9b5')
   );
-  const [darkSquare, setDarkSquare] = useState<string>(
-    () => safeJSONParse(localStorage.getItem('chess-dark-square'), '#b58863')
+  const [darkSquare, setDarkSquare] = useState<string>(() =>
+    safeJSONParse(localStorage.getItem('chess-dark-square'), '#b58863')
   );
-  const [pieceStyle, setPieceStyle] = useState<string>(
-    () => safeJSONParse(localStorage.getItem('chess-piece-style'), 'cburnett')
+  const [pieceStyle, setPieceStyle] = useState<string>(() =>
+    safeJSONParse(localStorage.getItem('chess-piece-style'), 'cburnett')
   );
 
   useEffect(() => {
     const handleStorageChange = () => {
-      setLightSquare(safeJSONParse(localStorage.getItem('chess-light-square'), '#f0d9b5'));
-      setDarkSquare(safeJSONParse(localStorage.getItem('chess-dark-square'), '#b58863'));
-      setPieceStyle(safeJSONParse(localStorage.getItem('chess-piece-style'), 'cburnett'));
+      setLightSquare(
+        safeJSONParse(localStorage.getItem('chess-light-square'), '#f0d9b5')
+      );
+      setDarkSquare(
+        safeJSONParse(localStorage.getItem('chess-dark-square'), '#b58863')
+      );
+      setPieceStyle(
+        safeJSONParse(localStorage.getItem('chess-piece-style'), 'cburnett')
+      );
     };
 
     handleStorageChange();
@@ -274,4 +281,3 @@ export const useFENHistoryPage = () => {
     formatTime
   };
 };
-

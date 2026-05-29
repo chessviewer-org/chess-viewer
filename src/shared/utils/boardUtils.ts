@@ -11,9 +11,9 @@ export function createEmptyBoard(): BoardMatrix {
     .map(() => Array(8).fill(''));
 }
 
-/** 
- * Converts an 8x8 board matrix into a FEN piece placement string. 
- * 
+/**
+ * Converts an 8x8 board matrix into a FEN piece placement string.
+ *
  * @param board - The board matrix to convert
  * @returns FEN piece placement string
  */
@@ -44,9 +44,9 @@ export function boardToFEN(board: BoardMatrix): string {
   return rows.join('/');
 }
 
-/** 
- * Checks if a board matrix contains no pieces. 
- * 
+/**
+ * Checks if a board matrix contains no pieces.
+ *
  * @param board - The board matrix to check
  * @returns True if empty
  */

@@ -7,12 +7,13 @@
 export function hexToRgb(hex: string): { r: number; g: number; b: number } {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   if (!result) return { r: 0, g: 0, b: 0 };
-  
+
   const r = result[1];
   const g = result[2];
   const b = result[3];
-  
-  if (r === undefined || g === undefined || b === undefined) return { r: 0, g: 0, b: 0 };
+
+  if (r === undefined || g === undefined || b === undefined)
+    return { r: 0, g: 0, b: 0 };
 
   return {
     r: parseInt(r, 16),
@@ -49,7 +50,11 @@ export function rgbToHex(r: number, g: number, b: number): string {
  * @param b - Blue channel (0–255)
  * @returns Hue (0–1), Saturation (0–1), Value (0–1)
  */
-export function rgbToHsv(r: number, g: number, b: number): { h: number; s: number; v: number } {
+export function rgbToHsv(
+  r: number,
+  g: number,
+  b: number
+): { h: number; s: number; v: number } {
   const rNorm = r / 255;
   const gNorm = g / 255;
   const bNorm = b / 255;
@@ -90,8 +95,14 @@ export function rgbToHsv(r: number, g: number, b: number): { h: number; s: numbe
  * @param v - Value/brightness (0–1)
  * @returns RGB components in the 0–255 range
  */
-export function hsvToRgb(h: number, s: number, v: number): { r: number; g: number; b: number } {
-  let r = 0, g = 0, b = 0;
+export function hsvToRgb(
+  h: number,
+  s: number,
+  v: number
+): { r: number; g: number; b: number } {
+  let r = 0,
+    g = 0,
+    b = 0;
   const i = Math.floor(h * 6);
   const f = h * 6 - i;
   const p = v * (1 - s);
@@ -100,25 +111,39 @@ export function hsvToRgb(h: number, s: number, v: number): { r: number; g: numbe
 
   switch (i % 6) {
     case 0:
-      r = v; g = t; b = p;
+      r = v;
+      g = t;
+      b = p;
       break;
     case 1:
-      r = q; g = v; b = p;
+      r = q;
+      g = v;
+      b = p;
       break;
     case 2:
-      r = p; g = v; b = t;
+      r = p;
+      g = v;
+      b = t;
       break;
     case 3:
-      r = p; g = q; b = v;
+      r = p;
+      g = q;
+      b = v;
       break;
     case 4:
-      r = t; g = p; b = v;
+      r = t;
+      g = p;
+      b = v;
       break;
     case 5:
-      r = v; g = p; b = q;
+      r = v;
+      g = p;
+      b = q;
       break;
     default:
-      r = 0; g = 0; b = 0;
+      r = 0;
+      g = 0;
+      b = 0;
   }
 
   return {

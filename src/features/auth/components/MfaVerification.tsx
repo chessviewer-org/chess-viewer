@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { ArrowLeft,KeyRound, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, KeyRound, ShieldAlert } from 'lucide-react';
 
 import { logger } from '@utils/logger';
 import { supabase } from '../services/supabaseClient';
@@ -23,19 +23,21 @@ export function MfaVerification({ onSuccess, onBack }: MfaVerificationProps) {
     setIsSubmitting(true);
 
     try {
-      const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
+      const { data: factors, error: factorsError } =
+        await supabase.auth.mfa.listFactors();
       if (factorsError) throw factorsError;
 
-      const totpFactor = factors.totp.find(f => f.status === 'verified');
+      const totpFactor = factors.totp.find((f) => f.status === 'verified');
       if (!totpFactor) {
         setError('No verified TOTP factor found.');
         setIsSubmitting(false);
         return;
       }
 
-      const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({
-        factorId: totpFactor.id
-      });
+      const { data: challenge, error: challengeError } =
+        await supabase.auth.mfa.challenge({
+          factorId: totpFactor.id
+        });
       if (challengeError) throw challengeError;
 
       const { error: verifyError } = await supabase.auth.mfa.verify({
@@ -63,9 +65,12 @@ export function MfaVerification({ onSuccess, onBack }: MfaVerificationProps) {
     setIsSubmitting(true);
 
     try {
-      const { data: isValid, error: verifyError } = await supabase.rpc('verify_recovery_code', {
-        code: code.trim().toUpperCase()
-      });
+      const { data: isValid, error: verifyError } = await supabase.rpc(
+        'verify_recovery_code',
+        {
+          code: code.trim().toUpperCase()
+        }
+      );
 
       if (verifyError || !isValid) {
         setError('Invalid or already used backup code.');
@@ -84,14 +89,20 @@ export function MfaVerification({ onSuccess, onBack }: MfaVerificationProps) {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col items-center text-center gap-3">
         <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
-          {mode === 'totp' ? <ShieldAlert className="w-6 h-6 text-accent" /> : <KeyRound className="w-6 h-6 text-accent" />}
+          {mode === 'totp' ? (
+            <ShieldAlert className="w-6 h-6 text-accent" />
+          ) : (
+            <KeyRound className="w-6 h-6 text-accent" />
+          )}
         </div>
         <h3 className="text-lg font-bold text-text-primary">
-          {mode === 'totp' ? 'Two-Factor Authentication' : 'Backup Code Verification'}
+          {mode === 'totp'
+            ? 'Two-Factor Authentication'
+            : 'Backup Code Verification'}
         </h3>
         <p className="text-text-secondary text-sm px-4">
-          {mode === 'totp' 
-            ? 'Enter the 6-digit code from your authenticator app.' 
+          {mode === 'totp'
+            ? 'Enter the 6-digit code from your authenticator app.'
             : 'Enter one of your 8-character recovery codes.'}
         </p>
       </div>
@@ -102,10 +113,13 @@ export function MfaVerification({ onSuccess, onBack }: MfaVerificationProps) {
         </div>
       )}
 
-      <form onSubmit={mode === 'totp' ? handleVerifyTotp : handleVerifyBackup} className="flex flex-col gap-4">
+      <form
+        onSubmit={mode === 'totp' ? handleVerifyTotp : handleVerifyBackup}
+        className="flex flex-col gap-4"
+      >
         <input
           type="text"
-          placeholder={mode === 'totp' ? "000000" : "ABC12345"}
+          placeholder={mode === 'totp' ? '000000' : 'ABC12345'}
           className="w-full text-center text-lg tracking-[0.2em] font-mono rounded-xl border border-border bg-surface-elevated px-4 py-3 text-text-primary focus:border-accent focus:ring-2 focus:ring-accent/35 outline-none transition-colors duration-200"
           value={code}
           onChange={(e) => setCode(e.target.value)}
@@ -113,7 +127,7 @@ export function MfaVerification({ onSuccess, onBack }: MfaVerificationProps) {
           required
           autoFocus
         />
-        
+
         <button
           type="submit"
           disabled={isSubmitting}
@@ -132,9 +146,11 @@ export function MfaVerification({ onSuccess, onBack }: MfaVerificationProps) {
           }}
           className="text-xs font-medium text-accent hover:underline underline-offset-4"
         >
-          {mode === 'totp' ? 'Use a backup code instead' : 'Use authenticator app'}
+          {mode === 'totp'
+            ? 'Use a backup code instead'
+            : 'Use authenticator app'}
         </button>
-        
+
         <button
           onClick={onBack}
           className="flex items-center justify-center gap-2 text-xs text-text-secondary hover:text-text-primary transition-colors"

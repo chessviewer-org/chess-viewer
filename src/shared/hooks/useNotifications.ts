@@ -10,9 +10,9 @@ export interface Notification {
 
 /**
  * Manages a stack of in-app notifications with auto-dismiss support.
- * Ensures a maximum of one notification is shown at a time by clearing the stack 
+ * Ensures a maximum of one notification is shown at a time by clearing the stack
  * before adding a new one.
- * 
+ *
  * @returns Object with the notification list and methods to add or remove them
  */
 export function useNotifications() {
@@ -36,7 +36,11 @@ export function useNotifications() {
   }, []);
 
   const addNotification = useCallback(
-    (message: string, type: Notification['type'] = 'info', duration = 5000): void => {
+    (
+      message: string,
+      type: Notification['type'] = 'info',
+      duration = 5000
+    ): void => {
       setNotifications([]);
       Object.values(timeoutRefs.current).forEach(clearTimeout);
       timeoutRefs.current = {};

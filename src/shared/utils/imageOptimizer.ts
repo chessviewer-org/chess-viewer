@@ -38,8 +38,10 @@ export function getMaxCanvasSize(): number {
     if (/Safari/.test(ua) && !/Chrome/.test(ua)) {
       _cachedMaxCanvasSize = 16384;
     } else {
-      const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : Infinity;
-      const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio ?? 1) : 1;
+      const viewportWidth =
+        typeof window !== 'undefined' ? window.innerWidth : Infinity;
+      const dpr =
+        typeof window !== 'undefined' ? (window.devicePixelRatio ?? 1) : 1;
       const isMobileDevice = viewportWidth <= 768 && dpr >= 2;
       _cachedMaxCanvasSize = isMobileDevice ? 8192 : 32767;
     }
@@ -67,7 +69,7 @@ export function getExportMode(quality: number): string {
 
 /**
  * Checks if the quality preset forces a coordinate border.
- * 
+ *
  * @param quality - The quality multiplier
  * @returns True if the coordinate border should be forced
  */
@@ -81,9 +83,9 @@ export function shouldForceCoordinateBorder(quality: number): boolean {
   return false;
 }
 
-/** 
+/**
  * Formats a byte count into a human-readable string.
- * 
+ *
  * @param bytes - The byte count
  * @returns Formatted size string
  */

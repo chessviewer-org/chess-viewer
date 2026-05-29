@@ -131,7 +131,9 @@ const WizardExportSettings = memo(function WizardExportSettings({
                 <span>Pos {idx + 1}:</span>
                 <span
                   className={
-                    idx === state.safeCurrentIndex ? 'text-accent font-bold' : ''
+                    idx === state.safeCurrentIndex
+                      ? 'text-accent font-bold'
+                      : ''
                   }
                 >
                   {name || `Position-${idx + 1}`}

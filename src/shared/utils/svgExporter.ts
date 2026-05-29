@@ -34,7 +34,9 @@ interface SVGExportConfig {
  * @returns SVG markup string
  * @throws If the FEN is invalid or the board cannot be parsed
  */
-export async function generateBoardSVG(config: SVGExportConfig): Promise<string> {
+export async function generateBoardSVG(
+  config: SVGExportConfig
+): Promise<string> {
   const {
     boardSize,
     lightSquare,
@@ -57,8 +59,10 @@ export async function generateBoardSVG(config: SVGExportConfig): Promise<string>
     : 0;
 
   const withBorder =
-    withCoords && (showCoordinateBorder || shouldForceCoordinateBorder(exportQuality));
-  const withFrame = !!showThinFrame && (exportQuality === 8 || exportQuality === 16);
+    withCoords &&
+    (showCoordinateBorder || shouldForceCoordinateBorder(exportQuality));
+  const withFrame =
+    !!showThinFrame && (exportQuality === 8 || exportQuality === 16);
   const framePx = withFrame ? Math.max(2, Math.round(boardPx * 0.003)) * 2 : 0;
 
   const totalWidth = borderPx + boardPx + framePx;
@@ -73,7 +77,9 @@ export async function generateBoardSVG(config: SVGExportConfig): Promise<string>
   const board: ChessBoard = parsedBoard;
 
   const pieceDataURLs: Record<string, string> = {};
-  await Promise.all(Object.values(pieceImages).map((img) => waitForPieceImage(img)));
+  await Promise.all(
+    Object.values(pieceImages).map((img) => waitForPieceImage(img))
+  );
 
   await Promise.all(
     Object.entries(pieceImages).map(async ([key, img]) => {

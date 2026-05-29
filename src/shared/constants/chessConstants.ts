@@ -2,7 +2,8 @@ import {
   AdvancedFenConfig,
   BoardThemes,
   PieceSet,
-  QualityPreset} from '@app-types';
+  QualityPreset
+} from '@app-types';
 
 export const PIECE_MAP: Record<string, string> = {
   wK: 'wK',

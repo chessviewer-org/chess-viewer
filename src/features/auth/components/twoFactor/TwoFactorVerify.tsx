@@ -28,7 +28,8 @@ export function TwoFactorVerify({
             Scan QR Code
           </h3>
           <p className="text-text-secondary text-xs leading-relaxed max-w-65 mx-auto">
-            Use an authenticator app (e.g. Google Auth, Authy, Aegis) to scan this code.
+            Use an authenticator app (e.g. Google Auth, Authy, Aegis) to scan
+            this code.
           </p>
         </div>
 

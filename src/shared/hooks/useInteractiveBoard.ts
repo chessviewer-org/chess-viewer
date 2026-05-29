@@ -128,19 +128,22 @@ export function useInteractiveBoard(
     [notifyFenChange]
   );
 
-  const handlePieceRemove = useCallback((row: number, col: number) => {
-    setBoard((prevBoard) => {
-      const newBoard = cloneBoard(prevBoard);
-      if (row !== undefined && col !== undefined) {
-        const targetRow = newBoard[row];
-        if (targetRow !== undefined) {
-          targetRow[col] = '';
+  const handlePieceRemove = useCallback(
+    (row: number, col: number) => {
+      setBoard((prevBoard) => {
+        const newBoard = cloneBoard(prevBoard);
+        if (row !== undefined && col !== undefined) {
+          const targetRow = newBoard[row];
+          if (targetRow !== undefined) {
+            targetRow[col] = '';
+          }
         }
-      }
-      notifyFenChange(newBoard);
-      return newBoard;
-    });
-  }, [notifyFenChange]);
+        notifyFenChange(newBoard);
+        return newBoard;
+      });
+    },
+    [notifyFenChange]
+  );
 
   const clearBoard = useCallback(() => {
     setBoard((prevBoard) => {
@@ -154,15 +157,18 @@ export function useInteractiveBoard(
   }, [notifyFenChange]);
 
   const resetBoard = useCallback(() => {
-    const startingFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+    const startingFen =
+      'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
     metadataRef.current = 'w KQkq - 0 1';
     const parsedStarting = parseFEN(startingFen);
     if (!isChessBoard(parsedStarting)) {
-      logger.error('useInteractiveBoard: resetBoard failed to parse starting FEN');
+      logger.error(
+        'useInteractiveBoard: resetBoard failed to parse starting FEN'
+      );
       return;
     }
     const startingBoard = parsedStarting;
-    
+
     setBoard((prevBoard) => {
       if (boardToFEN(prevBoard) === boardToFEN(startingBoard)) {
         return prevBoard;

@@ -1,4 +1,4 @@
-import { lazy, memo,Suspense } from 'react';
+import { lazy, memo, Suspense } from 'react';
 
 import { motion } from 'framer-motion';
 import { Menu, X } from 'lucide-react';

@@ -97,7 +97,14 @@ interface SupportCardProps {
   primary?: boolean;
 }
 
-function SupportCard({ icon, title, desc, link, linkText, primary = false }: SupportCardProps) {
+function SupportCard({
+  icon,
+  title,
+  desc,
+  link,
+  linkText,
+  primary = false
+}: SupportCardProps) {
   return (
     <div
       className={`glass-card p-5 rounded-xl shadow-md transition-shadow duration-200 hover:shadow-lg ${primary ? 'border-2 border-accent' : 'border border-border'}`}

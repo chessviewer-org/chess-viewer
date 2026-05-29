@@ -51,7 +51,10 @@ export function useThemePresets(): UseThemePresetsResult {
 
   const persistPresets = useCallback((presets: ThemePreset[]) => {
     try {
-      window.localStorage.setItem(CUSTOM_THEME_PRESETS_KEY, JSON.stringify(presets));
+      window.localStorage.setItem(
+        CUSTOM_THEME_PRESETS_KEY,
+        JSON.stringify(presets)
+      );
     } catch (err) {
       logger.error('Failed to persist presets:', err);
     }
@@ -136,6 +139,13 @@ export function useThemePresets(): UseThemePresetsResult {
       deletePreset,
       clearPresets
     }),
-    [customPresets, savePreset, updatePreset, replacePresets, deletePreset, clearPresets]
+    [
+      customPresets,
+      savePreset,
+      updatePreset,
+      replacePresets,
+      deletePreset,
+      clearPresets
+    ]
   );
 }
