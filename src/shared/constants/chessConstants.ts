@@ -1,13 +1,9 @@
 import {
   BoardThemes,
   QualityPreset,
-  ExportModeConfig,
   AdvancedFenConfig,
   PieceSet
 } from '../types';
-
-export const STARTING_FEN =
-  'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
 export const PIECE_MAP: Record<string, string> = {
   wK: 'wK',
@@ -107,22 +103,6 @@ export const QUALITY_PRESETS: QualityPreset[] = [
     estimatedSize: '800KB-1.2MB'
   }
 ];
-
-export const EXPORT_MODE_CONFIG: Record<string, ExportModeConfig> = {
-  print: {
-    baseDPI: 300,
-    maxPixels: 16384,
-    preservePhysicalSize: true,
-    description: 'Preserves exact physical board dimensions'
-  },
-  social: {
-    fixedBoardPixels: 4800,
-    maxPixels: 16384,
-    preservePhysicalSize: true,
-    forceCoordinateBorder: true,
-    description: 'Keeps board size with higher zoom quality'
-  }
-};
 
 export const ADVANCED_FEN_CONFIG: AdvancedFenConfig = {
   MAX_FENS: 10,
