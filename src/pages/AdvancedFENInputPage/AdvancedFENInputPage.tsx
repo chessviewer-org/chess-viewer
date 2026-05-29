@@ -2,8 +2,8 @@ import React, { memo } from 'react';
 
 import { ChevronRight, Eye, Globe, List, Sliders } from 'lucide-react';
 
-import { ExportProgress } from '@/components/features';
 import { ToolPageHeader } from '@/components/layout';
+import { ExportProgress } from '@/components/panels';
 import { ADVANCED_FEN_CONFIG } from '@constants';
 
 import PositionsTab from './components/PositionsTab';

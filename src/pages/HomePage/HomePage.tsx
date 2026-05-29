@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 
 import { motion } from 'framer-motion';
 
-import { ControlPanel, ExportProgress } from '@/components/features';
 import { ChessEditor, DndProvider } from '@/components/interactions';
+import { ControlPanel, ExportProgress } from '@/components/panels';
 
 import { NotificationContainer } from '@shared/ui';
 import ExportStudio from './components/ExportStudio';

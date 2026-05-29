@@ -11,8 +11,8 @@ import {
 import { History, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-import { FENInputField } from '@/components/features/Fen';
-import type { NotificationType } from '@/components/features/Fen/FENInputField/FENInputField';
+import { FENInputField } from '@/components/panels/Fen';
+import type { NotificationType } from '@/components/panels/Fen/FENInputField/FENInputField';
 import { useFENHistory } from '@hooks';
 
 import { MAX_FEN_LENGTH } from '@utils/validation';

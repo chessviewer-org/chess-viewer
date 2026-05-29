@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 
 import Logo from '@/assets/Logo.png';
-import HelpCenter from '@/components/features/HelpCenter';
+import HelpCenter from '@/components/panels/HelpCenter';
 
 import { NavbarDesktopDropdown } from './parts/NavbarDesktopDropdown';
 import { NavbarMobileMenu } from './parts/NavbarMobileMenu';

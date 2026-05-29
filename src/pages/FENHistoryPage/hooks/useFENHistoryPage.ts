@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
-import { HistoryFilterState } from '@/components/features/History/HistoryFilters/HistoryFilters';
+import { HistoryFilterState } from '@/components/panels/History/HistoryFilters/HistoryFilters';
 import { useModal } from '@/contexts';
 import { useFENHistory } from '@hooks';
 import { ActiveHistoryEntry, HistoryFilters } from '@app-types/history';

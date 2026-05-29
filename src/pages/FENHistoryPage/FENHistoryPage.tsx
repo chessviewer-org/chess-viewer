@@ -3,7 +3,7 @@ import React, { memo } from 'react';
 import {
   ConfirmationModal,
   HistoryFilters
-} from '@/components/features/History';
+} from '@/components/panels/History';
 import { BaseHistoryEntry } from '@app-types/history';
 
 import { FENHistoryEmptyState } from './components/FENHistoryEmptyState';

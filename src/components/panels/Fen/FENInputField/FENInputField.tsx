@@ -10,7 +10,7 @@ import {
 import { AlertCircle } from 'lucide-react';
 
 import { useFENBatch } from '@/contexts';
-import ClipboardHistory from '@components/features/ClipboardHistory';
+import ClipboardHistory from '@components/panels/ClipboardHistory';
 import { useDebouncedFENValidation } from '@hooks/useDebouncedFENValidation';
 
 import { validateFEN } from '@utils';

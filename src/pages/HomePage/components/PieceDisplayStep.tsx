@@ -1,5 +1,5 @@
-import DisplayOptions from '@/components/features/DisplayOptions/DisplayOptions';
-import PieceSelector from '@/components/features/Fen/PieceSelector/PieceSelector';
+import DisplayOptions from '@/components/panels/DisplayOptions/DisplayOptions';
+import PieceSelector from '@/components/panels/Fen/PieceSelector/PieceSelector';
 
 import type { HomeStateForExport } from './ExportStudio.types';
 
