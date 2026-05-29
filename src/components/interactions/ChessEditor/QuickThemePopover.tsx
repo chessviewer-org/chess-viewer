@@ -5,7 +5,7 @@ import { Palette } from 'lucide-react';
 import { BOARD_THEMES } from '@constants';
 import { ThemeConfig } from '@app-types';
 import { useOutsideClick } from '@hooks';
-import ThemePresetButton from '@/components/features/ColorPicker/views/parts/ThemePresetButton';
+import ThemePresetButton from './ThemePresetButton';
 
 /** Props for the in-board Quick Theme popover. */
 export interface QuickThemePopoverProps {
