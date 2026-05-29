@@ -87,17 +87,6 @@ export const PALETTE_PIECES: PalettePiece[] = [
 ];
 
 /**
- * Returns the FEN character for a piece given color and type.
- *
- * @param {'w'|'b'} color - Piece color
- * @param {string} pieceType - Lowercase piece type (e.g. 'p', 'n')
- * @returns {string} FEN piece character
- */
-export function getPieceFenChar(color: 'w' | 'b', pieceType: string): string {
-  return color === 'w' ? pieceType.toUpperCase() : pieceType.toLowerCase();
-}
-
-/**
  * Returns the image key used in the piece images map for a given FEN character.
  *
  * @param {PieceSymbol} fenChar - FEN piece character (e.g. 'P', 'k')
