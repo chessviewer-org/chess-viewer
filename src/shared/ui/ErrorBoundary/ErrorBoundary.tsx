@@ -156,4 +156,3 @@ class ErrorBoundary extends React.Component<
   }
 }
 export { ErrorBoundary, ErrorFallback };
-export default ErrorBoundary;
