@@ -1,131 +1,38 @@
-import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, ShieldAlert, ShieldCheck } from 'lucide-react';
-
-import { supabase } from '@/features/auth/services/supabaseClient';
+import { ShieldAlert, ShieldCheck } from 'lucide-react';
 
 import type { SecurityLockModalProps } from '../types';
+import { BackupCodeUnlockForm } from './securityLock/BackupCodeUnlockForm';
+import { MfaUnlockForm } from './securityLock/MfaUnlockForm';
+import { PasswordUnlockForm } from './securityLock/PasswordUnlockForm';
+import { useSecurityUnlock } from './securityLock/useSecurityUnlock';
 
 /**
  * Full-screen lock overlay requiring re-authentication after 90 days of inactivity.
  *
  * Supports password, TOTP, and backup-code verification flows. Rendered via a
- * portal so it sits above all other content.
+ * portal so it sits above all other content. Verification logic lives in
+ * {@link useSecurityUnlock}; each mode's form is a dedicated sub-component.
  */
 export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
-  const [password, setPassword] = useState<string>('');
-  const [backupCode, setBackupCode] = useState<string>('');
-  const [totpCode, setTotpCode] = useState<string>('');
-  const [mode, setMode] = useState<'password' | 'backup' | 'mfa'>('password');
-  const [error, setError] = useState<string>('');
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
-  const handlePasswordSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError('');
-    setIsSubmitting(true);
-
-    const {
-      data: { user }
-    } = await supabase.auth.getUser();
-    if (!user?.email) {
-      setError('Unable to retrieve account email.');
-      setIsSubmitting(false);
-      return;
-    }
-
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: user.email,
-      password
-    });
-
-    if (signInError) {
-      setError('Invalid password. Please try again.');
-      setIsSubmitting(false);
-      return;
-    }
-
-    // Check if MFA is enabled
-    const { data: factors, error: factorsError } =
-      await supabase.auth.mfa.listFactors();
-    const hasVerifiedMfa =
-      !factorsError &&
-      factors &&
-      factors.totp.some((f) => f.status === 'verified');
-
-    if (hasVerifiedMfa) {
-      setMode('mfa');
-    } else {
-      onUnlock();
-    }
-
-    setIsSubmitting(false);
-  };
-
-  const handleMfaVerify = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError('');
-    setIsSubmitting(true);
-
-    try {
-      const { data: factors, error: factorsError } =
-        await supabase.auth.mfa.listFactors();
-      if (factorsError) throw factorsError;
-
-      const totpFactor = factors.totp.find((f) => f.status === 'verified');
-      if (!totpFactor) {
-        setError('No verified TOTP factor found.');
-        setMode('password');
-        setIsSubmitting(false);
-        return;
-      }
-
-      const { data: challenge, error: challengeError } =
-        await supabase.auth.mfa.challenge({
-          factorId: totpFactor.id
-        });
-      if (challengeError) throw challengeError;
-
-      const { error: verifyError } = await supabase.auth.mfa.verify({
-        factorId: totpFactor.id,
-        challengeId: challenge.id,
-        code: totpCode.trim()
-      });
-
-      if (verifyError) {
-        setError('Invalid verification code.');
-      } else {
-        onUnlock();
-      }
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'MFA verification failed.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleBackupSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError('');
-    setIsSubmitting(true);
-
-    const { data: isValid, error: verifyError } = await supabase.rpc(
-      'verify_recovery_code',
-      {
-        code: backupCode
-      }
-    );
-
-    if (verifyError || !isValid) {
-      setError(verifyError?.message || 'Invalid or already used backup code.');
-    } else {
-      onUnlock();
-    }
-
-    setIsSubmitting(false);
-  };
+  const {
+    password,
+    setPassword,
+    backupCode,
+    setBackupCode,
+    totpCode,
+    setTotpCode,
+    mode,
+    setMode,
+    error,
+    setError,
+    isSubmitting,
+    handlePasswordSubmit,
+    handleMfaVerify,
+    handleBackupSubmit
+  } = useSecurityUnlock(onUnlock);
 
   return createPortal(
     <div className="fixed inset-0 z-110 flex items-center justify-center p-4 sm:p-6">
@@ -215,101 +122,35 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
           )}
 
           {mode === 'password' && (
-            <form
+            <PasswordUnlockForm
+              password={password}
+              setPassword={setPassword}
+              isSubmitting={isSubmitting}
               onSubmit={handlePasswordSubmit}
-              className="flex flex-col gap-4"
-            >
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
-                  Current Password
-                </label>
-                <input
-                  type="password"
-                  autoComplete="current-password"
-                  placeholder="Enter your password"
-                  className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:border-accent focus:ring-2 focus:ring-accent/35 outline-none transition-colors duration-200"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoFocus
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="mt-2 w-full rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-bg shadow-md transition-colors hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? 'Checking MFA...' : 'Continue'}
-              </button>
-            </form>
+            />
           )}
 
           {mode === 'mfa' && (
-            <form onSubmit={handleMfaVerify} className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
-                  6-Digit Code
-                </label>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="000000"
-                  maxLength={6}
-                  className="w-full text-center text-lg tracking-[0.2em] font-mono rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-text-primary focus:border-accent focus:ring-2 focus:ring-accent/35 outline-none transition-colors duration-200"
-                  value={totpCode}
-                  onChange={(e) =>
-                    setTotpCode(e.target.value.replace(/\\D/g, ''))
-                  }
-                  required
-                  autoFocus
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={isSubmitting || totpCode.length !== 6}
-                className="mt-2 w-full rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-bg shadow-md transition-colors hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? 'Verifying...' : 'Verify & Unlock'}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMode('password');
-                  setTotpCode('');
-                  setError('');
-                }}
-                className="flex items-center justify-center gap-2 text-xs text-text-secondary hover:text-text-primary transition-colors mt-2"
-              >
-                <ArrowLeft className="w-3 h-3" />
-                Back to Password
-              </button>
-            </form>
+            <MfaUnlockForm
+              totpCode={totpCode}
+              setTotpCode={setTotpCode}
+              isSubmitting={isSubmitting}
+              onSubmit={handleMfaVerify}
+              onBack={() => {
+                setMode('password');
+                setTotpCode('');
+                setError('');
+              }}
+            />
           )}
 
           {mode === 'backup' && (
-            <form onSubmit={handleBackupSubmit} className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
-                  Backup Code
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter an unused backup code"
-                  className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:border-accent focus:ring-2 focus:ring-accent/35 outline-none transition-colors duration-200 font-mono"
-                  value={backupCode}
-                  onChange={(e) => setBackupCode(e.target.value)}
-                  required
-                  autoFocus
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="mt-2 w-full rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-bg shadow-md transition-colors hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? 'Verifying…' : 'Verify Identity'}
-              </button>
-            </form>
+            <BackupCodeUnlockForm
+              backupCode={backupCode}
+              setBackupCode={setBackupCode}
+              isSubmitting={isSubmitting}
+              onSubmit={handleBackupSubmit}
+            />
           )}
         </div>
       </motion.div>
