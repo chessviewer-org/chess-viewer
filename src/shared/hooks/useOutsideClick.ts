@@ -45,5 +45,3 @@ export function useOutsideClick(
     };
   }, [ref, enabled]);
 }
-
-export default useOutsideClick;
