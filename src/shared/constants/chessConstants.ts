@@ -5,6 +5,13 @@ import {
   QualityPreset
 } from '@app-types';
 
+/** Canonical full-game starting position. */
+export const STARTING_FEN =
+  'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
+/** Empty board (no pieces), white to move. */
+export const EMPTY_FEN = '8/8/8/8/8/8/8/8 w - - 0 1';
+
 export const PIECE_MAP: Record<string, string> = {
   wK: 'wK',
   wQ: 'wQ',
