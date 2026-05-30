@@ -33,70 +33,59 @@ export const PiecePalette = memo(function PiecePalette({
   isLoading,
   className = ''
 }: PiecePaletteProps) {
-  const renderPieceGroup = useCallback(
-    (pieces: PalettePiece[], label: string) => (
-      <div className="space-y-2 sm:space-y-2.5">
-        <h3 className="text-[11px] sm:text-xs font-bold uppercase tracking-wide text-center py-2 rounded-md text-white bg-accent border border-accent-hover">
-          {label}
-        </h3>
-        <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
-          {pieces.map((p) => {
-            const imageKey = getPieceImageKey(p.piece);
-            const pieceImage = imageKey ? pieceImages[imageKey] || null : null;
+  const renderPiece = useCallback(
+    (p: PalettePiece) => {
+      const imageKey = getPieceImageKey(p.piece);
+      const pieceImage = imageKey ? pieceImages[imageKey] || null : null;
 
-            return (
-              <div
-                key={p.id}
-                className={`
-                  aspect-square rounded-md lg:rounded-lg
-                  bg-surface-elevated hover:bg-surface-hover
-                  border border-border/50 hover:border-accent/50
-                  flex items-center gap-2 justify-center
-                  transition-colors duration-200
-                  min-h-[3.8rem] sm:min-h-[4.1rem]
-                  ${isLoading ? 'opacity-50' : ''}
-                `}
-                title={p.name}
-              >
-                <DraggablePiece
-                  piece={p.piece}
-                  pieceImage={pieceImage}
-                  isFromPalette={true}
-                  size="72%"
-                  disabled={isLoading || !pieceImage}
-                />
-              </div>
-            );
-          })}
+      return (
+        <div
+          key={p.id}
+          className={`
+            aspect-square flex-1 min-w-0 rounded-md
+            bg-surface-elevated hover:bg-surface-hover
+            border border-border/50 hover:border-accent/50
+            flex items-center justify-center
+            transition-colors duration-200
+            ${isLoading ? 'opacity-50' : ''}
+          `}
+          title={p.name}
+        >
+          <DraggablePiece
+            piece={p.piece}
+            pieceImage={pieceImage}
+            isFromPalette={true}
+            size="90%"
+            disabled={isLoading || !pieceImage}
+          />
         </div>
-      </div>
-    ),
+      );
+    },
     [pieceImages, isLoading]
   );
 
-  return (
-    <div className={`flex flex-col gap-3 sm:gap-3.5 ${className}`}>
-      <div className="text-sm font-semibold text-text-primary flex items-center gap-2 px-1">
-        <svg
-          className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent shrink-0"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
-          />
-        </svg>
-        <span className="hidden sm:inline">Drag pieces to board</span>
-        <span className="sm:hidden">Pieces</span>
+  const renderGroup = useCallback(
+    (pieces: PalettePiece[], label: string) => (
+      <div className="flex-1 min-w-0 flex flex-col">
+        {/* Refined header — light, spaced, muted (no chunky accent fill). */}
+        <span className="block w-full text-sm font-semibold uppercase tracking-wider text-text-muted text-center pb-1.5">
+          {label}
+        </span>
+        {/* Tray: more padding so pieces have room to breathe. */}
+        <div className="flex items-center gap-1.5 sm:gap-2 p-3 rounded-lg border border-white/10 bg-black/20">
+          {pieces.map(renderPiece)}
+        </div>
       </div>
+    ),
+    [renderPiece]
+  );
 
-      <div className="flex flex-col gap-2.5 sm:gap-3 xl:flex-1 xl:justify-around">
-        {renderPieceGroup(WHITE_PIECES, 'White')}
-        {renderPieceGroup(BLACK_PIECES, 'Black')}
+  return (
+    <div className={`flex items-stretch ${className}`}>
+      {/* Two distinct labelled trays side by side; no divider line. */}
+      <div className="flex items-stretch gap-4 w-full">
+        {renderGroup(WHITE_PIECES, 'White')}
+        {renderGroup(BLACK_PIECES, 'Black')}
       </div>
     </div>
   );
