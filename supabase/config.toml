@@ -1,5 +1,4 @@
-[project]
-id = "chess-vision"
+project_id = "exhlxcigncuqaichgbmy"
 
 [api]
 port = 54321
@@ -25,3 +24,9 @@ enabled = true
 
 [inbucket]
 port = 54324
+
+# Public position-database proxy (PDB/YACPDB). No JWT required so anonymous
+# users editing the board can search; abuse is bounded by the Postgres cache
+# and per-position dedup inside the function.
+[functions.chess-database-search]
+verify_jwt = false
