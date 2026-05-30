@@ -10,13 +10,13 @@ import {
 import { AlertCircle } from 'lucide-react';
 
 import { useFENBatch } from '@/contexts';
-import ClipboardHistory from '@components/panels/ClipboardHistory';
 import { useDebouncedFENValidation } from '@hooks/useDebouncedFENValidation';
+import { EMPTY_FEN, STARTING_FEN } from '@constants';
 
 import { validateFEN } from '@utils';
 import { MAX_FEN_LENGTH } from '@utils/validation';
 import FENInputToolbar from './FENInputToolbar';
-import { recordClipboardHistory, useFavoriteFen } from './useFavoriteFen';
+import { useFavoriteFen } from './useFavoriteFen';
 
 /** Notification severity levels used by the FEN input field. */
 export type NotificationType = 'success' | 'error' | 'warning' | 'info';
@@ -27,11 +27,15 @@ export interface FENInputFieldProps {
   onChange: (fen: string) => void;
   onBlur?: () => void;
   error?: string;
-  onCopy?: () => Promise<void> | void;
   onPaste?: () => void;
-  copySuccess?: boolean;
-  onAdvancedClick?: () => void;
   onNotification?: (message: string, type: NotificationType) => void;
+  /** Whether the inline Clipboard History view is currently shown. */
+  isHistoryActive?: boolean;
+  /**
+   * Toggle the inline Clipboard History side-panel. When provided, the History
+   * button drives this instead of opening the legacy modal.
+   */
+  onToggleHistory?: () => void;
 }
 
 const FENInputField = memo(
@@ -40,13 +44,11 @@ const FENInputField = memo(
     onChange,
     onBlur,
     error: externalError,
-    onCopy,
     onPaste,
-    copySuccess,
-    onAdvancedClick,
-    onNotification
+    onNotification,
+    isHistoryActive = false,
+    onToggleHistory
   }: FENInputFieldProps) {
-    const [isClipboardOpen, setIsClipboardOpen] = useState<boolean>(false);
     const { addToBatch } = useFENBatch();
     const { isFavorite, toggleFavorite } = useFavoriteFen({
       fen,
@@ -79,12 +81,6 @@ const FENInputField = memo(
     );
     const visibleError = debouncedError || externalError || '';
 
-    const handleCopyWithHistory = useCallback(async () => {
-      if (!onCopy) return;
-      await onCopy();
-      recordClipboardHistory(localFen);
-    }, [localFen, onCopy]);
-
     const handleAddToBatch = useCallback(() => {
       const currentFen = localFen.trim();
       if (!currentFen) {
@@ -107,18 +103,29 @@ const FENInputField = memo(
       [localFen, toggleFavorite]
     );
 
-    const handleSelectFromClipboard = useCallback(
-      (selectedFen: string) => {
-        setLocalFen(selectedFen);
-        onChange(selectedFen);
-        onNotification?.('FEN loaded from clipboard history', 'success');
-      },
-      [onChange, onNotification]
-    );
-
     const handleTextareaChange = useCallback(
       (e: ChangeEvent<HTMLTextAreaElement>) => setLocalFen(e.target.value),
       []
+    );
+
+    // Load a canonical position (Start Pos / Clear). Mirrors the clipboard
+    // path: set the local text and emit upward; the board syncs from the FEN.
+    const handleLoadFen = useCallback(
+      (nextFen: string) => {
+        setLocalFen(nextFen);
+        lastEmittedFenRef.current = nextFen;
+        onChange(nextFen);
+      },
+      [onChange]
+    );
+
+    const handleStartPosition = useCallback(
+      () => handleLoadFen(STARTING_FEN),
+      [handleLoadFen]
+    );
+    const handleClearBoard = useCallback(
+      () => handleLoadFen(EMPTY_FEN),
+      [handleLoadFen]
     );
 
     const handleBlur = useCallback(() => {
@@ -145,29 +152,36 @@ const FENInputField = memo(
             className={`bg-surface/50 border rounded-lg overflow-hidden transition-all duration-300 ease-out ${borderColorClass}`}
           >
             <FENInputToolbar
-              copySuccess={copySuccess}
               isFavorite={isFavorite}
-              onOpenClipboard={() => setIsClipboardOpen(true)}
+              isHistoryActive={isHistoryActive}
+              onToggleHistory={onToggleHistory}
               onPaste={onPaste}
-              onCopy={handleCopyWithHistory}
               onAddToBatch={handleAddToBatch}
               onToggleFavorite={handleToggleFavorite}
+              onStartPosition={handleStartPosition}
+              onClearBoard={handleClearBoard}
             />
 
-            <div className="relative">
+            {/* Single-line FEN field: strictly one row with horizontal scroll
+                so even a max-length FEN never wraps or breaks the layout.
+                (The Advanced FEN entry point now lives in the panel header.) */}
+            <div className="px-2 sm:px-3 py-1 sm:py-1.5">
               <textarea
                 ref={textareaRef}
                 value={localFen}
                 onChange={handleTextareaChange}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
+                rows={1}
+                wrap="off"
                 aria-label="FEN notation input"
                 aria-describedby={visibleError ? 'fen-error' : undefined}
                 aria-invalid={visibleError ? 'true' : 'false'}
                 className={`
-                  w-full px-2 sm:px-3 py-1.5 sm:py-2 pb-8 sm:pb-9
+                  w-full min-w-0 px-1 py-1
                   bg-surface/50 text-text-primary
-                  font-mono text-base sm:text-[12px] leading-tight resize-none min-h-9 sm:min-h-22
+                  font-mono text-sm sm:text-[14px] leading-tight resize-none
+                  whitespace-pre overflow-x-auto overflow-y-hidden
                   focus-visible:outline-none focus:outline-none outline-none
                   transition duration-200 ease-out border-0
                   ${visibleError ? 'text-error' : ''}
@@ -177,15 +191,6 @@ const FENInputField = memo(
                 spellCheck="false"
                 autoComplete="off"
               />
-
-              <button
-                onClick={onAdvancedClick}
-                className="absolute bottom-2 right-2 text-[11px] sm:text-[12px] text-accent/80 hover:text-accent font-semibold transition duration-150 ease-out active:scale-95 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-1 py-0.5 bg-surface/80 backdrop-blur-sm"
-                type="button"
-                aria-label="Open advanced FEN input modal"
-              >
-                Advanced FEN Input
-              </button>
             </div>
           </div>
 
@@ -211,22 +216,15 @@ const FENInputField = memo(
             </div>
           </div>
         </div>
-
-        {isClipboardOpen && (
-          <ClipboardHistory
-            isOpen={isClipboardOpen}
-            onClose={() => setIsClipboardOpen(false)}
-            onSelectFen={handleSelectFromClipboard}
-          />
-        )}
       </>
     );
   },
   (prev, next) =>
     prev.fen === next.fen &&
     prev.error === next.error &&
-    prev.copySuccess === next.copySuccess &&
-    prev.onBlur === next.onBlur
+    prev.onBlur === next.onBlur &&
+    prev.isHistoryActive === next.isHistoryActive &&
+    prev.onToggleHistory === next.onToggleHistory
 );
 
 FENInputField.displayName = 'FENInputField';
