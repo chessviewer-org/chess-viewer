@@ -1,19 +1,11 @@
-import {
-  memo,
-  Ref,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState
-} from 'react';
+import { memo, Ref, useCallback, useImperativeHandle } from 'react';
 
-import { History, Settings } from 'lucide-react';
+import { History, ListPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import { FENInputField } from '@/components/panels/Fen';
 import type { NotificationType } from '@/components/panels/Fen/FENInputField/FENInputField';
-import { useFENHistory } from '@hooks';
+import { useFENHistory, usePrefetchRoute } from '@hooks';
 
 import { MAX_FEN_LENGTH } from '@utils/validation';
 
@@ -30,6 +22,10 @@ export interface ControlPanelProps {
     fen: string,
     notify?: (message: string, type: NotificationType) => void
   ) => void;
+  /** Whether the inline Clipboard History view is currently shown. */
+  isHistoryActive?: boolean;
+  /** Toggle the inline Clipboard History view on/off. */
+  onToggleHistory?: () => void;
 }
 
 const ControlPanel = memo(function ControlPanel({
@@ -39,20 +35,12 @@ const ControlPanel = memo(function ControlPanel({
   onFavoriteStatusChange,
   onNotification,
   saveManualFen: externalSaveManualFen,
-  saveExportFen: externalSaveExportFen,
-  addCurrentToFavorites: externalAddCurrentToFavorites
+  addCurrentToFavorites: externalAddCurrentToFavorites,
+  isHistoryActive = false,
+  onToggleHistory
 }: ControlPanelProps) {
   const navigate = useNavigate();
-  const [copySuccess, setCopySuccess] = useState<boolean>(false);
-  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (copyTimeoutRef.current) {
-        clearTimeout(copyTimeoutRef.current);
-      }
-    };
-  }, []);
+  const prefetch = usePrefetchRoute();
 
   const localHistory = useFENHistory(fen, onFavoriteStatusChange);
   const addCurrentToFavorites =
@@ -74,23 +62,6 @@ const ControlPanel = memo(function ControlPanel({
       externalSaveManualFen(fen.trim());
     }
   }, [fen, externalSaveManualFen]);
-
-  const handleCopyFEN = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(fen);
-      if (externalSaveExportFen) {
-        externalSaveExportFen(fen);
-      }
-      setCopySuccess(true);
-      if (copyTimeoutRef.current) {
-        clearTimeout(copyTimeoutRef.current);
-      }
-      copyTimeoutRef.current = setTimeout(() => setCopySuccess(false), 2000);
-      onNotification?.('FEN copied to clipboard', 'success');
-    } catch {
-      onNotification?.('Failed to copy FEN', 'error');
-    }
-  }, [fen, externalSaveExportFen, onNotification]);
 
   const handlePasteFEN = useCallback(async () => {
     try {
@@ -128,24 +99,34 @@ const ControlPanel = memo(function ControlPanel({
 
   return (
     <>
-      <div className="bg-surface border border-border/40 rounded-xl p-4 sm:p-5 lg:p-6">
-        <div className="space-y-3">
+      {/* Slim full-width topbar: reduced padding for a minimal toolbar feel. */}
+      <div className="bg-surface border border-border/40 rounded-xl px-4 sm:px-5 py-2.5 sm:py-3">
+        <div className="space-y-2.5">
           <div className="flex items-center justify-between gap-2">
             <label className="text-sm font-semibold text-text-primary">
               FEN Notation
             </label>
             <div className="flex items-center gap-2">
+              {/* Advanced FEN Input — distinct icon immediately left of History. */}
               <button
-                onClick={() => navigate('/fen-history')}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-accent text-xs sm:text-sm font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10"
+                onClick={() => navigate('/advanced-fen')}
+                {...prefetch('/advanced-fen')}
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-lg text-accent text-xs sm:text-sm font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10"
+                aria-label="Advanced FEN Input"
+                title="Advanced FEN Input"
               >
-                <History className="w-4 h-4 sm:w-5 sm:h-5" />
+                <ListPlus className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">Advanced</span>
               </button>
               <button
-                onClick={() => navigate('/settings')}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-accent text-xs sm:text-sm font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10"
+                onClick={() => navigate('/fen-history')}
+                {...prefetch('/fen-history')}
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-lg text-accent text-xs sm:text-sm font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10"
+                aria-label="FEN History"
+                title="FEN History"
               >
-                <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
+                <History className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">History</span>
               </button>
             </div>
           </div>
@@ -154,10 +135,9 @@ const ControlPanel = memo(function ControlPanel({
             fen={fen}
             onChange={handleFenChange}
             onBlur={handleFenBlur}
-            onCopy={handleCopyFEN}
             onPaste={handlePasteFEN}
-            copySuccess={copySuccess}
-            onAdvancedClick={() => navigate('/advanced-fen')}
+            isHistoryActive={isHistoryActive}
+            {...(onToggleHistory && { onToggleHistory })}
             {...(onNotification && { onNotification })}
           />
         </div>
