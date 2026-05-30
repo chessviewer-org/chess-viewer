@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { usePrefetchRoute } from '@hooks';
+
 /** Props for the `NavbarMobileMenu` slide-down panel. */
 interface NavbarMobileMenuProps {
   isOpen: boolean;
@@ -37,6 +39,8 @@ export const NavbarMobileMenu = memo(function NavbarMobileMenu({
   handleSignOut,
   handleHelpClick
 }: NavbarMobileMenuProps) {
+  const prefetch = usePrefetchRoute();
+
   return (
     <div
       className={`sm:hidden overflow-hidden transition-all duration-300 ease-in-out ${
@@ -74,6 +78,7 @@ export const NavbarMobileMenu = memo(function NavbarMobileMenu({
 
             <Link
               to="/settings?tab=profile"
+              {...prefetch('/settings')}
               onClick={() => setIsMobileMenuOpen(false)}
               className="flex w-full items-center space-x-3 px-3 py-3 min-h-11 rounded-lg transition-colors duration-200 text-text-secondary hover:text-text-primary hover:bg-surface-hover active:bg-surface-elevated"
             >
@@ -83,6 +88,7 @@ export const NavbarMobileMenu = memo(function NavbarMobileMenu({
 
             <Link
               to="/settings?tab=security"
+              {...prefetch('/settings')}
               onClick={() => setIsMobileMenuOpen(false)}
               className="flex w-full items-center space-x-3 px-3 py-3 min-h-11 rounded-lg transition-colors duration-200 text-text-secondary hover:text-text-primary hover:bg-surface-hover active:bg-surface-elevated"
             >
