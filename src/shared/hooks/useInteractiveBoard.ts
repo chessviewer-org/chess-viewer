@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ChessBoard, isChessBoard, PieceSymbol } from '@app-types/chess';
 
@@ -56,20 +56,27 @@ export function useInteractiveBoard(
     return createEmptyBoard();
   });
 
-  const notifyFenChange = useCallback(
-    (newBoard: ChessBoard) => {
-      if (onFenChange) {
-        const positionFen = boardToFEN(newBoard);
-        const fullFen = `${positionFen} ${metadataRef.current}`;
-        onFenChange(fullFen);
-      }
-    },
-    [onFenChange]
-  );
+  // Keep the latest onFenChange without making the post-commit effect re-fire
+  // when the parent passes a fresh callback identity.
+  const onFenChangeRef = useRef(onFenChange);
+  useEffect(() => {
+    onFenChangeRef.current = onFenChange;
+  }, [onFenChange]);
+
+  // True only for board changes that ORIGINATE here (user drag/clear/reset) and
+  // must be pushed up to the parent. Programmatic syncFromFen() updates leave it
+  // false so a parent-driven FEN is never echoed straight back (feedback loop).
+  const pendingNotifyRef = useRef(false);
+  // Skip the very first commit so the initial position is not re-emitted.
+  const didMountRef = useRef(false);
 
   const syncFromFen = useCallback((fen: string) => {
     try {
       if (!fen || !validateFEN(fen)) return;
+
+      // A parent-driven sync is authoritative: drop any not-yet-emitted local
+      // edit so the resulting commit is never echoed back up as a "change".
+      pendingNotifyRef.current = false;
 
       const parts = fen.trim().split(/\s+/);
       if (parts.length > 1) {
@@ -107,6 +114,7 @@ export function useInteractiveBoard(
       toCol: number,
       isFromPalette: boolean
     ) => {
+      pendingNotifyRef.current = true;
       setBoard((prevBoard) => {
         const newBoard = cloneBoard(prevBoard);
         if (!isFromPalette && fromRow !== undefined && fromCol !== undefined) {
@@ -121,40 +129,36 @@ export function useInteractiveBoard(
             targetRow[toCol] = piece;
           }
         }
-        notifyFenChange(newBoard);
         return newBoard;
       });
     },
-    [notifyFenChange]
+    []
   );
 
-  const handlePieceRemove = useCallback(
-    (row: number, col: number) => {
-      setBoard((prevBoard) => {
-        const newBoard = cloneBoard(prevBoard);
-        if (row !== undefined && col !== undefined) {
-          const targetRow = newBoard[row];
-          if (targetRow !== undefined) {
-            targetRow[col] = '';
-          }
+  const handlePieceRemove = useCallback((row: number, col: number) => {
+    pendingNotifyRef.current = true;
+    setBoard((prevBoard) => {
+      const newBoard = cloneBoard(prevBoard);
+      if (row !== undefined && col !== undefined) {
+        const targetRow = newBoard[row];
+        if (targetRow !== undefined) {
+          targetRow[col] = '';
         }
-        notifyFenChange(newBoard);
-        return newBoard;
-      });
-    },
-    [notifyFenChange]
-  );
+      }
+      return newBoard;
+    });
+  }, []);
 
   const clearBoard = useCallback(() => {
     setBoard((prevBoard) => {
       if (isBoardEmpty(prevBoard)) {
         return prevBoard;
       }
-      const emptyBoard = createEmptyBoard();
-      notifyFenChange(emptyBoard);
-      return emptyBoard;
+      // Only flag a notify when the board actually changed.
+      pendingNotifyRef.current = true;
+      return createEmptyBoard();
     });
-  }, [notifyFenChange]);
+  }, []);
 
   const resetBoard = useCallback(() => {
     const startingFen =
@@ -173,13 +177,14 @@ export function useInteractiveBoard(
       if (boardToFEN(prevBoard) === boardToFEN(startingBoard)) {
         return prevBoard;
       }
-      notifyFenChange(startingBoard);
+      pendingNotifyRef.current = true;
       return startingBoard;
     });
-  }, [notifyFenChange]);
+  }, []);
 
   const setPiece = useCallback(
     (row: number, col: number, piece: PieceSymbol) => {
+      pendingNotifyRef.current = true;
       setBoard((prevBoard) => {
         const newBoard = cloneBoard(prevBoard);
         if (row !== undefined && col !== undefined) {
@@ -188,17 +193,31 @@ export function useInteractiveBoard(
             targetRow[col] = piece;
           }
         }
-        notifyFenChange(newBoard);
         return newBoard;
       });
     },
-    [notifyFenChange]
+    []
   );
 
   const currentFen = useMemo(() => {
     const positionFen = boardToFEN(board);
     return `${positionFen} ${metadataRef.current}`;
   }, [board]);
+
+  // Push the FEN up to the parent AFTER commit — never from inside a setBoard
+  // updater, which runs during render and triggers React's "Cannot update a
+  // component while rendering a different component" warning. Only user-driven
+  // edits (which set pendingNotifyRef) emit; the mount commit and parent-driven
+  // syncFromFen() updates are skipped so a parent FEN is never echoed back.
+  useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+    if (!pendingNotifyRef.current) return;
+    pendingNotifyRef.current = false;
+    onFenChangeRef.current?.(currentFen);
+  }, [currentFen]);
 
   return useMemo(
     () => ({
