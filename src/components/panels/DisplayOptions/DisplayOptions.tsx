@@ -28,14 +28,13 @@ function DisplayOptions({
   setShowCoordinateBorder,
   showThinFrame,
   setShowThinFrame,
-  exportQuality = 16
+  exportQuality = 2
 }: DisplayOptionsProps) {
   const preset = QUALITY_PRESETS.find((p) => p.value === exportQuality);
   const isBorderForced = preset?.forceCoordinateBorder || false;
   const isSocialMode = preset?.mode === 'social';
   const isPrintMode = preset?.mode === 'print';
-  const canShowFrame =
-    isPrintMode && (exportQuality === 8 || exportQuality === 16);
+  const canShowFrame = isPrintMode;
   const effectiveBorderState = isBorderForced || showCoordinateBorder;
 
   return (
