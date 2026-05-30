@@ -26,7 +26,7 @@ const Checkbox = memo(function Checkbox({
   return (
     <label
       htmlFor={checkboxId}
-      className={`flex items-center gap-3 cursor-pointer group p-2 rounded-xl transition-all duration-200 hover:bg-surface-hover/50 focus-within:ring-2 focus-within:ring-accent/50 focus-within:ring-offset-2 focus-within:ring-offset-bg ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+      className={`flex items-center gap-2.5 cursor-pointer group p-2 rounded-xl transition-opacity duration-200 opacity-80 hover:opacity-100 ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
     >
       <input
         id={checkboxId}
@@ -34,7 +34,7 @@ const Checkbox = memo(function Checkbox({
         checked={checked}
         onChange={onChange}
         disabled={disabled}
-        className="w-4 h-4 sm:w-5 sm:h-5 cursor-pointer accent-accent rounded outline-none border-none focus:ring-0 focus-visible:outline-none focus:outline-none disabled:cursor-not-allowed"
+        className="w-4 h-4 sm:w-5 sm:h-5 cursor-pointer accent-accent rounded outline-none border-none ring-0 focus:ring-0 focus-visible:outline-none focus:outline-none disabled:cursor-not-allowed"
       />
       <span className="text-sm font-semibold text-text-secondary group-hover:text-text-primary transition-colors select-none">
         {label}
