@@ -45,6 +45,11 @@ export const TrashZone = memo(function TrashZone({
     [onDrop]
   );
 
+  // The zone reacts ONLY to a piece dragged from the BOARD (canDrop === true,
+  // i.e. !isFromPalette). A palette drag leaves it fully idle — no arm, no
+  // highlight — so dragging a fresh piece in never flashes the trash.
+  const active = isOver && canDrop;
+
   if (minimal) {
     return (
       <div
@@ -53,7 +58,7 @@ export const TrashZone = memo(function TrashZone({
         }}
         className={`
           transition-all duration-200
-          ${isOver && canDrop ? 'bg-error/20 border-error' : canDrop ? 'bg-surface-elevated/50 border-border/50' : 'bg-transparent border-transparent'}
+          ${active ? 'bg-error/20 border-error' : canDrop ? 'bg-surface-elevated/50 border-border/50' : 'bg-transparent border-transparent'}
           ${className}
         `}
       />
@@ -69,7 +74,7 @@ export const TrashZone = memo(function TrashZone({
         flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5
         rounded-lg border-2 border-dashed overflow-hidden
         transition-all duration-200
-        ${isOver && canDrop ? 'bg-error/30 border-error text-error shadow-lg shadow-error/30' : canDrop ? 'bg-surface-elevated/50 border-warning/40 hover:border-warning/60 text-text-muted hover:text-warning' : 'bg-surface-elevated/30 border-border/30 text-text-muted'}
+        ${active ? 'bg-error/30 border-error text-error shadow-lg shadow-error/30' : canDrop ? 'bg-surface-elevated/50 border-warning/40 hover:border-warning/60 text-text-muted hover:text-warning' : 'bg-surface-elevated/30 border-border/30 text-text-muted'}
         ${className}
       `}
       role="button"
@@ -91,7 +96,7 @@ export const TrashZone = memo(function TrashZone({
       <span
         className={`text-sm font-semibold truncate transition-colors duration-200`}
       >
-        {isOver && canDrop ? 'Release to remove' : 'Drop to remove'}
+        {active ? 'Release to remove' : 'Drop to remove'}
       </span>
     </div>
   );
