@@ -1,22 +1,19 @@
-import { lazy, ReactNode, Suspense } from 'react';
+import { ReactNode, Suspense } from 'react';
 
+import type { Transition } from 'framer-motion';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Route, Routes, useLocation } from 'react-router-dom';
 
-const HomePage = lazy(() => import('@/pages/HomePage/HomePage'));
-const AboutPage = lazy(() => import('@/pages/AboutPage'));
-const DownloadPage = lazy(() => import('@/pages/DownloadPage'));
-const SupportPage = lazy(() => import('@/pages/SupportPage'));
-const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
-const SettingsPage = lazy(() => import('@/pages/SettingsPage'));
-const FENHistoryPage = lazy(
-  () => import('@/pages/FENHistoryPage/FENHistoryPage')
-);
-const AdvancedFENInputPage = lazy(
-  () => import('@/pages/AdvancedFENInputPage/AdvancedFENInputPage')
-);
-
-import type { Transition } from 'framer-motion';
+import {
+  AboutPage,
+  AdvancedFENInputPage,
+  DownloadPage,
+  FENHistoryPage,
+  HomePage,
+  NotFoundPage,
+  SettingsPage,
+  SupportPage
+} from '@/routes/lazyPages';
 
 const pageTransition = {
   initial: { opacity: 0, y: 8 },
@@ -28,10 +25,19 @@ const pageTransition = {
   } as Transition
 };
 
-/** Suspense fallback spinner displayed while lazy page chunks load. */
+/**
+ * Suspense fallback shown while a lazy page chunk loads.
+ *
+ * Uses `min-h-[70vh]` to reserve vertical space so the swap to real page
+ * content does not cause layout shift (CLS), and fades in via framer-motion
+ * for a minimalist appearance.
+ */
 function PageLoader() {
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.15, ease: 'easeOut' }}
       className="flex items-center justify-center min-h-[70vh]"
       role="status"
       aria-label="Loading page"
@@ -48,7 +54,7 @@ function PageLoader() {
           Loading...
         </p>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
