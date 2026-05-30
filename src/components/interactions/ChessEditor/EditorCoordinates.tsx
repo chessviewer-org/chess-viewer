@@ -21,7 +21,7 @@ export const FileCoordinates = memo(function FileCoordinates({
       {files.map((file) => (
         <div
           key={file}
-          className="text-[11px] font-semibold text-text-secondary text-center select-none"
+          className="text-sm sm:text-base font-bold text-text-secondary text-center select-none lowercase"
           style={{ width: `${cellSize}px` }}
         >
           {file}
@@ -48,7 +48,7 @@ export const RankCoordinates = memo(function RankCoordinates({
       {ranks.map((rank) => (
         <div
           key={rank}
-          className="flex items-center justify-center text-[11px] font-bold text-text-secondary select-none"
+          className="flex items-center justify-center text-sm sm:text-base font-bold text-text-secondary select-none"
           style={{ height: `${cellSize}px` }}
         >
           {rank}
