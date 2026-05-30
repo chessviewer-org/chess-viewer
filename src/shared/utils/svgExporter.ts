@@ -1,6 +1,6 @@
 import { ChessBoard, isChessBoard } from '../types/index';
 import { parseFEN } from './fenParser';
-import { shouldForceCoordinateBorder } from './imageOptimizer';
+import { getExportMode, shouldForceCoordinateBorder } from './imageOptimizer';
 import {
   getPieceKey,
   imageToEmbeddableDataURL,
@@ -47,7 +47,7 @@ export async function generateBoardSVG(
     showCoords,
     showCoordinateBorder,
     showThinFrame,
-    exportQuality = 8
+    exportQuality = 1
   } = config;
 
   const boardPx = SVG_BOARD_PX;
@@ -62,7 +62,7 @@ export async function generateBoardSVG(
     withCoords &&
     (showCoordinateBorder || shouldForceCoordinateBorder(exportQuality));
   const withFrame =
-    !!showThinFrame && (exportQuality === 8 || exportQuality === 16);
+    !!showThinFrame && getExportMode(exportQuality) === 'print';
   const framePx = withFrame ? Math.max(2, Math.round(boardPx * 0.003)) * 2 : 0;
 
   const totalWidth = borderPx + boardPx + framePx;
