@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 import { ChessEditor, DndProvider } from '@/components/interactions';
 import { ControlPanel, ExportProgress } from '@/components/panels';
@@ -47,12 +48,33 @@ const HomePage: React.FC = () => {
     handlePause,
     handleResume,
     handleEditorFenChange,
+    handleFlip,
     handleNotification,
     toggleProgress,
     getExportConfig
   } = useHome();
 
   const [isExportStudioOpen, setIsExportStudioOpen] = useState(false);
+
+  // Which view occupies the right-side panel: the normal control tools, or the
+  // inline Clipboard History (lifted here as it is toggled from the FEN toolbar
+  // but rendered inside ChessEditor's right column).
+  const [activeRightPanel, setActiveRightPanel] = useState<
+    'controls' | 'history'
+  >('controls');
+  const toggleHistoryPanel = () =>
+    setActiveRightPanel((p) => (p === 'history' ? 'controls' : 'history'));
+  const closeHistoryPanel = () => setActiveRightPanel('controls');
+
+  // Send a history FEN to the Advanced FEN editor. The page reads `addFen` from
+  // navigation state and drops it into the batch (see useFENBatchSync).
+  const navigate = useNavigate();
+  const handleSendToAdvanced = useCallback(
+    (advFen: string) => {
+      navigate('/advanced-fen', { state: { addFen: advFen } });
+    },
+    [navigate]
+  );
 
   const homeState = {
     fen,
@@ -82,53 +104,45 @@ const HomePage: React.FC = () => {
         initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="w-full min-h-0 bg-bg pt-16 sm:pt-20 lg:pt-24 px-3 sm:px-6 lg:px-8 pb-8 sm:pb-12 overflow-y-auto overflow-x-hidden"
+        className="w-full h-full min-h-0 bg-bg px-3 sm:px-6 lg:px-8 py-3 overflow-x-hidden"
       >
-        <div className="w-full max-w-400 mx-auto">
-          <div className="flex flex-col xl:flex-row xl:items-start gap-4 lg:gap-5 xl:gap-6 min-w-0">
-            {/* Left Column — Board + Actions */}
-            <div className="w-full xl:flex-1 space-y-3 sm:space-y-4 min-w-0 min-h-0">
-              <div className="bg-surface border border-border/40 rounded-xl p-3 sm:p-4">
-                <ChessEditor
-                  fen={fen}
-                  onFenChange={handleEditorFenChange}
-                  pieceStyle={pieceStyle}
-                  showCoords={showCoords}
-                  lightSquare={lightSquare}
-                  darkSquare={darkSquare}
-                  flipped={flipped}
-                  onPieceImagesChange={handlePieceImagesChange}
-                />
-              </div>
+        <div className="w-full max-w-400 mx-auto space-y-2.5">
+          {/* Top Bar — full-width FEN / Control Panel above the board. */}
+          <ControlPanel
+            fen={fen}
+            setFen={setFen}
+            addToFavoritesRef={addToFavoritesRef}
+            onFavoriteStatusChange={setIsFavorite}
+            saveManualFen={saveManualFen}
+            saveExportFen={saveExportFen}
+            addCurrentToFavorites={addCurrentToFavorites}
+            onNotification={handleNotification}
+            isHistoryActive={activeRightPanel === 'history'}
+            onToggleHistory={toggleHistoryPanel}
+          />
 
-              <div className="bg-surface border border-border/40 rounded-xl p-3 sm:p-4 lg:p-5 flex flex-col xs:flex-row gap-3">
-                <button
-                  type="button"
-                  className="flex-1 flex justify-center items-center px-4 py-3 min-h-11 text-sm font-semibold text-text-primary bg-transparent border border-border/50 rounded-lg hover:bg-surface-hover hover:border-text-muted transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                >
-                  Open in Device
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsExportStudioOpen(true)}
-                  className="flex-1 flex justify-center items-center px-4 py-3 min-h-11 text-sm font-semibold text-bg bg-accent border border-accent/20 rounded-lg hover:bg-accent-hover transition-colors duration-200 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-                >
-                  Download
-                </button>
-              </div>
-            </div>
-
-            {/* Right Column — Settings Sidebar */}
-            <div className="w-full min-w-0 xl:w-[clamp(360px,32vw,560px)] xl:flex-none xl:sticky xl:top-24">
-              <ControlPanel
+          {/* Main content — board (left) + command-center panel (right).
+              Export actions now live as icons in the panel's top toolbar. */}
+          <div className="min-w-0">
+            <div className="bg-surface border border-border/40 rounded-xl p-3 sm:p-4">
+              <ChessEditor
                 fen={fen}
-                setFen={setFen}
-                addToFavoritesRef={addToFavoritesRef}
-                onFavoriteStatusChange={setIsFavorite}
-                saveManualFen={saveManualFen}
-                saveExportFen={saveExportFen}
-                addCurrentToFavorites={addCurrentToFavorites}
-                onNotification={handleNotification}
+                onFenChange={handleEditorFenChange}
+                pieceStyle={pieceStyle}
+                showCoords={showCoords}
+                setShowCoords={setShowCoords}
+                showThinFrame={showThinFrame}
+                setShowThinFrame={setShowThinFrame}
+                lightSquare={lightSquare}
+                darkSquare={darkSquare}
+                flipped={flipped}
+                onFlip={handleFlip}
+                onDownload={() => setIsExportStudioOpen(true)}
+                onPieceImagesChange={handlePieceImagesChange}
+                activeRightPanel={activeRightPanel}
+                onSelectHistoryFen={handleEditorFenChange}
+                onSendToAdvanced={handleSendToAdvanced}
+                onCloseHistory={closeHistoryPanel}
               />
             </div>
           </div>
