@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { usePrefetchRoute } from '@hooks';
+
 import { ThemeSubmenu } from './ThemeSubmenu';
 
 type SubmenuKey = 'settings' | 'theme' | null;
@@ -45,6 +47,8 @@ export const NavbarDesktopDropdown = memo(function NavbarDesktopDropdown({
   handleSignOut,
   handleHelpClick
 }: NavbarDesktopDropdownProps) {
+  const prefetch = usePrefetchRoute();
+
   const renderHelpButton = () => (
     <button
       onClick={handleHelpClick}
@@ -117,6 +121,7 @@ export const NavbarDesktopDropdown = memo(function NavbarDesktopDropdown({
                 <div className="flex flex-col gap-1">
                   <Link
                     to="/settings?tab=profile"
+                    {...prefetch('/settings')}
                     onClick={() => setIsDropdownOpen(false)}
                     className="w-full rounded-lg px-2 py-2 text-sm font-medium text-text-primary hover:bg-surface-hover transition-colors flex items-center gap-2"
                   >
@@ -126,6 +131,7 @@ export const NavbarDesktopDropdown = memo(function NavbarDesktopDropdown({
 
                   <Link
                     to="/settings?tab=security"
+                    {...prefetch('/settings')}
                     onClick={() => setIsDropdownOpen(false)}
                     className="w-full rounded-lg px-2 py-2 text-sm font-medium text-text-primary hover:bg-surface-hover transition-colors flex items-center gap-2"
                   >
@@ -135,6 +141,7 @@ export const NavbarDesktopDropdown = memo(function NavbarDesktopDropdown({
 
                   <Link
                     to="/settings?tab=data"
+                    {...prefetch('/settings')}
                     onClick={() => setIsDropdownOpen(false)}
                     className="w-full rounded-lg px-2 py-2 text-sm font-medium text-text-primary hover:bg-surface-hover transition-colors flex items-center gap-2"
                   >
