@@ -589,6 +589,28 @@ html[data-theme-transition='to-dark'] {
       var(--color-accent)
     );
   }
+
+  /* Sleek, thin, rectangular scrollbar for the inline Clipboard History list:
+     transparent track, subtle gray thumb, rounded — matches the requested
+     scrollbar-thin / scrollbar-thumb-gray-600 / scrollbar-track-transparent. */
+  .history-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(82 82 91) transparent; /* gray-600 thumb */
+  }
+  .history-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .history-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .history-scrollbar::-webkit-scrollbar-thumb {
+    background: rgb(82 82 91); /* gray-600 */
+    border-radius: 9999px;
+  }
+  .history-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgb(113 113 122); /* gray-500 */
+  }
 }
 
 /* ===== ANIMATIONS ===== */
