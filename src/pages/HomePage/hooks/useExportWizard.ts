@@ -2,8 +2,8 @@ import { useCallback, useMemo, useReducer } from 'react';
 
 /** Supported output file formats for the export wizard. */
 export type ExportFormat = 'jpeg' | 'png' | 'svg';
-/** Available render density multipliers (8x – 32x). */
-export type ExportResolution = 8 | 16 | 24 | 32;
+/** Print quality tiers — 1×–4× mapping to 300/600/900/1200 DPI at physical size. */
+export type ExportResolution = 1 | 2 | 3 | 4;
 /** Three-step wizard progression: theme → piece display → export settings. */
 export type WizardStep = 1 | 2 | 3;
 /** Preset board size options in centimetres, or 'custom' for free-form input. */
@@ -65,7 +65,7 @@ function trimNamesToSelectedFormats(
 const initialState: ExportWizardState = {
   currentStep: 1,
   selectedFormats: ['jpeg', 'png'],
-  resolution: 16,
+  resolution: 2,
   boardSizePreset: 8,
   customBoardSizeInput: '8',
   customBoardSizeValue: 8,
