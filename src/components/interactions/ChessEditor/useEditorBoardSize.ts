@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 
+// Modest trim for breathing room beneath the board. The right panel is now a
+// tall "command center" (two palette rows + display options + strict-mode card
+// + action bar), so the board no longer needs an aggressive shrink to align.
+const BOARD_SHRINK_PX = 24;
+
 function calculateBoardSize(containerWidth: number, showCoords: boolean) {
   if (containerWidth <= 0) return 320;
 
@@ -14,7 +19,8 @@ function calculateBoardSize(containerWidth: number, showCoords: boolean) {
     raw = Math.min((containerWidth * 0.8) / widthFactor, 520);
   }
 
-  return Math.floor(raw / 8) * 8;
+  // Keep the size pixel-aligned to 8 (one full cell) after the shrink.
+  return Math.max(320, Math.floor((raw - BOARD_SHRINK_PX) / 8) * 8);
 }
 
 export const getGutterSize = (boardSize: number) => Math.round(boardSize / 16);
