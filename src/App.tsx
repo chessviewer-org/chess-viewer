@@ -126,8 +126,13 @@ function saveTheme(theme: Theme): void {
 function App() {
   const location = useLocation();
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
-  const { isAuthenticated } = useAuth();
-  const { isLocked, isLoading, unlock } = useSecurityCheck();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { isLocked, isLoading: isSecurityLoading, unlock } = useSecurityCheck();
+
+  // Strict 'Loaded' gate: hold the static skeleton until BOTH the auth session
+  // and the security check have settled. Mounting <Routes /> against a
+  // half-resolved auth state lets child effects fire mid-settle and re-render.
+  const isLoading = isAuthLoading || isSecurityLoading;
 
   const isToolPage = TOOL_PAGES.includes(location.pathname);
 
@@ -200,7 +205,7 @@ function App() {
     <ErrorBoundary>
       <FENBatchProvider>
         <ModalProvider>
-          <div className="min-h-dvh sm:h-dvh flex flex-col sm:overflow-hidden bg-linear-to-br from-bg-gradient-start to-bg-gradient-end text-[clamp(0.9375rem,0.25vw+0.875rem,1rem)] transition-colors duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
+          <div className="h-screen overflow-hidden flex flex-col bg-linear-to-br from-bg-gradient-start to-bg-gradient-end text-[clamp(0.9375rem,0.25vw+0.875rem,1rem)] transition-colors duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
             <a
               href="#main-content"
               className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-100 focus:px-6 focus:py-3 focus:bg-accent focus:text-bg focus:rounded-xl focus:shadow-lg focus:font-semibold"
@@ -213,7 +218,7 @@ function App() {
             <main
               id="main-content"
               tabIndex={-1}
-              className={`flex-1 min-h-0 sm:overflow-x-hidden sm:overflow-y-auto focus:outline-none ${!isToolPage ? 'mt-12' : ''}`}
+              className={`flex-1 min-h-0 overflow-x-hidden overflow-y-auto focus:outline-none ${!isToolPage ? 'mt-12 sm:mt-14 lg:mt-16' : ''}`}
             >
               {isLoading ? (
                 <div className="flex h-full items-center justify-center">
