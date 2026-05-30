@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState
 } from 'react';
 
@@ -40,6 +41,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  /**
+   * Circuit breaker for the data migration. Supabase emits a fresh `session`
+   * object on every auth event (INITIAL_SESSION, SIGNED_IN, TOKEN_REFRESHED),
+   * so triggering migration off the session reference would re-fire on every
+   * token refresh and feed an unbounded re-render loop. Tracking migrated user
+   * ids in a ref keeps migration at most once per user per mount without
+   * participating in render.
+   */
+  const migratedUserIds = useRef<Set<string>>(new Set());
+
+  const runMigration = useCallback((userId: string) => {
+    if (migratedUserIds.current.has(userId)) return;
+    migratedUserIds.current.add(userId);
+    dataMigration.migrateToCloud(userId);
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     let subscription: { unsubscribe: () => void } | null = null;
@@ -49,7 +66,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const {
           data: { session: currentSession }
         } = await supabase.auth.getSession();
-        if (!cancelled) setSession(currentSession);
+        if (!cancelled) {
+          setSession(currentSession);
+          if (currentSession?.user) runMigration(currentSession.user.id);
+        }
       } catch (error) {
         logger.warn('Failed to get initial session:', error);
       } finally {
@@ -62,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (cancelled) return;
         setSession(newSession);
         if (newSession?.user) {
-          dataMigration.migrateToCloud(newSession.user.id);
+          runMigration(newSession.user.id);
         }
       });
       subscription = data.subscription;
@@ -74,13 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       cancelled = true;
       subscription?.unsubscribe();
     };
-  }, []);
-
-  useEffect(() => {
-    if (session?.user) {
-      dataMigration.migrateToCloud(session.user.id);
-    }
-  }, [session]);
+  }, [runMigration]);
 
   const signOut = useCallback(async () => {
     try {
