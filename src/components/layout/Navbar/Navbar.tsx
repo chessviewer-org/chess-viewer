@@ -52,10 +52,10 @@ function Navbar({ theme, toggleTheme, rightSlot }: NavbarProps) {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="fixed top-0 left-0 right-0 z-50 border-b border-border/60 bg-surface shadow-[0_10px_30px_-24px_rgba(0,0,0,0.45)]"
+        className="fixed top-0 left-0 right-0 z-50 bg-bg"
       >
         <div className="w-[88%] max-w-600 mx-auto">
-          <div className="flex justify-between items-center h-16 sm:h-20 lg:h-24 3xl:h-24">
+          <div className="flex justify-between items-center h-12 sm:h-14 lg:h-16 3xl:h-16">
             <button
               onClick={handleLogoClick}
               className="flex items-center gap-2 transition-colors duration-200 text-text-primary hover:text-accent"
