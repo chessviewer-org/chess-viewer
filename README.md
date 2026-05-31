@@ -10,7 +10,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.x-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-[Live Demo](https://chess-vision-site.vercel.app) · [Report Bug](https://github.com/BilgeGates/chess-vision/issues) · [Request Feature](https://github.com/BilgeGates/chess-vision/issues)
+[Live Demo](https://chessvision.org) · [Report Bug](https://github.com/BilgeGates/chess-vision/issues) · [Request Feature](https://github.com/BilgeGates/chess-vision/issues)
 
 ---
 
@@ -230,7 +230,7 @@ Commit messages follow [Conventional Commits](https://www.conventionalcommits.or
 | Channel         | Address                                           |
 | --------------- | ------------------------------------------------- |
 | Repository      | https://github.com/BilgeGates/chess-vision        |
-| Live demo       | https://chess-vision-site.vercel.app              |
+| Live demo       | https://chessvision.org                           |
 | Project board   | https://github.com/users/BilgeGates/projects/4    |
 | Bug reports     | https://github.com/BilgeGates/chess-vision/issues |
 | Support email   | chessvision@protonmail.com                        |
