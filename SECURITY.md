@@ -12,7 +12,7 @@ The following versions are supported with security updates. "Active" denotes the
 | v4.x.x  | Limited Support | Critical only    | Maintenance window ends 2026-12-31            |
 | < v4.0  | End of Life     | None             | Not supported                                 |
 
-ChessVision is a client-side application delivered over the network on each visit. Users are strongly encouraged to access the latest deployed build at [chess-vision-site.vercel.app](https://chess-vision-site.vercel.app) and to keep their browser up to date.
+ChessVision is a client-side application delivered over the network on each visit. Users are strongly encouraged to access the latest deployed build at [chessvision.org](https://chessvision.org) and to keep their browser up to date.
 
 ## Security Architecture
 
@@ -84,7 +84,7 @@ For critical, in-the-wild reports, the fix-development window may be compressed 
 
 ## Guidance for Users
 
-- **Use the latest deployed build.** Always access the application through the official URL: [chess-vision-site.vercel.app](https://chess-vision-site.vercel.app).
+- **Use the latest deployed build.** Always access the application through the official URL: [chessvision.org](https://chessvision.org).
 - **Treat `localStorage` as user-readable.** On a shared device, clear the application's `localStorage` through your browser's developer tools or site-data controls.
 - **Keep the browser current.** Browser-level security patches are part of the trust chain that protects this application.
 
