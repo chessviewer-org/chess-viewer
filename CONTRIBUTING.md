@@ -170,11 +170,11 @@ Pull requests against `master` that fall outside this scope will be redirected t
 
 All open issues are tracked on the [ChessVision project board](https://github.com/users/BilgeGates/projects/4) and carry the following label families:
 
-| Family       | Values                                          | Meaning              |
-| ------------ | ----------------------------------------------- | -------------------- |
-| `area:*`     | `area:export`, `area:ci`, `area:auth`           | Subsystem affected   |
-| `priority:*` | `priority:high`, `priority:low`                 | Triage priority      |
-| `effort:*`   | `effort:small`, `effort:large`                  | Expected effort      |
+| Family       | Values                                | Meaning            |
+| ------------ | ------------------------------------- | ------------------ |
+| `area:*`     | `area:export`, `area:ci`, `area:auth` | Subsystem affected |
+| `priority:*` | `priority:high`, `priority:low`       | Triage priority    |
+| `effort:*`   | `effort:small`, `effort:large`        | Expected effort    |
 
 Type labels (`bug`, `enhancement`, `documentation`, `question`, etc.) are applied in addition to the triage labels above. Issues without these labels are awaiting triage by a maintainer; contributors should not self-apply labels they do not have permission to set.
 
@@ -283,18 +283,18 @@ git checkout -b fix/bug-description master
 
 ChessVision uses [Conventional Commits](https://www.conventionalcommits.org/). Commitlint enforces the format on the `commit-msg` hook; non-conforming messages are rejected locally.
 
-| Type       | Use case                                                    |
-| ---------- | ----------------------------------------------------------- |
-| `feat`     | New user-facing feature                                     |
-| `fix`      | Bug fix                                                     |
-| `docs`     | Documentation only                                          |
-| `refactor` | Code change that neither fixes a bug nor adds a feature     |
-| `perf`     | Performance improvement                                     |
-| `test`     | Adding or correcting tests                                  |
-| `build`    | Build-system or external-dependency changes                 |
-| `ci`       | CI configuration changes                                    |
-| `chore`    | Other changes that do not modify source or test files       |
-| `revert`   | Reverts a previous commit                                   |
+| Type       | Use case                                                |
+| ---------- | ------------------------------------------------------- |
+| `feat`     | New user-facing feature                                 |
+| `fix`      | Bug fix                                                 |
+| `docs`     | Documentation only                                      |
+| `refactor` | Code change that neither fixes a bug nor adds a feature |
+| `perf`     | Performance improvement                                 |
+| `test`     | Adding or correcting tests                              |
+| `build`    | Build-system or external-dependency changes             |
+| `ci`       | CI configuration changes                                |
+| `chore`    | Other changes that do not modify source or test files   |
+| `revert`   | Reverts a previous commit                               |
 
 Optional scope in parentheses identifies the affected subsystem.
 
@@ -325,9 +325,9 @@ chore(deps): bump react-router-dom from 7.15.0 to 7.15.1
    - Screenshots for any UI change.
 4. Address review feedback and push updates to the same branch.
 
-1. Search existing issues to avoid duplicates.
-2. Reproduce on the latest version.
-3. Include: clear description, steps to reproduce, expected vs. actual behavior,
+5. Search existing issues to avoid duplicates.
+6. Reproduce on the latest version.
+7. Include: clear description, steps to reproduce, expected vs. actual behavior,
    screenshots/recordings if applicable, and browser/OS versions.
 
 Submit at: https://github.com/BilgeGates/chess-vision/issues
@@ -373,5 +373,5 @@ Security-sensitive reports must not be filed as public GitHub issues. The suppor
 - Security issues: [chessvision@protonmail.com](mailto:chessvision@protonmail.com)
 - Repository: https://github.com/BilgeGates/chess-vision
 - Project board: https://github.com/users/BilgeGates/projects/4
-- Live demo: https://chess-vision-site.vercel.app
+- Live demo: https://chessvision.org
 - Support email: chessvision@protonmail.com
