@@ -81,7 +81,7 @@ Related to #
 
 <!-- Provide step-by-step instructions for reviewers to test -->
 
-1. Navigate to https://chess-vision-site.vercel.app
+1. Navigate to https://chessvision.org
 2.
 3.
 4. Verify that
