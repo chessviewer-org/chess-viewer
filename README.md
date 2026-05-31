@@ -236,6 +236,8 @@ ChessVision is free, open-source, and maintained on a volunteer basis. If the pr
 
 - **Channel:** [GitHub Sponsors](https://github.com/sponsors/chessvision-org), processed securely through Stripe.
 - **What it funds:** maintenance, security and dependency updates, and infrastructure.
+* **Wallet Address (USDT / USDC / ETH):** 
+  `0x31eB555dAAC0253FF9835440bFA1542BFA969aDb`
 - **What it is not:** sponsorship is a voluntary donation, not a payment for work. Contributing to ChessVision never requires or involves payment — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Every contribution, large or small, is appreciated.
