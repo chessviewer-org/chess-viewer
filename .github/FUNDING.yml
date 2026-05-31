@@ -1,0 +1,16 @@
+# Funding configuration for chess-vision.
+#
+# This drives the "Sponsor" button on the repository. GitHub Sponsors processes
+# payments through Stripe Connect; GitHub charges no platform fee and withholds
+# no tax on the recipient's behalf — tax is declared during Stripe onboarding.
+# Publish the listing at https://github.com/sponsors/chessvision-org to activate
+# the button.
+
+# GitHub Sponsors account (organization). Active once the Sponsors listing is
+# published; ignored by GitHub until then.
+github: chessvision-org
+
+# Optional direct Stripe payment link, shown under "Custom" on the Sponsor
+# panel. Replace with the real Stripe Payment Link, or delete this line to rely
+# on GitHub Sponsors alone.
+custom: ["https://chessvision.org/sponsor"]
