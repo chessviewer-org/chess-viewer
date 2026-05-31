@@ -6,10 +6,6 @@
 # Publish the listing at https://github.com/sponsors/chessvision-org to activate
 # the button.
 
-# GitHub Sponsors account (organization). Active once the Sponsors listing is
-# published; ignored by GitHub until then.
-github: chessvision-org
-
 # Optional direct Stripe payment link, shown under "Custom" on the Sponsor
 # panel. Replace with the real Stripe Payment Link, or delete this line to rely
 # on GitHub Sponsors alone.
