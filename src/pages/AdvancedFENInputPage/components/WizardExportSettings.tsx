@@ -50,7 +50,7 @@ const WizardExportSettings = memo(function WizardExportSettings({
             Resolution Sizing
           </label>
           <div className="flex bg-surface-elevated border border-border/40 rounded-xl p-1 w-full max-w-70">
-            {([8, 16, 32] as const).map((quality) => {
+            {([1, 2, 4] as const).map((quality) => {
               const isActive = state.exportQuality === quality;
               return (
                 <button

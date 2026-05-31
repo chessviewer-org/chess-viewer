@@ -13,7 +13,7 @@ const FORMATS: { value: ExportFormat; label: string }[] = [
   { value: 'svg', label: 'SVG' }
 ];
 
-const RESOLUTIONS: ExportResolution[] = [8, 16, 24, 32];
+const RESOLUTIONS: ExportResolution[] = [1, 2, 3, 4];
 const BOARD_PRESETS: BoardSizePreset[] = [4, 8, 12];
 
 /** Props for wizard step 3 — format, resolution, board size, and file naming. */

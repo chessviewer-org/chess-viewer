@@ -52,7 +52,7 @@ export async function createUltraQualityCanvas(
     pieceImages,
     format = 'png',
     showCoordinateBorder = true,
-    exportQuality = 8,
+    exportQuality = 1,
     showThinFrame = false
   } = config;
 
@@ -134,8 +134,12 @@ export async function createUltraQualityCanvas(
   } = renderSize;
 
   const canvas = document.createElement('canvas');
-  canvas.width = canvasWidth;
-  canvas.height = canvasHeight;
+  // Guard against a degenerate 0/negative surface: drawImage throws
+  // "width or height of 0" and aborts the whole export. A 1px floor keeps the
+  // pipeline alive so an upstream sizing fault surfaces as a tiny image rather
+  // than a hard crash.
+  canvas.width = Math.max(1, canvasWidth);
+  canvas.height = Math.max(1, canvasHeight);
 
   const ctx = canvas.getContext('2d', {
     alpha: true,

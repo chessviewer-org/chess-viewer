@@ -11,7 +11,7 @@ export function useAdvancedSettingsState(props: AdvancedFENInitialProps) {
     pieceStyle: initialPieceStyle = 'cburnett',
     boardSize: initialBoardSize = 480,
     fileName: initialFileName = 'chess-board',
-    exportQuality: initialExportQuality = 16,
+    exportQuality: initialExportQuality = 2,
     showCoords: initialShowCoords = true,
     showCoordinateBorder: initialShowCoordinateBorder = true,
     showThinFrame: initialShowThinFrame = false,

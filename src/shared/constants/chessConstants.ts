@@ -78,36 +78,36 @@ export const BOARD_THEMES: BoardThemes = {
 
 export const QUALITY_PRESETS: QualityPreset[] = [
   {
-    value: 8,
-    label: 'Print 8×',
-    description: 'Standard print quality (2400 DPI effective)',
+    value: 1,
+    label: 'Print 1× (300 DPI)',
+    description: 'Standard print resolution — 300 DPI at physical size',
     mode: 'print',
     forceCoordinateBorder: false,
-    estimatedSize: '70-150 KB'
+    estimatedSize: '10-110 KB'
   },
   {
-    value: 16,
-    label: 'Print 16×',
-    description: 'High print quality (4800 DPI effective)',
+    value: 2,
+    label: 'Print 2× (600 DPI)',
+    description: 'High print resolution — 600 DPI at physical size',
     mode: 'print',
     forceCoordinateBorder: false,
-    estimatedSize: '140-300 KB'
+    estimatedSize: '50-440 KB'
   },
   {
-    value: 24,
-    label: 'Social 24×',
-    description: 'Keeps board size, higher zoom quality',
+    value: 3,
+    label: 'Social 3× (900 DPI)',
+    description: 'Keeps board size, higher zoom quality — 900 DPI',
     mode: 'social',
     forceCoordinateBorder: true,
-    estimatedSize: '400-600 KB'
+    estimatedSize: '170KB-1.5MB'
   },
   {
-    value: 32,
-    label: 'Max 32×',
-    description: 'Keeps board size, maximum zoom quality',
+    value: 4,
+    label: 'Max 4× (1200 DPI)',
+    description: 'Keeps board size, maximum zoom quality — 1200 DPI',
     mode: 'social',
     forceCoordinateBorder: true,
-    estimatedSize: '800KB-1.2MB'
+    estimatedSize: '300KB-2.7MB'
   }
 ];
 
