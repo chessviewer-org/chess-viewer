@@ -40,7 +40,7 @@ The logic for computing export dimensions was consolidated into a single source.
 
 The drag preview for pieces was misaligned from the cursor during drag operations. The preview now tracks the cursor accurately throughout the drag interaction.
 
-#### Asset caching improved — [#53](https://github.com/BilgeGates/chess-vision/pull/53)
+#### Asset caching improved — [#53](https://github.com/chessvision-org/chess-vision/pull/53)
 
 Repeated loading of identical piece images across pages was reduced. This lightens the load during page transitions and general use.
 
