@@ -15,7 +15,7 @@ body:
 
         **Before submitting:**
         - Check existing feature requests to avoid duplicates
-        - Review the [project roadmap](https://github.com/BilgeGates/chess-vision/issues) if available
+        - Review the [project roadmap](https://github.com/orgs/chessvision-org/projects/1) if available
         - Consider if this aligns with the project's goals (chess diagram generation and export)
 
   - type: textarea
