@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 
 import { Navbar } from '@/components/layout';
 import { ErrorBoundary } from '@/components/ui';
-import { FENBatchProvider, ThemeSettingsProvider } from '@/contexts';
+import { FENBatchProvider } from '@/contexts';
 import Routes from '@/routes/Router';
 import { logger } from '@/utils/logger';
 import { getStoredString } from '@/utils/validation';
@@ -175,28 +175,26 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <ThemeSettingsProvider>
-        <FENBatchProvider>
-          <div className="h-dvh flex flex-col overflow-hidden bg-gradient-to-br from-bg-gradient-start to-bg-gradient-end text-[clamp(0.9375rem,0.25vw+0.875rem,1rem)] transition-colors duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
-            <a
-              href="#main-content"
-              className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-6 focus:py-3 focus:bg-accent focus:text-bg focus:rounded-xl focus:shadow-glow focus:font-semibold"
-            >
-              Skip to main content
-            </a>
+      <FENBatchProvider>
+        <div className="h-dvh flex flex-col overflow-hidden bg-gradient-to-br from-bg-gradient-start to-bg-gradient-end text-[clamp(0.9375rem,0.25vw+0.875rem,1rem)] transition-colors duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-6 focus:py-3 focus:bg-accent focus:text-bg focus:rounded-xl focus:shadow-glow focus:font-semibold"
+          >
+            Skip to main content
+          </a>
 
-            {!isToolPage && <Navbar theme={theme} toggleTheme={toggleTheme} />}
+          {!isToolPage && <Navbar theme={theme} toggleTheme={toggleTheme} />}
 
-            <main
-              id="main-content"
-              tabIndex={-1}
-              className={`flex-1 min-h-0 overflow-x-hidden focus:outline-none ${!isToolPage ? 'mt-12' : ''}`}
-            >
-              <Routes />
-            </main>
-          </div>
-        </FENBatchProvider>
-      </ThemeSettingsProvider>
+          <main
+            id="main-content"
+            tabIndex={-1}
+            className={`flex-1 min-h-0 overflow-x-hidden focus:outline-none ${!isToolPage ? 'mt-12' : ''}`}
+          >
+            <Routes />
+          </main>
+        </div>
+      </FENBatchProvider>
     </ErrorBoundary>
   );
 }

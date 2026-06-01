@@ -19,14 +19,6 @@
  */
 export const MAX_FEN_LENGTH = 93;
 
-/**
- * Maximum size (bytes) allowed for a single localStorage entry value.
- * Values exceeding this limit are rejected to prevent storage abuse.
- *
- * @type {number}
- */
-export const MAX_STORAGE_ENTRY_BYTES = 512 * 1024;
-
 /** @type {ReadonlySet<string>} Keys that would pollute the prototype chain. */
 const PROTOTYPE_POISON_KEYS = new Set([
   '__proto__',
@@ -170,46 +162,10 @@ export function sanitizeFileName(fileName) {
   return sanitized;
 }
 /**
- * Clamps a numeric value to the given range or returns the default.
- *
- * @param {*} value - Input value
- * @param {number} min
- * @param {number} max
- * @param {number} defaultValue
- * @returns {number}
- */
-export function validateNumber(value, min, max, defaultValue) {
-  const num = parseFloat(value);
-  if (isNaN(num) || !isFinite(num)) {
-    return defaultValue;
-  }
-  if (num < min) {
-    return min;
-  }
-  if (num > max) {
-    return max;
-  }
-  return num;
-}
-/**
- * @param {*} size
- * @returns {number} Clamped board size (4–100, default 8)
- */
-export function validateBoardSize(size) {
-  return validateNumber(size, 4, 100, 8);
-}
-/**
- * @param {*} quality
- * @returns {number} Clamped quality value (1–32, default 16)
- */
-export function validateExportQuality(quality) {
-  return validateNumber(quality, 1, 32, 16);
-}
-/**
  * @param {*} color
  * @returns {boolean} True if color is a valid 6-digit hex string
  */
-export function isValidHexColor(color) {
+function isValidHexColor(color) {
   if (!color || typeof color !== 'string') {
     return false;
   }
@@ -228,48 +184,6 @@ export function sanitizeHexColor(color, fallback = '#ffffff') {
     return color;
   }
   return fallback;
-}
-/**
- * Validates the piece-placement field of a FEN string.
- *
- * @param {string} fen
- * @returns {boolean}
- */
-export function isValidFENFormat(fen) {
-  if (!fen || typeof fen !== 'string') {
-    return false;
-  }
-  if (fen.length > MAX_FEN_LENGTH) {
-    return false;
-  }
-  const trimmed = fen.trim();
-  const parts = trimmed.split(/\s+/);
-  if (parts.length < 1 || parts.length > 6) {
-    return false;
-  }
-  const position = parts[0];
-  const ranks = position.split('/');
-  if (ranks.length !== 8) {
-    return false;
-  }
-  for (let rankIndex = 0; rankIndex < ranks.length; rankIndex++) {
-    const rank = ranks[rankIndex];
-    let squareCount = 0;
-    for (let charIndex = 0; charIndex < rank.length; charIndex++) {
-      const char = rank[charIndex];
-      if (/[1-8]/.test(char)) {
-        squareCount = squareCount + parseInt(char, 10);
-      } else if (/[pnbrqkPNBRQK]/.test(char)) {
-        squareCount = squareCount + 1;
-      } else {
-        return false;
-      }
-    }
-    if (squareCount !== 8) {
-      return false;
-    }
-  }
-  return true;
 }
 /**
  * HTML-encodes a string and truncates it to maxLength.
@@ -294,33 +208,4 @@ export function sanitizeInput(input, maxLength = 500) {
     sanitized = sanitized.substring(0, maxLength);
   }
   return sanitized;
-}
-/**
- * Validates that a piece style string exists in the list of valid styles.
- *
- * @param {string} style - Style name to validate
- * @param {string[]} validStyles - Allowed style names
- * @param {string} [defaultStyle='cburnett']
- * @returns {string} Validated style or defaultStyle
- */
-export function validatePieceStyle(
-  style,
-  validStyles,
-  defaultStyle = 'cburnett'
-) {
-  if (!style || typeof style !== 'string') {
-    return defaultStyle;
-  }
-  const sanitized = sanitizeInput(style, 50);
-  let isValid = false;
-  for (let i = 0; i < validStyles.length; i++) {
-    if (validStyles[i] === sanitized) {
-      isValid = true;
-      break;
-    }
-  }
-  if (isValid) {
-    return sanitized;
-  }
-  return defaultStyle;
 }

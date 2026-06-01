@@ -6,22 +6,6 @@ export function createEmptyBoard() {
 }
 
 /**
- * @param {string[][]} board1
- * @param {string[][]} board2
- * @returns {boolean} True if both boards have identical piece placement
- */
-export function areBoardsEqual(board1, board2) {
-  if (!board1 || !board2) return false;
-  if (board1.length !== board2.length) return false;
-  for (let row = 0; row < 8; row++) {
-    for (let col = 0; col < 8; col++) {
-      if (board1[row]?.[col] !== board2[row]?.[col]) return false;
-    }
-  }
-  return true;
-}
-
-/**
  * Converts an 8×8 board matrix to a FEN position string (piece placement only).
  *
  * @param {string[][]} board - 8×8 board matrix

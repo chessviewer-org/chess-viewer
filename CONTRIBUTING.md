@@ -386,6 +386,12 @@ supported disclosure channel is documented in [SECURITY.md](SECURITY.md).
 
 ## Contact
 
+- GitHub Issues: https://github.com/BilgeGates/chess-vision/issues
+- Security issues: [contact@chessvision.org](mailto:contact@chessvision.org)
+- Repository: https://github.com/BilgeGates/chess-vision
+- Project board: https://github.com/users/BilgeGates/projects/4
+- Live demo: https://chessvision.org
+- Support email: contact@chessvision.org
 - GitHub Issues: https://github.com/chessvision-org/chess-vision/issues
 - Repository: https://github.com/chessvision-org/chess-vision
 - Project board: https://github.com/orgs/chessvision-org/projects/1

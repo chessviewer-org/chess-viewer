@@ -128,7 +128,7 @@ const CONTENT = {
       },
       {
         title: 'Contact Information',
-        content: `Email: chessvision@protonmail.com - For support requests, bug reports, and feature suggestions. We typically respond within 24-48 hours.`
+        content: `Email: contact@chessvision.org - For support requests, bug reports, and feature suggestions. We typically respond within 24-48 hours.`
       },
       {
         title: 'Bug Reports',
@@ -140,7 +140,7 @@ const CONTENT = {
       },
       {
         title: 'GitHub Repository',
-        content: `View source code, contribute, and stay updated: github.com/chess-vision - Star the repository to show your support and watch for updates.`
+        content: `View source code, contribute, and stay updated: github.com/BilgeGates/chess-vision - Star the repository to show your support and watch for updates.`
       }
     ]
   },

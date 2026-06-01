@@ -13,7 +13,7 @@ export interface DragItem {
   isFromPalette: boolean;
 }
 
-export interface DroppableSquareProps {
+interface DroppableSquareProps {
   row: number;
   col: number;
   piece: string | null;

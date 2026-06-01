@@ -1,1 +1,1 @@
-export { default } from './PieceSelector.jsx';
+export { default } from './PieceSelector';

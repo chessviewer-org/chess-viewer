@@ -51,7 +51,7 @@ Related to #
 
 ### Live Demo (if applicable)
 
-<!-- Link to Vercel preview deployment or similar -->
+<!-- Link to a preview build or the deployed site (https://chessvision.org) -->
 
 ## Testing
 
@@ -272,7 +272,7 @@ Memory usage: X MB → Y MB
 
 - [ ] No special deployment steps needed
 - [ ] Requires environment variable changes (list below)
-- [ ] Requires Vercel configuration update
+- [ ] Requires GitHub Pages / deployment workflow update
 
 **Deployment Steps:**
 

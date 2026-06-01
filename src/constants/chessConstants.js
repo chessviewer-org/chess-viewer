@@ -1,5 +1,3 @@
-export const STARTING_FEN =
-  'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 export const PIECE_MAP = {
   wK: 'wK',
   wQ: 'wQ',
@@ -244,21 +242,6 @@ export const QUALITY_PRESETS = [
     estimatedSize: '800KB-1.2MB'
   }
 ];
-export const EXPORT_MODE_CONFIG = {
-  print: {
-    baseDPI: 300,
-    maxPixels: 16384,
-    preservePhysicalSize: true,
-    description: 'Preserves exact physical board dimensions'
-  },
-  social: {
-    fixedBoardPixels: 4800,
-    maxPixels: 16384,
-    preservePhysicalSize: true,
-    forceCoordinateBorder: true,
-    description: 'Keeps board size with higher zoom quality'
-  }
-};
 export const ADVANCED_FEN_CONFIG = {
   MAX_FENS: 10,
   DEFAULT_FENS: ['', '', ''],

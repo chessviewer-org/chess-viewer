@@ -224,26 +224,3 @@ export async function createUltraQualityCanvas(config) {
   }
   return canvas;
 }
-/**
- * Copies a canvas to a new canvas optimised for the given format.
- * For JPEG, fills background with white before drawing.
- *
- * @param {HTMLCanvasElement} canvas - Source canvas
- * @param {string} format - Target format ('png' or 'jpeg')
- * @returns {HTMLCanvasElement} New canvas ready for encoding
- */
-export function optimizeCanvasForFormat(canvas, format) {
-  const optimized = document.createElement('canvas');
-  optimized.width = canvas.width;
-  optimized.height = canvas.height;
-  const useAlpha = format === 'png';
-  const ctx = optimized.getContext('2d', {
-    alpha: useAlpha
-  });
-  if (format === 'jpeg' || format === 'jpg') {
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, optimized.width, optimized.height);
-  }
-  ctx.drawImage(canvas, 0, 0);
-  return optimized;
-}

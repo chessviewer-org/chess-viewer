@@ -26,7 +26,7 @@ import { getStoredValue, MAX_FEN_LENGTH } from '@/utils/validation';
 
 export type NotificationType = 'success' | 'error' | 'warning' | 'info';
 
-export interface FENInputFieldProps {
+interface FENInputFieldProps {
   /** Current FEN string value */
   fen: string;
   /** Called when the field value should sync to the global state */
@@ -47,7 +47,7 @@ export interface FENInputFieldProps {
   onNotification?: (message: string, type: NotificationType) => void;
 }
 
-export interface FENHistoryEntry {
+interface FENHistoryEntry {
   fen: string;
   timestamp: number;
 }
@@ -79,7 +79,6 @@ const FENInputField = memo(
     const [isClipboardOpen, setIsClipboardOpen] = useState<boolean>(false);
     const { addToBatch } = useFENBatch();
 
-    // ── Local state for instant, lag-free typing ──
     const [localFen, setLocalFen] = useState<string>(fen);
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
     const lastEmittedFenRef = useRef<string>(fen);
@@ -94,7 +93,6 @@ const FENInputField = memo(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fen]);
 
-    // ── Debounced validation + board sync ──
     const handleValidFenSync = useCallback(
       (validFen: string) => {
         lastEmittedFenRef.current = validFen;
@@ -111,7 +109,6 @@ const FENInputField = memo(
     // Combine internal debounced error with any external error
     const visibleError = debouncedError || externalError || '';
 
-    // ── Favorites check ──
     useEffect(() => {
       try {
         const rawFavorites = getStoredValue('favoriteFens', {});
@@ -238,7 +235,6 @@ const FENInputField = memo(
       [onChange, onNotification]
     );
 
-    // ── Textarea handlers ──
     const handleTextareaChange = useCallback(
       (e: ChangeEvent<HTMLTextAreaElement>) => {
         // Instantly update local UI only — debounce handles the rest
@@ -267,7 +263,6 @@ const FENInputField = memo(
       []
     );
 
-    // ── Border color logic ──
     const borderColorClass = visibleError ? 'border-error/50' : 'border-border';
 
     return (

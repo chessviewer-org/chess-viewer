@@ -3,25 +3,16 @@ import { QUALITY_PRESETS } from '@/constants';
 import { getCoordinateParams } from './coordinateCalculations';
 import { logger } from './logger';
 
-export const PRINT_DPI = 300;
-export const CM_TO_PIXELS = PRINT_DPI / 2.54;
+const PRINT_DPI = 300;
+const CM_TO_PIXELS = PRINT_DPI / 2.54;
 /**
  * Converts centimetres to pixels at PRINT_DPI.
  *
  * @param {number} cm
  * @returns {number} Pixel count
  */
-export function cmToPixels(cm) {
+function cmToPixels(cm) {
   return Math.round(cm * CM_TO_PIXELS);
-}
-/**
- * Converts pixels to centimetres at PRINT_DPI.
- *
- * @param {number} pixels
- * @returns {number}
- */
-export function pixelsToCm(pixels) {
-  return pixels / CM_TO_PIXELS;
 }
 let _cachedMaxCanvasSize = null;
 
@@ -122,23 +113,6 @@ export function calculateExportSize(boardSizeCm, showCoords, exportQuality) {
   };
 }
 
-/**
- * Returns the effective scale factor after applying quality constraints.
- *
- * @param {number} boardSizeCm
- * @param {boolean} showCoords
- * @param {number} [requestedQuality]
- * @returns {number} Scale factor (1.0 = no reduction)
- */
-export function calculateOptimalQuality(
-  boardSizeCm,
-  showCoords,
-  requestedQuality
-) {
-  const quality = requestedQuality ?? 1;
-  const exportSize = calculateExportSize(boardSizeCm, showCoords, quality);
-  return exportSize.scaleFactor;
-}
 /**
  * Estimates PNG and JPEG file sizes for given canvas dimensions.
  *

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 let scrollLockCount = 0;
 let originalBodyStyle = {};
@@ -99,59 +99,26 @@ function unlockScroll() {
  * @param {boolean} [options.allowTouchMove=false] - Allow touch scroll even when locked
  * @returns {void}
  */
-export function useScrollLock(isLocked = false, options = {}) {
-  const { allowTouchMove = false } = options;
+export function useScrollLock(isLocked = false) {
   const isLockedRef = useRef(isLocked);
   const scrollYRef = useRef(0);
-  const preventTouchMove = useCallback(
-    (e) => {
-      if (!allowTouchMove) {
-        e.preventDefault();
-      }
-    },
-    [allowTouchMove]
-  );
   useEffect(() => {
     isLockedRef.current = isLocked;
     if (isLocked) {
-      const scrollY = lockScroll();
-      scrollYRef.current = scrollY;
-      if (allowTouchMove === false) {
-        document.addEventListener('touchmove', preventTouchMove, {
-          passive: false
-        });
-      }
+      // lockScroll() pins the body with `position: fixed`, which fully blocks
+      // page scroll on both desktop and touch devices. We intentionally do NOT
+      // add a global `touchmove` preventDefault listener here: if it ever leaks
+      // (unmount while locked, stuck-open modal) it freezes the entire page on
+      // mobile, which is the failure mode this hook is meant to avoid.
+      scrollYRef.current = lockScroll();
     } else {
       unlockScroll();
-      if (allowTouchMove === false) {
-        document.removeEventListener('touchmove', preventTouchMove);
-      }
     }
     return () => {
       if (isLockedRef.current) {
         unlockScroll();
-        if (allowTouchMove === false) {
-          document.removeEventListener('touchmove', preventTouchMove);
-        }
       }
     };
-  }, [isLocked, allowTouchMove, preventTouchMove]);
+  }, [isLocked]);
   return scrollYRef.current;
-}
-/**
- * Returns the number of currently active scroll lock consumers.
- *
- * @returns {number}
- */
-export function getScrollLockCount() {
-  return scrollLockCount;
-}
-/**
- * Forcefully removes all scroll locks and restores default scroll behaviour.
- *
- * @returns {void}
- */
-export function forceUnlockScroll() {
-  scrollLockCount = 0;
-  unlockScroll();
 }

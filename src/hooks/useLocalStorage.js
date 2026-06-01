@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { logger } from '@/utils/logger';
-import { getStoredValue, safeJSONParse } from '@/utils/validation';
+import { getStoredValue } from '@/utils/validation';
 
 /**
  * Persists state to localStorage with debounced writes.
@@ -90,82 +90,4 @@ export function useLocalStorage(key, initialValue) {
     [key, debouncedWrite]
   );
   return [storedValue, setValue];
-}
-/**
- * Persists state using cloud storage when available, falling back to localStorage.
- *
- * @param {string} key - Storage key
- * @param {*} initialValue - Default value when key is absent
- * @param {boolean} [useCloudStorage=false] - Prefer cloud storage when window.storage is available
- * @returns {[*, function(*): void, boolean]} [storedValue, setValue, isLoading]
- */
-export function useHybridStorage(key, initialValue, useCloudStorage = false) {
-  const [storedValue, setStoredValue] = useState(initialValue);
-  const [isLoading, setIsLoading] = useState(true);
-  useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      try {
-        if (
-          useCloudStorage &&
-          window.storage &&
-          typeof window.storage.get === 'function'
-        ) {
-          const result = await window.storage.get(key);
-          if (result && typeof result.value === 'string') {
-            const parsed = safeJSONParse(result.value, null);
-            if (parsed !== null) {
-              setStoredValue(parsed);
-              setIsLoading(false);
-              return;
-            }
-          }
-        }
-        const parsed = getStoredValue(key, null);
-        if (parsed !== null) {
-          setStoredValue(parsed);
-        }
-      } catch (error) {
-        logger.error(`Error loading ${key}:`, error);
-      }
-      setIsLoading(false);
-    };
-    loadData();
-  }, [key, useCloudStorage]);
-  const setValue = async (value) => {
-    try {
-      const valueToStore =
-        value instanceof Function ? value(storedValue) : value;
-      setStoredValue(valueToStore);
-      const jsonValue = JSON.stringify(valueToStore);
-      try {
-        window.localStorage.setItem(key, jsonValue);
-      } catch (storageError) {
-        if (storageError.name === 'QuotaExceededError') {
-          logger.warn(`localStorage quota exceeded for key: ${key}`);
-          const keys = Object.keys(window.localStorage);
-          if (keys.length > 0) {
-            window.localStorage.removeItem(keys[0]);
-            window.localStorage.setItem(key, jsonValue);
-          }
-        } else {
-          throw storageError;
-        }
-      }
-      if (
-        useCloudStorage &&
-        window.storage &&
-        typeof window.storage.set === 'function'
-      ) {
-        try {
-          await window.storage.set(key, jsonValue);
-        } catch (cloudError) {
-          logger.warn(`Cloud storage failed for key: ${key}`, cloudError);
-        }
-      }
-    } catch (error) {
-      logger.error(`Error saving ${key}:`, error);
-    }
-  };
-  return [storedValue, setValue, isLoading];
 }

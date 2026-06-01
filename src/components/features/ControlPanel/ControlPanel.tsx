@@ -17,7 +17,7 @@ import { useFENHistory } from '@/hooks';
 import { MAX_FEN_LENGTH } from '@/utils/validation';
 import type { NotificationType } from '@/components/features/Fen/FENInputField/FENInputField';
 
-export interface ControlPanelProps {
+interface ControlPanelProps {
   fen: string;
   setFen: (fen: string) => void;
   pieceStyle: string;

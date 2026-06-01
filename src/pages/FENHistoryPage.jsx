@@ -145,14 +145,16 @@ const FENHistoryPage = memo(function FENHistoryPage() {
     }
   }, [deleteTargetId, deleteFromArchive]);
 
-  /**
-   * Handle "Do not ask again" checkbox
-   * @param {boolean} checked - Checkbox state
-   * @returns {void}
-   */
   const handleDoNotAskAgainChange = useCallback((checked) => {
     setDoNotAskAgain(checked);
-    localStorage.setItem('fen-history-skip-delete-confirm', checked.toString());
+    try {
+      localStorage.setItem(
+        'fen-history-skip-delete-confirm',
+        checked.toString()
+      );
+    } catch (err) {
+      logger.warn('Failed to save delete-confirm preference:', err);
+    }
   }, []);
 
   /**

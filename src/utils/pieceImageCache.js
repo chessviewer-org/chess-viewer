@@ -8,7 +8,7 @@ const loadingStyles = new Set();
  * @param {string} pieceStyle
  * @returns {Object|null}
  */
-export function getCachedPieces(pieceStyle) {
+function getCachedPieces(pieceStyle) {
   const cached = globalPieceCache.get(pieceStyle);
   if (cached) {
     return cached;
@@ -26,27 +26,15 @@ export function setCachedPieces(pieceStyle, images) {
 }
 /**
  * @param {string} pieceStyle
- * @returns {boolean}
  */
-export function isStyleLoading(pieceStyle) {
-  return loadingStyles.has(pieceStyle);
-}
-/**
- * @param {string} pieceStyle
- */
-export function markStyleLoading(pieceStyle) {
+function markStyleLoading(pieceStyle) {
   loadingStyles.add(pieceStyle);
 }
 /**
  * @param {string} pieceStyle
  */
-export function markStyleLoaded(pieceStyle) {
+function markStyleLoaded(pieceStyle) {
   loadingStyles.delete(pieceStyle);
-}
-/** Clears all cached piece images and resets loading state. */
-export function clearPieceCache() {
-  globalPieceCache.clear();
-  loadingStyles.clear();
 }
 /**
  * Preloads all piece images for a given style, using a shared promise cache to

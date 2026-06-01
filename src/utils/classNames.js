@@ -106,33 +106,6 @@ export function getButtonClasses(
   );
 }
 /**
- * Returns combined Tailwind classes for a card element.
- *
- * @param {boolean} [gradient=false] - Use gradient background
- * @param {boolean} [glass=false] - Use glass background
- * @param {'sm'|'md'|'lg'} [padding='md']
- * @param {string} [className=''] - Additional classes
- * @returns {string}
- */
-export function getCardClasses(
-  gradient = false,
-  glass = false,
-  padding = 'md',
-  className = ''
-) {
-  const gradientClass = gradient ? classNames.card.gradient : '';
-  const backgroundClass = glass
-    ? classNames.card.glass
-    : classNames.card.border;
-  return cn(
-    classNames.card.base,
-    gradientClass,
-    backgroundClass,
-    classNames.card.padding[padding],
-    className
-  );
-}
-/**
  * Returns combined Tailwind classes for an input element.
  *
  * @param {'normal'|'error'|'success'} [state='normal']
