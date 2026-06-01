@@ -270,9 +270,6 @@ function HomePage() {
     }
   }, [getExportConfig, fen, saveExportFen, success, error]);
 
-  /**
-   * @returns {void}
-   */
   const handleFlip = useCallback(() => {
     setFlipped((prev) => !prev);
     success('Board flipped');

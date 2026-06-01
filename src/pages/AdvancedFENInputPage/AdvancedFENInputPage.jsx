@@ -149,14 +149,22 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage({
   }, [location.state]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(favorites));
+    try {
+      localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(favorites));
+    } catch (err) {
+      logger.warn('Failed to save favorites:', err);
+    }
   }, [favorites]);
 
   useEffect(() => {
-    localStorage.setItem(
-      'advanced-fen-position-settings',
-      JSON.stringify(positionSettings)
-    );
+    try {
+      localStorage.setItem(
+        'advanced-fen-position-settings',
+        JSON.stringify(positionSettings)
+      );
+    } catch (err) {
+      logger.warn('Failed to save position settings:', err);
+    }
   }, [positionSettings]);
 
   useEffect(() => {
@@ -476,59 +484,27 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage({
     }));
   }
 
-  /**
-   * Switches the editor back to the positions tab.
-   *
-   * @returns {void}
-   */
   function handleShowPositionsTab() {
     setActiveTab(TABS.POSITIONS);
   }
 
-  /**
-   * Toggles playback for the preview carousel.
-   *
-   * @returns {void}
-   */
   function handleTogglePlay() {
     setIsPlaying((prev) => !prev);
   }
 
-  /**
-   * Updates the playback interval and closes the interval menu.
-   *
-   * @param {number} nextInterval - Selected interval in seconds
-   * @returns {void}
-   */
   function handleSetInterval(nextInterval) {
     setIntervalTime(nextInterval);
     setShowIntervalMenu(false);
   }
 
-  /**
-   * Toggles the interval dropdown menu.
-   *
-   * @returns {void}
-   */
   function handleToggleIntervalMenu() {
     setShowIntervalMenu((prev) => !prev);
   }
 
-  /**
-   * Toggles the preview board orientation.
-   *
-   * @returns {void}
-   */
   function handleFlipBoard() {
     setIsFlipped((prev) => !prev);
   }
 
-  /**
-   * Applies a FEN edit to the currently selected batch entry.
-   *
-   * @param {string} newFen - Updated FEN string
-   * @returns {void}
-   */
   function handleSetFen(newFen) {
     const batchIdx = batchList.indexOf(currentFen);
     if (batchIdx !== -1) {
@@ -536,11 +512,6 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage({
     }
   }
 
-  /**
-   * Opens the settings page while preserving the current return context.
-   *
-   * @returns {void}
-   */
   function handleSettingsClick() {
     navigate('/settings', {
       state: {
@@ -550,42 +521,20 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage({
     });
   }
 
-  /**
-   * Forwards control-panel notifications to the local logger.
-   *
-   * @param {string} message - Notification message
-   * @param {string} type - Notification type label
-   * @returns {void}
-   */
   function handleNotification(message, type) {
     logger.log(`[${type}] ${message}`);
   }
 
-  /**
-   * Marks the export progress as paused.
-   *
-   * @returns {void}
-   */
   function handlePauseExport() {
     pauseExport();
     setIsPaused(true);
   }
 
-  /**
-   * Resumes a paused export.
-   *
-   * @returns {void}
-   */
   function handleResumeExport() {
     resumeExport();
     setIsPaused(false);
   }
 
-  /**
-   * Hides the export progress overlay.
-   *
-   * @returns {void}
-   */
   function handleCancelExportProgress() {
     cancelExport();
     setExportState((prev) => ({
@@ -594,11 +543,6 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage({
     }));
   }
 
-  /**
-   * Closes the export options modal.
-   *
-   * @returns {void}
-   */
   function handleCloseExportModal() {
     setIsExportModalOpen(false);
   }
