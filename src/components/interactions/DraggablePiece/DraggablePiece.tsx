@@ -5,7 +5,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 
 import { getPieceImageKey, ItemTypes } from '@/constants';
 
-interface DraggablePieceProps {
+export interface DraggablePieceProps {
   piece: string;
   pieceImage: HTMLImageElement | null;
   row?: number;
