@@ -20,7 +20,11 @@ export function FENBatchProvider({ children }) {
     }
   });
   useEffect(() => {
-    localStorage.setItem('fenBatchList', JSON.stringify(batchList));
+    try {
+      localStorage.setItem('fenBatchList', JSON.stringify(batchList));
+    } catch {
+      // Storage unavailable (quota exceeded or private mode); keep in-memory state.
+    }
   }, [batchList]);
   const addToBatch = useCallback((fen) => {
     if (!fen || !validateFEN(fen)) {
