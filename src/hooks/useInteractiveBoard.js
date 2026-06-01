@@ -184,4 +184,3 @@ export function useInteractiveBoard(initialFen, onFenChange) {
     syncFromFen
   };
 }
-export default useInteractiveBoard;
