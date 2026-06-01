@@ -550,43 +550,42 @@ We prioritize user privacy over product metrics. Issues will be reported via Git
 
 ---
 
-### ADR-013: Vercel for Hosting
+### ADR-013: GitHub Pages for Hosting
 
 **Date:** 2025-12-28  
 **Status:** Accepted
 
 #### Context
 
-Need reliable, fast hosting for static site with global CDN.
+Need reliable, free hosting for a static site, served over a global CDN, with deployments driven directly from the GitHub repository.
 
 #### Decision
 
-Deploy to Vercel with automatic deployments from GitHub.
+Deploy to GitHub Pages via a GitHub Actions workflow that builds the site on push to `master` and serves it from the `chessvision.org` custom domain (configured through the `CNAME` file).
 
 #### Consequences
 
 **Positive:**
 
-- Automatic deployments from Git
-- Global CDN for fast load times
-- Free for open-source projects
-- Excellent DX (Developer Experience)
-- Built-in preview deployments
-- Zero configuration needed
+- Deployments run from the same GitHub repository that holds the source
+- Free for public repositories
+- Fastly-backed CDN for fast global load times
+- Custom domain with automatic HTTPS
+- No third-party hosting account or vendor lock-in
 
 **Negative:**
 
-- Vendor lock-in (mitigated by static site)
-- Limited customization vs. own server
-- Subject to Vercel's terms of service
+- Static hosting only (no server-side rendering or functions)
+- Build and deploy logic lives in the GitHub Actions workflow rather than a hosting-provider dashboard
+- No built-in preview deployments per pull request
 
-**Note:** Static site can be deployed anywhere if needed (Netlify, GitHub Pages, etc.)
+**Note:** As a plain static bundle, the site can be moved to any static host (Netlify, Cloudflare Pages, self-hosted) if needed.
 
 #### Alternatives Considered
 
-1. **Netlify** - Similar to Vercel, chosen Vercel for better Vite support
-2. **GitHub Pages** - Rejected: Less flexible, no automatic builds
-3. **Self-hosted** - Rejected: Unnecessary complexity for static site
+1. **Vercel** - Rejected: Adds a third-party account and vendor dashboard for what is a static-only site
+2. **Netlify** - Rejected: Same trade-off as Vercel for this use case
+3. **Self-hosted** - Rejected: Unnecessary operational complexity for a static site
 
 ---
 
@@ -708,7 +707,7 @@ Follow Semantic Versioning (SemVer 2.0.0): MAJOR.MINOR.PATCH
 | **Rendering**  | HTML5 Canvas | Accepted | Native   |
 | **State**      | React Hooks  | Accepted | Built-in |
 | **Storage**    | localStorage | Accepted | Native   |
-| **Hosting**    | Vercel       | Accepted | —        |
+| **Hosting**    | GitHub Pages | Accepted | —        |
 | **Icons**      | Lucide React | Accepted | 1.x      |
 | **Pieces**     | Lichess SVG  | Accepted | —        |
 
