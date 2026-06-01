@@ -141,7 +141,7 @@ Each directory exports symbols through an `index.js` barrel file. The source tre
 | Linting         | ESLint           | 9.x     |
 | Package manager | pnpm             | 10.x    |
 | Release         | semantic-release | 25.x    |
-| Deployment      | Vercel           | —       |
+| Deployment      | GitHub Pages     | —       |
 
 ---
 
@@ -233,7 +233,7 @@ Commit messages follow [Conventional Commits](https://www.conventionalcommits.or
 | Live demo       | https://chessvision.org                           |
 | Project board   | https://github.com/users/BilgeGates/projects/4    |
 | Bug reports     | https://github.com/BilgeGates/chess-vision/issues |
-| Support email   | chessvision@protonmail.com                        |
+| Support email   | contact@chessvision.org                           |
 | Security policy | [SECURITY.md](SECURITY.md)                        |
 
 For security-sensitive disclosures, do not open a public issue. Use the channel documented in `SECURITY.md`.

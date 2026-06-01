@@ -370,8 +370,8 @@ Security-sensitive reports must not be filed as public GitHub issues. The suppor
 ## Contact
 
 - GitHub Issues: https://github.com/BilgeGates/chess-vision/issues
-- Security issues: [chessvision@protonmail.com](mailto:chessvision@protonmail.com)
+- Security issues: [contact@chessvision.org](mailto:contact@chessvision.org)
 - Repository: https://github.com/BilgeGates/chess-vision
 - Project board: https://github.com/users/BilgeGates/projects/4
 - Live demo: https://chessvision.org
-- Support email: chessvision@protonmail.com
+- Support email: contact@chessvision.org

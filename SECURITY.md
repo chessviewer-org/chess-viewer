@@ -52,7 +52,7 @@ Do not file security-sensitive reports as public GitHub issues. Use one of the f
 
 ### Alternative: Email
 
-Send the report to **[chessvision@protonmail.com](mailto:chessvision@protonmail.com)** with the subject line `[SECURITY] <brief description>`.
+Send the report to **[contact@chessvision.org](mailto:contact@chessvision.org)** with the subject line `[SECURITY] <brief description>`.
 
 ### Required Information
 
