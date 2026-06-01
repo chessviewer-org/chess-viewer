@@ -1,1 +1,1 @@
-export { default } from './FENInputField.jsx';
+export { default } from './FENInputField';
