@@ -20,25 +20,8 @@ export function calculateStatus(lastActiveAt) {
  * @param {number} lastActiveAt - Unix timestamp of last activity
  * @returns {boolean} True if the entry is old enough to archive (90+ days)
  */
-export function shouldArchive(lastActiveAt) {
+function shouldArchive(lastActiveAt) {
   return Date.now() - lastActiveAt >= NINETY_DAYS_MS;
-}
-
-/**
- * @param {{ isFavorite: boolean, lastActiveAt: number }} entry
- * @returns {boolean} True if the entry is eligible for archiving
- */
-export function canArchive(entry) {
-  return !entry.isFavorite && shouldArchive(entry.lastActiveAt);
-}
-
-/**
- * @param {number} lastActiveAt - Unix timestamp of last activity
- * @returns {number} Days remaining until the entry qualifies for archiving
- */
-export function daysUntilArchive(lastActiveAt) {
-  const remaining = NINETY_DAYS_MS - (Date.now() - lastActiveAt);
-  return Math.max(0, Math.ceil(remaining / DAY_MS));
 }
 
 /**
@@ -48,7 +31,7 @@ export function daysUntilArchive(lastActiveAt) {
  * @param {Object} filters - Active filter values
  * @returns {boolean}
  */
-export function matchesFilters(entry, filters) {
+function matchesFilters(entry, filters) {
   if (filters.fenSearch) {
     if (!entry.fen.toLowerCase().includes(filters.fenSearch.toLowerCase())) {
       return false;

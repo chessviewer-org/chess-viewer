@@ -43,7 +43,7 @@ export async function loadArchive() {
  * @param {Object[]} archive - Archive entries to save
  * @returns {Promise<void>}
  */
-export async function saveArchive(archive) {
+async function saveArchive(archive) {
   const trimmedArchive = archive.slice(0, MAX_ARCHIVE_SIZE);
   const jsonData = JSON.stringify(trimmedArchive);
   try {
@@ -87,7 +87,7 @@ export async function archiveEntries(
  * @param {Object[]} activeEntries - Current active history entries
  * @returns {Promise<{ toArchive: Object[], remaining: Object[] }>}
  */
-export async function findEntriesForAutoArchive(activeEntries) {
+async function findEntriesForAutoArchive(activeEntries) {
   const { active, toArchive } = partitionByArchiveStatus(activeEntries);
   return { toArchive, remaining: active };
 }
@@ -137,25 +137,6 @@ export async function clearArchive() {
     logger.error('Failed to clear archive:', err);
     throw err;
   }
-}
-
-/**
- * Computes summary statistics for the archive.
- *
- * @param {Object[]} archive - Archive entries
- * @returns {{ total: number, bySource: Object, favorites: number }}
- */
-export function getArchiveStatistics(archive) {
-  const stats = {
-    total: archive.length,
-    bySource: { manual: 0, export: 0, drag: 0 },
-    favorites: 0
-  };
-  for (const entry of archive) {
-    if (entry.source in stats.bySource) stats.bySource[entry.source]++;
-    if (entry.isFavorite) stats.favorites++;
-  }
-  return stats;
 }
 
 /**

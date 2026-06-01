@@ -26,7 +26,7 @@ export function resumeExport() {
   exportState.paused = false;
 }
 /** Resets export state (cancelled, paused) to defaults. */
-export function resetExportState() {
+function resetExportState() {
   exportState = {
     cancelled: false,
     paused: false

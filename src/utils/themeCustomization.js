@@ -12,7 +12,7 @@ import { getStoredString, getStoredValue } from '@/utils/validation';
  *
  * @returns {Object[]} Default preset objects
  */
-export function getDefaultPresets() {
+function getDefaultPresets() {
   const themes = Object.entries(BOARD_THEMES).slice(
     0,
     STANDARD_PRESETS_COUNT - 1

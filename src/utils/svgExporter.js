@@ -60,7 +60,7 @@ async function imageToDataURL(img) {
  * @param {Object} config.pieceImages - Loaded piece image map
  * @returns {Promise<string>} SVG markup string
  */
-export async function generateBoardSVG(config) {
+async function generateBoardSVG(config) {
   const {
     lightSquare,
     darkSquare,
