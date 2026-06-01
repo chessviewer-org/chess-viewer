@@ -203,5 +203,5 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for the contribution workflow.
 ---
 
 **Last Updated:** 2026-05-23  
-**Applies To:** v5.5.3  
+**Applies To:** v5.5.9  
 **Conformance Claim:** None. ChessVision does not currently meet WCAG 2.1 AA.

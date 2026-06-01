@@ -150,7 +150,7 @@ A complete and current statement of known limitations is maintained in [ROADMAP.
 
 ### Report a bug
 
-Use [GitHub Issues](https://github.com/BilgeGates/chess-vision/issues). Include browser version, operating system, reproduction steps, and screenshots. See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full reporting protocol.
+Use [GitHub Issues](https://github.com/chessvision-org/chess-vision/issues). Include browser version, operating system, reproduction steps, and screenshots. See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full reporting protocol.
 
 ### Contribute
 
@@ -163,4 +163,4 @@ Clone the repository, run `pnpm install`, then `pnpm build`. Deploy the `dist/` 
 ---
 
 **Last Updated:** 2026-05-23  
-**Applies To:** v5.5.3
+**Applies To:** v5.5.9

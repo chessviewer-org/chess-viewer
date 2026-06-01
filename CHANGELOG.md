@@ -1,3 +1,26 @@
+## [5.6.0](https://github.com/chessvision-org/chess-vision/compare/v5.5.9...v5.6.0) (2026-05-31)
+
+### Features
+
+* add funding configuration for GitHub Sponsors ([8754856](https://github.com/chessvision-org/chess-vision/commit/875485672c7516918711a831222c360f1079e8e4))
+
+### Bug Fixes
+
+* update contact email in Code of Conduct ([af49bcb](https://github.com/chessvision-org/chess-vision/commit/af49bcbe5952cf1adfdb1d458c6f1cca59f15f63))
+* update GitHub Issues link and version number in FAQ ([e1de5b3](https://github.com/chessvision-org/chess-vision/commit/e1de5b34f90105c5e5025cb8705e07ac40d207d3))
+* update latest version number and repository links in SECURITY.md ([81cbf26](https://github.com/chessvision-org/chess-vision/commit/81cbf26150cde6836cc4927a6165fe264fa4baab))
+* update link to asset caching improvement pull request ([91c1c7a](https://github.com/chessvision-org/chess-vision/commit/91c1c7aa84eae54b59465ef3e84697d713da8f60))
+* update project roadmap link in feature request template ([4f21ab8](https://github.com/chessvision-org/chess-vision/commit/4f21ab8b2eb0e1ebdb01ae28ba523491f65dbfb4))
+* update version number to v5.5.9 and correct repository links in README ([7b1dd92](https://github.com/chessvision-org/chess-vision/commit/7b1dd92ce0d30727b5f28bacc5a69e2c121229e6))
+* update version number to v5.5.9 in ACCESSIBILITY.md ([f424682](https://github.com/chessvision-org/chess-vision/commit/f424682eb72ad0f0feb6b5949eccbced8b0ff8a8))
+* update version number to v5.5.9 in ARCHITECTURE.md ([0157eb5](https://github.com/chessvision-org/chess-vision/commit/0157eb56a12494667956a962d4548884e2bf6ce3))
+* update version number to v5.5.9 in DECISIONS.md ([b2f025f](https://github.com/chessvision-org/chess-vision/commit/b2f025f3e770f51daa5256b60a6e4fbe860af3d5))
+* update version number to v5.5.9 in EXPORT_PIPELINE.md ([c3684cf](https://github.com/chessvision-org/chess-vision/commit/c3684cfe30140e1a89a2a49730bcef455a80351e))
+
+### Documentation
+
+* update contributing guidelines and clarify contribution process ([a2bc394](https://github.com/chessvision-org/chess-vision/commit/a2bc394ed9e6ce7ac7db0e722d1b8bc7b536afbd))
+
 ## [5.5.9](https://github.com/BilgeGates/chess-vision/compare/v5.5.8...v5.5.9) (2026-05-27)
 
 ### Bug Fixes

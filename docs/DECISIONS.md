@@ -928,5 +928,5 @@ Want to propose a new decision or challenge an existing one?
 ---
 
 **Last Updated:** 2026-05-23  
-**Applies To:** v5.5.3  
+**Applies To:** v5.5.9  
 **Maintainer:** [@BilgeGates](https://github.com/BilgeGates)

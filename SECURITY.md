@@ -8,7 +8,7 @@ The following versions are supported with security updates. "Active" denotes the
 
 | Version | Support Status  | Security Updates | Notes                                         |
 | ------- | --------------- | ---------------- | --------------------------------------------- |
-| v5.x.x  | Active          | All severities   | Current stable line; v5.5.3 is the latest tag |
+| v5.x.x  | Active          | All severities   | Current stable line; v5.5.9 is the latest tag |
 | v4.x.x  | Limited Support | Critical only    | Maintenance window ends 2026-12-31            |
 | < v4.0  | End of Life     | None             | Not supported                                 |
 
@@ -46,7 +46,7 @@ Do not file security-sensitive reports as public GitHub issues. Use one of the f
 
 ### Preferred: GitHub Security Advisory
 
-1. Open the repository [Security tab](https://github.com/BilgeGates/chess-vision/security).
+1. Open the repository [Security tab](https://github.com/chessvision-org/chess-vision/security).
 2. Select **Report a vulnerability**.
 3. Complete the advisory form with the information described below.
 
@@ -90,13 +90,13 @@ For critical, in-the-wild reports, the fix-development window may be compressed 
 
 ## References
 
-- Repository: https://github.com/BilgeGates/chess-vision
-- Security advisories: https://github.com/BilgeGates/chess-vision/security/advisories
+- Repository: https://github.com/chessvision-org/chess-vision
+- Security advisories: https://github.com/chessvision-org/chess-vision/security/advisories
 - Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - Roadmap: [ROADMAP.md](ROADMAP.md)
 - Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---
 
-**Last Updated:** 2026-05-23  
-**Applies To:** v5.5.3
+**Last Updated:** 2026-05-31  
+**Applies To:** v5.5.9

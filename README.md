@@ -2,15 +2,17 @@
 
 **High-performance chess visualization engine. Renders FEN-described positions to print-quality raster and vector images, entirely client-side.**
 
-**Status:** v5.5.3 — stable.
+**Status:** v5.5.9 — stable.
 
 [![React](https://img.shields.io/badge/React-19.x-61DAFB?style=flat-square&logo=react&logoColor=white)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.x-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Vite](https://img.shields.io/badge/Vite-8.x-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.x-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg?style=flat-square)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?style=flat-square&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/chessvision-org)
 
-[Live Demo](https://chessvision.org) · [Report Bug](https://github.com/BilgeGates/chess-vision/issues) · [Request Feature](https://github.com/BilgeGates/chess-vision/issues)
+[Live Demo](https://chessvision.org) · [Report Bug](https://github.com/chessvision-org/chess-vision/issues) · [Request Feature](https://github.com/chessvision-org/chess-vision/issues) · [Sponsor](https://github.com/sponsors/chessvision-org)
 
 ---
 
@@ -25,6 +27,7 @@
 - [Browser Support](#browser-support)
 - [Security and Privacy](#security-and-privacy)
 - [Contributing](#contributing)
+- [Sponsorship](#sponsorship)
 - [Contact and Support](#contact-and-support)
 - [License](#license)
 
@@ -34,7 +37,7 @@
 
 ChessVision parses FEN notation and renders chess positions as high-resolution raster or vector images. It is designed for chess players, coaches, authors, and developers who need precise, customizable board diagrams without a backend dependency.
 
-All processing happens in the browser. No data leaves the user's device. The v5.5.3 release is the current stable milestone of the v5.x line; the line is in maintenance mode and accepts security, dependency, build, and documentation changes only. New feature work is staged on the `develop` branch.
+All processing happens in the browser. No data leaves the user's device. The v5.5.9 release is the current stable milestone of the v5.x line; the line is in maintenance mode and accepts security, dependency, build, and documentation changes only. New feature work is staged on the `develop` branch.
 
 ---
 
@@ -75,7 +78,7 @@ All processing happens in the browser. No data leaves the user's device. The v5.
 ### Installation
 
 ```bash
-git clone https://github.com/BilgeGates/chess-vision.git
+git clone https://github.com/chessvision-org/chess-vision.git
 cd chess-vision
 pnpm install
 pnpm dev
@@ -225,6 +228,25 @@ Commit messages follow [Conventional Commits](https://www.conventionalcommits.or
 
 ---
 
+## Sponsorship
+
+ChessVision is free, open-source, and maintained on a volunteer basis. If the project is useful to you, sponsorship helps cover ongoing maintenance, dependency upkeep, and hosting.
+
+[![Sponsor ChessVision](https://img.shields.io/badge/Sponsor-ChessVision-ea4aaa?style=for-the-badge&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/chessvision-org)
+
+- **What it funds:** maintenance, security and dependency updates, and infrastructure.
+- **Wallet Address (USDT / USDC / ETH):** 
+
+```text
+  0x31eB555dAAC8253FF9835448bFA1542BFA969aDb
+```
+
+- **What it is not:** sponsorship is a voluntary donation, not a payment for work. Contributing to ChessVision never requires or involves payment — see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+Every contribution, large or small, is appreciated.
+
+---
+
 ## Contact and Support
 
 | Channel         | Address                                           |
@@ -235,6 +257,15 @@ Commit messages follow [Conventional Commits](https://www.conventionalcommits.or
 | Bug reports     | https://github.com/BilgeGates/chess-vision/issues |
 | Support email   | contact@chessvision.org                           |
 | Security policy | [SECURITY.md](SECURITY.md)                        |
+| Channel         | Address                                                     |
+| --------------- | ----------------------------------------------------------- |
+| Repository      | https://github.com/chessvision-org/chess-vision             |
+| Live demo       | https://chessvision.org                                      |
+| Project board   | https://github.com/orgs/chessvision-org/projects/1          |
+| Bug reports     | https://github.com/chessvision-org/chess-vision/issues      |
+| Sponsorship     | https://github.com/sponsors/chessvision-org                 |
+| Support email   | contact@chessvision.org                                     |
+| Security policy | [SECURITY.md](SECURITY.md)                                  |
 
 For security-sensitive disclosures, do not open a public issue. Use the channel documented in `SECURITY.md`.
 

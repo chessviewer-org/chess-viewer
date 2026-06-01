@@ -1,4 +1,4 @@
-# ChessVision — Architecture Documentation (v5.5.3)
+# ChessVision — Architecture Documentation (v5.5.9)
 
 This document describes the architecture of the `master` branch at **v5.5.3**. Forward-looking work that lives on `develop` (authentication, multi-factor authentication, encrypted cloud sync, Web Worker rasterization, and full TypeScript migration) is intentionally not described here and will be integrated when it ships on `master`.
 
@@ -452,4 +452,4 @@ The authoritative statement of known limitations is maintained in [ROADMAP.md](.
 ---
 
 **Last Updated:** 2026-05-23  
-**Version:** 5.5.3
+**Version:** 5.5.9
