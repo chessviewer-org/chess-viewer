@@ -5,7 +5,7 @@ import { useDrop } from 'react-dnd';
 import { DroppableSquare } from '@/components/interactions';
 import { ItemTypes } from '@/constants';
 
-export interface InteractiveBoardProps {
+interface InteractiveBoardProps {
   board: string[][];
   lightSquare: string;
   darkSquare: string;
@@ -115,7 +115,11 @@ export const InteractiveBoard = memo(function InteractiveBoard({
           zIndex: 1,
           contain: 'layout style paint',
           borderRadius: '0',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+          // Let the browser own vertical scrolling over the board so the page
+          // can still scroll past it on touch; the touch backend's
+          // scrollAngleRanges handles the drag-vs-scroll split for gestures.
+          touchAction: 'pan-y'
         }}
       >
         {squares}

@@ -19,7 +19,7 @@ const selectDragState = (monitor: DragLayerMonitor): CollectedDragState => ({
   isDragging: monitor.isDragging()
 });
 
-export interface CustomDragLayerProps {
+interface CustomDragLayerProps {
   pieceImages: Record<string, HTMLImageElement | null>;
   boardSize?: number;
 }

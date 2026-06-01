@@ -3,7 +3,7 @@ import { memo, useCallback } from 'react';
 import { DraggablePiece } from '@/components/interactions';
 import { getPieceImageKey, PALETTE_PIECES } from '@/constants';
 
-export interface PiecePaletteProps {
+interface PiecePaletteProps {
   pieceImages: Record<string, HTMLImageElement | null>;
   isLoading: boolean;
   className?: string;

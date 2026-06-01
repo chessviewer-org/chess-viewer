@@ -33,7 +33,7 @@ function getGutterSize(boardSize: number) {
   return Math.round(boardSize / 16);
 }
 
-export interface ChessEditorProps {
+interface ChessEditorProps {
   fen: string;
   onFenChange: (fen: string) => void;
   pieceStyle: string;
