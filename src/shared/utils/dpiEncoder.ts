@@ -93,6 +93,9 @@ async function changePngDPI(blob: Blob, dpi: number): Promise<Blob> {
  * @returns Promise resolving to modified JPEG blob
  */
 async function changeJpegDPI(blob: Blob, dpi: number): Promise<Blob> {
+  // JFIF stores density in 2-byte fields; clamp so dpi > 65535 cannot overflow.
+  dpi = Math.min(Math.max(Math.round(dpi), 1), 0xffff);
+
   const arrayBuffer = await blob.arrayBuffer();
   const bytes = new Uint8Array(arrayBuffer);
 
