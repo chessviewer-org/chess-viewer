@@ -1,32 +1,26 @@
 import { memo } from 'react';
 
-import type { Session } from '@supabase/supabase-js';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Database,
   HelpCircle,
   LogOut,
-  ShieldCheck,
+  Shield,
   User,
-  UserCircle
+  UserCircle,
+  UserPlus
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { useProfile } from '@/features/auth/hooks/useProfile';
 import { usePrefetchRoute } from '@hooks';
 
-import { ThemeSubmenu } from './ThemeSubmenu';
-
-type SubmenuKey = 'settings' | 'theme' | null;
+const DONATE_URL = 'https://www.buymeacoffee.com/bilgegates';
 
 /** Props for the `NavbarDesktopDropdown` popover menu. */
 interface NavbarDesktopDropdownProps {
-  theme: 'light' | 'dark';
-  toggleTheme: (event?: React.SyntheticEvent | Event) => void;
   isAuthenticated: boolean;
-  session: Session | null;
   isDropdownOpen: boolean;
   setIsDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  openSubmenu: SubmenuKey;
-  setOpenSubmenu: React.Dispatch<React.SetStateAction<SubmenuKey>>;
   dropdownRef: React.RefObject<HTMLDivElement | null>;
   openAuthModal: (tab: 'signin' | 'signup' | 'security') => void;
   handleSignOut: () => void;
@@ -34,30 +28,19 @@ interface NavbarDesktopDropdownProps {
 }
 
 export const NavbarDesktopDropdown = memo(function NavbarDesktopDropdown({
-  theme,
-  toggleTheme,
   isAuthenticated,
-  session,
   isDropdownOpen,
   setIsDropdownOpen,
-  openSubmenu,
-  setOpenSubmenu,
   dropdownRef,
   openAuthModal,
   handleSignOut,
   handleHelpClick
 }: NavbarDesktopDropdownProps) {
+  const { displayName, avatarUrl, isSupporter } = useProfile();
   const prefetch = usePrefetchRoute();
 
-  const renderHelpButton = () => (
-    <button
-      onClick={handleHelpClick}
-      className="w-full rounded-lg px-2 py-2 text-sm font-medium text-text-primary hover:bg-surface-hover transition-colors flex items-center gap-2"
-    >
-      <HelpCircle className="w-4 h-4 text-text-secondary" />
-      <span>Help</span>
-    </button>
-  );
+  const itemClass =
+    'w-full rounded-lg px-2 py-2 text-sm font-medium text-text-primary hover:bg-surface-hover transition-colors flex items-center gap-2';
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -74,108 +57,90 @@ export const NavbarDesktopDropdown = memo(function NavbarDesktopDropdown({
         <UserCircle className="w-5 h-5" />
       </button>
 
-      {isDropdownOpen && (
-        <div className="absolute right-0 mt-2 w-68 rounded-2xl border border-border/60 bg-surface p-3 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="rounded-xl border border-border bg-surface-elevated p-3">
-            {!isAuthenticated ? (
-              <div className="flex flex-col gap-1">
-                <button
-                  onClick={() => openAuthModal('signin')}
-                  className="w-full rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-surface-hover mb-1"
-                >
-                  <span className="block text-sm font-semibold text-text-primary">
-                    Sign Up / Sign In
-                  </span>
-                  <span className="block text-xs text-text-secondary mt-0.5">
-                    Sync boards and protect your workspace
-                  </span>
-                </button>
-
-                <div className="h-px bg-border my-1" />
-
-                <ThemeSubmenu
-                  theme={theme}
-                  toggleTheme={toggleTheme}
-                  openSubmenu={openSubmenu}
-                  setOpenSubmenu={setOpenSubmenu}
-                  setIsDropdownOpen={setIsDropdownOpen}
+      <AnimatePresence>
+        {isDropdownOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute right-0 mt-2 w-68 rounded-2xl border border-border/60 bg-surface p-3 shadow-2xl z-50 origin-top-right flex flex-col"
+          >
+            <div className="flex items-center gap-3 px-2 pb-1">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt=""
+                  className="w-11 h-11 rounded-full object-cover shrink-0"
                 />
-                {renderHelpButton()}
+              ) : (
+                <UserCircle className="w-11 h-11 text-text-secondary shrink-0" />
+              )}
+              <div className="min-w-0">
+                <p className="text-base font-bold text-text-primary truncate">
+                  {displayName}
+                </p>
+                {isSupporter ? (
+                  <span className="mt-1 flex items-center gap-1.5 text-sm font-medium text-accent">
+                    <Shield className="w-4 h-4" />
+                    ChessVision Supporter
+                  </span>
+                ) : (
+                  <a
+                    href={DONATE_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 flex items-center gap-1.5 text-sm font-medium text-text-secondary hover:text-accent transition-colors"
+                  >
+                    <Shield className="w-4 h-4" />
+                    Donate ChessVision
+                  </a>
+                )}
               </div>
-            ) : (
+            </div>
+
+            <div className="h-px bg-border my-3" />
+
+            {isAuthenticated && (
               <>
-                <div className="truncate mb-2 pb-2">
-                  <p className="text-xs text-text-secondary font-medium uppercase tracking-wider mb-1">
-                    SIGNED IN AS
-                  </p>
-                  <p
-                    className="text-sm font-medium text-text-primary truncate"
-                    title={session?.user?.email ?? ''}
-                  >
-                    {session?.user?.email}
-                  </p>
-                </div>
+                <Link
+                  to="/settings?tab=profile"
+                  {...prefetch('/settings')}
+                  onClick={() => setIsDropdownOpen(false)}
+                  className={itemClass}
+                >
+                  <User className="w-4 h-4 text-text-secondary" />
+                  <span>Account</span>
+                </Link>
 
-                <div className="h-px bg-border mb-2" />
-
-                <div className="flex flex-col gap-1">
-                  <Link
-                    to="/settings?tab=profile"
-                    {...prefetch('/settings')}
-                    onClick={() => setIsDropdownOpen(false)}
-                    className="w-full rounded-lg px-2 py-2 text-sm font-medium text-text-primary hover:bg-surface-hover transition-colors flex items-center gap-2"
-                  >
-                    <User className="w-4 h-4 text-text-secondary" />
-                    <span>Account Profile</span>
-                  </Link>
-
-                  <Link
-                    to="/settings?tab=security"
-                    {...prefetch('/settings')}
-                    onClick={() => setIsDropdownOpen(false)}
-                    className="w-full rounded-lg px-2 py-2 text-sm font-medium text-text-primary hover:bg-surface-hover transition-colors flex items-center gap-2"
-                  >
-                    <ShieldCheck className="w-4 h-4 text-text-secondary" />
-                    <span>Security & Privacy</span>
-                  </Link>
-
-                  <Link
-                    to="/settings?tab=data"
-                    {...prefetch('/settings')}
-                    onClick={() => setIsDropdownOpen(false)}
-                    className="w-full rounded-lg px-2 py-2 text-sm font-medium text-text-primary hover:bg-surface-hover transition-colors flex items-center gap-2"
-                  >
-                    <Database className="w-4 h-4 text-text-secondary" />
-                    <span>Data Management</span>
-                  </Link>
-
-                  <div className="h-px bg-border my-1" />
-
-                  <ThemeSubmenu
-                    theme={theme}
-                    toggleTheme={toggleTheme}
-                    openSubmenu={openSubmenu}
-                    setOpenSubmenu={setOpenSubmenu}
-                    setIsDropdownOpen={setIsDropdownOpen}
-                  />
-
-                  <button
-                    onClick={handleSignOut}
-                    className="w-full rounded-lg px-2 py-2 text-sm font-medium text-text-primary hover:bg-surface-hover transition-colors flex items-center gap-2"
-                  >
-                    <LogOut className="w-4 h-4 text-text-secondary" />
-                    <span>Sign Out</span>
-                  </button>
-
-                  <div className="h-px bg-border my-1" />
-
-                  {renderHelpButton()}
-                </div>
+                <div className="h-px bg-border my-3" />
               </>
             )}
-          </div>
-        </div>
-      )}
+
+            <div className="flex flex-col gap-1">
+              <button onClick={handleHelpClick} className={itemClass}>
+                <HelpCircle className="w-4 h-4 text-text-secondary" />
+                <span>Help</span>
+              </button>
+              {isAuthenticated ? (
+                <button onClick={handleSignOut} className={itemClass}>
+                  <LogOut className="w-4 h-4 text-text-secondary" />
+                  <span>Sign Out</span>
+                </button>
+              ) : (
+                // Guests get full features locally; account is opt-in for sync + extra security.
+                <button
+                  onClick={() => openAuthModal('signup')}
+                  className={itemClass}
+                >
+                  <UserPlus className="w-4 h-4 text-text-secondary" />
+                  <span>Add Account</span>
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 });
