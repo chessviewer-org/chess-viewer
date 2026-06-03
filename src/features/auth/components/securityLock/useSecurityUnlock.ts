@@ -50,6 +50,12 @@ export function useSecurityUnlock(onUnlock: () => void) {
         !factorsError &&
         factors &&
         factors.totp.some((f) => f.status === 'verified');
+    const { data: factors, error: factorsError } =
+      await supabase.auth.mfa.listFactors();
+    const hasVerifiedMfa =
+      !factorsError &&
+      factors &&
+      factors.totp.some((f) => f.status === 'verified');
 
       if (hasVerifiedMfa) {
         setMode('mfa');

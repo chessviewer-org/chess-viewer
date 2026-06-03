@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 
 import { BrowserRouter } from 'react-router-dom';
 
+import { ProfileProvider } from '@/features/auth/hooks/ProfileContext';
 import { AuthProvider } from '@/features/auth/hooks/useAuth';
 
 import App from './App';
@@ -16,7 +17,9 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <App />
+        <ProfileProvider>
+          <App />
+        </ProfileProvider>
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>

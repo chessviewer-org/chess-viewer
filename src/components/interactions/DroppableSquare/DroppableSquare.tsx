@@ -84,7 +84,15 @@ export const DroppableSquare = memo(
     return (
       <div
         ref={(node) => {
-          if (node) drop(node);
+          drop(node);
+          // Detach the react-dnd connector on unmount so the backend removes its
+          // node-bound listeners; without this the cell (and its piece <img>)
+          // stays detached-but-referenced via the listener, leaking every time
+          // the board unmounts on route change. Connector returns a value; the
+          // cleanup must return void, so we don't forward it.
+          return () => {
+            drop(null);
+          };
         }}
         className="w-full h-full flex items-center justify-center relative"
         style={{

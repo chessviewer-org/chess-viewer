@@ -70,6 +70,13 @@ export const DraggablePiece = memo(function DraggablePiece({
       ref={(node) => {
         drag(node);
         pieceRef.current = node;
+        // Detach the react-dnd connector and drop our own node ref on unmount.
+        // Otherwise the backend's node-bound listener keeps this piece <img>
+        // detached-but-alive, leaking ~12 nodes per board unmount (route change).
+        return () => {
+          drag(null);
+          pieceRef.current = null;
+        };
       }}
       className={`
           flex items-center justify-center

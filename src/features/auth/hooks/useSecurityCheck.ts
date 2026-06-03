@@ -44,7 +44,7 @@ export function useSecurityCheck() {
 
       if (error || !data) {
         if (error && (error.code === 'PGRST116' || error.code === 'PGRST204')) {
-          console.warn('Supabase sync: user_security row is missing.');
+          logger.warn('Supabase sync: user_security row is missing.');
         }
         setIsLocked(true);
         setIsLoading(false);
@@ -76,7 +76,7 @@ export function useSecurityCheck() {
       })
       .catch((err: unknown) => {
         if (!signal.aborted)
-          console.warn('useSecurityCheck: getUser failed', err);
+          logger.warn('useSecurityCheck: getUser failed', err);
       });
 
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
