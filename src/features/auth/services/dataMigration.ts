@@ -71,7 +71,9 @@ export const dataMigration = {
         if (localData) {
           const cloudData = await syncStorage.get(key);
 
-          if (!cloudData) {
+          // get() returns an object even for an empty value, so test the value
+          // itself — otherwise an empty cloud entry would block migration.
+          if (!cloudData?.value) {
             await syncStorage.set(key, localData);
             logger.log(`Migrated key: ${key}`);
           }
