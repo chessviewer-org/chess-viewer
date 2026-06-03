@@ -20,13 +20,28 @@ const MAX_USER_DATA_VALUE_LENGTH = 10_000;
 
 let currentUser: User | null = null;
 
-supabase.auth.getUser().then(({ data: { user } }) => {
-  currentUser = user;
-});
+// Module-scoped auth subscription. Idempotent so HMR re-evaluation / StrictMode
+// double-invoke can't stack uncleaned listeners (MaxListenersExceededWarning).
+let authSubscription: { unsubscribe: () => void } | null = null;
 
-supabase.auth.onAuthStateChange((_event, session) => {
-  currentUser = session?.user ?? null;
-});
+function subscribeToAuth(): void {
+  authSubscription?.unsubscribe();
+  // onAuthStateChange fires synchronously on subscribe, covering the initial
+  // value — avoids a getUser() race that could clobber currentUser when stale.
+  const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+    currentUser = session?.user ?? null;
+  });
+  authSubscription = data.subscription;
+}
+
+subscribeToAuth();
+
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    authSubscription?.unsubscribe();
+    authSubscription = null;
+  });
+}
 
 /**
  * Retrieves the E2EE encryption key from localStorage.
