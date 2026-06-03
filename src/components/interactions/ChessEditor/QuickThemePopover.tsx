@@ -7,6 +7,7 @@ import { useOutsideClick } from '@hooks';
 import { BOARD_THEMES } from '@constants';
 import { ThemeConfig } from '@app-types';
 
+import { hexToRgb } from '@utils';
 import ThemePresetButton from './ThemePresetButton';
 
 /** Props for the in-board Quick Theme popover. */
@@ -22,9 +23,7 @@ export interface QuickThemePopoverProps {
 }
 
 function getLightness(hex: string): number {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
+  const { r, g, b } = hexToRgb(hex);
   return (r + g + b) / 3;
 }
 
