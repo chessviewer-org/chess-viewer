@@ -1,6 +1,10 @@
 import { useCallback, useMemo } from 'react';
 
 import { downloadJPEG, downloadPNG, downloadSVG, logger } from '@utils';
+import {
+  checkCancellation,
+  waitWhilePaused
+} from '@utils/exportState';
 import { parseSmartNaming } from './parseSmartNaming';
 import type { ExportFormat, PositionSettings } from './useAdvancedFEN.types';
 
@@ -137,6 +141,11 @@ export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
       handleExportStart(exportFormat);
 
       for (let i = 0; i < validFens.length; i++) {
+        // Honor pause/cancel between items — otherwise the controls do nothing
+        // until the whole batch finishes (required by the export pipeline rules).
+        await waitWhilePaused();
+        checkCancellation();
+
         const fen = validFens[i];
         if (!fen) continue;
 
@@ -203,7 +212,13 @@ export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
         }
       }
     } catch (err) {
-      logger.error('Batch export failed:', err);
+      // A cancellation propagates as "Export cancelled" — that is expected user
+      // intent, not a failure, so it stops the batch quietly.
+      if (err instanceof Error && err.message === 'Export cancelled') {
+        logger.log('Batch export cancelled by user.');
+      } else {
+        logger.error('Batch export failed:', err);
+      }
     } finally {
       handleExportFinish();
     }
