@@ -90,15 +90,22 @@ export function useSecurityCheck() {
   }, []);
 
   const unlock = useCallback(async () => {
-    const {
-      data: { user }
-    } = await supabase.auth.getUser();
-    if (user) {
-      const { error } = await supabase.rpc('refresh_security_session');
-
-      if (!error) {
-        setIsLocked(false);
+    try {
+      const { data, error: getUserError } = await supabase.auth.getUser();
+      if (getUserError || !data?.user) {
+        logger.warn('useSecurityCheck: unlock aborted, no authenticated user');
+        return;
       }
+
+      const { error } = await supabase.rpc('refresh_security_session');
+      if (error) {
+        logger.warn('useSecurityCheck: refresh_security_session failed', error);
+        return;
+      }
+      setIsLocked(false);
+    } catch (err) {
+      // getUser/rpc reject on network failure — stay fail-closed (locked).
+      logger.warn('useSecurityCheck: unlock failed', err);
     }
   }, []);
 

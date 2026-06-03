@@ -4,6 +4,7 @@ import {
   checkCancellation,
   clearActiveRasterTask,
   exportState,
+  setActiveRasterTask,
   setProgress,
   waitWhilePaused
 } from './exportState';
@@ -148,6 +149,9 @@ async function createWorkerRasterBlob(
   });
 
   if (!task) return null;
+
+  // Register the cancel handle so cancelExport() can stop this worker task.
+  setActiveRasterTask(task.cancel);
 
   try {
     return await task.promise;

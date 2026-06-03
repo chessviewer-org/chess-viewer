@@ -4,10 +4,9 @@ import {
   ConfirmationModal,
   HistoryFilters
 } from '@/components/panels/History';
-import { BaseHistoryEntry } from '@app-types/history';
 
 import { FENHistoryEmptyState } from './components/FENHistoryEmptyState';
-import { FENHistoryGridItem } from './components/FENHistoryGridItem';
+import { FENHistoryGrid } from './components/FENHistoryGrid';
 import { FENHistoryHeader } from './components/FENHistoryHeader';
 import { useFENHistoryPage } from './hooks/useFENHistoryPage';
 
@@ -76,30 +75,24 @@ const FENHistoryPage: React.FC = memo(() => {
         showFavoritesCheckbox={activeTab === 'active'}
       />
 
-      <main className="flex-1">
-        <div className="px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
+      <main className="flex-1 min-h-0">
+        <div className="h-full px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
           {currentData.length === 0 ? (
             <FENHistoryEmptyState activeTab={activeTab} />
           ) : (
-            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-              {currentData.map((entry: BaseHistoryEntry, index: number) => (
-                <FENHistoryGridItem
-                  key={entry.id}
-                  entry={entry}
-                  index={index}
-                  activeTab={activeTab}
-                  lightSquare={lightSquare}
-                  darkSquare={darkSquare}
-                  pieceStyle={pieceStyle}
-                  formatDate={formatDate}
-                  formatTime={formatTime}
-                  handleReactivate={handleReactivate}
-                  handleDelete={handleDelete}
-                  handleLoad={handleLoad}
-                  handleToggleFavorite={handleToggleFavorite}
-                />
-              ))}
-            </div>
+            <FENHistoryGrid
+              data={currentData}
+              activeTab={activeTab}
+              lightSquare={lightSquare}
+              darkSquare={darkSquare}
+              pieceStyle={pieceStyle}
+              formatDate={formatDate}
+              formatTime={formatTime}
+              handleReactivate={handleReactivate}
+              handleDelete={handleDelete}
+              handleLoad={handleLoad}
+              handleToggleFavorite={handleToggleFavorite}
+            />
           )}
         </div>
       </main>

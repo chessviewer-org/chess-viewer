@@ -27,26 +27,29 @@ export function useSecurityUnlock(onUnlock: () => void) {
     setError('');
     setIsSubmitting(true);
 
-    const {
-      data: { user }
-    } = await supabase.auth.getUser();
-    if (!user?.email) {
-      setError('Unable to retrieve account email.');
-      setIsSubmitting(false);
-      return;
-    }
+    try {
+      const { data, error: getUserError } = await supabase.auth.getUser();
+      if (getUserError || !data?.user?.email) {
+        setError('Unable to retrieve account email.');
+        return;
+      }
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: user.email,
-      password
-    });
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: data.user.email,
+        password
+      });
 
-    if (signInError) {
-      setError('Invalid password. Please try again.');
-      setIsSubmitting(false);
-      return;
-    }
+      if (signInError) {
+        setError('Invalid password. Please try again.');
+        return;
+      }
 
+      const { data: factors, error: factorsError } =
+        await supabase.auth.mfa.listFactors();
+      const hasVerifiedMfa =
+        !factorsError &&
+        factors &&
+        factors.totp.some((f) => f.status === 'verified');
     const { data: factors, error: factorsError } =
       await supabase.auth.mfa.listFactors();
     const hasVerifiedMfa =
@@ -54,13 +57,16 @@ export function useSecurityUnlock(onUnlock: () => void) {
       factors &&
       factors.totp.some((f) => f.status === 'verified');
 
-    if (hasVerifiedMfa) {
-      setMode('mfa');
-    } else {
-      onUnlock();
+      if (hasVerifiedMfa) {
+        setMode('mfa');
+      } else {
+        onUnlock();
+      }
+    } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
   };
 
   const handleMfaVerify = async (e: React.FormEvent<HTMLFormElement>) => {

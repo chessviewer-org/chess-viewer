@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { useLocation } from 'react-router-dom';
 
@@ -84,28 +84,58 @@ export function useHomeBoardState() {
     16
   );
 
-  return {
-    fen,
-    setFen,
-    pieceStyle,
-    setPieceStyle,
-    showCoords,
-    setShowCoords,
-    showCoordinateBorder,
-    setShowCoordinateBorder,
-    showThinFrame,
-    setShowThinFrame,
-    lightSquare,
-    setLightSquare,
-    darkSquare,
-    setDarkSquare,
-    boardSize,
-    setBoardSize,
-    flipped,
-    setFlipped,
-    fileName,
-    setFileName,
-    exportQuality,
-    setExportQuality
-  };
+  // Memoize so consumers (and the callbacks that depend on this object) keep a
+  // stable reference while values are unchanged — otherwise a new identity every
+  // render invalidates memo() on the 64-square DnD layer. Setters from
+  // useLocalStorage are already stable, so only the values drive recomputation.
+  return useMemo(
+    () => ({
+      fen,
+      setFen,
+      pieceStyle,
+      setPieceStyle,
+      showCoords,
+      setShowCoords,
+      showCoordinateBorder,
+      setShowCoordinateBorder,
+      showThinFrame,
+      setShowThinFrame,
+      lightSquare,
+      setLightSquare,
+      darkSquare,
+      setDarkSquare,
+      boardSize,
+      setBoardSize,
+      flipped,
+      setFlipped,
+      fileName,
+      setFileName,
+      exportQuality,
+      setExportQuality
+    }),
+    [
+      fen,
+      setFen,
+      pieceStyle,
+      setPieceStyle,
+      showCoords,
+      setShowCoords,
+      showCoordinateBorder,
+      setShowCoordinateBorder,
+      showThinFrame,
+      setShowThinFrame,
+      lightSquare,
+      setLightSquare,
+      darkSquare,
+      setDarkSquare,
+      boardSize,
+      setBoardSize,
+      flipped,
+      setFlipped,
+      fileName,
+      setFileName,
+      exportQuality,
+      setExportQuality
+    ]
+  );
 }
