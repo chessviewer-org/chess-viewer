@@ -54,7 +54,13 @@ export const TrashZone = memo(function TrashZone({
     return (
       <div
         ref={(node) => {
-          if (node) drop(node);
+          drop(node);
+          // Detach the connector on unmount so the backend's node-bound
+          // listeners are removed (see DroppableSquare); otherwise the zone
+          // leaks listeners on every board unmount.
+          return () => {
+            drop(null);
+          };
         }}
         className={`
           transition-all duration-200
@@ -68,7 +74,13 @@ export const TrashZone = memo(function TrashZone({
   return (
     <div
       ref={(node) => {
-        if (node) drop(node);
+        drop(node);
+        // Detach the connector on unmount so the backend's node-bound listeners
+        // are removed (see DroppableSquare); otherwise the zone leaks listeners
+        // on every board unmount.
+        return () => {
+          drop(null);
+        };
       }}
       className={`
         flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5
