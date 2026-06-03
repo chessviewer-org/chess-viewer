@@ -1,7 +1,53 @@
 import { logger } from '@utils/logger';
+import { safeJSONParse } from '@utils/validation';
+import {
+  GUEST_PROFILE_KEY,
+  PROFILE_REFRESH_EVENT
+} from './profileConstants';
+import {
+  isActiveSupporter,
+  type Profile,
+  profileService} from './profileService';
 import { syncStorage } from './syncStorage';
 
 const MIGRATION_LOCK_KEY = 'supabase_migration_complete';
+
+/**
+ * Carries a guest's localStorage profile (display name + supporter window) into
+ * the `profiles` TABLE on first login. Profiles are relational, not KV, so this
+ * goes through profileService — NOT syncStorage/user_data. Only fills the DB
+ * profile when it is still at defaults, so we never clobber an existing cloud
+ * profile (last-write-wins toward the already-registered identity).
+ */
+async function migrateGuestProfile(userId: string): Promise<boolean> {
+  const raw = localStorage.getItem(GUEST_PROFILE_KEY);
+  if (!raw) return false;
+
+  const local = safeJSONParse<Partial<Profile>>(raw, {});
+  const localName = local.displayName?.trim();
+  const localSupporter = isActiveSupporter(local.supporterUntil ?? null);
+  if ((!localName || localName === 'User') && !localSupporter) return false;
+
+  const remote = await profileService.get(userId);
+  // Only seed the cloud profile if it is still default/empty.
+  if (remote && (remote.displayName !== 'User' || remote.supporterUntil)) {
+    return false;
+  }
+
+  let wrote = false;
+  if (localName && localName !== 'User') {
+    await profileService.updateDisplayName(userId, localName);
+    wrote = true;
+  }
+  if (localSupporter && local.supporterUntil) {
+    const remainingMs = new Date(local.supporterUntil).getTime() - Date.now();
+    const months = Math.max(1, Math.ceil(remainingMs / (30 * 24 * 60 * 60 * 1000)));
+    await profileService.setSupporter(months);
+    wrote = true;
+  }
+  if (wrote) logger.log('Migrated guest profile to cloud.');
+  return wrote;
+}
 
 /**
  * Migration service to move local anonymous data to Supabase after login.
@@ -30,6 +76,13 @@ export const dataMigration = {
             logger.log(`Migrated key: ${key}`);
           }
         }
+      }
+
+      const profileSeeded = await migrateGuestProfile(userId);
+      if (profileSeeded) {
+        // Tell the shared ProfileProvider to re-fetch so the migrated name /
+        // supporter status appears immediately, without a page reload.
+        window.dispatchEvent(new Event(PROFILE_REFRESH_EVENT));
       }
 
       localStorage.setItem(`${MIGRATION_LOCK_KEY}_${userId}`, 'true');
