@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { PIECE_MAP } from '@constants';
 
@@ -87,15 +87,9 @@ export function usePieceImages(pieceStyle: string): {
     };
   }, [pieceStyle]);
 
-  return useMemo(
-    () => ({
-      pieceImages,
-      isLoading,
-      error,
-      loadProgress
-    }),
-    [pieceImages, isLoading, error, loadProgress]
-  );
+  // All four fields are state that change together, so memoizing the wrapper
+  // object would never preserve a stable reference — return it directly.
+  return { pieceImages, isLoading, error, loadProgress };
 }
 
 /**
