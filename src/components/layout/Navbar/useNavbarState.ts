@@ -23,9 +23,6 @@ export function useNavbarState() {
   >('signin');
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [openSubmenu, setOpenSubmenu] = useState<'settings' | 'theme' | null>(
-    null
-  );
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const navigate = useNavigate();
@@ -77,8 +74,6 @@ export function useNavbarState() {
     authModalTab,
     isDropdownOpen,
     setIsDropdownOpen,
-    openSubmenu,
-    setOpenSubmenu,
     dropdownRef,
     handleLogoClick,
     handleHelpClick,
