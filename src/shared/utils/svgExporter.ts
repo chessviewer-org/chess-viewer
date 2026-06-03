@@ -11,6 +11,15 @@ import { sanitizeFileName, sanitizeInput } from './validation';
 const SVG_BOARD_PX = 800;
 const SVG_COORD_BORDER_RATIO = 0.05;
 
+/** Escapes a value for safe interpolation into a double-quoted XML attribute. */
+function escapeXmlAttr(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 /** Board render settings for the SVG export path. */
 interface SVGExportConfig {
   boardSize: number;
@@ -160,7 +169,7 @@ export async function generateBoardSVG(
       const x = boardX + visCol * squarePx;
       const y = boardY + visRow * squarePx;
       parts.push(
-        `<image href="${dataURL}" x="${x}" y="${y}" ` +
+        `<image href="${escapeXmlAttr(dataURL)}" x="${x}" y="${y}" ` +
           `width="${squarePx}" height="${squarePx}" ` +
           `image-rendering="optimizeQuality"/>`
       );
