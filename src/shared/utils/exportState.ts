@@ -23,6 +23,12 @@ export let exportState: ExportState = {
 /** Cancel function for the currently active worker raster task, if any. */
 export let activeRasterTaskCancel: (() => void) | null = null;
 
+/** Registers the cancel handle of the in-flight worker raster task so that
+ *  cancelExport() can actually stop it. */
+export function setActiveRasterTask(cancel: () => void) {
+  activeRasterTaskCancel = cancel;
+}
+
 /** Clears the active raster task cancel handle after it resolves or is cancelled. */
 export function clearActiveRasterTask() {
   activeRasterTaskCancel = null;
