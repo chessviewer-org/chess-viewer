@@ -89,18 +89,19 @@ async function createCanvasRasterBlob(
     throw new Error('Failed to get 2D context for JPEG conversion');
   }
 
-  ctx.fillStyle = '#FFFFFF';
-  ctx.fillRect(0, 0, jpegCanvas.width, jpegCanvas.height);
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
-  ctx.drawImage(canvas, 0, 0);
-
-  setProgress(onProgress, 60, 'JPEG background ready');
-  await waitWhilePaused();
-  checkCancellation();
   try {
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, jpegCanvas.width, jpegCanvas.height);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(canvas, 0, 0);
+
+    setProgress(onProgress, 60, 'JPEG background ready');
+    await waitWhilePaused();
+    checkCancellation();
     return await canvasToBlob(jpegCanvas, 'image/jpeg', 0.92);
   } finally {
+    // Release on every exit — draw/pause/cancel can throw before the blob call.
     jpegCanvas.width = 0;
     jpegCanvas.height = 0;
   }
