@@ -40,14 +40,14 @@ function imageToDataURL(img: HTMLImageElement): Promise<string> {
     try {
       const ctx = canvas.getContext('2d');
       if (!ctx) {
-        resolve('');
+        resolve(FALLBACK_PIECE_DATA_URL);
         return;
       }
       ctx.drawImage(img, 0, 0, size, size);
       resolve(canvas.toDataURL('image/png'));
     } catch (err) {
       logger.warn('SVG export: failed to convert piece image to base64:', err);
-      resolve('');
+      resolve(FALLBACK_PIECE_DATA_URL);
     } finally {
       canvas.width = 0;
       canvas.height = 0;
