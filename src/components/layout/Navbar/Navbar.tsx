@@ -8,6 +8,7 @@ import HelpCenter from '@/components/panels/HelpCenter';
 
 import { NavbarDesktopDropdown } from './parts/NavbarDesktopDropdown';
 import { NavbarMobileMenu } from './parts/NavbarMobileMenu';
+import { ThemeToggle } from './parts/ThemeToggle';
 import { useNavbarState } from './useNavbarState';
 
 const AuthModal = lazy(() =>
@@ -28,15 +29,12 @@ function Navbar({ theme, toggleTheme, rightSlot }: NavbarProps) {
     isHelpOpen,
     isMobileMenuOpen,
     setIsMobileMenuOpen,
-    session,
     isAuthenticated,
     isAuthModalOpen,
     setIsAuthModalOpen,
     authModalTab,
     isDropdownOpen,
     setIsDropdownOpen,
-    openSubmenu,
-    setOpenSubmenu,
     dropdownRef,
     handleLogoClick,
     handleHelpClick,
@@ -55,7 +53,7 @@ function Navbar({ theme, toggleTheme, rightSlot }: NavbarProps) {
         className="fixed top-0 left-0 right-0 z-50 bg-bg"
       >
         <div className="w-[88%] max-w-600 mx-auto">
-          <div className="flex justify-between items-center h-12 sm:h-14 lg:h-16 3xl:h-16">
+          <div className="flex justify-between items-center py-3 min-h-12 sm:min-h-14 lg:min-h-16">
             <button
               onClick={handleLogoClick}
               className="flex items-center gap-2 transition-colors duration-200 text-text-primary hover:text-accent"
@@ -80,15 +78,12 @@ function Navbar({ theme, toggleTheme, rightSlot }: NavbarProps) {
             <div className="hidden sm:flex items-center gap-1.5">
               {rightSlot}
 
+              <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+
               <NavbarDesktopDropdown
-                theme={theme}
-                toggleTheme={toggleTheme}
                 isAuthenticated={isAuthenticated}
-                session={session}
                 isDropdownOpen={isDropdownOpen}
                 setIsDropdownOpen={setIsDropdownOpen}
-                openSubmenu={openSubmenu}
-                setOpenSubmenu={setOpenSubmenu}
                 dropdownRef={dropdownRef}
                 openAuthModal={openAuthModal}
                 handleSignOut={handleSignOut}
@@ -118,7 +113,6 @@ function Navbar({ theme, toggleTheme, rightSlot }: NavbarProps) {
           theme={theme}
           toggleTheme={toggleTheme}
           isAuthenticated={isAuthenticated}
-          session={session}
           setIsMobileMenuOpen={setIsMobileMenuOpen}
           openAuthModal={openAuthModal}
           handleSignOut={handleSignOut}

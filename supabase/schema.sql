@@ -108,6 +108,12 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     UNIQUE (user_id)
 );
 
+-- Additive: supporter status as an expiring timestamp. A profile is a current
+-- supporter iff supporter_until > now() (derived at render — self-expiring, no
+-- cron). NULL = never/expired. Display-only badge for voluntary donors; not an
+-- access boundary.
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS supporter_until TIMESTAMPTZ;
+
 CREATE INDEX IF NOT EXISTS idx_profiles_user_id ON public.profiles(user_id);
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
@@ -858,16 +864,11 @@ $$ LANGUAGE plpgsql
 -- ===========================================================================
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
-DECLARE
-    local_part TEXT;
-    safe_name  TEXT;
 BEGIN
-    -- Derive the email local-part only when an email actually exists.
-    local_part := NULLIF(split_part(COALESCE(new.email, ''), '@', 1), '');
-    safe_name  := left(COALESCE(local_part, 'player_' || left(new.id::text, 8)), 100);
-
+    -- display_name defaults to 'User' for every new signup (the app's unified
+    -- profile model lets the user rename it later). email still stored as-is.
     INSERT INTO public.profiles (user_id, email, display_name)
-    VALUES (new.id, new.email, safe_name)  -- new.email may be NULL — allowed.
+    VALUES (new.id, new.email, 'User')  -- new.email may be NULL — allowed.
     ON CONFLICT (user_id) DO NOTHING;
 
     INSERT INTO public.user_security (user_id)
@@ -884,6 +885,47 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- ===========================================================================
+-- FUNCTION: set_supporter_status — set/clear the caller's supporter window.
+--
+-- months > 0  → supporter_until = NOW() + months (extends a voluntary-donation
+--               period; the badge shows until it lapses, then auto-reverts since
+--               status is derived from supporter_until > now()).
+-- months <= 0 → clears supporter_until (NULL).
+--
+-- Display-only badge, not an entitlement gate. Kept as an RPC so the +interval
+-- math stays server-side and atomic; RLS already lets users update own profile.
+-- ===========================================================================
+CREATE OR REPLACE FUNCTION public.set_supporter_status(months INT DEFAULT 1)
+RETURNS TIMESTAMPTZ AS $$
+DECLARE
+    new_until TIMESTAMPTZ;
+BEGIN
+    IF auth.uid() IS NULL THEN
+        RAISE EXCEPTION 'Not authenticated';
+    END IF;
+
+    -- Defensive: ensure a profile row exists (handle_new_user normally creates it).
+    INSERT INTO public.profiles (user_id, display_name)
+    VALUES (auth.uid(), 'User')
+    ON CONFLICT (user_id) DO NOTHING;
+
+    new_until := CASE
+        WHEN months > 0 THEN NOW() + (months || ' months')::interval
+        ELSE NULL
+    END;
+
+    UPDATE public.profiles
+    SET supporter_until = new_until,
+        updated_at      = NOW()
+    WHERE user_id = auth.uid();
+
+    RETURN new_until;
+END;
+$$ LANGUAGE plpgsql
+   SECURITY DEFINER
+   SET search_path = public, pg_temp;
 
 -- ===========================================================================
 -- TABLE: db_search_cache  (PDB/YACPDB lookup cache for the edge proxy)

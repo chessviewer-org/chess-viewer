@@ -218,7 +218,7 @@ function App() {
             <main
               id="main-content"
               tabIndex={-1}
-              className={`flex-1 min-h-0 overflow-x-hidden overflow-y-auto focus:outline-none ${!isToolPage ? 'mt-12 sm:mt-14 lg:mt-16' : ''}`}
+              className={`flex-1 min-h-0 overflow-x-hidden overflow-y-auto focus:outline-none ${!isToolPage ? 'mt-[4.5rem] sm:mt-[5rem] lg:mt-[5.5rem]' : ''}`}
             >
               {isLoading ? (
                 <div className="flex h-full items-center justify-center">
