@@ -47,7 +47,6 @@ export function useSecurityUnlock(onUnlock: () => void) {
       return;
     }
 
-    // Check if MFA is enabled
     const { data: factors, error: factorsError } =
       await supabase.auth.mfa.listFactors();
     const hasVerifiedMfa =
