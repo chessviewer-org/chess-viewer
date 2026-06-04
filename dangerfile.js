@@ -1,18 +1,18 @@
 /**
- * dangerfile.js — automated PR governance for ChessVision.
+ * dangerfile.js — automated PR checks for ChessVision.
  *
- * Runs in CI via `pnpm danger ci` on pull_request events. Enforces the
- * engineering standards documented in CONTRIBUTING.md:
+ * Runs in CI via `pnpm danger ci` on pull_request events. These checks mirror
+ * what's described in CONTRIBUTING.md and exist to give contributors fast,
+ * friendly feedback before a human review:
  *
  *   1. PR title follows Conventional Commits (types kept in sync with
  *      .commitlintrc.json).
- *   2. Source changes ship with test changes (mandatory testing).
+ *   2. Source changes ship with test changes.
  *   3. PR has a meaningful description.
- *   4. PR stays reasonably scoped (atomic — warns on sprawling diffs).
- *   5. lib/tooling invariants surfaced as reminders (lint zero-warning,
- *      lockfile sync, FEN parser tests).
+ *   4. PR stays small and focused (warns on sprawling diffs).
+ *   5. Handy reminders (lockfile sync, FEN parser tests).
  *
- * `fail()` blocks the PR; `warn()` / `message()` are advisory.
+ * `fail()` asks for a change before merge; `warn()` / `message()` are advisory.
  */
 
 import { danger, fail, markdown, message, warn } from 'danger';
@@ -81,9 +81,9 @@ if (sourceChanges.length > 0 && testChanges.length === 0) {
     [
       '**Source changed but no tests were added or updated.**',
       '',
-      'This project mandates tests for behavioral changes. If this PR changes',
-      'logic, add or update a co-located `*.test.ts`. If it is purely',
-      'cosmetic/refactor with no behavior change, say so in the description.'
+      'If this PR changes behavior, please add or update a co-located',
+      '`*.test.ts`. If it is a pure refactor or cosmetic change with no',
+      'behavior change, just note that in the description.'
     ].join('\n')
   );
 }
@@ -120,8 +120,8 @@ const BIG_PR_FILE_COUNT = 40;
 
 if (allChanged.length > BIG_PR_FILE_COUNT) {
   warn(
-    `**Large PR:** ${allChanged.length} files changed. Consider splitting into ` +
-      'smaller, atomic PRs (one logical task each) for reviewability.'
+    `**Large PR:** ${allChanged.length} files changed. If you can, split this ` +
+      'into smaller PRs (one change each) — they are much easier to review.'
   );
 }
 

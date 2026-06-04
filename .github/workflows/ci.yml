@@ -1,18 +1,14 @@
-name: CI Pipeline
+name: CI
 
 on:
   push:
-    branches:
-      - master
-      - develop
+    branches: [master, develop]
     paths-ignore:
       - '**.md'
       - 'docs/**'
       - '.github/ISSUE_TEMPLATE/**'
   pull_request:
-    branches:
-      - master
-      - develop
+    branches: [master, develop]
     paths-ignore:
       - '**.md'
       - 'docs/**'
@@ -22,46 +18,78 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  NODE_VERSION: '20'
-  PNPM_VERSION: '10.33.0'
+permissions:
+  contents: read
 
 jobs:
-  quality-check:
-    name: Code Quality Check
+  quality:
+    name: Lint, Types, Format & Test
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+          node-version-file: .nvmrc
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run ESLint
-        run: pnpm lint:ci
-        continue-on-error: false
+      - name: Type check
+        run: pnpm typecheck
 
-      - name: Check Prettier formatting
+      - name: Lint
+        run: pnpm lint:ci
+
+      - name: Format check
         run: pnpm format:ci
-        continue-on-error: false
+
+      - name: Unit tests
+        run: pnpm test
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7
 
   danger:
-    name: PR Governance (Danger)
+    name: PR Checks
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
-
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -70,14 +98,12 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+          node-version-file: .nvmrc
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -87,79 +113,25 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  build:
-    name: Build Application
+  security-audit:
+    name: Dependency Audit
     runs-on: ubuntu-latest
-    needs: quality-check
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+          node-version-file: .nvmrc
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build project
-        run: pnpm build
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-output
-          path: dist/
-          retention-days: 7
-
-  security-audit:
-    name: Security Audit
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Run pnpm audit
-        run: pnpm audit --audit-level=moderate
+      - name: Audit dependencies
+        run: pnpm audit --audit-level=high
         continue-on-error: true
-
-  summary:
-    name: Pipeline Summary
-    runs-on: ubuntu-latest
-    needs: [quality-check, build, security-audit]
-    if: always()
-
-    steps:
-      - name: Check job statuses
-        run: |
-          echo "CI Pipeline Summary"
-          echo "=================="
-          echo "Code Quality: ${{ needs.quality-check.result }}"
-          echo "Build: ${{ needs.build.result }}"
-          echo "Security Audit: ${{ needs.security-audit.result }}"
-
-          if [ "${{ needs.quality-check.result }}" != "success" ] || [ "${{ needs.build.result }}" != "success" ]; then
-            echo "Pipeline failed - check logs above"
-            exit 1
-          fi
-
-          echo "Pipeline completed successfully"
