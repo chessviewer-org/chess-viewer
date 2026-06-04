@@ -1,248 +1,49 @@
 name: Bug Report
-description: Report a bug or issue with ChessVision
+description: Something is broken or not working as expected
 title: '[Bug]: '
 labels: ['bug', 'needs-triage']
-assignees:
-  - BilgeGates
 
 body:
-  - type: markdown
-    attributes:
-      value: |
-        ## 🐛 Thanks for reporting a bug!
-
-        Your feedback helps us improve ChessVision. Please provide detailed information about the issue you encountered.
-
-        **Before submitting:**
-        - Search existing issues to avoid duplicates
-        - Try the latest version at [chess-vision-site.vercel.app](https://chess-vision-site.vercel.app)
-        - Check browser console for errors (F12 → Console tab)
-
   - type: textarea
-    id: description
+    id: what-happened
     attributes:
-      label: Bug Description
-      description: A clear and concise description of what the bug is
-      placeholder: |
-        Example: "Board pieces are not rendering correctly when using custom theme colors"
+      label: What happened?
+      description: What went wrong, and what did you expect instead?
+      placeholder: Pieces disappear after exporting to PNG. Expected the full board.
     validations:
       required: true
 
   - type: textarea
     id: reproduce
     attributes:
-      label: Steps to Reproduce
-      description: Detailed steps to reproduce the behavior
+      label: Steps to reproduce
       placeholder: |
-        1. Navigate to the main page
-        2. Enter FEN notation: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-        3. Select piece style "Alpha"
-        4. Click "Export as PNG"
-        5. Observe the error/issue
-    validations:
-      required: true
-
-  - type: textarea
-    id: expected
-    attributes:
-      label: Expected Behavior
-      description: What you expected to happen
-      placeholder: 'The board should export as a high-quality PNG with all pieces visible...'
-    validations:
-      required: true
-
-  - type: textarea
-    id: actual
-    attributes:
-      label: Actual Behavior
-      description: What actually happened (include any error messages)
-      placeholder: 'Instead, the export only shows an empty board without pieces...'
+        1. Enter FEN ...
+        2. Click Export
+        3. ...
     validations:
       required: true
 
   - type: input
-    id: fen
+    id: environment
     attributes:
-      label: FEN String (if applicable)
-      description: The FEN notation you were using when the bug occurred
-      placeholder: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-
-  - type: dropdown
-    id: component
-    attributes:
-      label: Affected Component
-      description: Which part of the application is affected?
-      options:
-        - Board Rendering
-        - FEN Input/Validation
-        - Piece Styles
-        - Theme/Colors
-        - Export (PNG/JPEG)
-        - Board Controls (Flip, Coordinates)
-        - History/Favorites
-        - UI/Layout
-        - Mobile Interface
-        - Performance
-        - Other
+      label: Browser & OS
+      description: Helps us reproduce. Include versions if known.
+      placeholder: Chrome 121 on Windows 11 / Safari 17 on iOS
     validations:
       required: true
-
-  - type: dropdown
-    id: browser
-    attributes:
-      label: Browser
-      description: Which browser are you using?
-      options:
-        - Chrome/Chromium
-        - Firefox
-        - Safari
-        - Edge
-        - Opera
-        - Brave
-        - Other
-    validations:
-      required: true
-
-  - type: input
-    id: browser-version
-    attributes:
-      label: Browser Version
-      description: What version of the browser? (Help → About or Settings)
-      placeholder: 'e.g., Chrome 121.0.6167.85'
-    validations:
-      required: true
-
-  - type: dropdown
-    id: os
-    attributes:
-      label: Operating System
-      description: What OS are you using?
-      options:
-        - Windows 11
-        - Windows 10
-        - macOS Sonoma (14.x)
-        - macOS Ventura (13.x)
-        - macOS Monterey (12.x)
-        - Ubuntu/Linux
-        - iOS 17
-        - iOS 16
-        - Android 14
-        - Android 13
-        - Other
-    validations:
-      required: true
-
-  - type: dropdown
-    id: device
-    attributes:
-      label: Device Type
-      description: What type of device are you using?
-      options:
-        - Desktop (Windows)
-        - Desktop (Mac)
-        - Desktop (Linux)
-        - Laptop (Windows)
-        - Laptop (Mac)
-        - Tablet (iPad)
-        - Tablet (Android)
-        - Mobile Phone (iOS)
-        - Mobile Phone (Android)
-    validations:
-      required: true
-
-  - type: input
-    id: screen-resolution
-    attributes:
-      label: Screen Resolution (optional)
-      description: Your screen resolution if the bug is visual
-      placeholder: 'e.g., 1920x1080, 2560x1440'
 
   - type: textarea
-    id: screenshots
+    id: console
     attributes:
-      label: Screenshots / Screen Recording
-      description: |
-        Visual evidence helps tremendously! 
-        - Drag and drop images here
-        - Paste image URLs
-        - Include browser console screenshots if there are errors (F12 → Console)
-      placeholder: |
-        Paste images or URLs here...
-
-  - type: textarea
-    id: console-errors
-    attributes:
-      label: Browser Console Errors
-      description: |
-        Open Developer Tools (F12 or Cmd+Opt+I) → Console tab
-        Copy any red error messages or warnings
-      placeholder: |
-        Example:
-        Uncaught TypeError: Cannot read property 'image' of undefined
-            at ChessBoard.jsx:145
+      label: Console errors (optional)
+      description: Open DevTools (F12) → Console and paste any red errors.
       render: shell
 
-  - type: dropdown
-    id: severity
-    attributes:
-      label: Bug Severity
-      description: How severe is this bug for your use case?
-      options:
-        - Critical - Application is completely unusable
-        - High - Major feature is broken or data loss occurs
-        - Medium - Feature works partially or has workarounds
-        - Low - Minor visual issue or cosmetic problem
-    validations:
-      required: true
-
-  - type: dropdown
-    id: frequency
-    attributes:
-      label: Frequency
-      description: How often does this bug occur?
-      options:
-        - Always (100% reproducible)
-        - Frequently (>50% of the time)
-        - Sometimes (Intermittent)
-        - Rarely (Happened once or twice)
-    validations:
-      required: true
-
   - type: checkboxes
-    id: checklist
+    id: confirm
     attributes:
-      label: Pre-submission Checklist
-      description: Please confirm you have completed these steps
+      label: Before submitting
       options:
-        - label: I have searched existing issues and this is not a duplicate
+        - label: I searched existing issues and this is not a duplicate.
           required: true
-        - label: I have tested on the latest version (https://chess-vision-site.vercel.app)
-          required: true
-        - label: I have provided detailed steps to reproduce
-          required: true
-        - label: I have checked the browser console for errors
-          required: true
-        - label: I have included screenshots/recordings if the issue is visual
-          required: false
-
-  - type: textarea
-    id: workaround
-    attributes:
-      label: Workaround (if any)
-      description: Have you found any temporary workaround for this issue?
-      placeholder: 'Using a different piece style works, or refreshing the page fixes it temporarily...'
-
-  - type: textarea
-    id: additional
-    attributes:
-      label: Additional Context
-      description: |
-        Any other relevant information:
-        - Network conditions (slow connection, VPN, etc.)
-        - Browser extensions that might interfere
-        - Specific settings or customizations
-        - Related issues or discussions
-      placeholder: |
-        - Using VPN connection
-        - Have Dark Reader extension enabled
-        - Custom board size set to 1200px

@@ -1,229 +1,37 @@
 name: Feature Request
-description: Suggest a new feature or enhancement for ChessVision
+description: Suggest an improvement or new capability
 title: '[Feature]: '
 labels: ['enhancement', 'needs-review']
-assignees:
-  - BilgeGates
 
 body:
-  - type: markdown
-    attributes:
-      value: |
-        ## 💡 Thanks for suggesting a feature!
-
-        Your ideas help shape the future of ChessVision. Please provide detailed information about your feature request.
-
-        **Before submitting:**
-        - Check existing feature requests to avoid duplicates
-        - Review the [project roadmap](https://github.com/BilgeGates/chess-vision/issues) if available
-        - Consider if this aligns with the project's goals (chess diagram generation and export)
-
-  - type: textarea
-    id: feature-description
-    attributes:
-      label: Feature Description
-      description: A clear and concise description of the feature you'd like to see
-      placeholder: |
-        Example: "Add support for SVG export format with customizable stroke width and colors"
-    validations:
-      required: true
-
   - type: textarea
     id: problem
     attributes:
-      label: Problem Statement
-      description: What problem does this feature solve? What limitation are you facing?
-      placeholder: |
-        Example: "I'm creating chess tutorials and need vector graphics for scalability. 
-        Current PNG exports become pixelated when scaled up for print materials."
+      label: What problem does this solve?
+      description: The limitation or pain point you're hitting today.
+      placeholder: PNG exports get pixelated when scaled up for print.
     validations:
       required: true
 
   - type: textarea
     id: solution
     attributes:
-      label: Proposed Solution
-      description: How would you like this feature to work? Be specific about the user experience.
-      placeholder: |
-        Example: 
-        1. Add "SVG" option to export format dropdown
-        2. Include additional settings panel for SVG-specific options
-        3. Export button generates downloadable .svg file
-        4. SVG should include proper chess piece paths and preserve all styling
+      label: Proposed solution
+      description: What should happen? A rough idea is fine.
+      placeholder: Add an "SVG" option to the export dropdown.
     validations:
       required: true
 
   - type: textarea
-    id: alternatives
+    id: context
     attributes:
-      label: Alternatives Considered
-      description: Have you considered any alternative solutions or workarounds?
-      placeholder: |
-        Example: "I currently export as PNG at maximum resolution then trace in Illustrator, 
-        but this is time-consuming and loses quality."
-
-  - type: dropdown
-    id: category
-    attributes:
-      label: Feature Category
-      description: Which category best describes this feature?
-      options:
-        - Board Rendering & Display
-        - FEN/PGN Notation Support
-        - Export Formats (PNG/JPEG/SVG)
-        - Import Functionality
-        - UI/UX Enhancement
-        - Piece Styles & Themes
-        - Board Customization
-        - Color & Theme System
-        - Performance Optimization
-        - Accessibility Features
-        - Mobile/Touch Support
-        - Annotation & Arrows
-        - Batch Processing
-        - Integration/API
-        - Documentation
-        - Other
-    validations:
-      required: true
-
-  - type: dropdown
-    id: priority
-    attributes:
-      label: Priority for You
-      description: How important is this feature to your workflow?
-      options:
-        - Critical - Blocking my current work
-        - High - Would significantly improve my workflow
-        - Medium - Nice to have, would use regularly
-        - Low - Minor enhancement, rarely needed
-    validations:
-      required: true
-
-  - type: textarea
-    id: use-case
-    attributes:
-      label: Use Case & User Story
-      description: Describe specifically how you would use this feature
-      placeholder: |
-        As a [chess coach / content creator / book author / student / etc.],
-        I want to [specific action],
-        So that I can [achieve specific goal].
-
-        Example:
-        "As a chess book author, I want to export positions as SVG files 
-        so that I can maintain perfect quality in print publications and easily 
-        edit diagrams in Adobe InDesign."
-    validations:
-      required: true
-
-  - type: textarea
-    id: examples
-    attributes:
-      label: Examples, Mockups, or References
-      description: |
-        Provide visual examples or references to help illustrate the feature
-        - Links to similar features in other chess applications
-        - Mockup images or sketches
-        - Screenshots showing expected behavior
-        - Video demonstrations
-      placeholder: |
-        - Similar to how Lichess.org exports SVG diagrams
-        - See attached mockup of proposed UI
-        - Reference: https://example.com/feature-demo
+      label: Context (optional)
+      description: Mockups, links, examples, or alternatives you considered.
 
   - type: checkboxes
-    id: target-users
+    id: confirm
     attributes:
-      label: Who Would Benefit?
-      description: Select all user groups that would benefit from this feature
+      label: Before submitting
       options:
-        - label: Chess players (casual and competitive)
-        - label: Chess coaches and trainers
-        - label: Content creators (YouTube, blogs, etc.)
-        - label: Chess book authors and publishers
-        - label: Tournament organizers
-        - label: Students and learners
-        - label: Streamers and broadcasters
-        - label: Developers and integrators
-        - label: Educators and teachers
-        - label: All users
-
-  - type: dropdown
-    id: complexity
-    attributes:
-      label: Estimated Implementation Complexity
-      description: Based on your understanding, how complex is this feature?
-      options:
-        - Simple - Minor UI change or small addition
-        - Medium - New functionality with moderate effort
-        - Complex - Major feature requiring significant development
-        - Very Complex - Fundamental architectural changes needed
-        - I don't know / Not sure
-
-  - type: dropdown
-    id: impact
-    attributes:
-      label: Expected Impact
-      description: How much would this feature improve the application?
-      options:
-        - High Impact - Game-changing feature, adds major value
-        - Medium Impact - Solid improvement, nice addition
-        - Low Impact - Small enhancement, minor value add
-
-  - type: checkboxes
-    id: contribution
-    attributes:
-      label: Contribution Willingness
-      description: Would you be willing to help implement or test this feature?
-      options:
-        - label: I can contribute code / implementation help
-        - label: I can create designs, mockups, or specifications
-        - label: I can help with testing and quality assurance
-        - label: I can provide feedback during development
-        - label: I can write documentation for this feature
-
-  - type: textarea
-    id: technical-details
-    attributes:
-      label: Technical Considerations (optional)
-      description: |
-        If you have technical knowledge, describe:
-        - Suggested implementation approach
-        - Required libraries or dependencies
-        - Performance considerations
-        - Browser compatibility concerns
-      placeholder: |
-        Example: "Could use the Fabric.js library for SVG manipulation. 
-        Need to ensure compatibility with Safari's SVG rendering."
-
-  - type: checkboxes
-    id: checklist
-    attributes:
-      label: Pre-submission Checklist
-      description: Please confirm the following
-      options:
-        - label: I have searched existing feature requests to avoid duplicates
+        - label: I searched existing requests and this is not a duplicate.
           required: true
-        - label: This feature aligns with ChessVision's core purpose
-          required: true
-        - label: I have provided sufficient detail for the feature to be understood
-          required: true
-        - label: I have included use cases and user stories
-          required: true
-
-  - type: textarea
-    id: additional
-    attributes:
-      label: Additional Context
-      description: |
-        Any other relevant information:
-        - Related issues or feature requests
-        - Industry standards or best practices
-        - Competitive analysis (similar tools)
-        - Budget considerations (if applicable)
-        - Timeline expectations
-      placeholder: |
-        - Related to issue #123
-        - This is a common feature in Lichess and Chess.com
-        - Would make the tool competitive with professional chess software
