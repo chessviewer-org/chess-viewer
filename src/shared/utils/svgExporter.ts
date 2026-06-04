@@ -70,8 +70,7 @@ export async function generateBoardSVG(
   const withBorder =
     withCoords &&
     (showCoordinateBorder || shouldForceCoordinateBorder(exportQuality));
-  const withFrame =
-    !!showThinFrame && getExportMode(exportQuality) === 'print';
+  const withFrame = !!showThinFrame && getExportMode(exportQuality) === 'print';
   const framePx = withFrame ? Math.max(2, Math.round(boardPx * 0.003)) * 2 : 0;
 
   const totalWidth = borderPx + boardPx + framePx;

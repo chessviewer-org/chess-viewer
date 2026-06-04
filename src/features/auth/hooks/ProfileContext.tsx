@@ -10,11 +10,9 @@ import {
   DEFAULT_PROFILE,
   isActiveSupporter,
   type Profile,
-  profileService} from '../services/profileService';
-import {
-  ProfileContext,
-  type ProfileContextValue
-} from './profileContextDef';
+  profileService
+} from '../services/profileService';
+import { ProfileContext, type ProfileContextValue } from './profileContextDef';
 import { useAuth } from './useAuth';
 
 /**

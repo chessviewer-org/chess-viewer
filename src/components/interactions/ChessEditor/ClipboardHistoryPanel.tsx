@@ -303,7 +303,11 @@ const ClipboardHistoryPanel = memo(function ClipboardHistoryPanel({
             rowProps={itemData}
             rowComponent={Row}
             className="history-scrollbar"
-            style={{ height: listHeight, maxHeight: LIST_MAX_HEIGHT, width: '100%' }}
+            style={{
+              height: listHeight,
+              maxHeight: LIST_MAX_HEIGHT,
+              width: '100%'
+            }}
           />
         )}
       </div>

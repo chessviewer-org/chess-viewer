@@ -17,7 +17,9 @@ export const ThemeToggle = memo(function ThemeToggle({
     <button
       onClick={(e) => toggleTheme(e)}
       className="p-2 min-h-11 min-w-11 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-hover active:bg-surface-elevated transition-colors duration-200"
-      aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+      aria-label={
+        theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'
+      }
     >
       {theme === 'dark' ? (
         <Moon className="w-5 h-5" />

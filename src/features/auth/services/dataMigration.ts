@@ -1,13 +1,11 @@
 import { logger } from '@utils/logger';
 import { safeJSONParse } from '@utils/validation';
-import {
-  GUEST_PROFILE_KEY,
-  PROFILE_REFRESH_EVENT
-} from './profileConstants';
+import { GUEST_PROFILE_KEY, PROFILE_REFRESH_EVENT } from './profileConstants';
 import {
   isActiveSupporter,
   type Profile,
-  profileService} from './profileService';
+  profileService
+} from './profileService';
 import { syncStorage } from './syncStorage';
 
 const MIGRATION_LOCK_KEY = 'supabase_migration_complete';
@@ -41,7 +39,10 @@ async function migrateGuestProfile(userId: string): Promise<boolean> {
   }
   if (localSupporter && local.supporterUntil) {
     const remainingMs = new Date(local.supporterUntil).getTime() - Date.now();
-    const months = Math.max(1, Math.ceil(remainingMs / (30 * 24 * 60 * 60 * 1000)));
+    const months = Math.max(
+      1,
+      Math.ceil(remainingMs / (30 * 24 * 60 * 60 * 1000))
+    );
     await profileService.setSupporter(months);
     wrote = true;
   }
