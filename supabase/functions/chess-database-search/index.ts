@@ -158,7 +158,10 @@ type FetchAttempt =
   | { kind: 'transient' };
 
 /** One time-boxed fetch attempt, classified for the retry loop. */
-async function fetchOnce(url: string, init?: RequestInit): Promise<FetchAttempt> {
+async function fetchOnce(
+  url: string,
+  init?: RequestInit
+): Promise<FetchAttempt> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   try {
@@ -199,7 +202,10 @@ async function fetchOnce(url: string, init?: RequestInit): Promise<FetchAttempt>
  * Returns the body text, or null once the position is a terminal miss or the
  * retry budget is exhausted.
  */
-async function fetchText(url: string, init?: RequestInit): Promise<string | null> {
+async function fetchText(
+  url: string,
+  init?: RequestInit
+): Promise<string | null> {
   for (let attempt = 0; attempt <= RETRY_ATTEMPTS; attempt++) {
     const outcome = await fetchOnce(url, init);
     if (outcome.kind === 'ok') return outcome.text;
@@ -431,7 +437,9 @@ async function searchYacpdb(
     const apiUrl = `https://www.yacpdb.org/gateway/ql?q=${encodeURIComponent(
       query
     )}`;
-    const text = await fetchText(apiUrl, { headers: { Accept: 'application/json' } });
+    const text = await fetchText(apiUrl, {
+      headers: { Accept: 'application/json' }
+    });
     if (text === null) {
       TRACE('YACPDB', 'fetch', 'null (timeout/exhausted) → NOT_FOUND');
       return NOT_FOUND;
@@ -471,21 +479,16 @@ async function searchYacpdb(
       const eset = entryPieceSet(entries[i] as YacEntry);
       const hit = sameSet(eset, want);
       // Log per-entry so a near-miss (e.g. a token-format bug) is visible.
-      TRACE(
-        'YACPDB',
-        `entry[${i}]`,
-        'match',
-        hit,
-        'set',
-        [...eset].sort()
-      );
+      TRACE('YACPDB', `entry[${i}]`, 'match', hit, 'set', [...eset].sort());
       if (hit) {
         exact = true;
         break;
       }
     }
     TRACE('YACPDB', 'exactMatch', exact);
-    return exact ? { found: true, database: 'YACPDB', url: humanUrl } : NOT_FOUND;
+    return exact
+      ? { found: true, database: 'YACPDB', url: humanUrl }
+      : NOT_FOUND;
   } catch (err) {
     console.error('YACPDB parse error:', err);
     return NOT_FOUND;
