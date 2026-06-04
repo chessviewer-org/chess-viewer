@@ -1,0 +1,69 @@
+# Single source of truth for repository labels.
+# Synced to GitHub by .github/workflows/label-sync.yml whenever this file
+# changes on master. Edit here, not in the GitHub UI.
+
+# --- Type ---
+- name: bug
+  color: d73a4a
+  description: Something is not working
+- name: enhancement
+  color: a2eeef
+  description: New feature or request
+- name: documentation
+  color: 0075ca
+  description: Documentation only
+- name: performance
+  color: fbca04
+  description: Performance improvement
+- name: refactor
+  color: cfd3d7
+  description: Code change with no behavior change
+- name: tests
+  color: bfd4f2
+  description: Adding or updating tests
+- name: dependencies
+  color: 0366d6
+  description: Dependency updates
+- name: chore
+  color: ededed
+  description: Tooling and maintenance
+
+# --- Area ---
+- name: 'area: board'
+  color: 5319e7
+  description: Board rendering and drag-and-drop
+- name: 'area: fen'
+  color: 5319e7
+  description: FEN parsing and input
+- name: 'area: export'
+  color: 5319e7
+  description: Canvas / SVG export pipeline
+- name: 'area: auth'
+  color: 5319e7
+  description: Auth, Supabase, and cloud sync
+- name: 'area: history'
+  color: 5319e7
+  description: FEN history
+- name: 'area: ui'
+  color: 5319e7
+  description: Shared UI, layout, and theming
+- name: 'area: settings'
+  color: 5319e7
+  description: Settings pages
+- name: 'area: ci'
+  color: 5319e7
+  description: CI, hooks, and tooling
+
+# --- Workflow ---
+- name: needs-triage
+  color: e99695
+  description: Awaiting maintainer triage
+- name: needs-review
+  color: fef2c0
+  description: Awaiting maintainer review
+- name: good first issue
+  color: 7057ff
+  description: Good for newcomers
+- name: help wanted
+  color: 008672
+  description: Extra attention is welcome

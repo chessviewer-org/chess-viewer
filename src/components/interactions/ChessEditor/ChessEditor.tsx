@@ -279,86 +279,89 @@ export const ChessEditor = memo(function ChessEditor({
                 transition={{ duration: 0.2, ease: 'easeOut' }}
               >
                 <>
-          {/* Top cluster: palette + option cards. Roomier vertical rhythm
+                  {/* Top cluster: palette + option cards. Roomier vertical rhythm
               (gap-4) between functional sections. min-h-0 + overflow-y-auto so a
               tall cluster can never push past the pinned board height. */}
-          <div className="flex flex-col gap-4 min-h-0 overflow-y-auto">
-          {/* Piece palette — single row (White · divider · Black). */}
-          <div className="w-full overflow-hidden rounded-xl border border-border/40 bg-surface-elevated px-2.5 py-2">
-            <PiecePalette pieceImages={pieceImages} isLoading={isLoading} />
-          </div>
+                  <div className="flex flex-col gap-4 min-h-0 overflow-y-auto">
+                    {/* Piece palette — single row (White · divider · Black). */}
+                    <div className="w-full overflow-hidden rounded-xl border border-border/40 bg-surface-elevated px-2.5 py-2">
+                      <PiecePalette
+                        pieceImages={pieceImages}
+                        isLoading={isLoading}
+                      />
+                    </div>
 
-          {/* Display Options — bare on the background (no card), label + free
+                    {/* Display Options — bare on the background (no card), label + free
               checkboxes. */}
-          <div className="w-full px-1">
-            <span className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-text-secondary mb-1">
-              Display Options
-            </span>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-              <Checkbox
-                checked={showCoords}
-                onChange={(e) => setShowCoords?.(e.target.checked)}
-                label="Show Coordinates"
-                className="!p-1"
-              />
-              <Checkbox
-                checked={showThinFrame}
-                onChange={(e) => setShowThinFrame?.(e.target.checked)}
-                label="Show Board Frame"
-                className="!p-1"
-              />
-            </div>
-          </div>
+                    <div className="w-full px-1">
+                      <span className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-text-secondary mb-1">
+                        Display Options
+                      </span>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                        <Checkbox
+                          checked={showCoords}
+                          onChange={(e) => setShowCoords?.(e.target.checked)}
+                          label="Show Coordinates"
+                          className="!p-1"
+                        />
+                        <Checkbox
+                          checked={showThinFrame}
+                          onChange={(e) => setShowThinFrame?.(e.target.checked)}
+                          label="Show Board Frame"
+                          className="!p-1"
+                        />
+                      </div>
+                    </div>
 
-          {/* Database Search — dedicated manual-search panel. */}
-          <DatabaseSearchPanel pdb={pdbState} yacpdb={yacpdbState} />
-          </div>
+                    {/* Database Search — dedicated manual-search panel. */}
+                    <DatabaseSearchPanel pdb={pdbState} yacpdb={yacpdbState} />
+                  </div>
 
-          {/* Bottom action bar: Undo/Redo/Flip grouped left; Trash zone right
+                  {/* Bottom action bar: Undo/Redo/Flip grouped left; Trash zone right
               (expands on hover). justify-between on the column pins this row to
               the board's bottom edge. (Clear/Reset now live in the FEN toolbar.) */}
-          <div className="flex flex-row items-center gap-2 w-full">
-            <div className="flex flex-row items-center gap-1.5 shrink-0">
-              {/* Undo / Redo — placeholders (no history logic yet). */}
-              <button
-                type="button"
-                disabled
-                className="flex items-center justify-center px-2.5 py-2 min-h-10 rounded-lg border border-border bg-surface-elevated text-text-secondary opacity-50 cursor-not-allowed"
-                title="Undo (coming soon)"
-                aria-label="Undo"
-              >
-                <Undo2 className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                disabled
-                className="flex items-center justify-center px-2.5 py-2 min-h-10 rounded-lg border border-border bg-surface-elevated text-text-secondary opacity-50 cursor-not-allowed"
-                title="Redo (coming soon)"
-                aria-label="Redo"
-              >
-                <Redo2 className="w-4 h-4" />
-              </button>
-              {/* Flip moved here from the top toolbar header. */}
-              <button
-                type="button"
-                onClick={onFlip}
-                className="flex items-center justify-center gap-1.5 px-3 py-2 min-h-10 text-sm font-semibold text-text-secondary bg-surface-elevated hover:bg-surface-hover border border-border hover:border-accent/40 hover:text-accent rounded-lg transition duration-200 ease-out shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:scale-[0.98]"
-                title="Flip board"
-                aria-label="Flip board orientation"
-              >
-                <Repeat2 className="w-4 h-4" />
-                <span>Flip</span>
-              </button>
-            </div>
+                  <div className="flex flex-row items-center gap-2 w-full">
+                    <div className="flex flex-row items-center gap-1.5 shrink-0">
+                      {/* Undo / Redo — placeholders (no history logic yet). */}
+                      <button
+                        type="button"
+                        disabled
+                        className="flex items-center justify-center px-2.5 py-2 min-h-10 rounded-lg border border-border bg-surface-elevated text-text-secondary opacity-50 cursor-not-allowed"
+                        title="Undo (coming soon)"
+                        aria-label="Undo"
+                      >
+                        <Undo2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        disabled
+                        className="flex items-center justify-center px-2.5 py-2 min-h-10 rounded-lg border border-border bg-surface-elevated text-text-secondary opacity-50 cursor-not-allowed"
+                        title="Redo (coming soon)"
+                        aria-label="Redo"
+                      >
+                        <Redo2 className="w-4 h-4" />
+                      </button>
+                      {/* Flip moved here from the top toolbar header. */}
+                      <button
+                        type="button"
+                        onClick={onFlip}
+                        className="flex items-center justify-center gap-1.5 px-3 py-2 min-h-10 text-sm font-semibold text-text-secondary bg-surface-elevated hover:bg-surface-hover border border-border hover:border-accent/40 hover:text-accent rounded-lg transition duration-200 ease-out shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:scale-[0.98]"
+                        title="Flip board"
+                        aria-label="Flip board orientation"
+                      >
+                        <Repeat2 className="w-4 h-4" />
+                        <span>Flip</span>
+                      </button>
+                    </div>
 
-            {/* Spacious trash zone — wide fixed width, expands further on hover. */}
-            <div className="ml-auto h-10 min-h-10 w-44 hover:w-56 transition-[width] duration-300 ease-out">
-              <TrashZone
-                onDrop={handleTrashDrop}
-                className="h-full w-full rounded-lg"
-              />
-            </div>
-          </div>
+                    {/* Spacious trash zone — wide fixed width, expands further on hover. */}
+                    <div className="ml-auto h-10 min-h-10 w-44 hover:w-56 transition-[width] duration-300 ease-out">
+                      <TrashZone
+                        onDrop={handleTrashDrop}
+                        className="h-full w-full rounded-lg"
+                      />
+                    </div>
+                  </div>
                 </>
               </motion.div>
             )}

@@ -135,7 +135,9 @@ function pieceTokens(
       }
       const white = ch === ch.toUpperCase();
       const type = letterFor[ch.toUpperCase()] ?? '?';
-      tokens.push(`${colorFor(white)}${type}${FILES[fileIdx] ?? '?'}${rankNum}`);
+      tokens.push(
+        `${colorFor(white)}${type}${FILES[fileIdx] ?? '?'}${rankNum}`
+      );
       fileIdx++;
     }
   }
@@ -154,7 +156,9 @@ function buildPdbUrl(fen: string): string {
 function buildYacpdbUrl(fen: string): string {
   const parts = new Array<string>(YAC_TEXT_FIELDS).fill('');
   parts[0] = boardField(fen); // the "fen" form field
-  const encoded = yacB64(yacEscapeAndJoin([...parts, ...YAC_CHECKBOX_DEFAULTS]));
+  const encoded = yacB64(
+    yacEscapeAndJoin([...parts, ...YAC_CHECKBOX_DEFAULTS])
+  );
   return `https://www.yacpdb.org/#search/${encoded}/1`;
 }
 

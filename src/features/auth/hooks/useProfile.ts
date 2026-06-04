@@ -1,9 +1,6 @@
 import { useContext } from 'react';
 
-import {
-  ProfileContext,
-  type ProfileContextValue
-} from './profileContextDef';
+import { ProfileContext, type ProfileContextValue } from './profileContextDef';
 
 /**
  * Consumer for the shared profile state (see ProfileProvider). Unified across

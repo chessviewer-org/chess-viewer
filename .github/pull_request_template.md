@@ -1,61 +1,20 @@
-# Pull Request
+## What & why
 
-## Description
+<!-- What does this PR change, and why? Link issues: Fixes #123 -->
 
-<!-- What does this PR do and why? -->
+## Type
 
-## Related Issues
+<!-- Delete what doesn't apply -->
 
-Fixes #
-Related to #
+feat · fix · refactor · perf · docs · chore
 
-## Type of Change
+## Checklist
 
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Breaking change
-- [ ] Refactoring (no functional change)
-- [ ] Documentation
-- [ ] Performance improvement
-- [ ] Security fix
-- [ ] Dependency update
+- [ ] `pnpm validate` passes (types, lint, format, test)
+- [ ] No `any` / `@ts-ignore` / non-null `!`, no hardcoded hex in JSX
+- [ ] Screenshots attached for UI changes
 
-## Changes
-
-<!-- List the main changes -->
-
--
--
-
-## Screenshots
-
-<!-- Include before/after screenshots for UI changes -->
-
-## Quality Gates
-
-- [ ] `pnpm test` passes
-- [ ] `npx tsc --noEmit` passes (0 errors)
-- [ ] `pnpm lint` passes (0 warnings)
-- [ ] No `console.log` statements in production paths
-- [ ] No hardcoded hex colors in JSX (use Tailwind CSS variables)
-- [ ] Canvas disposal: `canvas.width = 0` after every blob generation
-- [ ] No `any`, `@ts-ignore`, or non-null assertions introduced
-
-## Testing
-
-- **Browsers tested:**
-- **Devices tested:**
-
-### Test FEN Positions
-
-```
-Starting position: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
-```
-
-## Notes for Reviewers
-
-<!-- Anything specific you want reviewers to focus on -->
-
----
-
-By submitting this PR, I confirm that my contribution is licensed under the AGPL-3.0 license and that I have read and agree to the [Contributing Guidelines](../CONTRIBUTING.md) and [Code of Conduct](../CODE_OF_CONDUCT.md).
+<!--
+Project invariants (see CONTRIBUTING.md):
+canvas.width = 0 after every blob · heavy raster work in the worker · safeJSONParse for external data.
+-->

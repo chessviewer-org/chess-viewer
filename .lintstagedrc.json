@@ -1,5 +1,4 @@
 {
-  "*.{js,jsx}": ["prettier --write", "eslint"],
-  "*.{json,md,css,scss}": ["prettier --write"],
-  "*.{png,jpg,jpeg,gif,svg}": ["echo 'Checking image files...'"]
+  "*.{js,jsx,ts,tsx}": ["eslint --max-warnings=0 --fix", "prettier --write"],
+  "*.{json,jsonc,css,scss,md,yml,yaml,html}": ["prettier --write"]
 }

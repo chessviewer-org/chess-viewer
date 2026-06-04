@@ -1,9 +1,6 @@
 import React, { memo } from 'react';
 
-import {
-  ConfirmationModal,
-  HistoryFilters
-} from '@/components/panels/History';
+import { ConfirmationModal, HistoryFilters } from '@/components/panels/History';
 
 import { FENHistoryEmptyState } from './components/FENHistoryEmptyState';
 import { FENHistoryGrid } from './components/FENHistoryGrid';

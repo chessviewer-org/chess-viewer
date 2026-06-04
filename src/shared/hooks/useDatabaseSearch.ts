@@ -95,7 +95,8 @@ export function useDatabaseSearch(fen: string): UseDatabaseSearchResult {
           if (controller.signal.aborted) return;
           setStatuses((prev) => {
             const next = { ...prev };
-            for (const p of which) next[p] = res[p].found ? 'found' : 'notfound';
+            for (const p of which)
+              next[p] = res[p].found ? 'found' : 'notfound';
             return next;
           });
           setUrls((prev) => {

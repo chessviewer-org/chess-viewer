@@ -57,9 +57,7 @@ const FENInputToolbar = memo(function FENInputToolbar({
               ? 'bg-accent/15 text-accent border border-accent/40'
               : neutralButton
           }`}
-          title={
-            isHistoryActive ? 'Back to tools' : 'View clipboard history'
-          }
+          title={isHistoryActive ? 'Back to tools' : 'View clipboard history'}
           aria-label="Toggle clipboard history panel"
           type="button"
         >

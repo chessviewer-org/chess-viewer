@@ -137,7 +137,8 @@ export const FENHistoryGrid = memo(function FENHistoryGrid({
   const columns = size.width > 0 ? columnsForWidth(size.width) : 1;
   const columnWidth =
     columns > 0 ? (size.width - GAP_PX * (columns - 1)) / columns : size.width;
-  const rowHeight = Math.max(1, Math.round(columnWidth + CARD_FOOTER_PX)) + GAP_PX;
+  const rowHeight =
+    Math.max(1, Math.round(columnWidth + CARD_FOOTER_PX)) + GAP_PX;
 
   const rows = useMemo(() => {
     const chunked: BaseHistoryEntry[][] = [];

@@ -1,0 +1,28 @@
+name: Label Sync
+
+# Keeps the repository's labels in sync with .github/labels.yml.
+# Runs when the label definitions change on master, or on demand.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/labels.yml'
+      - '.github/workflows/label-sync.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  sync:
+    name: Sync labels
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: micnncim/action-label-syncer@v1
+        with:
+          manifest: .github/labels.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
