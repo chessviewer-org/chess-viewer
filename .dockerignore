@@ -1,10 +1,41 @@
+# Dependencies & build output
 node_modules
 dist
+build
+
+# Version control & CI
 .git
+.gitignore
+.gitattributes
 .github
+.husky
+
+# Editor / IDE
 .vscode
+.idea
+*.swp
+
+# Environment & secrets (never bake into image layers)
 .env
 .env.*
+!.env.example
+
+# Logs & coverage
 *.log
 coverage
+.nyc_output
+
+# OS noise
 .DS_Store
+Thumbs.db
+
+# Local tooling / docs not needed at build time
+docs
+*.md
+.editorconfig
+.prettier*
+.eslint*
+.commitlintrc.json
+.lintstagedrc.json
+.releaserc
+dangerfile.js
