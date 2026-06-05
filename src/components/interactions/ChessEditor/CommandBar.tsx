@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-import { Copy, Download, FolderOpen, Share2 } from 'lucide-react';
+import { Copy, Download, Share2 } from 'lucide-react';
 
 /**
  * ChessVision Command Bar.
@@ -16,8 +16,6 @@ export interface CommandBarProps {
   onCopyFen: () => void;
   onShare: () => void;
   onDownload?: (() => void) | undefined;
-  /** Opens the image picker to scan a board into a FEN (Gemini Vision). */
-  onOpenInDevice?: (() => void) | undefined;
 }
 
 /** Shared icon-button shell — consistent hit-area, focus ring, transitions. */
@@ -31,8 +29,7 @@ const Divider = () => (
 const CommandBar = memo(function CommandBar({
   onCopyFen,
   onShare,
-  onDownload,
-  onOpenInDevice
+  onDownload
 }: CommandBarProps) {
   return (
     <div className="flex items-center gap-1">
@@ -57,15 +54,6 @@ const CommandBar = memo(function CommandBar({
 
       <Divider />
 
-      <button
-        type="button"
-        onClick={onOpenInDevice}
-        className={`${iconButton} text-text-secondary hover:text-text-primary hover:bg-surface-hover`}
-        title="Scan board from image"
-        aria-label="Scan board from an image on this device"
-      >
-        <FolderOpen className="w-5 h-5" />
-      </button>
       <button
         type="button"
         onClick={onDownload}
