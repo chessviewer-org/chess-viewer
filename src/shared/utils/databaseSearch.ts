@@ -224,7 +224,10 @@ export async function searchPositionDatabases(
 
   // Light up only the matching provider; keep link-out URLs for the rest.
   const base = notFound(fen);
-  const matchedUrl = data.url ?? '';
+  // Only trust https:// link-outs — the value lands in an <a href>, so reject
+  // any non-https scheme (javascript:/data:) before it can reach the DOM, even
+  // though the edge function builds these URLs server-side from validated data.
+  const matchedUrl = data.url?.startsWith('https://') ? data.url : '';
   if (data.database === 'LICHESS') {
     return {
       ...base,
