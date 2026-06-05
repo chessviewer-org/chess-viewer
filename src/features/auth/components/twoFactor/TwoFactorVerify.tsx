@@ -48,7 +48,7 @@ export function TwoFactorVerify({
             <span className="text-[10px] uppercase tracking-widest font-bold text-text-secondary">
               OR MANUAL SETUP KEY
             </span>
-            <div className="w-full bg-surface-primary border border-border/80 px-4 py-2.5 rounded-xl text-center shadow-inner">
+            <div className="w-full bg-surface-elevated border border-border/80 px-4 py-2.5 rounded-xl text-center shadow-inner">
               <p className="font-mono text-text-primary text-[15px] font-medium tracking-[0.15em] break-all whitespace-nowrap overflow-hidden text-ellipsis">
                 {secret.match(/.{1,4}/g)?.join(' ') || secret}
               </p>
@@ -71,9 +71,9 @@ export function TwoFactorVerify({
                 key={i}
                 className={`w-11 h-14 sm:w-12 sm:h-16 flex items-center justify-center rounded-xl border-2 ${
                   verifyCode.length === i
-                    ? 'border-accent ring-4 ring-accent/10 bg-surface-primary'
+                    ? 'border-accent ring-4 ring-accent/10 bg-surface-elevated'
                     : verifyCode[i]
-                      ? 'border-border bg-surface-primary text-text-primary'
+                      ? 'border-border bg-surface-elevated text-text-primary'
                       : 'border-border/40 bg-surface-elevated/50 text-text-muted'
                 } shadow-sm text-2xl font-bold font-mono transition-colors duration-200`}
               >
