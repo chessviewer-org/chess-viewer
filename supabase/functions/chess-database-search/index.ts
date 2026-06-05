@@ -423,6 +423,70 @@ function yacpdbHumanUrl(board: string): string {
   return `https://www.yacpdb.org/#search/${yacB64(joined)}/1`;
 }
 
+// Lichess Opening Explorer (explorer.lichess.ovh) — the ONLY of the three with
+// a real position→games API (no key, CC0). Unlike PDB/YACPDB it keys on the
+// FULL FEN (side-to-move + castling + en-passant change the result), so it
+// receives `fen`, not the bare board field. Two free endpoints are queried:
+//   * /masters  — OTB master/tournament games ("who played this?")
+//   * /lichess  — online lichess.org games (broader position coverage)
+// Each returns aggregate { white, draws, black }; any positive sum means the
+// position has been reached in at least one indexed game → catalogued. We only
+// need existence, so games/moves are suppressed (topGames=0&moves=0) to keep
+// the payload tiny and the lookup fast.
+interface LichessExplorerResponse {
+  white?: unknown;
+  draws?: unknown;
+  black?: unknown;
+}
+
+/** Coerce an unknown count field to a non-negative integer (0 on garbage). */
+function asCount(value: unknown): number {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0
+    ? value
+    : 0;
+}
+
+/** True when the explorer payload reports ≥1 game reaching this position. */
+function lichessHasGames(text: string): boolean {
+  let data: unknown;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    return false;
+  }
+  if (typeof data !== 'object' || data === null) return false;
+  const d = data as LichessExplorerResponse;
+  return asCount(d.white) + asCount(d.draws) + asCount(d.black) > 0;
+}
+
+/** Human-facing link: opens the position on Lichess' analysis board, whose
+ *  Opening Explorer panel then lists the games/continuations. */
+function lichessHumanUrl(fen: string): string {
+  return `https://lichess.org/analysis?fen=${encodeURIComponent(fen)}`;
+}
+
+async function searchLichess(fen: string): Promise<SearchResponse> {
+  const url = lichessHumanUrl(fen);
+  const qs = `fen=${encodeURIComponent(fen)}&moves=0&topGames=0&recentGames=0`;
+  const masters = `https://explorer.lichess.ovh/masters?${qs}`;
+  const online = `https://explorer.lichess.ovh/lichess?${qs}`;
+  TRACE('LICHESS', 'fen', fen);
+  try {
+    const [mText, oText] = await Promise.all([
+      fetchText(masters, { headers: { Accept: 'application/json' } }),
+      fetchText(online, { headers: { Accept: 'application/json' } })
+    ]);
+    const found =
+      (mText !== null && lichessHasGames(mText)) ||
+      (oText !== null && lichessHasGames(oText));
+    TRACE('LICHESS', 'found', found);
+    return found ? { found: true, database: 'LICHESS', url } : NOT_FOUND;
+  } catch (err) {
+    console.error('Lichess parse error:', err);
+    return NOT_FOUND;
+  }
+}
+
 async function searchYacpdb(
   pieces: PlacedPiece[],
   board: string
@@ -578,15 +642,24 @@ Deno.serve(async (req: Request) => {
     TRACE('CACHE', 'bypassed (nocache=true)');
   }
 
-  // ---- 2. External lookup (PDB first, then YACPDB) -------------------------
+  // ---- 2. External lookup (Lichess → PDB → YACPDB; first hit wins) ---------
+  // Lichess is first: it is the fastest upstream and answers the primary
+  // "which games reached this position?" question. It keys on the FULL FEN
+  // (not the board field), so it receives `fen` directly. PDB/YACPDB only run
+  // if Lichess misses, preserving their slower problem-database lookups.
   let result: SearchResponse = NOT_FOUND;
   try {
-    const pdb = await searchPdb(pieces);
-    if (pdb.found) {
-      result = pdb;
+    const lichess = await searchLichess(fen);
+    if (lichess.found) {
+      result = lichess;
     } else {
-      const yac = await searchYacpdb(pieces, board);
-      if (yac.found) result = yac;
+      const pdb = await searchPdb(pieces);
+      if (pdb.found) {
+        result = pdb;
+      } else {
+        const yac = await searchYacpdb(pieces, board);
+        if (yac.found) result = yac;
+      }
     }
   } catch (err) {
     console.error('Search pipeline error:', err);
@@ -595,6 +668,15 @@ Deno.serve(async (req: Request) => {
   TRACE('REQ', 'final result', result);
 
   // ---- 3. Cache write (best-effort) ---------------------------------------
+  // Skip caching Lichess hits: the cache is keyed on `fen_board` (board field
+  // only), but a Lichess result depends on the FULL FEN — caching it under the
+  // board key would wrongly serve it for the same diagram with a different
+  // side-to-move / castling state. Lichess is fast and CDN-cached upstream, so
+  // a cache-less round-trip is cheap. PDB/YACPDB (board-field results) cache as
+  // before.
+  if (result.database === 'LICHESS') {
+    return json(result);
+  }
   try {
     await supabase.from('db_search_cache').upsert(
       {
