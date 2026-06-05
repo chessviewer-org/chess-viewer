@@ -1,11 +1,11 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 
-import { Database, ShieldCheck, User } from 'lucide-react';
+import { Code2, Database, ShieldCheck, User } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { ToolPageHeader } from '@/components/layout';
 import { TwoFactorSetup } from '@/features/auth/components/TwoFactorSetup';
-import { DataManagement } from '@/pages/settings';
+import { DataManagement, DeveloperOptions } from '@/pages/settings';
 
 import { Button } from '@shared/ui';
 
@@ -27,6 +27,12 @@ const pageTabs = [
     label: 'Data Management',
     shortLabel: 'Data',
     icon: Database
+  },
+  {
+    id: 'developer',
+    label: 'Developer Options',
+    shortLabel: 'Developer',
+    icon: Code2
   }
 ];
 
@@ -177,6 +183,18 @@ const SettingsPage = memo(function SettingsPage() {
                     Delete Account Forever
                   </button>
                 </div>
+              </section>
+            </div>
+          )}
+
+          {activeTab === 'developer' && (
+            <div className="space-y-8 animate-pageEnter">
+              <section>
+                <h3 className="text-xl font-bold text-text-primary font-display flex items-center gap-2 mb-4">
+                  <Code2 className="w-5 h-5 text-accent" />
+                  Developer Options
+                </h3>
+                <DeveloperOptions />
               </section>
             </div>
           )}
