@@ -32,7 +32,6 @@ import { FileCoordinates, RankCoordinates } from './EditorCoordinates';
 import QuickThemePopover from './QuickThemePopover';
 import ShareDialog from './ShareDialog';
 import { useEditorBoardSize } from './useEditorBoardSize';
-import { useScanBoard } from './useScanBoard';
 import { useShareBoard } from './useShareBoard';
 
 /** Props for the `ChessEditor` interactive board wrapper. */
@@ -239,28 +238,12 @@ export const ChessEditor = memo(function ChessEditor({
   const handleShare = useCallback(() => setIsShareOpen(true), []);
   const closeShare = useCallback(() => setIsShareOpen(false), []);
 
-  // Image → FEN scanning (Open-in-Device button). Recognised positions flow
-  // through onFenChange, the same path manual FEN edits take.
-  const { fileInputRef, openPicker, handleFileChange } = useScanBoard({
-    onFenChange,
-    ...(onNotify ? { onNotify } : {})
-  });
-
   return (
     <div
       ref={containerRef}
       className={`flex flex-col gap-4 sm:gap-6 w-full min-w-0 overflow-x-hidden ${className}`}
     >
       <CustomDragLayer pieceImages={pieceImages} boardSize={boardSize} />
-
-      {/* Hidden picker for the Open-in-Device scan flow. Only images selectable. */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleFileChange}
-        className="hidden"
-      />
 
       <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 items-center lg:items-stretch w-full min-h-0">
         <div className="shrink-0 flex justify-center w-full lg:w-auto max-w-full min-w-0">
@@ -374,7 +357,6 @@ export const ChessEditor = memo(function ChessEditor({
                 onCopyFen={handleCopyFen}
                 onShare={handleShare}
                 onDownload={onDownload}
-                onOpenInDevice={openPicker}
               />
             </div>
             {/* Separator below the toolbar header (high-contrast). */}
