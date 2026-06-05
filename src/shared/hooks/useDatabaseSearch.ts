@@ -37,6 +37,7 @@ export interface ProviderState {
 }
 
 export interface UseDatabaseSearchResult {
+  lichess: ProviderState;
   pdb: ProviderState;
   yacpdb: ProviderState;
 }
@@ -44,8 +45,12 @@ export interface UseDatabaseSearchResult {
 type StatusMap = Record<DatabaseProvider, ProviderSearchStatus>;
 type UrlMap = Record<DatabaseProvider, string | null>;
 
-const IDLE_STATUS: StatusMap = { pdb: 'idle', yacpdb: 'idle' };
-const EMPTY_URLS: UrlMap = { pdb: null, yacpdb: null };
+const IDLE_STATUS: StatusMap = {
+  lichess: 'idle',
+  pdb: 'idle',
+  yacpdb: 'idle'
+};
+const EMPTY_URLS: UrlMap = { lichess: null, pdb: null, yacpdb: null };
 
 /**
  * Manual lookup of the current position in the chess problem databases
@@ -119,8 +124,19 @@ export function useDatabaseSearch(fen: string): UseDatabaseSearchResult {
     [fen]
   );
 
+  const searchLichess = useCallback(() => run(['lichess']), [run]);
   const searchPdb = useCallback(() => run(['pdb']), [run]);
   const searchYacpdb = useCallback(() => run(['yacpdb']), [run]);
+
+  const lichess = useMemo<ProviderState>(
+    () => ({
+      status: statuses.lichess,
+      label: PROVIDER_LABEL.lichess,
+      url: urls.lichess,
+      search: searchLichess
+    }),
+    [statuses.lichess, urls.lichess, searchLichess]
+  );
 
   const pdb = useMemo<ProviderState>(
     () => ({
@@ -142,5 +158,5 @@ export function useDatabaseSearch(fen: string): UseDatabaseSearchResult {
     [statuses.yacpdb, urls.yacpdb, searchYacpdb]
   );
 
-  return { pdb, yacpdb };
+  return { lichess, pdb, yacpdb };
 }

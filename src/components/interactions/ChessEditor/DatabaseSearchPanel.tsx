@@ -17,6 +17,7 @@ import type { ProviderState } from '@hooks/useDatabaseSearch';
  * becomes an "Open ↗" external link. Colours use existing CSS-variable tokens.
  */
 export interface DatabaseSearchPanelProps {
+  lichess: ProviderState;
   pdb: ProviderState;
   yacpdb: ProviderState;
 }
@@ -109,6 +110,7 @@ const ProviderRow = memo(function ProviderRow({
 });
 
 const DatabaseSearchPanel = memo(function DatabaseSearchPanel({
+  lichess,
   pdb,
   yacpdb
 }: DatabaseSearchPanelProps) {
@@ -118,7 +120,10 @@ const DatabaseSearchPanel = memo(function DatabaseSearchPanel({
         Database Search
       </span>
 
-      {/* Two stacked provider rows — each independently triggered. */}
+      {/* Stacked provider rows — each independently triggered. Lichess first
+          (game database: "who played this position?"), then the problem
+          databases PDB / YACPDB. */}
+      <ProviderRow state={lichess} />
       <ProviderRow state={pdb} />
       <ProviderRow state={yacpdb} />
     </div>

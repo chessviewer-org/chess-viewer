@@ -18,12 +18,13 @@ import { logger } from './logger';
  * but still carries a valid human search `url` for manual link-out.
  */
 
-export type DatabaseProvider = 'pdb' | 'yacpdb';
+export type DatabaseProvider = 'pdb' | 'yacpdb' | 'lichess';
 
 /** Human-facing display label for each provider (used in toasts / status pill). */
 export const PROVIDER_LABEL: Record<DatabaseProvider, string> = {
   pdb: 'PDB',
-  yacpdb: 'YACPDB'
+  yacpdb: 'YACPDB',
+  lichess: 'Lichess'
 };
 
 /**
@@ -34,6 +35,7 @@ export function matchedProvider(
   result: DatabaseSearchResult | null
 ): DatabaseProvider | null {
   if (!result) return null;
+  if (result.lichess.found) return 'lichess';
   if (result.pdb.found) return 'pdb';
   if (result.yacpdb.found) return 'yacpdb';
   return null;
@@ -162,8 +164,18 @@ function buildYacpdbUrl(fen: string): string {
   return `https://www.yacpdb.org/#search/${encoded}/1`;
 }
 
+/**
+ * Human-facing Lichess URL for a position. Unlike PDB/YACPDB (board-field only),
+ * Lichess keys on the FULL FEN, so we pass it whole. Opens the analysis board,
+ * whose Opening Explorer panel lists the games that reached this position.
+ */
+function buildLichessUrl(fen: string): string {
+  return `https://lichess.org/analysis?fen=${encodeURIComponent(fen.trim())}`;
+}
+
 function notFound(fen: string): DatabaseSearchResult {
   return {
+    lichess: { found: false, url: buildLichessUrl(fen) },
     pdb: { found: false, url: buildPdbUrl(fen) },
     yacpdb: { found: false, url: buildYacpdbUrl(fen) }
   };
@@ -210,18 +222,24 @@ export async function searchPositionDatabases(
   if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
   if (!data.found || !data.database) return notFound(fen);
 
-  // Light up only the matching provider; keep link-out URLs for both.
+  // Light up only the matching provider; keep link-out URLs for the rest.
   const base = notFound(fen);
   const matchedUrl = data.url ?? '';
+  if (data.database === 'LICHESS') {
+    return {
+      ...base,
+      lichess: { found: true, url: matchedUrl || base.lichess.url }
+    };
+  }
   if (data.database === 'PDB') {
     return {
-      pdb: { found: true, url: matchedUrl || base.pdb.url },
-      yacpdb: base.yacpdb
+      ...base,
+      pdb: { found: true, url: matchedUrl || base.pdb.url }
     };
   }
   if (data.database === 'YACPDB') {
     return {
-      pdb: base.pdb,
+      ...base,
       yacpdb: { found: true, url: matchedUrl || base.yacpdb.url }
     };
   }
