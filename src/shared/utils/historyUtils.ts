@@ -1,3 +1,5 @@
+import { SAFE_SYNC_PLAINTEXT_BUDGET } from '@/features/auth/services/syncStorage';
+import { SYNC_TRUNCATED_EVENT, type SyncTruncatedDetail } from '@constants';
 import {
   ActiveHistoryEntry,
   ArchivedHistoryEntry,
@@ -11,6 +13,47 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const SEVEN_DAYS_MS = 7 * DAY_MS;
 const THIRTY_DAYS_MS = 30 * DAY_MS;
 const NINETY_DAYS_MS = 90 * DAY_MS;
+
+/**
+ * Returns the longest newest-first prefix of `entries` whose JSON serialization
+ * fits the cloud per-value budget. localStorage always keeps the full list; this
+ * only bounds what reaches the cloud so a growing history can't silently stop
+ * syncing once it crosses the `user_data` server cap. `entries` is assumed
+ * already ordered newest-first by the caller.
+ *
+ * @returns The kept prefix and how many trailing (oldest) entries were dropped.
+ */
+export function trimToSyncBudget<T>(entries: T[]): {
+  kept: T[];
+  dropped: number;
+} {
+  if (JSON.stringify(entries).length <= SAFE_SYNC_PLAINTEXT_BUDGET) {
+    return { kept: entries, dropped: 0 };
+  }
+  // History writes are infrequent and lists are capped well under the size where
+  // a linear shrink would matter, so a plain pop loop beats a binary search here.
+  let kept = entries;
+  while (
+    kept.length > 0 &&
+    JSON.stringify(kept).length > SAFE_SYNC_PLAINTEXT_BUDGET
+  ) {
+    kept = kept.slice(0, -1);
+  }
+  return { kept, dropped: entries.length - kept.length };
+}
+
+/** Notifies the app that a cloud sync dropped older entries (see SYNC_TRUNCATED_EVENT). */
+export function emitSyncTruncation(
+  dataset: SyncTruncatedDetail['dataset'],
+  dropped: number
+): void {
+  if (dropped <= 0) return;
+  window.dispatchEvent(
+    new CustomEvent<SyncTruncatedDetail>(SYNC_TRUNCATED_EVENT, {
+      detail: { dataset, dropped }
+    })
+  );
+}
 
 /**
  * Returns a color-coded freshness status for a history entry.
@@ -186,4 +229,22 @@ export function sortArchivedByArchiveDate(
   entries: ArchivedHistoryEntry[]
 ): ArchivedHistoryEntry[] {
   return [...entries].sort((a, b) => b.archivedAt - a.archivedAt);
+}
+
+/**
+ * Unions two history lists by `id`, keeping every distinct entry. Needed because
+ * the cloud copy is trimmed to fit the server cap (see {@link trimToSyncBudget})
+ * while localStorage retains the full list: hydrating from the cloud alone would
+ * silently drop the device-local older entries. `primary` wins on id collisions
+ * (it is the fresher source — e.g. cloud, which may carry entries from another
+ * device). Order is not guaranteed; callers sort as needed.
+ */
+export function mergeById<T extends { id: number }>(
+  primary: T[],
+  secondary: T[]
+): T[] {
+  const byId = new Map<number, T>();
+  for (const entry of secondary) byId.set(entry.id, entry);
+  for (const entry of primary) byId.set(entry.id, entry);
+  return [...byId.values()];
 }

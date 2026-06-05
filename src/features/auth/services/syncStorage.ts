@@ -10,13 +10,35 @@ interface UserDataValueRow {
   value: string;
 }
 
+/**
+ * Outcome of a `syncStorage.set`. Callers that persist unbounded data (history,
+ * archive) inspect this to decide whether to trim + warn the user; fire-and-
+ * forget callers may ignore it. `'too-large'` means the cloud write was skipped
+ * (local copy is unaffected); `'skipped'` means there was no authenticated user.
+ */
+export type SyncSetResult = 'ok' | 'too-large' | 'skipped' | 'error';
+
 const isTableMissingError = (err: unknown) =>
   err &&
   typeof err === 'object' &&
   'code' in err &&
   (err as { code: string }).code === '42P01';
 
-const MAX_USER_DATA_VALUE_LENGTH = 10_000;
+/**
+ * Hard cap mirroring the `user_data.value` CHECK constraint (schema.sql). The
+ * E2EE path stores `enc:<ciphertext>`, which is ~33% larger than the plaintext,
+ * so callers sizing a payload to fit should budget against the SAFE estimate
+ * below, not this raw cap.
+ */
+export const MAX_USER_DATA_VALUE_LENGTH = 10_000;
+
+/**
+ * Conservative plaintext budget that still fits once E2EE-encoded. Base64 of
+ * AES-GCM ciphertext is ~1.37× the input plus the `enc:` prefix and IV; 7_000
+ * leaves comfortable headroom under the 10_000 cap. Callers trimming history to
+ * fit should target this, not MAX_USER_DATA_VALUE_LENGTH.
+ */
+export const SAFE_SYNC_PLAINTEXT_BUDGET = 7_000;
 
 let currentUser: User | null = null;
 
@@ -102,8 +124,8 @@ export const syncStorage = {
     }
   },
 
-  set: async (key: string, value: string): Promise<void> => {
-    if (!currentUser) return;
+  set: async (key: string, value: string): Promise<SyncSetResult> => {
+    if (!currentUser) return 'skipped';
     try {
       let valueToStore = value;
       const encryptionKey = getEncryptionKey();
@@ -118,7 +140,7 @@ export const syncStorage = {
           key,
           length: valueToStore.length
         });
-        return;
+        return 'too-large';
       }
 
       const { error } = await supabase.from('user_data').upsert(
@@ -132,11 +154,13 @@ export const syncStorage = {
       );
 
       if (error) {
-        if (isTableMissingError(error)) return;
+        if (isTableMissingError(error)) return 'skipped';
         throw error;
       }
+      return 'ok';
     } catch (error: unknown) {
       logger.error('Supabase sync set error:', error);
+      return 'error';
     }
   },
 

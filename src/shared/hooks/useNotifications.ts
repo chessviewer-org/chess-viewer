@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { SYNC_TRUNCATED_EVENT, type SyncTruncatedDetail } from '@constants';
+
 /** A single in-app notification message. */
 export interface Notification {
   id: number;
@@ -89,6 +91,22 @@ export function useNotifications() {
     },
     [addNotification]
   );
+
+  // Surface cloud-sync truncation: when history/archive outgrows the per-value
+  // server cap, the newest entries still sync and the full list stays local, but
+  // the user should know older entries aren't reaching the cloud.
+  useEffect(() => {
+    const onTruncated = (event: Event): void => {
+      const { dataset } = (event as CustomEvent<SyncTruncatedDetail>).detail;
+      const label = dataset === 'archive' ? 'archive' : 'history';
+      warning(
+        `Cloud sync is at capacity — only your most recent ${label} is synced. Older entries remain on this device.`,
+        7000
+      );
+    };
+    window.addEventListener(SYNC_TRUNCATED_EVENT, onTruncated);
+    return () => window.removeEventListener(SYNC_TRUNCATED_EVENT, onTruncated);
+  }, [warning]);
 
   return useMemo(
     () => ({

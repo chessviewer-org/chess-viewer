@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { syncStorage } from '@/features/auth/services/syncStorage';
 import type { ActiveHistoryEntry } from '@app-types/history';
 
+import { mergeById, sortByMostRecent } from '@utils/historyUtils';
 import { safeJSONParse } from '@utils/validation';
 import { persistHistory } from './persistHistory';
 
@@ -26,21 +27,27 @@ export function useHistoryHydration(
     isMountedRef.current = true;
     const loadHistoryData = async () => {
       try {
-        let data: ActiveHistoryEntry[] | null = null;
+        let cloudData: ActiveHistoryEntry[] | null = null;
         try {
           const cloud = await syncStorage.get('fen-history');
           if (cloud?.value)
-            data = safeJSONParse<ActiveHistoryEntry[]>(cloud.value, []);
+            cloudData = safeJSONParse<ActiveHistoryEntry[]>(cloud.value, []);
         } catch {
           // Cloud unavailable — silently fall through to local storage
         }
 
-        if (!data) {
-          const local = window.localStorage.getItem('fen-history');
-          if (local) data = safeJSONParse<ActiveHistoryEntry[]>(local, []);
-        }
+        const local = window.localStorage.getItem('fen-history');
+        const localData = local
+          ? safeJSONParse<ActiveHistoryEntry[]>(local, [])
+          : [];
 
-        if (Array.isArray(data) && isMountedRef.current) {
+        // The cloud copy may be trimmed to the server cap while localStorage
+        // holds the full list, so union both rather than letting cloud shadow
+        // the device-local older entries. Cloud wins id collisions (it can carry
+        // newer cross-device edits).
+        const data = sortByMostRecent(mergeById(cloudData ?? [], localData));
+
+        if (isMountedRef.current) {
           setFenHistory(data);
         }
       } finally {

@@ -3,8 +3,12 @@ import { ActiveHistoryEntry, ArchivedHistoryEntry } from '@app-types/history';
 
 import {
   convertToArchivedEntry,
+  emitSyncTruncation,
+  mergeById,
   partitionByArchiveStatus,
-  sortArchivedByArchiveDate
+  sortArchivedByArchiveDate,
+  sortByMostRecent,
+  trimToSyncBudget
 } from './historyUtils';
 import { logger } from './logger';
 import { safeJSONParse } from './validation';
@@ -18,12 +22,20 @@ const ARCHIVE_STORAGE_KEY = 'fen-archive';
  */
 export async function loadArchive(): Promise<ArchivedHistoryEntry[]> {
   try {
+    const localRaw = localStorage.getItem(ARCHIVE_STORAGE_KEY);
+    const localData = safeJSONParse<ArchivedHistoryEntry[]>(localRaw, []);
+
+    let cloudData: ArchivedHistoryEntry[] = [];
     if (syncStorage) {
       const result = await syncStorage.get(ARCHIVE_STORAGE_KEY);
-      if (result) return safeJSONParse(result.value, []);
+      if (result)
+        cloudData = safeJSONParse<ArchivedHistoryEntry[]>(result.value, []);
     }
-    const local = localStorage.getItem(ARCHIVE_STORAGE_KEY);
-    return safeJSONParse(local, []);
+
+    // The cloud copy is trimmed to the server cap while localStorage holds the
+    // full archive, so union both rather than letting the trimmed cloud copy
+    // shadow device-local older entries. Cloud wins id collisions.
+    return sortArchivedByArchiveDate(mergeById(cloudData, localData));
   } catch (error) {
     logger.error('Failed to load archive:', error);
     return [];
@@ -39,11 +51,16 @@ export async function saveArchive(
   archive: ArchivedHistoryEntry[]
 ): Promise<void> {
   try {
-    const jsonData = JSON.stringify(archive);
+    // localStorage holds the complete archive; the cloud copy is trimmed to the
+    // newest entries that fit the per-value cap so sync never silently stalls.
+    localStorage.setItem(ARCHIVE_STORAGE_KEY, JSON.stringify(archive));
     if (syncStorage) {
-      await syncStorage.set(ARCHIVE_STORAGE_KEY, jsonData);
+      const { kept, dropped } = trimToSyncBudget(
+        sortArchivedByArchiveDate(archive)
+      );
+      await syncStorage.set(ARCHIVE_STORAGE_KEY, JSON.stringify(kept));
+      emitSyncTruncation('archive', dropped);
     }
-    localStorage.setItem(ARCHIVE_STORAGE_KEY, jsonData);
   } catch (error) {
     logger.error('Failed to save archive:', error);
   }
@@ -111,10 +128,13 @@ export async function performAutoArchival(
   );
   await archiveEntries(archivedEntries);
 
-  if (syncStorage) {
-    await syncStorage.set('fen-history', JSON.stringify(active));
-  }
+  // localStorage keeps every active entry; cloud gets the newest that fit.
   localStorage.setItem('fen-history', JSON.stringify(active));
+  if (syncStorage) {
+    const { kept, dropped } = trimToSyncBudget(sortByMostRecent(active));
+    await syncStorage.set('fen-history', JSON.stringify(kept));
+    emitSyncTruncation('history', dropped);
+  }
 
   return { updatedHistory: active, archivedCount: toArchive.length };
 }
