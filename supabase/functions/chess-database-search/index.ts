@@ -20,7 +20,7 @@
 //
 // Deno runtime — this file is NOT part of the Vite/tsc/eslint pipeline.
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.107.0';
 
 interface SearchResponse {
   found: boolean;
