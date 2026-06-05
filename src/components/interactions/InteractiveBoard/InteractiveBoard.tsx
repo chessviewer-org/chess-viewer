@@ -23,6 +23,10 @@ export interface InteractiveBoardProps {
     toCol: number,
     isFromPalette: boolean
   ) => void;
+  /** Click-to-select a square (enables keyboard delete). */
+  onSquareSelect?: ((row: number, col: number) => void) | undefined;
+  /** Currently selected square as `[row, col]`, or null when none. */
+  selectedSquare?: readonly [number, number] | null | undefined;
 }
 
 export const InteractiveBoard = memo(function InteractiveBoard({
@@ -32,7 +36,9 @@ export const InteractiveBoard = memo(function InteractiveBoard({
   pieceImages,
   isLoading,
   flipped,
-  onPieceDrop
+  onPieceDrop,
+  onSquareSelect,
+  selectedSquare
 }: InteractiveBoardProps) {
   const boardRef = useRef<HTMLDivElement | null>(null);
   const handleDrop = useCallback(
@@ -76,6 +82,9 @@ export const InteractiveBoard = memo(function InteractiveBoard({
               (piece === piece.toUpperCase() ? 'w' : 'b') + piece.toUpperCase()
             ] || null
           : null;
+        const isSelected =
+          selectedSquare?.[0] === actualRow &&
+          selectedSquare?.[1] === actualCol;
         result.push(
           <DroppableSquare
             key={`square-${actualRow}-${actualCol}`}
@@ -87,6 +96,8 @@ export const InteractiveBoard = memo(function InteractiveBoard({
             darkColor={darkSquare}
             pieceImage={pieceImage}
             onDrop={handleDrop}
+            onSelect={onSquareSelect}
+            isSelected={isSelected}
             isLoading={isLoading}
           />
         );
@@ -100,7 +111,9 @@ export const InteractiveBoard = memo(function InteractiveBoard({
     isLoading,
     flipped,
     handleDrop,
-    pieceImages
+    pieceImages,
+    onSquareSelect,
+    selectedSquare
   ]);
   return (
     <div

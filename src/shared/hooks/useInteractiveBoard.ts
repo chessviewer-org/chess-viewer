@@ -9,6 +9,9 @@ function cloneBoard(board: ChessBoard): ChessBoard {
   return board.map((row) => [...row] as PieceSymbol[]) as ChessBoard;
 }
 
+/** Maximum number of board states retained for undo/redo. */
+const MAX_HISTORY = 100;
+
 export interface UseInteractiveBoardResult {
   board: ChessBoard;
   currentFen: string;
@@ -25,6 +28,12 @@ export interface UseInteractiveBoardResult {
   resetBoard: () => void;
   setPiece: (row: number, col: number, piece: PieceSymbol) => void;
   syncFromFen: (fen: string) => void;
+  /** Step back to the previous board state. No-op when nothing to undo. */
+  undo: () => void;
+  /** Re-apply a previously undone board state. No-op when nothing to redo. */
+  redo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
 }
 
 /**
@@ -40,7 +49,21 @@ export function useInteractiveBoard(
 ): UseInteractiveBoardResult {
   const metadataRef = useRef<string>('w - - 0 1');
 
-  const [board, setBoard] = useState<ChessBoard>(() => {
+  // Keep the latest onFenChange without making the post-commit effect re-fire
+  // when the parent passes a fresh callback identity.
+  const onFenChangeRef = useRef(onFenChange);
+  useEffect(() => {
+    onFenChangeRef.current = onFenChange;
+  }, [onFenChange]);
+
+  // True only for board changes that ORIGINATE here (user drag/clear/reset/
+  // undo/redo) and must be pushed up to the parent. Programmatic syncFromFen()
+  // updates leave it false so a parent FEN is never echoed straight back.
+  const pendingNotifyRef = useRef(false);
+  // Skip the very first commit so the initial position is not re-emitted.
+  const didMountRef = useRef(false);
+
+  const initialBoard = useMemo<ChessBoard>(() => {
     try {
       if (initialFen && validateFEN(initialFen)) {
         const parts = initialFen.trim().split(/\s+/);
@@ -54,56 +77,87 @@ export function useInteractiveBoard(
       logger.error('Failed to parse initial FEN:', err);
     }
     return createEmptyBoard();
-  });
-
-  // Keep the latest onFenChange without making the post-commit effect re-fire
-  // when the parent passes a fresh callback identity.
-  const onFenChangeRef = useRef(onFenChange);
-  useEffect(() => {
-    onFenChangeRef.current = onFenChange;
-  }, [onFenChange]);
-
-  // True only for board changes that ORIGINATE here (user drag/clear/reset) and
-  // must be pushed up to the parent. Programmatic syncFromFen() updates leave it
-  // false so a parent-driven FEN is never echoed straight back (feedback loop).
-  const pendingNotifyRef = useRef(false);
-  // Skip the very first commit so the initial position is not re-emitted.
-  const didMountRef = useRef(false);
-
-  const syncFromFen = useCallback((fen: string) => {
-    try {
-      if (!fen || !validateFEN(fen)) return;
-
-      // A parent-driven sync is authoritative: drop any not-yet-emitted local
-      // edit so the resulting commit is never echoed back up as a "change".
-      pendingNotifyRef.current = false;
-
-      const parts = fen.trim().split(/\s+/);
-      if (parts.length > 1) {
-        metadataRef.current = parts.slice(1).join(' ');
-      }
-
-      if (fen.startsWith('8/8/8/8/8/8/8/8')) {
-        setBoard((prevBoard) => {
-          if (isBoardEmpty(prevBoard)) return prevBoard;
-          return createEmptyBoard();
-        });
-        return;
-      }
-
-      const parsedBoard = parseFEN(fen);
-      if (isChessBoard(parsedBoard)) {
-        setBoard((prevBoard) => {
-          if (boardToFEN(prevBoard) === boardToFEN(parsedBoard)) {
-            return prevBoard;
-          }
-          return parsedBoard;
-        });
-      }
-    } catch (err) {
-      logger.error('Failed to sync from FEN:', err);
-    }
+    // Only the first-render value is used (seeds the history stack); later FEN
+    // changes flow through syncFromFen, so this intentionally ignores updates.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Undo/redo timeline. `past` holds prior boards (oldest→newest), `present` is
+  // the live board, `future` holds undone boards available for redo (next-redo
+  // at the end). Every originating edit pushes onto `past` and clears `future`.
+  const [{ past, present: board, future }, setHistory] = useState<{
+    past: ChessBoard[];
+    present: ChessBoard;
+    future: ChessBoard[];
+  }>(() => ({ past: [], present: initialBoard, future: [] }));
+
+  const canUndo = past.length > 0;
+  const canRedo = future.length > 0;
+
+  // Commit a new present board, pushing the prior one onto the undo stack and
+  // discarding the redo branch. `next` may be a value or an updater. Returning
+  // the SAME reference from the updater is a no-op (no history entry).
+  const commitBoard = useCallback(
+    (next: ChessBoard | ((prev: ChessBoard) => ChessBoard)) => {
+      setHistory((state) => {
+        const resolved =
+          typeof next === 'function' ? next(state.present) : next;
+        if (resolved === state.present) return state;
+        pendingNotifyRef.current = true;
+        const past = [...state.past, state.present];
+        if (past.length > MAX_HISTORY) past.shift();
+        return { past, present: resolved, future: [] };
+      });
+    },
+    []
+  );
+
+  // Replace the timeline with a parent-driven board. This clears undo/redo
+  // because the new position is authoritative and not a local edit step.
+  // Returning the same reference from the updater is a no-op.
+  const replaceBoard = useCallback((next: (prev: ChessBoard) => ChessBoard) => {
+    setHistory((state) => {
+      const resolved = next(state.present);
+      if (resolved === state.present) return state;
+      return { past: [], present: resolved, future: [] };
+    });
+  }, []);
+
+  const syncFromFen = useCallback(
+    (fen: string) => {
+      try {
+        if (!fen || !validateFEN(fen)) return;
+
+        // A parent-driven sync is authoritative: drop any not-yet-emitted local
+        // edit so the resulting commit is never echoed back up as a "change".
+        pendingNotifyRef.current = false;
+
+        const parts = fen.trim().split(/\s+/);
+        if (parts.length > 1) {
+          metadataRef.current = parts.slice(1).join(' ');
+        }
+
+        if (fen.startsWith('8/8/8/8/8/8/8/8')) {
+          replaceBoard((prevBoard) =>
+            isBoardEmpty(prevBoard) ? prevBoard : createEmptyBoard()
+          );
+          return;
+        }
+
+        const parsedBoard = parseFEN(fen);
+        if (isChessBoard(parsedBoard)) {
+          replaceBoard((prevBoard) =>
+            boardToFEN(prevBoard) === boardToFEN(parsedBoard)
+              ? prevBoard
+              : parsedBoard
+          );
+        }
+      } catch (err) {
+        logger.error('Failed to sync from FEN:', err);
+      }
+    },
+    [replaceBoard]
+  );
 
   const handlePieceDrop = useCallback(
     (
@@ -114,8 +168,7 @@ export function useInteractiveBoard(
       toCol: number,
       isFromPalette: boolean
     ) => {
-      pendingNotifyRef.current = true;
-      setBoard((prevBoard) => {
+      commitBoard((prevBoard) => {
         const newBoard = cloneBoard(prevBoard);
         if (!isFromPalette && fromRow !== undefined && fromCol !== undefined) {
           const originRow = newBoard[fromRow];
@@ -132,38 +185,33 @@ export function useInteractiveBoard(
         return newBoard;
       });
     },
-    []
+    [commitBoard]
   );
 
-  const handlePieceRemove = useCallback((row: number, col: number) => {
-    pendingNotifyRef.current = true;
-    setBoard((prevBoard) => {
-      const newBoard = cloneBoard(prevBoard);
-      if (row !== undefined && col !== undefined) {
+  const handlePieceRemove = useCallback(
+    (row: number, col: number) => {
+      commitBoard((prevBoard) => {
+        if (!prevBoard[row]?.[col]) return prevBoard;
+        const newBoard = cloneBoard(prevBoard);
         const targetRow = newBoard[row];
         if (targetRow !== undefined) {
           targetRow[col] = '';
         }
-      }
-      return newBoard;
-    });
-  }, []);
+        return newBoard;
+      });
+    },
+    [commitBoard]
+  );
 
   const clearBoard = useCallback(() => {
-    setBoard((prevBoard) => {
-      if (isBoardEmpty(prevBoard)) {
-        return prevBoard;
-      }
-      // Only flag a notify when the board actually changed.
-      pendingNotifyRef.current = true;
-      return createEmptyBoard();
-    });
-  }, []);
+    commitBoard((prevBoard) =>
+      isBoardEmpty(prevBoard) ? prevBoard : createEmptyBoard()
+    );
+  }, [commitBoard]);
 
   const resetBoard = useCallback(() => {
     const startingFen =
       'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-    metadataRef.current = 'w KQkq - 0 1';
     const parsedStarting = parseFEN(startingFen);
     if (!isChessBoard(parsedStarting)) {
       logger.error(
@@ -172,32 +220,58 @@ export function useInteractiveBoard(
       return;
     }
     const startingBoard = parsedStarting;
+    metadataRef.current = 'w KQkq - 0 1';
 
-    setBoard((prevBoard) => {
-      if (boardToFEN(prevBoard) === boardToFEN(startingBoard)) {
-        return prevBoard;
-      }
-      pendingNotifyRef.current = true;
-      return startingBoard;
-    });
-  }, []);
+    commitBoard((prevBoard) =>
+      boardToFEN(prevBoard) === boardToFEN(startingBoard)
+        ? prevBoard
+        : startingBoard
+    );
+  }, [commitBoard]);
 
   const setPiece = useCallback(
     (row: number, col: number, piece: PieceSymbol) => {
-      pendingNotifyRef.current = true;
-      setBoard((prevBoard) => {
+      commitBoard((prevBoard) => {
         const newBoard = cloneBoard(prevBoard);
-        if (row !== undefined && col !== undefined) {
-          const targetRow = newBoard[row];
-          if (targetRow !== undefined) {
-            targetRow[col] = piece;
-          }
+        const targetRow = newBoard[row];
+        if (targetRow !== undefined) {
+          targetRow[col] = piece;
         }
         return newBoard;
       });
     },
-    []
+    [commitBoard]
   );
+
+  // Step the timeline back one entry: present→future, last past→present.
+  const undo = useCallback(() => {
+    setHistory((state) => {
+      if (state.past.length === 0) return state;
+      const previous = state.past[state.past.length - 1];
+      if (previous === undefined) return state;
+      pendingNotifyRef.current = true;
+      return {
+        past: state.past.slice(0, -1),
+        present: previous,
+        future: [state.present, ...state.future]
+      };
+    });
+  }, []);
+
+  // Step the timeline forward one entry: present→past, first future→present.
+  const redo = useCallback(() => {
+    setHistory((state) => {
+      if (state.future.length === 0) return state;
+      const [next, ...rest] = state.future;
+      if (next === undefined) return state;
+      pendingNotifyRef.current = true;
+      return {
+        past: [...state.past, state.present],
+        present: next,
+        future: rest
+      };
+    });
+  }, []);
 
   const currentFen = useMemo(() => {
     const positionFen = boardToFEN(board);
@@ -228,7 +302,11 @@ export function useInteractiveBoard(
       clearBoard,
       resetBoard,
       setPiece,
-      syncFromFen
+      syncFromFen,
+      undo,
+      redo,
+      canUndo,
+      canRedo
     }),
     [
       board,
@@ -238,7 +316,11 @@ export function useInteractiveBoard(
       clearBoard,
       resetBoard,
       setPiece,
-      syncFromFen
+      syncFromFen,
+      undo,
+      redo,
+      canUndo,
+      canRedo
     ]
   );
 }
