@@ -46,6 +46,7 @@
 
   --animate-fade-in: fadeIn 0.25s var(--animation-curve);
   --animate-fade-in-scale: fadeInScale 0.2s var(--animation-curve);
+  --animate-piece-in: pieceIn 0.13s var(--ease-smooth);
   --animate-slide-in-right: slideInRight 0.25s var(--animation-curve);
   --animate-slide-in-left: slideInLeft 0.25s var(--animation-curve);
   --animate-slide-up: slideUp 0.2s var(--animation-curve);
@@ -651,6 +652,21 @@ html[data-theme-transition='to-dark'] {
   from {
     opacity: 0;
     transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Piece-placement appear animation. Replaces the per-square framer-motion
+   AnimatePresence (64 live presence trackers) with a single CSS keyframe so the
+   board carries no motion runtime per cell. Reduced-motion is honoured by the
+   global prefers-reduced-motion rule below. */
+@keyframes pieceIn {
+  from {
+    opacity: 0;
+    transform: scale(0.82);
   }
   to {
     opacity: 1;
