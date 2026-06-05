@@ -34,6 +34,10 @@ export interface DroppableSquareProps {
     toCol: number,
     isFromPalette: boolean
   ) => void;
+  /** Select this square (click). Enables keyboard delete of its piece. */
+  onSelect?: ((row: number, col: number) => void) | undefined;
+  /** Whether this square is the active selection (keyboard target). */
+  isSelected?: boolean;
   isLoading: boolean;
 }
 
@@ -47,9 +51,15 @@ export const DroppableSquare = memo(
     darkColor,
     pieceImage,
     onDrop,
+    onSelect,
+    isSelected = false,
     isLoading
   }: DroppableSquareProps) {
     const bgColor = isLight ? lightColor : darkColor;
+
+    const handleSelect = useCallback(() => {
+      onSelect?.(row, col);
+    }, [onSelect, row, col]);
 
     const handleDrop = useCallback(
       (item: DragItem) => {
@@ -94,13 +104,16 @@ export const DroppableSquare = memo(
             drop(null);
           };
         }}
-        className="w-full h-full flex items-center justify-center relative"
+        onClick={handleSelect}
+        className="w-full h-full flex items-center justify-center relative cursor-pointer"
         style={{
           backgroundColor: bgColor,
-          zIndex: 0,
+          zIndex: isSelected ? 2 : 0,
           boxShadow: isOver
             ? 'inset 0 0 0 3px rgba(255, 255, 255, 0.5)'
-            : 'none',
+            : isSelected
+              ? 'inset 0 0 0 3px var(--accent)'
+              : 'none',
           contain: 'layout style',
           minWidth: 0,
           minHeight: 0
@@ -143,6 +156,8 @@ export const DroppableSquare = memo(
       prevProps.row === nextProps.row &&
       prevProps.col === nextProps.col &&
       prevProps.onDrop === nextProps.onDrop &&
+      prevProps.onSelect === nextProps.onSelect &&
+      prevProps.isSelected === nextProps.isSelected &&
       prevProps.pieceImage === nextProps.pieceImage
     );
   }

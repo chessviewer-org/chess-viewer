@@ -1,6 +1,11 @@
 export { useChessBoard } from './useChessBoard';
 export { useColorState } from './useColorState';
 export { useDatabaseSearch } from './useDatabaseSearch';
+export type {
+  EditorKeyboardActions,
+  EditorKeyboardOptions
+} from './useEditorKeyboard';
+export { useEditorKeyboard } from './useEditorKeyboard';
 export { useFENHistory } from './useFENHistory';
 export { useInteractiveBoard } from './useInteractiveBoard';
 export { useIntersectionObserver } from './useIntersectionObserver';

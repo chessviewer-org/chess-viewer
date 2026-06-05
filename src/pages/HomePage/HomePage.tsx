@@ -133,10 +133,13 @@ const HomePage: React.FC = () => {
                 setShowCoords={setShowCoords}
                 showThinFrame={showThinFrame}
                 setShowThinFrame={setShowThinFrame}
+                exportQuality={exportQuality}
+                showCoordinateBorder={showCoordinateBorder}
                 lightSquare={lightSquare}
                 darkSquare={darkSquare}
                 flipped={flipped}
                 onFlip={handleFlip}
+                onNotify={handleNotification}
                 onDownload={() => setIsExportStudioOpen(true)}
                 onPieceImagesChange={handlePieceImagesChange}
                 activeRightPanel={activeRightPanel}

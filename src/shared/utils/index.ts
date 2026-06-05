@@ -8,6 +8,8 @@ export * from './coordinateCalculations';
 export * from './databaseSearch';
 export * from './dpiEncoder';
 export * from './fenParser';
+export * from './geminiKeyStorage';
+export * from './geminiVision';
 export * from './historyUtils';
 export * from './imageOptimizer';
 export * from './logger';

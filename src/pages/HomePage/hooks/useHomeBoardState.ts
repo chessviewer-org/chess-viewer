@@ -4,7 +4,8 @@ import { useLocation } from 'react-router-dom';
 
 import { useLocalStorage } from '@hooks';
 
-import { safeJSONParse } from '@utils/validation';
+import { validateFEN } from '@utils/fenParser';
+import { MAX_FEN_LENGTH, safeJSONParse } from '@utils/validation';
 
 /** Persists all board display settings to localStorage and syncs square colors on cross-tab storage events. */
 export function useHomeBoardState() {
@@ -21,6 +22,20 @@ export function useHomeBoardState() {
       window.history.replaceState({}, document.title);
     }
   }, [location, setFen]);
+
+  // Hydrate from a shared deep link (`?fen=…`). Validated and length-capped
+  // before adoption; the param is stripped afterwards so the effect is inert on
+  // subsequent runs and refreshes stay clean.
+  useEffect(() => {
+    const shared = new URLSearchParams(location.search).get('fen');
+    if (!shared) return;
+    if (shared.length <= MAX_FEN_LENGTH && validateFEN(shared)) {
+      setFen(shared);
+    }
+    const url = new URL(window.location.href);
+    url.searchParams.delete('fen');
+    window.history.replaceState({}, document.title, url.toString());
+  }, [location.search, setFen]);
 
   const [pieceStyle, setPieceStyle] = useLocalStorage<string>(
     'chess-piece-style',
