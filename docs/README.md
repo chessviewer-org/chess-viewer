@@ -2,27 +2,45 @@
 
 Technical documentation for ChessVision v6.0.0.
 
+- Source: [github.com/chessvision-org/chess-vision](https://github.com/chessvision-org/chess-vision)
+- Demo: [chess-vision-site.vercel.app](https://chess-vision-site.vercel.app)
+- Issues: [GitHub Issues](https://github.com/chessvision-org/chess-vision/issues)
+
 ---
 
-## Index
+## Architecture
 
-### Core
+System design, decisions, and component map.
 
-- [Architecture](ARCHITECTURE.md) — System design, folder structure, component groups, routing, auth
-- [Decisions](DECISIONS.md) — Architectural decision records (ADRs)
+- [Architecture](architecture/ARCHITECTURE.md) — Stack, project structure, path aliases, routing, state, canvas, auth
+- [Decisions](architecture/DECISIONS.md) — Architectural decision records (ADRs 001–014)
 
-### Technical References
+## Reference
 
-- [Export Pipeline](EXPORT_PIPELINE.md) — Canvas export system, quality modes, API reference
-- [FEN Notation](FEN.md) — FEN format reference and parser implementation
-- [Accessibility](ACCESSIBILITY.md) — Current accessibility status and known gaps
-- [Linting Setup](LINTING_SETUP.md) — ESLint, Prettier, Husky, commitlint configuration
+Authoritative technical specifications.
 
-### Project Information
+- [Export Pipeline](reference/EXPORT_PIPELINE.md) — Canvas export system, quality modes, resolution tables, API reference
+- [FEN Notation](reference/FEN.md) — FEN format specification, validation rules, parser implementation
+- [Accessibility](reference/ACCESSIBILITY.md) — Current status, known gaps, and planned improvements
 
-- [Changelog](CHANGELOG.md) — Version history
-- [FAQ](FAQ.md) — Common questions
-- [Roadmap](../ROADMAP.md) — Implemented features and planned work
+## Guides
+
+How-to and contributor guides.
+
+- [Roadmap](guides/ROADMAP.md) — Implemented features, priority items, and known technical debt
+- [FAQ](guides/FAQ.md) — Common questions from users and contributors
+- [Code Quality Setup](guides/LINTING_SETUP.md) — ESLint, Prettier, Husky, commitlint, TypeScript configuration
+
+## Root-Level Files
+
+Standard OSS files at the repository root — recognized by GitHub and npm.
+
+- [CHANGELOG.md](../CHANGELOG.md) — Full version history
+- [CONTRIBUTING.md](../CONTRIBUTING.md) — How to contribute: setup, quality gates, PR process
+- [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md) — Community standards
+- [SECURITY.md](../SECURITY.md) — Vulnerability reporting and security architecture
+- [CONTRIBUTORS.md](../CONTRIBUTORS.md) — People who have contributed code and fixes
+- [LICENSE](../LICENSE) — AGPL-3.0
 
 ---
 
@@ -33,27 +51,21 @@ Technical documentation for ChessVision v6.0.0.
 ```bash
 pnpm dev              # dev server on :3000
 pnpm build            # production build → dist/
+pnpm validate         # typecheck + lint + format:check + test (the CI contract)
 pnpm test             # FEN parser unit tests
-npx tsc --noEmit      # type check — must be 0 errors
+pnpm typecheck        # tsc --noEmit — must be 0 errors
 pnpm lint             # ESLint — must be 0 warnings
-pnpm format           # Prettier
+pnpm lint:fix         # ESLint auto-fix (also sorts imports)
+pnpm format           # Prettier write
 ```
 
 ### For New Contributors
 
-1. Read [Architecture](ARCHITECTURE.md) for system overview and file locations
-2. Check [Decisions](DECISIONS.md) for context on why things are built the way they are
-3. Review [Export Pipeline](EXPORT_PIPELINE.md) before touching canvas or export code
-4. All three quality gates must pass: `pnpm test && npx tsc --noEmit && pnpm lint`
+1. Read [Architecture](architecture/ARCHITECTURE.md) for the system overview and file locations.
+2. Check [Decisions](architecture/DECISIONS.md) for the rationale behind key choices.
+3. Review [Export Pipeline](reference/EXPORT_PIPELINE.md) before touching canvas or export code.
+4. Run `pnpm validate` — all four gates must pass before opening a PR.
 
 ---
 
-## Repository
-
-- Source: [github.com/BilgeGates/chess-vision](https://github.com/BilgeGates/chess-vision)
-- Demo: [chess-vision-site.vercel.app](https://chess-vision-site.vercel.app)
-- Issues: [GitHub Issues](https://github.com/BilgeGates/chess-vision/issues)
-
----
-
-_Last updated: May 2026 — v6.0.0_
+_Last updated: June 2026 — v6.0.0_

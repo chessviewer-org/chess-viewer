@@ -89,7 +89,7 @@ Priority areas for accessibility contributions:
 3. Keyboard shortcut implementation
 4. Automated axe-core integration
 
-See [CONTRIBUTING.md](../CONTRIBUTING.md) for setup instructions.
+See [CONTRIBUTING.md](../../CONTRIBUTING.md) for setup instructions.
 
 ---
 

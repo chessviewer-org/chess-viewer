@@ -172,7 +172,7 @@ No. No analytics, no cookies, no telemetry.
 
 ### Contribute
 
-Fork the repository, create a branch, run the quality gates (`pnpm test && npx tsc --noEmit && pnpm lint`), and submit a pull request. See [CONTRIBUTING.md](../CONTRIBUTING.md).
+Fork the repository, create a branch, run the quality gates (`pnpm test && npx tsc --noEmit && pnpm lint`), and submit a pull request. See [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
 ### Self-host
 

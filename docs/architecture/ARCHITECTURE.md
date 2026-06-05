@@ -248,7 +248,7 @@ DnD state lives exclusively in `useInteractiveBoard.ts` and `react-dnd` monitors
 
 ### Export Rendering
 
-For export dimensions, see [EXPORT_PIPELINE.md](EXPORT_PIPELINE.md).
+For export dimensions, see [EXPORT_PIPELINE.md](../reference/EXPORT_PIPELINE.md).
 
 Key rules:
 
@@ -260,7 +260,7 @@ Key rules:
 
 ## Export System
 
-See [EXPORT_PIPELINE.md](EXPORT_PIPELINE.md) for the full technical reference.
+See [EXPORT_PIPELINE.md](../reference/EXPORT_PIPELINE.md) for the full technical reference.
 
 **Flow:**
 
