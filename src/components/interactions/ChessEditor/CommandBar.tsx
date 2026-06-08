@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-import { Copy, Download, Share2 } from 'lucide-react';
+import { Copy, Download, FolderOpen, Share2 } from 'lucide-react';
 
 /**
  * ChessVision Command Bar.
