@@ -67,7 +67,7 @@ const RULES = [
     category: 'build-config',
     domain: 'infra',
     test: (p) =>
-      /^(vite|vitest|tsconfig|tsconfig\.[\w.]+|postcss|tailwind|eslint|\.prettierrc|\.commitlintrc|\.lintstagedrc|vercel|docker-compose)\b/.test(
+      /^(vite|vitest|tsconfig|tsconfig\.[\w.]+|postcss|tailwind|eslint|\.prettierrc|\.commitlintrc|\.lintstagedrc|docker-compose)\b/.test(
         p
       ) ||
       p === 'Dockerfile' ||
