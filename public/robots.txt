@@ -1,5 +1,5 @@
-# ChessVision - Professional ChessVision
-# https://chess-vision-site.vercel.app
+# ChessVision — privacy-first chess diagram tool
+# https://chessvision.org
 
 User-agent: *
 Allow: /
@@ -8,4 +8,4 @@ Allow: /
 Crawl-delay: 1
 
 # Sitemap location
-Sitemap: https://chess-vision-site.vercel.app/sitemap.xml
+Sitemap: https://chessvision.org/sitemap.xml

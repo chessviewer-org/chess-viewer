@@ -155,15 +155,15 @@ Records of key architectural and technical decisions made during ChessVision's d
 
 ---
 
-## ADR-013: Vercel for Hosting
+## ADR-013: nginx (Docker) for Hosting
 
-**Date:** 2025-12-28 | **Status:** Accepted
+**Date:** 2025-12-28 | **Updated:** 2026-06-08 | **Status:** Accepted
 
-**Decision:** Deploy to Vercel with automatic deployments from GitHub.
+**Decision:** Serve the static `dist/` build from nginx in a Docker container at `chessvision.org`. SPA routing, caching, and all security headers + CSP live in `nginx.conf`.
 
-**Rationale:** Automatic deployments, global CDN, free for open-source projects, zero configuration for static sites.
+**Rationale:** Full control over the served headers/CSP, vendor-neutral and portable, no platform lock-in, and the app is a static bundle that runs anywhere.
 
-**Note:** The app is a static site that can be self-hosted anywhere (`dist/` folder) if needed.
+**Note:** The app is a static site (`dist/` folder) that can be self-hosted on any host or static CDN. Superseded the earlier Vercel-based hosting (`vercel.json` removed; its headers were ported into `nginx.conf`).
 
 ---
 

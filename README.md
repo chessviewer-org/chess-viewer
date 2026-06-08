@@ -8,7 +8,7 @@ Chess position visualizer with high-resolution export capabilities.
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg?style=flat-square)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](CONTRIBUTING.md)
 
-[Live Demo](https://chess-vision-site.vercel.app) · [Report Bug](https://github.com/BilgeGates/chess-vision/issues) · [Request Feature](https://github.com/BilgeGates/chess-vision/issues)
+[Live Demo](https://chessvision.org) · [Report Bug](https://github.com/chessvision-org/chess-vision/issues) · [Request Feature](https://github.com/chessvision-org/chess-vision/issues)
 
 ---
 
@@ -81,7 +81,7 @@ All board rendering and export runs in the browser. Optional cloud sync is avail
 ### Installation
 
 ```bash
-git clone https://github.com/BilgeGates/chess-vision.git
+git clone https://github.com/chessvision-org/chess-vision.git
 cd chess-vision
 pnpm install
 pnpm dev

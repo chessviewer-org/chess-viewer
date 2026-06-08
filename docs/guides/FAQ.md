@@ -168,7 +168,7 @@ No. No analytics, no cookies, no telemetry.
 
 ### Report a bug
 
-[GitHub Issues](https://github.com/BilgeGates/chess-vision/issues) — include browser, OS, steps to reproduce, and screenshots.
+[GitHub Issues](https://github.com/chessvision-org/chess-vision/issues) — include browser, OS, steps to reproduce, and screenshots.
 
 ### Contribute
 

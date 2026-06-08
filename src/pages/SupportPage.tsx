@@ -32,14 +32,14 @@ function SupportPage() {
             icon={<HelpCircle className="w-6 h-6" />}
             title="GitHub Issues"
             desc="Report bugs or features"
-            link="https://github.com/BilgeGates/chess-vision/issues"
+            link="https://github.com/chessvision-org/chess-vision/issues"
             linkText="Open Issue"
           />
           <SupportCard
             icon={<MessageSquare className="w-6 h-6" />}
             title="Discussions"
             desc="Ask questions"
-            link="https://github.com/BilgeGates/chess-vision/discussions"
+            link="https://github.com/chessvision-org/chess-vision/discussions"
             linkText="Join Discussion"
             primary
           />
@@ -47,7 +47,7 @@ function SupportPage() {
             icon={<BookOpen className="w-6 h-6" />}
             title="Documentation"
             desc="Read guides"
-            link="https://github.com/BilgeGates/chess-vision/tree/master/docs"
+            link="https://github.com/chessvision-org/chess-vision/tree/master/docs"
             linkText="View Docs"
           />
         </div>
