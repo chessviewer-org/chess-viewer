@@ -69,14 +69,18 @@ export function useSecurityCheck() {
       setIsLoading(false);
     }
 
+    // Use getSession() (local, synchronous read from storage) rather than
+    // getUser() (network round-trip) to decide whether a user exists. Guests
+    // then resolve instantly with no network call, so the app never blocks on
+    // Supabase at boot. The 90-day server check still runs for real sessions.
     supabase.auth
-      .getUser()
-      .then(({ data: { user } }) => {
-        checkSecurity(user);
+      .getSession()
+      .then(({ data: { session } }) => {
+        checkSecurity(session?.user ?? null);
       })
       .catch((err: unknown) => {
         if (!signal.aborted)
-          logger.warn('useSecurityCheck: getUser failed', err);
+          logger.warn('useSecurityCheck: getSession failed', err);
       });
 
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {

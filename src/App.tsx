@@ -126,13 +126,8 @@ function saveTheme(theme: Theme): void {
 function App() {
   const location = useLocation();
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
-  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
-  const { isLocked, isLoading: isSecurityLoading, unlock } = useSecurityCheck();
-
-  // Strict 'Loaded' gate: hold the static skeleton until BOTH the auth session
-  // and the security check have settled. Mounting <Routes /> against a
-  // half-resolved auth state lets child effects fire mid-settle and re-render.
-  const isLoading = isAuthLoading || isSecurityLoading;
+  const { isAuthenticated } = useAuth();
+  const { isLocked, unlock } = useSecurityCheck();
 
   const isToolPage = TOOL_PAGES.includes(location.pathname);
 
@@ -220,20 +215,12 @@ function App() {
               tabIndex={-1}
               className={`flex-1 min-h-0 overflow-x-hidden overflow-y-auto focus:outline-none ${!isToolPage ? 'mt-[4.5rem] sm:mt-[5rem] lg:mt-[5.5rem]' : ''}`}
             >
-              {isLoading ? (
-                <div className="flex h-full items-center justify-center">
-                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-current border-t-transparent" />
-                </div>
-              ) : (
-                <>
-                  {isAuthenticated && isLocked && (
-                    <Suspense fallback={null}>
-                      <SecurityLockModal onUnlock={unlock} />
-                    </Suspense>
-                  )}
-                  <Routes />
-                </>
+              {isAuthenticated && isLocked && (
+                <Suspense fallback={null}>
+                  <SecurityLockModal onUnlock={unlock} />
+                </Suspense>
               )}
+              <Routes />
             </main>
           </div>
         </ModalProvider>
