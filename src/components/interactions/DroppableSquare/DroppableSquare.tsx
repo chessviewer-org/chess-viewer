@@ -1,6 +1,5 @@
 import { memo, useCallback } from 'react';
 
-import { AnimatePresence, motion } from 'framer-motion';
 import { useDrop } from 'react-dnd';
 
 import { ItemTypes } from '@constants';
@@ -121,28 +120,25 @@ export const DroppableSquare = memo(
         data-row={row}
         data-col={col}
       >
-        <AnimatePresence mode="wait" initial={false}>
-          {piece && pieceImage && !isLoading && (
-            <motion.div
-              key={piece + row + col}
-              className="w-full h-full flex items-center justify-center"
-              style={{ contain: 'layout style' }}
-              initial={{ opacity: 0, scale: 0.82 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.72 }}
-              transition={{ duration: 0.13, ease: [0.4, 0, 0.2, 1] }}
-            >
-              <DraggablePiece
-                piece={piece}
-                pieceImage={pieceImage}
-                row={row}
-                col={col}
-                isFromPalette={false}
-                size="85%"
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {piece && pieceImage && !isLoading && (
+          // `key` on the piece char remounts this wrapper when the piece on the
+          // square changes, re-firing the `animate-piece-in` keyframe — the CSS
+          // replacement for the former per-square framer-motion AnimatePresence.
+          <div
+            key={piece}
+            className="w-full h-full flex items-center justify-center animate-piece-in"
+            style={{ contain: 'layout style' }}
+          >
+            <DraggablePiece
+              piece={piece}
+              pieceImage={pieceImage}
+              row={row}
+              col={col}
+              isFromPalette={false}
+              size="85%"
+            />
+          </div>
+        )}
       </div>
     );
   },

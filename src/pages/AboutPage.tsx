@@ -1,212 +1,284 @@
-import React from 'react';
+import { useState } from 'react';
 
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  CheckCircle,
-  Code,
-  Copy,
-  Crown,
+  BookOpen,
+  ChevronDown,
   FileText,
+  HelpCircle,
   Info,
-  Layers,
-  Maximize2,
-  RotateCw,
-  Shield,
-  Shuffle,
-  Zap
+  Mail,
+  Settings as SettingsIcon,
+  Shield
 } from 'lucide-react';
 
-/** Static about page describing ChessVision features and usage. */
+const SUPPORT_EMAIL = 'contact@chessvision.org';
+
+/** A titled block of prose, used across the About sections. */
+interface InfoBlock {
+  title: string;
+  content: string;
+}
+
+/** Top-level About sections, each rendered as a card group. */
+const SECTIONS: Array<{
+  id: string;
+  label: string;
+  title: string;
+  icon: typeof Info;
+  blocks: InfoBlock[];
+}> = [
+  {
+    id: 'features',
+    label: 'Features',
+    title: 'Features Overview',
+    icon: BookOpen,
+    blocks: [
+      {
+        title: 'Interactive Board Editor',
+        content:
+          'Drag and drop pieces to create any chess position. Place pieces from the palette, move them between squares, or remove them effortlessly. The editor is heavily memoized for smooth, lag-free interaction.'
+      },
+      {
+        title: 'FEN Input & Validation',
+        content:
+          'Paste any valid Forsyth-Edwards Notation (FEN) string to instantly load a position. The input features real-time validation, clear error feedback, and history so your work stays safe.'
+      },
+      {
+        title: 'High-Resolution Export',
+        content:
+          'Export diagrams in ultra-high resolution up to 32x quality — suitable for print and professional publishing. Supports PNG, JPEG, and SVG with customizable DPI and physical dimensions.'
+      }
+    ]
+  },
+  {
+    id: 'about',
+    label: 'About',
+    title: 'About ChessVision',
+    icon: Info,
+    blocks: [
+      {
+        title: 'Project Goals',
+        content:
+          'ChessVision is a free, open-source tool for chess authors, teachers, and enthusiasts to create high-quality chess diagrams for digital and print media. Built with React 19, Vite, and Tailwind CSS.'
+      },
+      {
+        title: 'Local-First & Private',
+        content:
+          'Privacy comes first. Board rendering and image processing happen entirely in your browser using canvas and web workers. Your positions never leave your device, and optional cloud sync is end-to-end encrypted.'
+      }
+    ]
+  },
+  {
+    id: 'support',
+    label: 'Support',
+    title: 'Support & Feedback',
+    icon: HelpCircle,
+    blocks: [
+      {
+        title: 'How to get help',
+        content: `For any inquiries, technical assistance, or account help, reach out to our support team at ${SUPPORT_EMAIL}. We typically respond within 24-48 hours.`
+      },
+      {
+        title: 'Reporting bugs',
+        content:
+          'Found an issue? Report it on our GitHub repository or via the feedback option in settings. Include your FEN string and browser version for faster troubleshooting.'
+      }
+    ]
+  },
+  {
+    id: 'privacy',
+    label: 'Privacy',
+    title: 'Privacy Policy',
+    icon: Shield,
+    blocks: [
+      {
+        title: 'Data collection',
+        content:
+          'We do not collect personal data. State is managed locally via browser storage. If you enable cloud sync, your data is end-to-end encrypted before it is stored.'
+      },
+      {
+        title: 'Cookies',
+        content:
+          'We use only the minimal functional storage required for theme and system settings. No tracking or third-party advertising cookies are used.'
+      }
+    ]
+  },
+  {
+    id: 'terms',
+    label: 'Terms of Use',
+    title: 'Terms of Use',
+    icon: SettingsIcon,
+    blocks: [
+      {
+        title: 'Usage license',
+        content:
+          'ChessVision is provided for personal and professional use. Images generated with the tool can be used freely in books, articles, and websites, provided they are not used to misrepresent chess positions.'
+      },
+      {
+        title: 'Liability',
+        content:
+          'ChessVision is provided "as is" without warranty of any kind. We are not liable for any data loss or issues resulting from use of the export features.'
+      }
+    ]
+  }
+];
+
+const FAQ_ITEMS: Array<{ q: string; a: string }> = [
+  {
+    q: 'Why is my export taking so long?',
+    a: 'High-resolution exports (16x-32x) require significant browser memory and CPU. If your browser freezes, try a lower quality preset or use a modern browser like Chrome or Edge.'
+  },
+  {
+    q: 'Can I use my own piece sets?',
+    a: 'ChessVision ships with several high-quality built-in piece sets. Custom piece-set support is on the roadmap.'
+  },
+  {
+    q: 'Is my data private?',
+    a: 'Yes. All board rendering and export happen locally in your browser. Optional cloud sync is end-to-end encrypted, and there is no tracking.'
+  },
+  {
+    q: 'Can I use the diagrams commercially?',
+    a: 'Yes. Generated diagrams can be used freely for any purpose, including commercial use.'
+  }
+];
+
+/** Standalone About page: project overview, features, support, privacy, terms, and FAQ. */
 function AboutPage() {
   return (
     <div className="w-full pt-16 sm:pt-20 lg:pt-24 3xl:pt-32 pb-8 sm:pb-12 px-[2%] sm:px-[3%] lg:px-[4%]">
       <div className="w-[95%] max-w-600 mx-auto space-y-6 lg:space-y-10 transition-all duration-500 ease-in-out">
-        <div className="text-center mb-10 animate-fadeIn">
+        <header className="text-center mb-10 animate-fadeIn">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-semibold mb-5">
-            <Crown className="w-5 h-5" />
-            Professional Tool
+            <Info className="w-5 h-5" />
+            About ChessVision
           </div>
           <h1 className="text-4xl sm:text-5xl font-display font-bold text-text-primary mb-4">
             About
           </h1>
           <p className="text-text-secondary text-lg max-w-2xl mx-auto leading-relaxed">
-            Professional ChessVision for players, coaches, and content creators
+            A free, open-source, privacy-first tool for creating high-quality
+            chess diagrams.
           </p>
-        </div>
+        </header>
 
-        <div className="glass-card p-6 sm:p-8 rounded-2xl shadow-lg animate-fadeIn">
-          <div className="space-y-5 text-text-secondary leading-relaxed">
-            <p>
-              A modern web application for creating high-quality chess diagrams
-              from FEN notation. Built with performance and usability in mind.
-            </p>
+        {SECTIONS.map((section) => {
+          const Icon = section.icon;
+          return (
+            <section
+              key={section.id}
+              aria-labelledby={`about-${section.id}`}
+              className="glass-card p-6 sm:p-8 rounded-2xl shadow-lg animate-fadeIn"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
+                  <Icon className="w-6 h-6 text-accent" />
+                </div>
+                <h2
+                  id={`about-${section.id}`}
+                  className="text-xl font-display font-bold text-text-primary"
+                >
+                  {section.title}
+                </h2>
+              </div>
 
-            <div className="grid sm:grid-cols-2 gap-4 my-6">
-              <div className="p-5 rounded-xl bg-accent/5 border border-accent/20">
-                <h3 className="flex items-center gap-2 text-base font-bold text-accent mb-2">
-                  <CheckCircle className="w-5 h-5" />
-                  Ultra-HD Export
-                </h3>
-                <p className="text-sm">Up to 32x quality (12,800px)</p>
+              <div className="space-y-4">
+                {section.blocks.map((block) => (
+                  <div
+                    key={block.title}
+                    className="p-5 bg-surface-elevated border border-border/50 rounded-2xl"
+                  >
+                    <h3 className="text-base font-bold text-text-primary mb-2">
+                      {block.title}
+                    </h3>
+                    <p className="text-text-secondary leading-relaxed text-sm">
+                      {block.content}
+                    </p>
+                  </div>
+                ))}
               </div>
-              <div className="p-5 rounded-xl bg-accent/5 border border-accent/20">
-                <h3 className="flex items-center gap-2 text-base font-bold text-accent mb-2">
-                  <CheckCircle className="w-5 h-5" />
-                  Privacy First
-                </h3>
-                <p className="text-sm">All processing in browser</p>
-              </div>
-              <div className="p-5 rounded-xl bg-accent/5 border border-accent/20">
-                <h3 className="flex items-center gap-2 text-base font-bold text-accent mb-2">
-                  <CheckCircle className="w-5 h-5" />
-                  Multiple Formats
-                </h3>
-                <p className="text-sm">PNG, JPEG, clipboard</p>
-              </div>
-              <div className="p-5 rounded-xl bg-accent/5 border border-accent/20">
-                <h3 className="flex items-center gap-2 text-base font-bold text-accent mb-2">
-                  <CheckCircle className="w-5 h-5" />
-                  Full FEN Support
-                </h3>
-                <p className="text-sm">Complete notation support</p>
-              </div>
-            </div>
 
-            <div className="grid sm:grid-cols-2 gap-6 mt-6">
-              <div>
-                <h3 className="flex items-center gap-2 text-base font-bold text-text-primary mb-2">
-                  <Code className="w-5 h-5 text-accent" />
-                  Technology
-                </h3>
-                <p className="text-sm">
-                  Built with React 19 and HTML5 Canvas for high-performance
-                  rendering.
-                </p>
-              </div>
-              <div>
-                <h3 className="flex items-center gap-2 text-base font-bold text-text-primary mb-2">
-                  <Shield className="w-5 h-5 text-success" />
-                  Privacy
-                </h3>
-                <p className="text-sm">
-                  Your positions never leave your device. Everything runs
-                  locally.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+              {section.id === 'support' && (
+                <a
+                  href={`mailto:${SUPPORT_EMAIL}`}
+                  className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-accent hover:underline"
+                >
+                  <Mail className="w-4 h-4" />
+                  {SUPPORT_EMAIL}
+                </a>
+              )}
+            </section>
+          );
+        })}
 
-        <div className="glass-card p-6 sm:p-8 rounded-2xl shadow-lg animate-fadeIn">
+        <section
+          aria-labelledby="about-faq"
+          className="glass-card p-6 sm:p-8 rounded-2xl shadow-lg animate-fadeIn"
+        >
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
-              <Info className="w-6 h-6 text-accent" />
+            <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
+              <FileText className="w-6 h-6 text-accent" />
             </div>
-            <div>
-              <h2 className="text-xl font-display font-bold text-text-primary">
-                How to Use
-              </h2>
-              <p className="text-sm text-text-muted">
-                Quick guide to creating diagrams
-              </p>
-            </div>
+            <h2
+              id="about-faq"
+              className="text-xl font-display font-bold text-text-primary"
+            >
+              Frequently Asked Questions
+            </h2>
           </div>
 
-          <div className="space-y-6">
-            <div>
-              <h3 className="flex items-center gap-2 text-base font-semibold text-text-primary mb-3">
-                <Layers className="w-5 h-5 text-accent" />
-                Export Quality
-              </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <QualityCard level="1-4x" label="Web" desc="Fast" />
-                <QualityCard level="8x" label="HD" desc="3200px" />
-                <QualityCard level="16x" label="Print" desc="6400px" />
-                <QualityCard level="32x" label="Ultra" desc="12800px" />
-              </div>
-            </div>
-
-            <div>
-              <h3 className="flex items-center gap-2 text-base font-semibold text-text-primary mb-3">
-                <Zap className="w-5 h-5 text-accent" />
-                Quick Actions
-              </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                <ActionCard
-                  icon={<FileText className="w-5 h-5" />}
-                  title="PNG"
-                  desc="Transparent"
-                />
-                <ActionCard
-                  icon={<FileText className="w-5 h-5" />}
-                  title="JPEG"
-                  desc="White bg"
-                />
-                <ActionCard
-                  icon={<Copy className="w-5 h-5" />}
-                  title="Copy"
-                  desc="Clipboard"
-                />
-                <ActionCard
-                  icon={<RotateCw className="w-5 h-5" />}
-                  title="Flip"
-                  desc="Rotate"
-                />
-                <ActionCard
-                  icon={<Shuffle className="w-5 h-5" />}
-                  title="Random"
-                  desc="Position"
-                />
-                <ActionCard
-                  icon={<Maximize2 className="w-5 h-5" />}
-                  title="Batch"
-                  desc="Multi-export"
-                />
-              </div>
-            </div>
+          <div className="space-y-3">
+            {FAQ_ITEMS.map((item) => (
+              <FAQItem key={item.q} q={item.q} a={item.a} />
+            ))}
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );
 }
 
-/** Props for the export quality tier card. */
-interface QualityCardProps {
-  level: string;
-  label: string;
-  desc: string;
+/** Props for a collapsible FAQ accordion item. */
+interface FAQItemProps {
+  q: string;
+  a: string;
 }
 
-function QualityCard({ level, label, desc }: QualityCardProps) {
+function FAQItem({ q, a }: FAQItemProps) {
+  const [isOpen, setIsOpen] = useState(false);
   return (
-    <div className="p-3 rounded-lg bg-surface-elevated border border-border hover:border-accent text-center transition-colors duration-200">
-      <div className="text-lg font-bold text-accent mb-0.5">{level}</div>
-      <div className="text-sm font-semibold text-text-primary mb-0.5">
-        {label}
-      </div>
-      <div className="text-xs text-text-muted">{desc}</div>
+    <div className="border border-border hover:border-accent/50 rounded-xl transition-colors duration-200">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-5 py-4 flex items-center justify-between text-left transition-colors duration-200"
+        aria-expanded={isOpen}
+      >
+        <span className="font-semibold text-text-primary pr-4">{q}</span>
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <ChevronDown className="w-5 h-5 text-accent shrink-0" />
+        </motion.div>
+      </button>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="px-5 pb-4 text-text-secondary leading-relaxed text-sm">
+              {a}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
-/** Props for a quick-action feature card. */
-interface ActionCardProps {
-  icon: React.ReactNode;
-  title: string;
-  desc: string;
-}
-
-function ActionCard({ icon, title, desc }: ActionCardProps) {
-  return (
-    <div className="flex items-center gap-3 p-3 rounded-lg bg-surface-elevated border border-border hover:border-accent transition-colors duration-200">
-      <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center text-accent shrink-0">
-        {icon}
-      </div>
-      <div className="text-left">
-        <div className="text-sm font-semibold text-text-primary">{title}</div>
-        <div className="text-xs text-text-muted">{desc}</div>
-      </div>
-    </div>
-  );
-}
 export default AboutPage;

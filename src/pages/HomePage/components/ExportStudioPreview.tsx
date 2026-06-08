@@ -44,7 +44,7 @@ const ExportStudioPreview = memo(function ExportStudioPreview({
   );
 
   return (
-    <div className="hidden md:flex min-h-0 self-start md:sticky md:top-0 h-[calc(100dvh-5rem-1px)] lg:h-[calc(100dvh-6rem-1px)] w-full bg-surface-muted/40 p-4 sm:p-6 lg:p-8 items-center justify-center overflow-hidden">
+    <div className="hidden md:flex min-h-0 self-start md:sticky md:top-0 h-[calc(100dvh-5rem-1px)] lg:h-[calc(100dvh-6rem-1px)] w-full bg-surface-elevated/40 p-4 sm:p-6 lg:p-8 items-center justify-center overflow-hidden">
       <div className="w-full h-full flex items-center justify-center">
         <div
           className="relative transition-all duration-300 ease-out"

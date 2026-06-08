@@ -5,7 +5,11 @@ import { useLocation } from 'react-router-dom';
 import { useLocalStorage } from '@hooks';
 
 import { validateFEN } from '@utils/fenParser';
-import { MAX_FEN_LENGTH, safeJSONParse } from '@utils/validation';
+import {
+  MAX_FEN_LENGTH,
+  safeJSONParse,
+  sanitizeHexColor
+} from '@utils/validation';
 
 /** Persists all board display settings to localStorage and syncs square colors on cross-tab storage events. */
 export function useHomeBoardState() {
@@ -17,10 +21,14 @@ export function useHomeBoardState() {
   );
 
   useEffect(() => {
-    if (location.state?.loadFEN) {
-      setFen(location.state.loadFEN);
-      window.history.replaceState({}, document.title);
+    const incoming: unknown = location.state?.loadFEN;
+    if (typeof incoming !== 'string') return;
+    // Same gate as the deep-link path: validate and length-cap before adoption,
+    // even though router state is in-app — keeps the FEN boundary consistent.
+    if (incoming.length <= MAX_FEN_LENGTH && validateFEN(incoming)) {
+      setFen(incoming);
     }
+    window.history.replaceState({}, document.title);
   }, [location, setFen]);
 
   // Hydrate from a shared deep link (`?fen=…`). Validated and length-capped
@@ -64,8 +72,14 @@ export function useHomeBoardState() {
     const handleStorageChange = () => {
       const light = localStorage.getItem('chess-light-square');
       const dark = localStorage.getItem('chess-dark-square');
-      if (light !== null) setLightSquare(safeJSONParse(light, '#f0d9b5'));
-      if (dark !== null) setDarkSquare(safeJSONParse(dark, '#b58863'));
+      if (light !== null)
+        setLightSquare(
+          sanitizeHexColor(safeJSONParse(light, '#f0d9b5'), '#f0d9b5')
+        );
+      if (dark !== null)
+        setDarkSquare(
+          sanitizeHexColor(safeJSONParse(dark, '#b58863'), '#b58863')
+        );
     };
 
     handleStorageChange();

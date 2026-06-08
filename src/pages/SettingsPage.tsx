@@ -143,7 +143,7 @@ const SettingsPage = memo(function SettingsPage() {
                   <div className="p-6 border-b border-border/50">
                     <TwoFactorSetup />
                   </div>
-                  <div className="p-6 bg-surface-primary/30">
+                  <div className="p-6 bg-surface/30">
                     <h4 className="text-sm font-bold text-text-primary mb-2">
                       Password Management
                     </h4>

@@ -3,7 +3,7 @@
 Technical documentation for ChessVision v6.0.0.
 
 - Source: [github.com/chessvision-org/chess-vision](https://github.com/chessvision-org/chess-vision)
-- Demo: [chess-vision-site.vercel.app](https://chess-vision-site.vercel.app)
+- Demo: [chessvision.org](https://chessvision.org)
 - Issues: [GitHub Issues](https://github.com/chessvision-org/chess-vision/issues)
 
 ---

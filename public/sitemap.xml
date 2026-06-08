@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  
+
   <!-- Home Page -->
   <url>
-    <loc>https://chess-vision-site.vercel.app/</loc>
-    <lastmod>2026-01-28</lastmod>
+    <loc>https://chessvision.org/</loc>
+    <lastmod>2026-06-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
-  
+
   <!-- About Page -->
   <url>
-    <loc>https://chess-vision-site.vercel.app/about</loc>
-    <lastmod>2026-01-28</lastmod>
+    <loc>https://chessvision.org/about</loc>
+    <lastmod>2026-06-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  
+
   <!-- Download Page -->
   <url>
-    <loc>https://chess-vision-site.vercel.app/download</loc>
-    <lastmod>2026-01-28</lastmod>
+    <loc>https://chessvision.org/download</loc>
+    <lastmod>2026-06-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  
+
   <!-- Support Page -->
   <url>
-    <loc>https://chess-vision-site.vercel.app/support</loc>
-    <lastmod>2026-01-28</lastmod>
+    <loc>https://chessvision.org/support</loc>
+    <lastmod>2026-06-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  
+
 </urlset>

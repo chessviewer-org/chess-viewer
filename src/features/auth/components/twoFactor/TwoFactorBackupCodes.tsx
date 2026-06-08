@@ -23,7 +23,7 @@ export function TwoFactorBackupCodes({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 bg-surface-primary p-5 rounded-2xl border border-border shadow-inner">
+      <div className="grid grid-cols-2 gap-3 bg-surface p-5 rounded-2xl border border-border shadow-inner">
         {backupCodes.map((code) => (
           <div
             key={code}

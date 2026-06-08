@@ -8,7 +8,7 @@
 | v5.x    | Critical only | Yes              |
 | < v5.0  | Unsupported   | No               |
 
-Always use the latest version available at [chess-vision-site.vercel.app](https://chess-vision-site.vercel.app).
+Always use the latest version available at [chessvision.org](https://chessvision.org).
 
 ---
 
@@ -53,13 +53,13 @@ Do not open a public GitHub issue for security vulnerabilities.
 
 ### Option 1: GitHub Security Advisory (preferred)
 
-1. Go to the [Security tab](https://github.com/BilgeGates/chess-vision/security).
+1. Go to the [Security tab](https://github.com/chessvision-org/chess-vision/security).
 2. Click "Report a vulnerability".
 3. Fill in the advisory form.
 
 ### Option 2: Direct Email
 
-Send to: [chessvision@protonmail.com](mailto:chessvision@protonmail.com)  
+Send to: [contact@chessvision.org](mailto:contact@chessvision.org)  
 Subject: `[SECURITY] <brief description>`
 
 ### What to Include
