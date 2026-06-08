@@ -173,9 +173,27 @@ export const useFENHistoryPage = () => {
     [reactivateArchivedEntry]
   );
 
-  const favoritesData = fenHistory.filter(
-    (entry: ActiveHistoryEntry) => entry.isFavorite
-  );
+  // Favorites de-duplicated by position: the same FEN can appear many times in
+  // the raw history (re-loaded repeatedly), but a position is favourited once.
+  // Keep a single card per board-field, the MOST RECENTLY favourited first.
+  // View-only dedup — the underlying history data is never mutated.
+  const favoritesData = (() => {
+    const favorites = fenHistory.filter(
+      (entry: ActiveHistoryEntry) => entry.isFavorite
+    );
+    const sorted = [...favorites].sort(
+      (a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0)
+    );
+    const seen = new Set<string>();
+    const unique: ActiveHistoryEntry[] = [];
+    for (const entry of sorted) {
+      const key = entry.fen.split(' ')[0] ?? entry.fen;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      unique.push(entry);
+    }
+    return unique;
+  })();
 
   const applyFavoritesFilters = useCallback(
     (entries: ActiveHistoryEntry[]) => {
