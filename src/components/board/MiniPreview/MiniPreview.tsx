@@ -48,14 +48,22 @@ const MiniPreview = memo(
         style.getPropertyValue('--color-dark-square').trim() ||
         '#b58863';
 
-      const squareSize = size / 8;
-      const scale = 2;
+      // Render at the REAL displayed device-pixel size, not a fixed 160×2.
+      // The card preview stretches the canvas via `w-full h-full`; sizing the
+      // backing store to (CSS px × devicePixelRatio) of the actual box keeps
+      // the thumbnail crisp instead of upscaling a small canvas (the blur).
+      const cssSize = Math.max(
+        size,
+        Math.round(canvas.clientWidth || canvas.parentElement?.clientWidth || 0)
+      );
+      const dpr = Math.min(window.devicePixelRatio || 1, 3);
+      const squareSize = cssSize / 8;
       setHasError(false);
-      canvas.width = size * scale;
-      canvas.height = size * scale;
+      canvas.width = Math.round(cssSize * dpr);
+      canvas.height = Math.round(cssSize * dpr);
       canvas.style.width = '100%';
       canvas.style.height = '100%';
-      ctx.scale(scale, scale);
+      ctx.scale(dpr, dpr);
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
       try {

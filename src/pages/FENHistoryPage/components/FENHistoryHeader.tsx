@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 
-import { Archive as ArchiveIcon, ArrowLeft, Clock, Star } from 'lucide-react';
+import { ArrowLeft, Clock, Inbox, Star, Trash2 } from 'lucide-react';
 
 import { TabType } from '../hooks/useFENHistoryPage';
 
@@ -50,68 +50,61 @@ export const FENHistoryHeader: React.FC<FENHistoryHeaderProps> = memo(
                   FEN History
                 </h1>
               </div>
-              <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 bg-surface-elevated text-text-secondary text-xs font-medium rounded-full animate-numberRoll">
-                {currentDataLength}
-              </span>
             </div>
 
             {currentDataLength > 0 && (
               <button
                 onClick={handleClearAll}
-                className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-error hover:bg-error/10 rounded-xl transition-colors duration-200"
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-error hover:bg-error/10 rounded-xl transition-colors duration-200"
               >
-                Clear All
+                <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Clear All</span>
               </button>
             )}
           </div>
         </div>
 
-        <div className="px-4 sm:px-6 py-2 sm:py-2.5 border-t border-border/50">
-          <div className="flex gap-2 items-center">
+        {/* Tab nav in the AdvancedFENInput wizard style (soft accent-tint on the
+            active tab, no track box, no divider bars) — but stretched the full
+            screen width so each tab takes ~1/3 (flex-1). */}
+        <div className="px-4 sm:px-6 pb-2 sm:pb-2.5">
+          <div className="flex items-center gap-2 border-t border-border/40 pt-2 sm:pt-2.5">
             <button
               onClick={() => setActiveTab('active')}
-              className={`flex-1 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200 ${
+              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-colors duration-150 ${
                 activeTab === 'active'
-                  ? 'bg-accent text-bg shadow-sm'
-                  : 'bg-surface text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+                  ? 'bg-accent/10 text-accent'
+                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
               }`}
             >
-              <span className="flex items-center justify-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                Active ({fenHistoryLength})
-              </span>
+              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+              <span className="truncate">Active ({fenHistoryLength})</span>
             </button>
-
-            <div className="w-px h-7 bg-border/50" />
 
             <button
               onClick={() => setActiveTab('favorites')}
-              className={`flex-1 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200 ${
+              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-colors duration-150 ${
                 activeTab === 'favorites'
-                  ? 'bg-accent text-bg shadow-sm'
-                  : 'bg-surface text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+                  ? 'bg-accent/10 text-accent'
+                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
               }`}
             >
-              <span className="flex items-center justify-center gap-1.5">
-                <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+              <span className="truncate">
                 Favorites ({favoritesDataLength})
               </span>
             </button>
 
-            <div className="w-px h-7 bg-border/50" />
-
             <button
               onClick={() => setActiveTab('archive')}
-              className={`flex-1 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200 ${
+              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-colors duration-150 ${
                 activeTab === 'archive'
-                  ? 'bg-accent text-bg shadow-sm'
-                  : 'bg-surface text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+                  ? 'bg-accent/10 text-accent'
+                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
               }`}
             >
-              <span className="flex items-center justify-center gap-1.5">
-                <ArchiveIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                Archive ({archiveLength})
-              </span>
+              <Inbox className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+              <span className="truncate">Archive ({archiveLength})</span>
             </button>
           </div>
         </div>

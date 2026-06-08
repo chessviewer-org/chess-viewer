@@ -1,6 +1,14 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 
-import { Archive as ArchiveIcon, Clock, Star, Trash2 } from 'lucide-react';
+import {
+  CalendarDays,
+  Check,
+  Clock,
+  Copy,
+  Inbox,
+  Star,
+  Trash2
+} from 'lucide-react';
 
 import { MiniPreview } from '@/components/board';
 import { StatusBadge } from '@/components/panels/History';
@@ -51,6 +59,15 @@ export const FENHistoryGridItem: React.FC<FENHistoryGridItemProps> = memo(
     handleLoad,
     handleToggleFavorite
   }) => {
+    const timestamp = entry.createdAt ?? entry.timestamp ?? entry.archivedAt;
+    const [copied, setCopied] = useState(false);
+    const handleCopy = useCallback(() => {
+      void navigator.clipboard.writeText(entry.fen).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+      });
+    }, [entry.fen]);
+
     return (
       <div
         className="bg-surface border border-border rounded-xl overflow-hidden hover:shadow-lg hover:shadow-accent/5 hover:border-accent/30 transition-[box-shadow,border-color] duration-200 group flex flex-col min-h-50 animate-cardReveal"
@@ -68,8 +85,25 @@ export const FENHistoryGridItem: React.FC<FENHistoryGridItemProps> = memo(
         </div>
 
         <div className="p-3 flex flex-col flex-1 min-h-0">
-          <div className="font-mono text-xs text-text-muted/70 truncate mb-2">
-            {entry.fen.split(' ')[0]}
+          {/* Full FEN over two lines (no truncation) + one-tap copy. Slightly
+              larger mono so it reads cleanly; wraps on any char. */}
+          <div className="flex items-start gap-1.5 mb-2">
+            <code className="font-mono text-[13px] leading-snug text-text-secondary break-all line-clamp-2 flex-1">
+              {entry.fen}
+            </code>
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="shrink-0 p-1 rounded-md text-text-muted hover:text-accent hover:bg-surface-hover transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              title={copied ? 'Copied' : 'Copy FEN'}
+              aria-label="Copy FEN to clipboard"
+            >
+              {copied ? (
+                <Check className="w-3.5 h-3.5 text-success" />
+              ) : (
+                <Copy className="w-3.5 h-3.5" />
+              )}
+            </button>
           </div>
 
           {activeTab === 'active' && entry.lastActiveAt && (
@@ -81,19 +115,15 @@ export const FENHistoryGridItem: React.FC<FENHistoryGridItemProps> = memo(
           <div className="flex-1"></div>
 
           <div className="flex flex-col gap-2">
-            {(entry.createdAt || entry.timestamp || entry.archivedAt) && (
-              <div className="text-xs text-text-muted/60 flex items-center gap-1 font-medium">
-                <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0 opacity-50" />
-                <span>
-                  {formatDate(
-                    (entry.createdAt || entry.timestamp || entry.archivedAt)!
-                  )}
+            {timestamp !== undefined && (
+              <div className="flex items-center gap-2 text-[11px] sm:text-xs text-text-muted font-medium">
+                <span className="inline-flex items-center gap-1">
+                  <CalendarDays className="w-3 h-3 shrink-0 text-text-muted/70" />
+                  {formatDate(timestamp)}
                 </span>
-                <span className="opacity-40">•</span>
-                <span>
-                  {formatTime(
-                    (entry.createdAt || entry.timestamp || entry.archivedAt)!
-                  )}
+                <span className="inline-flex items-center gap-1">
+                  <Clock className="w-3 h-3 shrink-0 text-text-muted/70" />
+                  {formatTime(timestamp)}
                 </span>
               </div>
             )}
@@ -145,7 +175,7 @@ export const FENHistoryGridItem: React.FC<FENHistoryGridItemProps> = memo(
                   className="p-2 hover:bg-surface-hover text-text-muted hover:text-text-secondary rounded-lg transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:outline-none"
                   aria-label="Archive"
                 >
-                  <ArchiveIcon className="w-3.5 h-3.5" />
+                  <Inbox className="w-3.5 h-3.5" />
                 </button>
               </div>
             )}

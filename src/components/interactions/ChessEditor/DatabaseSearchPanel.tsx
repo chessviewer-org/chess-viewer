@@ -7,17 +7,19 @@ import type { ProviderState } from '@hooks/useDatabaseSearch';
 /**
  * Dedicated Database Search panel (manual search only).
  *
- * Layout — two stacked provider rows, each independently triggered:
- *   ┌──────────────────────────────────────────┐
- *   │  ◆ PDB                       [ Search ]    │
- *   │  ◆ YACPDB                    [ Search ]    │
- *   └──────────────────────────────────────────┘
+ * Layout — four provider cells in a 2×2 grid, each independently triggered:
+ *   ┌───────────────────────┬───────────────────────┐
+ *   │ ◆ Lichess  [ Search ]  │ ◆ ChessDB  [ Search ]  │
+ *   ├───────────────────────┼───────────────────────┤
+ *   │ ◆ PDB      [ Search ]  │ ◆ YACPDB   [ Search ]  │
+ *   └───────────────────────┴───────────────────────┘
  *
  * A provider that matched turns its icon + label GOLD and its action button
  * becomes an "Open ↗" external link. Colours use existing CSS-variable tokens.
  */
 export interface DatabaseSearchPanelProps {
   lichess: ProviderState;
+  chessdb: ProviderState;
   pdb: ProviderState;
   yacpdb: ProviderState;
 }
@@ -36,7 +38,7 @@ const SearchActionButton = memo(function SearchActionButton({
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center justify-center gap-1 px-3 py-1.5 min-w-[88px] rounded-lg text-xs font-bold text-bg bg-accent hover:bg-accent-hover transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:scale-[0.98]"
+        className="flex shrink-0 items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-bg bg-accent hover:bg-accent-hover transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:scale-[0.98]"
         aria-label={`Open ${state.label} result in a new tab`}
       >
         <span>Open</span>
@@ -60,7 +62,7 @@ const SearchActionButton = memo(function SearchActionButton({
       type="button"
       onClick={state.search}
       disabled={searching}
-      className={`flex items-center justify-center gap-1.5 px-3 py-1.5 min-w-[88px] rounded-lg text-xs font-semibold border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg ${
+      className={`flex shrink-0 items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg ${
         searching
           ? 'cursor-wait border-border/50 bg-surface text-text-muted'
           : status === 'notfound'
@@ -87,8 +89,8 @@ const ProviderRow = memo(function ProviderRow({
 }) {
   const found = state.status === 'found';
   return (
-    <div className="flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg border border-border/40 bg-surface">
-      <div className="flex items-center gap-2 min-w-0">
+    <div className="flex items-center justify-between gap-1.5 min-w-0 px-2 py-2 rounded-lg border border-border/40 bg-surface">
+      <div className="flex items-center gap-1.5 min-w-0">
         <Database
           className={`w-4 h-4 shrink-0 transition-colors duration-300 ${
             found ? 'text-accent' : 'text-text-muted'
@@ -111,6 +113,7 @@ const ProviderRow = memo(function ProviderRow({
 
 const DatabaseSearchPanel = memo(function DatabaseSearchPanel({
   lichess,
+  chessdb,
   pdb,
   yacpdb
 }: DatabaseSearchPanelProps) {
@@ -120,12 +123,15 @@ const DatabaseSearchPanel = memo(function DatabaseSearchPanel({
         Database Search
       </span>
 
-      {/* Stacked provider rows — each independently triggered. Lichess first
-          (game database: "who played this position?"), then the problem
-          databases PDB / YACPDB. */}
-      <ProviderRow state={lichess} />
-      <ProviderRow state={pdb} />
-      <ProviderRow state={yacpdb} />
+      {/* 2×2 grid — each provider independently triggered. Top row: game
+          databases (Lichess "who played this?" · ChessDB engine evals); bottom
+          row: the problem databases PDB / YACPDB. */}
+      <div className="grid grid-cols-2 gap-2">
+        <ProviderRow state={lichess} />
+        <ProviderRow state={chessdb} />
+        <ProviderRow state={pdb} />
+        <ProviderRow state={yacpdb} />
+      </div>
     </div>
   );
 });

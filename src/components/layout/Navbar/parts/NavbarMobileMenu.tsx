@@ -1,7 +1,7 @@
 import { memo } from 'react';
 
 import {
-  HelpCircle,
+  Info,
   LogOut,
   Moon,
   Shield,
@@ -26,7 +26,6 @@ interface NavbarMobileMenuProps {
   setIsMobileMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
   openAuthModal: (tab: 'signin' | 'signup' | 'security') => void;
   handleSignOut: () => void;
-  handleHelpClick: () => void;
 }
 
 export const NavbarMobileMenu = memo(function NavbarMobileMenu({
@@ -36,8 +35,7 @@ export const NavbarMobileMenu = memo(function NavbarMobileMenu({
   isAuthenticated,
   setIsMobileMenuOpen,
   openAuthModal,
-  handleSignOut,
-  handleHelpClick
+  handleSignOut
 }: NavbarMobileMenuProps) {
   const prefetch = usePrefetchRoute();
   const { displayName, avatarUrl, isSupporter } = useProfile();
@@ -102,14 +100,16 @@ export const NavbarMobileMenu = memo(function NavbarMobileMenu({
           </>
         )}
 
-        {/* Bottom: Help (+ theme), then Sign Out / Add Account at the very bottom */}
-        <button
-          onClick={handleHelpClick}
+        {/* Bottom: About (+ theme), then Sign Out / Add Account at the very bottom */}
+        <Link
+          to="/about"
+          {...prefetch('/about')}
+          onClick={() => setIsMobileMenuOpen(false)}
           className="flex w-full items-center space-x-3 px-3 py-3 min-h-11 rounded-lg transition-colors duration-200 text-text-secondary hover:text-text-primary hover:bg-surface-hover active:bg-surface-elevated"
         >
-          <HelpCircle className="w-5 h-5" />
-          <span className="font-medium text-base">Help</span>
-        </button>
+          <Info className="w-5 h-5" />
+          <span className="font-medium text-base">About</span>
+        </Link>
         <button
           onClick={(e) => {
             toggleTheme(e);

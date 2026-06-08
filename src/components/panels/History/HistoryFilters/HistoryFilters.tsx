@@ -1,15 +1,15 @@
 import { memo, useCallback, useState } from 'react';
 
 import {
-  AlertCircle,
-  Circle,
+  CircleCheck,
+  Clock,
   Download,
   Edit,
   Filter,
+  Hourglass,
   MousePointer,
   Search,
-  X,
-  Zap
+  X
 } from 'lucide-react';
 
 import { CustomSelect, DatePicker } from '@shared/ui';
@@ -84,22 +84,22 @@ const HistoryFilters = memo(function HistoryFilters({
     {
       value: '',
       label: 'All Status',
-      icon: <Circle className="w-3.5 h-3.5 text-text-muted" />
+      icon: <Filter className="w-3.5 h-3.5 text-text-muted" />
     },
     {
       value: 'green',
       label: 'Fresh (< 7 days)',
-      icon: <Circle className="w-3.5 h-3.5 text-success fill-current" />
+      icon: <CircleCheck className="w-3.5 h-3.5 text-success" />
     },
     {
       value: 'yellow',
       label: 'Aging (< 30 days)',
-      icon: <Zap className="w-3.5 h-3.5 text-warning" />
+      icon: <Clock className="w-3.5 h-3.5 text-warning" />
     },
     {
       value: 'red',
       label: 'Stale (< 90 days)',
-      icon: <AlertCircle className="w-3.5 h-3.5 text-error" />
+      icon: <Hourglass className="w-3.5 h-3.5 text-error" />
     }
   ];
   const sourceOptions = [
@@ -163,71 +163,84 @@ const HistoryFilters = memo(function HistoryFilters({
           )}
         </div>
 
-        {isExpanded && (
-          <div
-            className={`mt-4 grid grid-cols-1 sm:grid-cols-2 ${showStatus ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-3 pt-4 border-t border-border`}
-          >
-            {showStatus && (
+        {/* Expand/collapse with a grid-rows height animation: the row track
+            grows 0fr→1fr (opens top-down) and shrinks 1fr→0fr (closes
+            bottom-up). Pure CSS, no layout thrash, honours reduced-motion via
+            the global transition reset. */}
+        <div
+          className="grid transition-[grid-template-rows,opacity] duration-300 ease-out"
+          style={{
+            gridTemplateRows: isExpanded ? '1fr' : '0fr',
+            opacity: isExpanded ? 1 : 0
+          }}
+          aria-hidden={!isExpanded}
+        >
+          <div className="overflow-hidden min-h-0">
+            <div
+              className={`mt-4 grid grid-cols-1 sm:grid-cols-2 ${showStatus ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-3 pt-4 border-t border-border`}
+            >
+              {showStatus && (
+                <CustomSelect
+                  value={filters.status || ''}
+                  onChange={handleStatusChange}
+                  options={statusOptions}
+                  placeholder="All Status"
+                  label="Status"
+                />
+              )}
+
               <CustomSelect
-                value={filters.status || ''}
-                onChange={handleStatusChange}
-                options={statusOptions}
-                placeholder="All Status"
-                label="Status"
+                value={filters.source || ''}
+                onChange={handleSourceChange}
+                options={sourceOptions}
+                placeholder="All Sources"
+                label="Source"
               />
-            )}
 
-            <CustomSelect
-              value={filters.source || ''}
-              onChange={handleSourceChange}
-              options={sourceOptions}
-              placeholder="All Sources"
-              label="Source"
-            />
+              <DatePicker
+                value={filters.dateFrom}
+                onChange={(value) =>
+                  onFiltersChange({
+                    ...filters,
+                    dateFrom: value
+                  })
+                }
+                placeholder="Start date"
+                label="Date From"
+              />
 
-            <DatePicker
-              value={filters.dateFrom}
-              onChange={(value) =>
-                onFiltersChange({
-                  ...filters,
-                  dateFrom: value
-                })
-              }
-              placeholder="Start date"
-              label="Date From"
-            />
+              <DatePicker
+                value={filters.dateTo}
+                onChange={(value) =>
+                  onFiltersChange({
+                    ...filters,
+                    dateTo: value
+                  })
+                }
+                placeholder="End date"
+                label="Date To"
+              />
 
-            <DatePicker
-              value={filters.dateTo}
-              onChange={(value) =>
-                onFiltersChange({
-                  ...filters,
-                  dateTo: value
-                })
-              }
-              placeholder="End date"
-              label="Date To"
-            />
-
-            {showFavoritesCheckbox && (
-              <div
-                className={`${showStatus ? 'sm:col-span-2 lg:col-span-4' : 'sm:col-span-2 lg:col-span-3'}`}
-              >
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={filters.favoritesOnly || false}
-                    onChange={(e) => handleFavoritesToggle(e.target.checked)}
-                    className="w-4 h-4 text-accent bg-surface border-border rounded focus:ring-2 focus:ring-accent"
-                  />
-                  <span className="text-sm font-medium text-text-primary">
-                    Show favorites only
-                  </span>
-                </label>
-              </div>
-            )}
+              {showFavoritesCheckbox && (
+                <div
+                  className={`${showStatus ? 'sm:col-span-2 lg:col-span-4' : 'sm:col-span-2 lg:col-span-3'}`}
+                >
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={filters.favoritesOnly || false}
+                      onChange={(e) => handleFavoritesToggle(e.target.checked)}
+                      className="w-4 h-4 text-accent bg-surface border-border rounded focus:ring-2 focus:ring-accent"
+                    />
+                    <span className="text-sm font-medium text-text-primary">
+                      Show favorites only
+                    </span>
+                  </label>
+                </div>
+              )}
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

@@ -129,6 +129,13 @@
   --shadow-glow:
     0 0 20px rgba(198, 156, 48, 0.2), 0 0 40px rgba(198, 156, 48, 0.1);
 
+  /* Navbar — Lichess-style translucent gold glow that drops below the bar.
+     Derived from --val-accent so a theme/accent change carries through. */
+  --navbar-shadow:
+    0 1px 0 0 rgb(var(--val-accent) / 0.14),
+    0 6px 18px -6px rgb(var(--val-accent) / 0.22),
+    0 14px 40px -18px rgb(var(--val-accent) / 0.16);
+
   /* Glass morphism */
   --glass-bg: color-mix(in srgb, var(--color-surface), transparent 25%);
   --glass-border: color-mix(in srgb, var(--color-border), transparent 92%);
@@ -243,6 +250,12 @@ html[data-theme-transition='to-dark'] {
   --shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.06);
   --shadow-glow:
     0 0 24px rgba(160, 120, 25, 0.2), 0 0 48px rgba(160, 120, 25, 0.1);
+
+  /* Navbar — Lichess-style translucent gold glow, softened for light mode. */
+  --navbar-shadow:
+    0 1px 0 0 rgb(var(--val-accent) / 0.16),
+    0 6px 16px -6px rgb(var(--val-accent) / 0.18),
+    0 12px 34px -18px rgb(var(--val-accent) / 0.12);
 
   /* Glass morphism - Light mode adjustments */
   --glass-bg: color-mix(in srgb, var(--color-surface), transparent 15%);
@@ -393,6 +406,32 @@ html[data-theme-transition='to-dark'] {
 
 /* ===== COMPONENTS LAYER ===== */
 @layer components {
+  /* Fixed top navbar shell.
+
+     The bottom-edge hairline was NOT anti-aliasing — it was a background
+     MISMATCH. `body` paints a 135deg gradient with `background-attachment:
+     fixed`; the navbar painted a FLAT `--color-bg`. Along the navbar's bottom
+     edge the flat fill met the page gradient, which differs from the flat value
+     by a few RGB steps — visible as a thin light line that faded left→right as
+     the 135deg gradient crossed the flat colour. (It got worse with the bar's
+     fractional fixed height, but the colour gap is the real cause.)
+
+     Fix: paint the SAME fixed gradient as `body`. Because `background-attachment:
+     fixed` anchors both gradients to the viewport, the navbar's gradient lines
+     up pixel-for-pixel with the page's behind it — there is no colour step at
+     the seam, so no line, at any width. The Lichess-style gold shadow below is
+     now decoration only, not a cover-up. */
+  .navbar-shell {
+    background-color: var(--color-bg);
+    background-image: linear-gradient(
+      135deg,
+      var(--color-bg-gradient-start),
+      var(--color-bg-gradient-end)
+    );
+    background-attachment: fixed;
+    box-shadow: var(--navbar-shadow);
+  }
+
   .card {
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);

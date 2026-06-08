@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-import { AlertCircle, Circle, Zap } from 'lucide-react';
+import { CircleCheck, Clock, Hourglass } from 'lucide-react';
 
 import { calculateStatus } from '@utils';
 
@@ -20,21 +20,21 @@ const StatusBadge = memo(function StatusBadge({
       bg: 'bg-success/15',
       text: 'text-success',
       label: 'Fresh',
-      icon: Circle,
-      iconClass: 'fill-current'
+      icon: CircleCheck,
+      iconClass: ''
     },
     yellow: {
       bg: 'bg-warning/15',
       text: 'text-warning',
       label: 'Aging',
-      icon: Zap,
+      icon: Clock,
       iconClass: ''
     },
     red: {
       bg: 'bg-error/15',
       text: 'text-error',
       label: 'Stale',
-      icon: AlertCircle,
+      icon: Hourglass,
       iconClass: ''
     }
   };

@@ -42,10 +42,10 @@ export const PiecePalette = memo(function PiecePalette({
         <div
           key={p.id}
           className={`
-            aspect-square flex-1 min-w-0 rounded-md
+            aspect-square flex-1 min-w-0 rounded-md overflow-hidden
             bg-surface-elevated hover:bg-surface-hover
             border border-border/50 hover:border-accent/50
-            flex items-center justify-center
+            grid place-items-center p-0.5
             transition-colors duration-200
             ${isLoading ? 'opacity-50' : ''}
           `}
@@ -55,7 +55,7 @@ export const PiecePalette = memo(function PiecePalette({
             piece={p.piece}
             pieceImage={pieceImage}
             isFromPalette={true}
-            size="90%"
+            size="100%"
             disabled={isLoading || !pieceImage}
           />
         </div>
@@ -67,12 +67,13 @@ export const PiecePalette = memo(function PiecePalette({
   const renderGroup = useCallback(
     (pieces: PalettePiece[], label: string) => (
       <div className="flex-1 min-w-0 flex flex-col">
-        {/* Refined header — light, spaced, muted (no chunky accent fill). */}
-        <span className="block w-full text-sm font-semibold uppercase tracking-wider text-text-muted text-center pb-1.5">
+        {/* Header in the site's gold accent tone. */}
+        <span className="block w-full text-sm font-semibold uppercase tracking-wider text-accent text-center pb-1.5">
           {label}
         </span>
-        {/* Tray: more padding so pieces have room to breathe. */}
-        <div className="flex items-center gap-1.5 sm:gap-2 p-3 rounded-lg border border-white/10 bg-black/20">
+        {/* Tray: `items-stretch` lets each square cell drive the row height so
+            no piece cell is clipped at the bottom. */}
+        <div className="flex items-stretch gap-1.5 sm:gap-2 p-3 rounded-lg border border-white/10 bg-black/20">
           {pieces.map(renderPiece)}
         </div>
       </div>

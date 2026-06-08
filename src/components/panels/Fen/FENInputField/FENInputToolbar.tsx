@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-import { Clipboard, Grid3x3, Heart, List, Plus, X } from 'lucide-react';
+import { Clipboard, Eraser, List, Plus, RotateCcw, Star } from 'lucide-react';
 
 /** Props for the `FENInputToolbar` action button row. */
 interface FENInputToolbarProps {
@@ -100,14 +100,14 @@ const FENInputToolbar = memo(function FENInputToolbar({
           onClick={onToggleFavorite}
           className={`${buttonBase} ${
             isFavorite
-              ? 'bg-error/20 text-error border border-error/30'
-              : 'bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-error'
+              ? 'bg-accent/20 text-accent border border-accent/30'
+              : 'bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-accent'
           }`}
           title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
           aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
           type="button"
         >
-          <Heart
+          <Star
             className={`w-3.5 h-3.5 transition duration-200 ease-out ${
               isFavorite ? 'scale-110' : 'scale-100'
             }`}
@@ -131,7 +131,7 @@ const FENInputToolbar = memo(function FENInputToolbar({
           aria-label="Load starting position"
           type="button"
         >
-          <Grid3x3
+          <RotateCcw
             className="w-3.5 h-3.5"
             strokeWidth={2.5}
             aria-hidden="true"
@@ -146,7 +146,11 @@ const FENInputToolbar = memo(function FENInputToolbar({
           aria-label="Clear board"
           type="button"
         >
-          <X className="w-3.5 h-3.5" strokeWidth={2.5} aria-hidden="true" />
+          <Eraser
+            className="w-3.5 h-3.5"
+            strokeWidth={2.5}
+            aria-hidden="true"
+          />
           <span>Clear</span>
         </button>
       </div>

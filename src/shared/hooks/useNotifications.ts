@@ -43,7 +43,11 @@ export function useNotifications() {
       type: Notification['type'] = 'info',
       duration = 5000
     ): void => {
-      setNotifications([]);
+      // Cancel any pending auto-dismiss timers from the previous toast, but do
+      // NOT clear the list first. Setting [] and then [notification] in the same
+      // tick makes AnimatePresence (mode="wait") exit-animate the old toast and
+      // re-enter, producing a ~0.1s close-then-reopen flicker. Replacing the
+      // array in a single update with a fresh keyed id is one clean swap.
       Object.values(timeoutRefs.current).forEach(clearTimeout);
       timeoutRefs.current = {};
 
@@ -99,10 +103,7 @@ export function useNotifications() {
     const onTruncated = (event: Event): void => {
       const { dataset } = (event as CustomEvent<SyncTruncatedDetail>).detail;
       const label = dataset === 'archive' ? 'archive' : 'history';
-      warning(
-        `Cloud sync is at capacity — only your most recent ${label} is synced. Older entries remain on this device.`,
-        7000
-      );
+      warning(`Cloud full — only recent ${label} synced.`, 7000);
     };
     window.addEventListener(SYNC_TRUNCATED_EVENT, onTruncated);
     return () => window.removeEventListener(SYNC_TRUNCATED_EVENT, onTruncated);

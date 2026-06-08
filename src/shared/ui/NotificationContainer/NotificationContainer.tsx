@@ -21,10 +21,10 @@ const NOTIFICATION_STYLES: Record<
     label: string;
     title: string;
     strip: string;
+    joinBorder: string;
     iconBg: string;
     iconBorder: string;
     iconColor: string;
-    progress: string;
   }
 > = {
   success: {
@@ -33,21 +33,21 @@ const NOTIFICATION_STYLES: Record<
     ),
     label: 'Success notification',
     title: 'Success',
-    strip: 'bg-success/80',
+    strip: 'bg-success',
+    joinBorder: 'border-success',
     iconBg: 'bg-success/8',
     iconBorder: 'border-success/20',
-    iconColor: 'text-success',
-    progress: 'bg-success/60'
+    iconColor: 'text-success'
   },
   error: {
     icon: <XCircle className="h-5 w-5" strokeWidth={2} aria-hidden="true" />,
     label: 'Error notification',
     title: 'Error',
-    strip: 'bg-error/80',
+    strip: 'bg-error',
+    joinBorder: 'border-error',
     iconBg: 'bg-error/8',
     iconBorder: 'border-error/20',
-    iconColor: 'text-error',
-    progress: 'bg-error/60'
+    iconColor: 'text-error'
   },
   warning: {
     icon: (
@@ -55,21 +55,21 @@ const NOTIFICATION_STYLES: Record<
     ),
     label: 'Warning notification',
     title: 'Warning',
-    strip: 'bg-warning/80',
+    strip: 'bg-warning',
+    joinBorder: 'border-warning',
     iconBg: 'bg-warning/8',
     iconBorder: 'border-warning/20',
-    iconColor: 'text-warning',
-    progress: 'bg-warning/60'
+    iconColor: 'text-warning'
   },
   info: {
     icon: <Info className="h-5 w-5" strokeWidth={2} aria-hidden="true" />,
     label: 'Information notification',
     title: 'Information',
-    strip: 'bg-accent/80',
+    strip: 'bg-accent',
+    joinBorder: 'border-accent',
     iconBg: 'bg-accent/8',
     iconBorder: 'border-accent/20',
-    iconColor: 'text-accent',
-    progress: 'bg-accent/60'
+    iconColor: 'text-accent'
   }
 };
 
@@ -168,15 +168,9 @@ const Toast = memo(function Toast({
       role="alert"
       aria-label={style.label}
       tabIndex={0}
-      className="group relative pointer-events-auto isolate overflow-hidden rounded-2xl border border-border/40 bg-surface-elevated p-4 text-text-primary shadow-2xl flex items-center gap-4 select-none
+      className="group relative pointer-events-auto isolate overflow-hidden rounded-2xl border border-border/40 bg-surface-elevated p-4 pl-5 text-text-primary shadow-2xl flex items-center gap-4 select-none
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 focus-within:ring-offset-bg"
     >
-      {/* Dynamic colored accent strip */}
-      <div
-        className={`absolute inset-y-0 left-0 w-1.5 ${style.strip} opacity-70`}
-        aria-hidden="true"
-      />
-
       {/* Icon Container */}
       <div
         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-colors duration-200 ${style.iconBg} ${style.iconBorder} ${style.iconColor}`}
@@ -191,7 +185,7 @@ const Toast = memo(function Toast({
         >
           {style.title}
         </p>
-        <p className="mt-0.5 text-[0.9375rem] font-medium leading-snug text-text-primary/95 wrap-break-word">
+        <p className="mt-0.5 truncate text-[0.9375rem] font-medium leading-snug text-text-primary/95">
           {message}
         </p>
       </div>
@@ -205,17 +199,45 @@ const Toast = memo(function Toast({
         <X className="w-4.5 h-4.5" />
       </button>
 
-      {/* Progress Bar */}
-      {durationMs > 0 && (
-        <div className="absolute bottom-0 left-0 right-0 h-1 overflow-hidden bg-border/10">
+      {/* L-shaped accent hugging the bottom-left corner: a thin coloured line
+          down the left edge and a thin coloured line along the bottom edge that
+          meet at a single rounded join. The corner join is a true uniform
+          radius (rounded-bl-2xl borders — no SVG scaling artefacts). The bottom
+          leg is the countdown — it drains right→left toward the corner over the
+          toast's duration. A faint full-L track underneath keeps the frame
+          readable once the countdown has emptied. */}
+      <div
+        className="absolute inset-0 rounded-2xl pointer-events-none"
+        aria-hidden="true"
+      >
+        {/* Faint static track — the complete L (left + corner + bottom). */}
+        <div className="absolute inset-0 rounded-2xl border-0 border-l-2 border-b-2 border-border/15" />
+
+        {/* Coloured left leg + rounded corner join (always solid, full opacity
+            for a crisp edge). Masked with a hard cut so only the left edge and
+            the bottom-left corner arc show — the bottom edge is owned solely by
+            the countdown below (no double stroke, no seam). */}
+        <div
+          className={`absolute inset-0 rounded-2xl border-0 border-l-2 border-b-2 ${style.joinBorder}`}
+          style={{
+            WebkitMaskImage:
+              'linear-gradient(to right, #000 1rem, transparent 1rem)',
+            maskImage: 'linear-gradient(to right, #000 1rem, transparent 1rem)'
+          }}
+        />
+
+        {durationMs > 0 && (
+          // Coloured countdown along the bottom edge, draining right→left into
+          // the corner. Starts just past the corner arc so the two legs read as
+          // one continuous stroke. origin-right + scaleX→0 empties it leftward.
           <motion.div
             initial={{ scaleX: 1 }}
             animate={{ scaleX: 0 }}
             transition={{ duration: durationMs / 1000, ease: 'linear' }}
-            className={`h-full ${style.progress} origin-left`}
+            className={`absolute bottom-0 left-4 right-0 h-0.5 origin-right ${style.strip}`}
           />
-        </div>
-      )}
+        )}
+      </div>
     </motion.div>
   );
 });

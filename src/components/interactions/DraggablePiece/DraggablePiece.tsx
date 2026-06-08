@@ -111,6 +111,11 @@ export const DraggablePiece = memo(function DraggablePiece({
           pointerEvents: 'none',
           userSelect: 'none',
           WebkitUserSelect: 'none',
+          // SVG pieces are vector data — let the browser rasterize them at the
+          // real device-pixel size for maximum crispness. (A `translateZ`/GPU
+          // layer here is COUNTER-productive: it bakes the SVG into a texture at
+          // the element's fractional CSS box and then resamples it, which is
+          // exactly what softened the pieces. No transform = no resample.)
           imageRendering: 'auto'
         }}
         draggable={false}

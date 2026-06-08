@@ -6,13 +6,12 @@ import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useOutsideClick } from '@hooks/useOutsideClick';
 
 /**
- * Manages all internal navbar state: help drawer, mobile menu, auth modal,
- * dropdown, submenus, click-outside closure, and sign-out.
+ * Manages all internal navbar state: mobile menu, auth modal, dropdown,
+ * submenus, click-outside closure, and sign-out.
  *
  * @returns State variables, refs, and event handlers for the `Navbar` component.
  */
 export function useNavbarState() {
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const { session, isAuthenticated, signOut } = useAuth();
@@ -34,16 +33,6 @@ export function useNavbarState() {
     setIsMobileMenuOpen(false);
   }, [navigate]);
 
-  const handleHelpClick = useCallback(() => {
-    setIsHelpOpen(true);
-    setIsMobileMenuOpen(false);
-    setIsDropdownOpen(false);
-  }, []);
-
-  const handleCloseHelp = useCallback(() => {
-    setIsHelpOpen(false);
-  }, []);
-
   const toggleMobileMenu = useCallback(() => {
     setIsMobileMenuOpen((prev) => !prev);
     setIsDropdownOpen(false);
@@ -63,7 +52,6 @@ export function useNavbarState() {
   }, [signOut]);
 
   return {
-    isHelpOpen,
     isMobileMenuOpen,
     setIsMobileMenuOpen,
     session,
@@ -76,8 +64,6 @@ export function useNavbarState() {
     setIsDropdownOpen,
     dropdownRef,
     handleLogoClick,
-    handleHelpClick,
-    handleCloseHelp,
     toggleMobileMenu,
     openAuthModal,
     handleSignOut

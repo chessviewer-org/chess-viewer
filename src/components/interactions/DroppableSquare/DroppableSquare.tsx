@@ -135,7 +135,11 @@ export const DroppableSquare = memo(
               row={row}
               col={col}
               isFromPalette={false}
-              size="85%"
+              // Fill the (integer-pixel) square edge-to-edge. The Lichess SVGs
+              // carry their own internal margin, so 100% looks right AND keeps
+              // the image box pixel-aligned — a fractional inset (e.g. 92%)
+              // centred the SVG on a sub-pixel offset, which softened it.
+              size="100%"
             />
           </div>
         )}
