@@ -35,9 +35,6 @@ coverage
 *.swo
 *~
 
-# Vercel
-.vercel
-
 # Other
 *.min.js
 *.min.css
