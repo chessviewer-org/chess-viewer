@@ -465,6 +465,43 @@ function lichessHumanUrl(fen: string): string {
   return `https://lichess.org/analysis?fen=${encodeURIComponent(fen)}`;
 }
 
+// ChessDB.cn (www.chessdb.cn) — an open, free, no-key cloud engine-evaluation
+// database. Like Lichess it keys on the FULL FEN. Its JSON-ish query endpoint
+//   cdb.php?action=queryall&board=<FEN>
+// returns a `move:`-prefixed list of scored moves when the position is KNOWN to
+// the database, or a status token ("unknown" / "nobestmove" / "invalid board"
+// / "checkmate" / "stalemate") otherwise. We treat the presence of at least one
+// `move:` entry as "catalogued"; terminal game states (mate/stalemate) and
+// unknown are a clean miss. Existence is all we need — we don't parse scores.
+function chessdbHumanUrl(fen: string): string {
+  return `https://www.chessdb.cn/queryc_en/?${encodeURIComponent(fen)}`;
+}
+
+async function searchChessdb(fen: string): Promise<SearchResponse> {
+  const url = chessdbHumanUrl(fen);
+  const api = `https://www.chessdb.cn/cdb.php?action=queryall&board=${encodeURIComponent(
+    fen
+  )}`;
+  TRACE('CHESSDB', 'fen', fen);
+  try {
+    const text = await fetchText(api, { headers: { Accept: 'text/plain' } });
+    if (text === null) {
+      TRACE('CHESSDB', 'fetch', 'null (timeout/exhausted) → NOT_FOUND');
+      return NOT_FOUND;
+    }
+    TRACE('CHESSDB', 'rawLen', text.length, 'head', text.slice(0, 60));
+    // A known position returns one or more "move:<uci>,score:..." records.
+    // Status tokens (unknown / nobestmove / invalid board / checkmate /
+    // stalemate) carry no `move:` and are a clean miss.
+    const found = /(^|[\s,])move:/i.test(text);
+    TRACE('CHESSDB', 'found', found);
+    return found ? { found: true, database: 'CHESSDB', url } : NOT_FOUND;
+  } catch (err) {
+    console.error('ChessDB parse error:', err);
+    return NOT_FOUND;
+  }
+}
+
 async function searchLichess(fen: string): Promise<SearchResponse> {
   const url = lichessHumanUrl(fen);
   const qs = `fen=${encodeURIComponent(fen)}&moves=0&topGames=0&recentGames=0`;
@@ -642,23 +679,27 @@ Deno.serve(async (req: Request) => {
     TRACE('CACHE', 'bypassed (nocache=true)');
   }
 
-  // ---- 2. External lookup (Lichess → PDB → YACPDB; first hit wins) ---------
-  // Lichess is first: it is the fastest upstream and answers the primary
-  // "which games reached this position?" question. It keys on the FULL FEN
-  // (not the board field), so it receives `fen` directly. PDB/YACPDB only run
-  // if Lichess misses, preserving their slower problem-database lookups.
+  // ---- 2. External lookup (Lichess → ChessDB → PDB → YACPDB; first hit wins)-
+  // Lichess and ChessDB are first: both are fast and key on the FULL FEN (they
+  // receive `fen` directly), answering the game/engine questions. PDB/YACPDB
+  // only run if those miss, preserving their slower problem-database lookups.
   let result: SearchResponse = NOT_FOUND;
   try {
     const lichess = await searchLichess(fen);
     if (lichess.found) {
       result = lichess;
     } else {
-      const pdb = await searchPdb(pieces);
-      if (pdb.found) {
-        result = pdb;
+      const chessdb = await searchChessdb(fen);
+      if (chessdb.found) {
+        result = chessdb;
       } else {
-        const yac = await searchYacpdb(pieces, board);
-        if (yac.found) result = yac;
+        const pdb = await searchPdb(pieces);
+        if (pdb.found) {
+          result = pdb;
+        } else {
+          const yac = await searchYacpdb(pieces, board);
+          if (yac.found) result = yac;
+        }
       }
     }
   } catch (err) {
@@ -668,13 +709,13 @@ Deno.serve(async (req: Request) => {
   TRACE('REQ', 'final result', result);
 
   // ---- 3. Cache write (best-effort) ---------------------------------------
-  // Skip caching Lichess hits: the cache is keyed on `fen_board` (board field
-  // only), but a Lichess result depends on the FULL FEN — caching it under the
-  // board key would wrongly serve it for the same diagram with a different
-  // side-to-move / castling state. Lichess is fast and CDN-cached upstream, so
-  // a cache-less round-trip is cheap. PDB/YACPDB (board-field results) cache as
-  // before.
-  if (result.database === 'LICHESS') {
+  // Skip caching FULL-FEN providers (Lichess, ChessDB): the cache is keyed on
+  // `fen_board` (board field only), but their results depend on the full FEN —
+  // caching under the board key would wrongly serve them for the same diagram
+  // with a different side-to-move / castling state. Both are fast and CDN-cached
+  // upstream, so a cache-less round-trip is cheap. PDB/YACPDB (board-field
+  // results) cache as before.
+  if (result.database === 'LICHESS' || result.database === 'CHESSDB') {
     return json(result);
   }
   try {

@@ -18,13 +18,14 @@ import { logger } from './logger';
  * but still carries a valid human search `url` for manual link-out.
  */
 
-export type DatabaseProvider = 'pdb' | 'yacpdb' | 'lichess';
+export type DatabaseProvider = 'pdb' | 'yacpdb' | 'lichess' | 'chessdb';
 
 /** Human-facing display label for each provider (used in toasts / status pill). */
 export const PROVIDER_LABEL: Record<DatabaseProvider, string> = {
   pdb: 'PDB',
   yacpdb: 'YACPDB',
-  lichess: 'Lichess'
+  lichess: 'Lichess',
+  chessdb: 'ChessDB'
 };
 
 /**
@@ -36,6 +37,7 @@ export function matchedProvider(
 ): DatabaseProvider | null {
   if (!result) return null;
   if (result.lichess.found) return 'lichess';
+  if (result.chessdb.found) return 'chessdb';
   if (result.pdb.found) return 'pdb';
   if (result.yacpdb.found) return 'yacpdb';
   return null;
@@ -173,9 +175,20 @@ function buildLichessUrl(fen: string): string {
   return `https://lichess.org/analysis?fen=${encodeURIComponent(fen.trim())}`;
 }
 
+/**
+ * Human-facing ChessDB.cn URL for a position. ChessDB is an open, free cloud
+ * engine-evaluation database keyed on the FULL FEN; its public query page is
+ * `queryc_en/?<FEN>` with the FEN passed verbatim in the query string (their
+ * own scheme — spaces preserved, encoded for safety).
+ */
+function buildChessdbUrl(fen: string): string {
+  return `https://www.chessdb.cn/queryc_en/?${encodeURIComponent(fen.trim())}`;
+}
+
 function notFound(fen: string): DatabaseSearchResult {
   return {
     lichess: { found: false, url: buildLichessUrl(fen) },
+    chessdb: { found: false, url: buildChessdbUrl(fen) },
     pdb: { found: false, url: buildPdbUrl(fen) },
     yacpdb: { found: false, url: buildYacpdbUrl(fen) }
   };
@@ -232,6 +245,12 @@ export async function searchPositionDatabases(
     return {
       ...base,
       lichess: { found: true, url: matchedUrl || base.lichess.url }
+    };
+  }
+  if (data.database === 'CHESSDB') {
+    return {
+      ...base,
+      chessdb: { found: true, url: matchedUrl || base.chessdb.url }
     };
   }
   if (data.database === 'PDB') {
