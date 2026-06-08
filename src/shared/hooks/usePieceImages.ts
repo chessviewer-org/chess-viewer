@@ -50,7 +50,7 @@ export function usePieceImages(pieceStyle: string): {
 
         if (!cancelled && currentStyleRef.current === styleToLoad) {
           const images: Record<string, HTMLImageElement> = {};
-          let hasError = false;
+          let missingCount = 0;
 
           Object.keys(PIECE_MAP).forEach((key) => {
             const img = loadedImages[key];
@@ -58,13 +58,26 @@ export function usePieceImages(pieceStyle: string): {
               images[key] = img;
             } else {
               images[key] = createPlaceholderImage(key);
-              hasError = true;
+              missingCount++;
             }
           });
 
-          if (hasError) {
-            setError('Some pieces failed to load');
+          // A partial CDN miss is already handled gracefully by substituting
+          // placeholders — do NOT raise a user-facing error overlay for it
+          // (it fired unsolicited on first load whenever lichess1.org was slow
+          // or rate-limited a single asset). Only a TOTAL failure, where no
+          // real piece loaded at all, is worth surfacing. Partial misses are
+          // logged for diagnostics and the cache is seeded with placeholders.
+          if (missingCount > 0) {
             setCachedPieces(styleToLoad, images);
+            const totalPieces = Object.keys(PIECE_MAP).length;
+            if (missingCount === totalPieces) {
+              setError('Failed to load pieces');
+            } else {
+              logger.warn(
+                `usePieceImages: ${missingCount}/${totalPieces} pieces fell back to placeholders for style "${styleToLoad}"`
+              );
+            }
           }
 
           setPieceImages(images);

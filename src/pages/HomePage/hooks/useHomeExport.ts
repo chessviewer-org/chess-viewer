@@ -11,6 +11,7 @@ import {
   validateFEN
 } from '@utils';
 import type { ExportConfig } from '@utils/canvasExporter';
+import { logger } from '@utils/logger';
 
 /** Tracks the lifecycle of an in-progress export operation. */
 export interface ExportState {
@@ -200,10 +201,8 @@ export function useHomeExport(opts: UseHomeExportOptions) {
         if (err instanceof Error && err.message === 'Export cancelled') {
           notify.info('Export cancelled');
         } else {
-          notify.error(
-            `${label} export failed: ` +
-              (err instanceof Error ? err.message : String(err))
-          );
+          logger.error(`${label} export failed:`, err);
+          notify.error(`${label} export failed`);
         }
       } finally {
         scheduleComplete();
@@ -232,9 +231,8 @@ export function useHomeExport(opts: UseHomeExportOptions) {
       saveExportFen(fen);
       notify.success('Image copied to clipboard');
     } catch (err: unknown) {
-      notify.error(
-        'Copy failed: ' + (err instanceof Error ? err.message : String(err))
-      );
+      logger.error('Copy to clipboard failed:', err);
+      notify.error('Copy failed');
     }
   }, [getExportConfig, fen, saveExportFen, notify]);
 
@@ -293,10 +291,8 @@ export function useHomeExport(opts: UseHomeExportOptions) {
         if (err instanceof Error && err.message === 'Export cancelled') {
           notify.info('Export cancelled');
         } else {
-          notify.error(
-            'Batch export failed: ' +
-              (err instanceof Error ? err.message : String(err))
-          );
+          logger.error('Batch export failed:', err);
+          notify.error('Batch export failed');
         }
       } finally {
         scheduleComplete();
