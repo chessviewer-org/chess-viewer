@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 
 import Logo from '@/assets/Logo.png';
-import HelpCenter from '@/components/panels/HelpCenter';
 
 import { NavbarDesktopDropdown } from './parts/NavbarDesktopDropdown';
 import { NavbarMobileMenu } from './parts/NavbarMobileMenu';
@@ -26,7 +25,6 @@ interface NavbarProps {
 
 function Navbar({ theme, toggleTheme, rightSlot }: NavbarProps) {
   const {
-    isHelpOpen,
     isMobileMenuOpen,
     setIsMobileMenuOpen,
     isAuthenticated,
@@ -37,8 +35,6 @@ function Navbar({ theme, toggleTheme, rightSlot }: NavbarProps) {
     setIsDropdownOpen,
     dropdownRef,
     handleLogoClick,
-    handleHelpClick,
-    handleCloseHelp,
     toggleMobileMenu,
     openAuthModal,
     handleSignOut
@@ -50,7 +46,7 @@ function Navbar({ theme, toggleTheme, rightSlot }: NavbarProps) {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="fixed top-0 left-0 right-0 z-50 bg-bg"
+        className="navbar-shell fixed top-0 left-0 right-0 z-50"
       >
         <div className="w-[88%] max-w-600 mx-auto">
           <div className="flex justify-between items-center py-3 min-h-12 sm:min-h-14 lg:min-h-16">
@@ -87,7 +83,6 @@ function Navbar({ theme, toggleTheme, rightSlot }: NavbarProps) {
                 dropdownRef={dropdownRef}
                 openAuthModal={openAuthModal}
                 handleSignOut={handleSignOut}
-                handleHelpClick={handleHelpClick}
               />
             </div>
 
@@ -116,11 +111,9 @@ function Navbar({ theme, toggleTheme, rightSlot }: NavbarProps) {
           setIsMobileMenuOpen={setIsMobileMenuOpen}
           openAuthModal={openAuthModal}
           handleSignOut={handleSignOut}
-          handleHelpClick={handleHelpClick}
         />
       </motion.nav>
 
-      <HelpCenter isOpen={isHelpOpen} onClose={handleCloseHelp} />
       {isAuthModalOpen && (
         <Suspense fallback={null}>
           <AuthModal

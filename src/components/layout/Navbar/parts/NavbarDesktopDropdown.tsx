@@ -1,14 +1,7 @@
 import { memo } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import {
-  HelpCircle,
-  LogOut,
-  Shield,
-  User,
-  UserCircle,
-  UserPlus
-} from 'lucide-react';
+import { Info, LogOut, Shield, User, UserCircle, UserPlus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { useProfile } from '@/features/auth/hooks/useProfile';
@@ -24,7 +17,6 @@ interface NavbarDesktopDropdownProps {
   dropdownRef: React.RefObject<HTMLDivElement | null>;
   openAuthModal: (tab: 'signin' | 'signup' | 'security') => void;
   handleSignOut: () => void;
-  handleHelpClick: () => void;
 }
 
 export const NavbarDesktopDropdown = memo(function NavbarDesktopDropdown({
@@ -33,8 +25,7 @@ export const NavbarDesktopDropdown = memo(function NavbarDesktopDropdown({
   setIsDropdownOpen,
   dropdownRef,
   openAuthModal,
-  handleSignOut,
-  handleHelpClick
+  handleSignOut
 }: NavbarDesktopDropdownProps) {
   const { displayName, avatarUrl, isSupporter } = useProfile();
   const prefetch = usePrefetchRoute();
@@ -118,10 +109,15 @@ export const NavbarDesktopDropdown = memo(function NavbarDesktopDropdown({
             )}
 
             <div className="flex flex-col gap-1">
-              <button onClick={handleHelpClick} className={itemClass}>
-                <HelpCircle className="w-4 h-4 text-text-secondary" />
-                <span>Help</span>
-              </button>
+              <Link
+                to="/about"
+                {...prefetch('/about')}
+                onClick={() => setIsDropdownOpen(false)}
+                className={itemClass}
+              >
+                <Info className="w-4 h-4 text-text-secondary" />
+                <span>About</span>
+              </Link>
               {isAuthenticated ? (
                 <button onClick={handleSignOut} className={itemClass}>
                   <LogOut className="w-4 h-4 text-text-secondary" />
