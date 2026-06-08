@@ -53,7 +53,7 @@ export interface ChessEditorProps {
   exportQuality?: number;
   /** Whether the shared image draws the outer coordinate border. */
   showCoordinateBorder?: boolean;
-  /** Surfaces share/scan feedback through the host page's notification system. */
+  /** Surfaces share feedback through the host page's notification system. */
   onNotify?: (
     message: string,
     type: 'success' | 'error' | 'info' | 'warning'
@@ -187,11 +187,12 @@ export const ChessEditor = memo(function ChessEditor({
     [handlePieceRemove]
   );
 
-  // Manual, per-provider database lookup (Lichess / PDB / YACPDB). Nothing fires
-  // on FEN change — the user triggers each row's search from the
+  // Manual, per-provider database lookup (Lichess / ChessDB / PDB / YACPDB).
+  // Nothing fires on FEN change — the user triggers each row's search from the
   // DatabaseSearchPanel.
   const {
     lichess: lichessState,
+    chessdb: chessdbState,
     pdb: pdbState,
     yacpdb: yacpdbState
   } = useDatabaseSearch(fen);
@@ -280,6 +281,15 @@ export const ChessEditor = memo(function ChessEditor({
                 />
               )}
               <div
+                // "Show Board Frame" draws a thin accent frame around the live
+                // board, mirroring the thin outer frame the export pipeline adds
+                // (svgExporter/canvasRenderer) so the toggle has an immediate,
+                // visible effect in the editor — not only in the exported file.
+                className={
+                  showThinFrame
+                    ? 'box-border border-2 border-accent/70 rounded-sm'
+                    : undefined
+                }
                 style={{
                   width: boardSize,
                   height: boardSize,
@@ -451,6 +461,7 @@ export const ChessEditor = memo(function ChessEditor({
                     {/* Database Search — dedicated manual-search panel. */}
                     <DatabaseSearchPanel
                       lichess={lichessState}
+                      chessdb={chessdbState}
                       pdb={pdbState}
                       yacpdb={yacpdbState}
                     />

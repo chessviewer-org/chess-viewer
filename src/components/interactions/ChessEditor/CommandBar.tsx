@@ -6,7 +6,7 @@ import { Copy, Download, FolderOpen, Share2 } from 'lucide-react';
  * ChessVision Command Bar.
  *
  * A compact header row for the board's primary actions: Copy · Share |
- * Open-in-device · Export. Database search now lives in its own dedicated
+ * Open · Export. Database search now lives in its own dedicated
  * DatabaseSearchPanel, so this bar no longer carries search status or DB icons.
  *
  * Every colour resolves through the existing Tailwind CSS-variable tokens
@@ -57,6 +57,18 @@ const CommandBar = memo(function CommandBar({
 
       <Divider />
 
+      {/* Placeholder for a future "open / import" flow — wired up later, so it
+          is disabled and excluded from the tab order for now. */}
+      <button
+        type="button"
+        disabled
+        className={`${iconButton} text-text-muted opacity-50 cursor-not-allowed`}
+        title="Open (coming soon)"
+        aria-label="Open a board (coming soon)"
+        tabIndex={-1}
+      >
+        <FolderOpen className="w-5 h-5" />
+      </button>
       <button
         type="button"
         onClick={onOpenInDevice}
