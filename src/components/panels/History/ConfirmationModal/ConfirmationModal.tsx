@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 
 import { AlertTriangle, X } from 'lucide-react';
 
@@ -28,6 +28,17 @@ const ConfirmationModal = memo(function ConfirmationModal({
   doNotAskAgain = false,
   onDoNotAskAgainChange
 }: ConfirmationModalProps) {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
   const handleConfirm = () => {
     onConfirm();
@@ -43,18 +54,29 @@ const ConfirmationModal = memo(function ConfirmationModal({
       className="fixed inset-0 z-9999 flex items-center justify-center p-4 bg-bg/95"
       onClick={handleBackdropClick}
     >
-      <div className="bg-surface-elevated border border-border rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-scale-in">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirmation-modal-title"
+        className="bg-surface-elevated border border-border rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] flex flex-col overflow-hidden animate-scale-in"
+      >
         {}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-error/5">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-error/10 rounded-lg">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border bg-error/5 shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="p-2 bg-error/10 rounded-lg shrink-0">
               <AlertTriangle className="w-5 h-5 text-error" />
             </div>
-            <h2 className="text-lg font-bold text-text-primary">{title}</h2>
+            <h2
+              id="confirmation-modal-title"
+              className="text-base sm:text-lg font-bold text-text-primary truncate"
+            >
+              {title}
+            </h2>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1.5 hover:bg-surface-hover rounded-lg transition-colors"
+            className="p-2 -mr-1 min-h-11 min-w-11 flex items-center justify-center hover:bg-surface-hover rounded-lg transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             aria-label="Close"
           >
             <X className="w-5 h-5 text-text-muted" />
@@ -62,7 +84,7 @@ const ConfirmationModal = memo(function ConfirmationModal({
         </div>
 
         {}
-        <div className="px-6 py-5">
+        <div className="px-4 sm:px-6 py-5 overflow-y-auto min-h-0">
           <p className="text-text-secondary leading-relaxed">{message}</p>
 
           {showDoNotAskAgain && (
@@ -83,16 +105,18 @@ const ConfirmationModal = memo(function ConfirmationModal({
         </div>
 
         {}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 bg-surface border-t border-border">
+        <div className="flex items-center justify-end gap-3 px-4 sm:px-6 py-4 bg-surface border-t border-border shrink-0">
           <button
+            type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-semibold text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-lg transition-colors"
+            className="px-4 py-2 min-h-10 text-sm font-semibold text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             {cancelText}
           </button>
           <button
+            type="button"
             onClick={handleConfirm}
-            className="px-4 py-2 text-sm font-semibold bg-error hover:bg-error/90 text-white rounded-lg transition-colors shadow-md hover:shadow-lg"
+            className="px-4 py-2 min-h-10 text-sm font-semibold bg-error hover:bg-error/90 text-white rounded-lg transition-colors shadow-md hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error"
           >
             {confirmText}
           </button>
