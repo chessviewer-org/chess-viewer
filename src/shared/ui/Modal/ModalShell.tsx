@@ -50,28 +50,38 @@ const ModalShell = memo(
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             />
             <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modal-shell-title"
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className={`relative w-full ${maxWidth} bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden`}
+              className={`relative w-full ${maxWidth} max-h-[90vh] flex flex-col bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden`}
             >
-              <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-                <div className="flex items-center gap-3">
-                  {Icon && <Icon className={`w-5 h-5 ${iconColor}`} />}
-                  <h3 className="text-lg font-bold text-text-primary">
+              <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border shrink-0">
+                <div className="flex items-center gap-3 min-w-0">
+                  {Icon && <Icon className={`w-5 h-5 shrink-0 ${iconColor}`} />}
+                  <h3
+                    id="modal-shell-title"
+                    className="text-base sm:text-lg font-bold text-text-primary truncate"
+                  >
                     {title}
                   </h3>
                 </div>
                 {showCloseButton && (
                   <button
+                    type="button"
                     onClick={onClose}
-                    className="p-1 hover:bg-surface-hover rounded-lg transition-colors"
+                    aria-label="Close dialog"
+                    className="p-2 -mr-1 min-h-11 min-w-11 flex items-center justify-center hover:bg-surface-hover rounded-lg transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                   >
                     <X className="w-5 h-5 text-text-muted" />
                   </button>
                 )}
               </div>
-              <div className="p-6">{children}</div>
+              <div className="p-4 sm:p-6 overflow-y-auto min-h-0">
+                {children}
+              </div>
             </motion.div>
           </div>
         )}
