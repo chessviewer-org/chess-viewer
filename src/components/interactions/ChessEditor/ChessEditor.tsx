@@ -484,12 +484,14 @@ export const ChessEditor = memo(function ChessEditor({
                         aria-label="Flip board orientation"
                       >
                         <Repeat2 className="w-4 h-4" />
-                        <span>Flip</span>
+                        <span className="hidden xs:inline">Flip</span>
                       </button>
                     </div>
 
-                    {/* Spacious trash zone — wide fixed width, expands further on hover. */}
-                    <div className="ml-auto h-10 min-h-10 w-44 hover:w-56 transition-[width] duration-300 ease-out">
+                    {/* Spacious trash zone — fluid width that grows with the row
+                        but never crowds the controls on a narrow phone; expands
+                        further on hover. */}
+                    <div className="ml-auto h-10 min-h-10 flex-1 max-w-44 sm:max-w-none sm:w-44 sm:hover:w-56 transition-[width] duration-300 ease-out">
                       <TrashZone
                         onDrop={handleTrashDrop}
                         className="h-full w-full rounded-lg"
