@@ -56,6 +56,33 @@ export interface UseFENHistoryResult {
 }
 
 /**
+ * Hard cap on the live active history list. Each rendered card mounts its own
+ * `<canvas>` thumbnail, so an unbounded list is a Safari/iOS canvas-OOM risk
+ * (the FEN History page previously rendered one live canvas per entry with no
+ * limit). Auto-archival normally trims the list, but this is the backstop that
+ * keeps the in-memory + localStorage list bounded between archival runs.
+ */
+const MAX_ACTIVE_HISTORY = 200;
+
+/**
+ * Bounds the active history to `MAX_ACTIVE_HISTORY` entries without silently
+ * dropping favorites: every favorite is retained, and the remaining slots go to
+ * the most-recent non-favorites. Input is assumed already most-recent-first.
+ */
+function capHistory(entries: ActiveHistoryEntry[]): ActiveHistoryEntry[] {
+  if (entries.length <= MAX_ACTIVE_HISTORY) return entries;
+  const favorites = entries.filter((e) => e.isFavorite);
+  if (favorites.length >= MAX_ACTIVE_HISTORY) return favorites;
+  const kept = new Set(favorites);
+  const result: ActiveHistoryEntry[] = [];
+  for (const entry of entries) {
+    if (result.length >= MAX_ACTIVE_HISTORY) break;
+    if (kept.has(entry) || !entry.isFavorite) result.push(entry);
+  }
+  return result;
+}
+
+/**
  * Manages the FEN position history, including favorites, archival, and filtering.
  *
  * Persists the active list to `localStorage` and syncs bidirectionally with
@@ -148,7 +175,7 @@ export function useFENHistory(
           source,
           dragSessionId || undefined
         );
-        return sortByMostRecent([newEntry, ...prev]);
+        return capHistory(sortByMostRecent([newEntry, ...prev]));
       });
     },
     []
@@ -240,7 +267,7 @@ export function useFENHistory(
         }
         const newEntry = createHistoryEntry(currentFen, 'manual');
         newEntry.isFavorite = true;
-        return sortByMostRecent([newEntry, ...prev]);
+        return capHistory(sortByMostRecent([newEntry, ...prev]));
       });
     },
     []
