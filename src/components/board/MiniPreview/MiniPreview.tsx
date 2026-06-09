@@ -1,7 +1,5 @@
 import { memo, useEffect, useRef, useState } from 'react';
 
-import { usePieceImages } from '@hooks';
-
 import { logger, parseFEN } from '@utils';
 
 /** Props for the `MiniPreview` canvas thumbnail component. */
@@ -9,7 +7,13 @@ export interface MiniPreviewProps {
   fen: string;
   lightSquare?: string;
   darkSquare?: string;
-  pieceStyle?: string;
+  /**
+   * Pre-loaded piece images, hoisted to the parent so a grid of previews shares
+   * a single `usePieceImages` load instead of one hook instance per card.
+   */
+  pieceImages: Record<string, HTMLImageElement>;
+  /** Whether the parent's piece images are still loading. */
+  piecesLoading?: boolean;
   size?: number;
 }
 const MiniPreview = memo(
@@ -17,12 +21,13 @@ const MiniPreview = memo(
     fen,
     lightSquare,
     darkSquare,
-    pieceStyle = 'cburnett',
+    pieceImages,
+    piecesLoading = false,
     size = 160
   }: MiniPreviewProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [hasError, setHasError] = useState(false);
-    const { pieceImages, isLoading, error } = usePieceImages(pieceStyle);
+    const isLoading = piecesLoading;
 
     useEffect(() => {
       if (!canvasRef.current || !fen || Object.keys(pieceImages).length === 0) {
@@ -136,12 +141,10 @@ const MiniPreview = memo(
           </div>
         )}
 
-        {(hasError || error) && !isLoading && (
+        {hasError && !isLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-error/10 border border-error/30">
             <div className="text-center px-2">
-              <p className="text-[10px] text-error font-medium">
-                {error || 'Invalid FEN'}
-              </p>
+              <p className="text-[10px] text-error font-medium">Invalid FEN</p>
             </div>
           </div>
         )}
@@ -153,7 +156,8 @@ const MiniPreview = memo(
       prevProps.fen === nextProps.fen &&
       prevProps.lightSquare === nextProps.lightSquare &&
       prevProps.darkSquare === nextProps.darkSquare &&
-      prevProps.pieceStyle === nextProps.pieceStyle &&
+      prevProps.pieceImages === nextProps.pieceImages &&
+      prevProps.piecesLoading === nextProps.piecesLoading &&
       prevProps.size === nextProps.size
     );
   }
