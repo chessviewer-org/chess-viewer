@@ -34,7 +34,8 @@ interface FENHistoryGridItemProps {
   activeTab: TabType;
   lightSquare: string;
   darkSquare: string;
-  pieceStyle: string;
+  pieceImages: Record<string, HTMLImageElement>;
+  piecesLoading: boolean;
   formatDate: (ts: number) => string;
   formatTime: (ts: number) => string;
   handleReactivate: (id: number) => void;
@@ -51,7 +52,8 @@ export const FENHistoryGridItem: React.FC<FENHistoryGridItemProps> = memo(
     activeTab,
     lightSquare,
     darkSquare,
-    pieceStyle,
+    pieceImages,
+    piecesLoading,
     formatDate,
     formatTime,
     handleReactivate,
@@ -79,7 +81,8 @@ export const FENHistoryGridItem: React.FC<FENHistoryGridItemProps> = memo(
               fen={entry.fen}
               lightSquare={lightSquare}
               darkSquare={darkSquare}
-              pieceStyle={pieceStyle}
+              pieceImages={pieceImages}
+              piecesLoading={piecesLoading}
             />
           </div>
         </div>
