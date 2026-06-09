@@ -73,7 +73,7 @@ export const PiecePalette = memo(function PiecePalette({
         </span>
         {/* Tray: `items-stretch` lets each square cell drive the row height so
             no piece cell is clipped at the bottom. */}
-        <div className="flex items-stretch gap-1.5 sm:gap-2 p-3 rounded-lg border border-white/10 bg-black/20">
+        <div className="flex items-stretch gap-1 sm:gap-2 p-1.5 sm:p-3 rounded-lg border border-white/10 bg-black/20">
           {pieces.map(renderPiece)}
         </div>
       </div>
@@ -84,7 +84,7 @@ export const PiecePalette = memo(function PiecePalette({
   return (
     <div className={`flex items-stretch ${className}`}>
       {/* Two distinct labelled trays side by side; no divider line. */}
-      <div className="flex items-stretch gap-4 w-full">
+      <div className="flex items-stretch gap-2 sm:gap-4 w-full">
         {renderGroup(WHITE_PIECES, 'White')}
         {renderGroup(BLACK_PIECES, 'Black')}
       </div>
