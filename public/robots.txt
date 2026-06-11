@@ -8,6 +8,4 @@ Disallow: /admin/
 Disallow: /auth/
 Disallow: /private/
 
-Crawl-delay: 1
-
 Sitemap: https://chessvision.org/sitemap.xml
