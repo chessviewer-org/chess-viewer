@@ -78,6 +78,10 @@ workerContext.onmessage = async (event: MessageEvent) => {
       quality: format === 'jpeg' ? quality : undefined
     });
 
+    // Mandatory disposal to release GPU memory (Rule 9)
+    canvas.width = 0;
+    canvas.height = 0;
+
     workerContext.postMessage({
       type: 'done',
       taskId,

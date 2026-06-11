@@ -215,12 +215,13 @@ function App() {
               tabIndex={-1}
               className={`flex-1 min-h-0 overflow-x-hidden overflow-y-auto focus:outline-none ${!isToolPage ? 'mt-[4.5rem] sm:mt-[5rem] lg:mt-[5.5rem]' : ''}`}
             >
-              {isAuthenticated && isLocked && (
+              {isAuthenticated && isLocked ? (
                 <Suspense fallback={null}>
                   <SecurityLockModal onUnlock={unlock} />
                 </Suspense>
+              ) : (
+                <Routes />
               )}
-              <Routes />
             </main>
           </div>
         </ModalProvider>

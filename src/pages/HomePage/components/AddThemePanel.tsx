@@ -1,5 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 
+import { BOARD_THEMES } from '@constants';
+
 import { hexToRgb, hsvToRgb, rgbToHex, rgbToHsv } from '@utils';
 
 /** Props for the inline panel used to create a new custom board theme. */
@@ -14,8 +16,10 @@ export default function AddThemePanel({
   onCancel
 }: AddThemePanelProps) {
   const [name, setName] = useState('');
-  const [light, setLight] = useState('#f0d9b5');
-  const [dark, setDark] = useState('#b58863');
+  const [light, setLight] = useState(
+    BOARD_THEMES['classic']?.light ?? '#f0d9b5'
+  );
+  const [dark, setDark] = useState(BOARD_THEMES['classic']?.dark ?? '#b58863');
   const [activeColor, setActiveColor] = useState<'light' | 'dark'>('light');
 
   const selectedColor = activeColor === 'light' ? light : dark;
