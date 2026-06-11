@@ -60,11 +60,14 @@ const HomePage: React.FC = () => {
   // inline Clipboard History (lifted here as it is toggled from the FEN toolbar
   // but rendered inside ChessEditor's right column).
   const [activeRightPanel, setActiveRightPanel] = useState<
-    'controls' | 'history'
+    'controls' | 'history' | 'settings'
   >('controls');
   const toggleHistoryPanel = () =>
     setActiveRightPanel((p) => (p === 'history' ? 'controls' : 'history'));
   const closeHistoryPanel = () => setActiveRightPanel('controls');
+  const toggleSettingsPanel = useCallback(() => {
+    setActiveRightPanel((p) => (p === 'settings' ? 'controls' : 'settings'));
+  }, []);
 
   // Send a history FEN to the Advanced FEN editor. The page reads `addFen` from
   // navigation state and drops it into the batch (see useFENBatchSync).
@@ -146,6 +149,8 @@ const HomePage: React.FC = () => {
                 onSelectHistoryFen={handleEditorFenChange}
                 onSendToAdvanced={handleSendToAdvanced}
                 onCloseHistory={closeHistoryPanel}
+                onToggleSettings={toggleSettingsPanel}
+                homeState={homeState}
               />
             </div>
           </div>

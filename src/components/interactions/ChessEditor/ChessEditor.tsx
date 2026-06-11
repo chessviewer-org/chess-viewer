@@ -11,12 +11,12 @@ import {
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Redo2, Repeat2, Settings, Undo2 } from 'lucide-react';
 
+import type { HomeStateForExport } from '@/pages/HomePage/components/ExportStudio.types';
 import {
   useDatabaseSearch,
   useEditorKeyboard,
   useInteractiveBoard,
-  usePieceImages,
-  useTheme
+  usePieceImages
 } from '@hooks';
 
 import type { ExportConfig } from '@utils';
@@ -29,7 +29,7 @@ import ClipboardHistoryPanel from './ClipboardHistoryPanel';
 import CommandBar from './CommandBar';
 import DatabaseSearchPanel from './DatabaseSearchPanel';
 import { FileCoordinates, RankCoordinates } from './EditorCoordinates';
-import QuickThemePopover from './QuickThemePopover';
+import ExportSettingsPanel from './ExportSettingsPanel';
 import ShareDialog from './ShareDialog';
 import { useEditorBoardSize } from './useEditorBoardSize';
 import { useShareBoard } from './useShareBoard';
@@ -59,13 +59,17 @@ export interface ChessEditorProps {
   ) => void;
   onPieceImagesChange?: (images: Record<string, HTMLImageElement>) => void;
   /** Which view fills the right-side column. Defaults to 'controls'. */
-  activeRightPanel?: 'controls' | 'history';
+  activeRightPanel?: 'controls' | 'history' | 'settings';
   /** Load a FEN from history onto the board (does not close the panel). */
   onSelectHistoryFen?: (fen: string) => void;
   /** Open a history FEN in the Advanced FEN editor (navigates away). */
   onSendToAdvanced?: (fen: string) => void;
   /** Switch the right side back to the control tools. */
   onCloseHistory?: () => void;
+  /** Toggles the Settings panel (Export Settings). */
+  onToggleSettings?: () => void;
+  /** The full home state for export studio steps. */
+  homeState?: HomeStateForExport;
   className?: string;
 }
 
@@ -90,6 +94,8 @@ export const ChessEditor = memo(function ChessEditor({
   onSelectHistoryFen,
   onSendToAdvanced,
   onCloseHistory,
+  onToggleSettings,
+  homeState,
   className = ''
 }: ChessEditorProps) {
   const { pieceImages, isLoading } = usePieceImages(pieceStyle);
@@ -97,20 +103,6 @@ export const ChessEditor = memo(function ChessEditor({
     useEditorBoardSize(showCoords);
   const cellSize = useMemo(() => boardSize / 8, [boardSize]);
   const reduceMotion = useReducedMotion();
-
-  const [isQuickThemeOpen, setIsQuickThemeOpen] = useState(false);
-  const themeAnchorRef = useRef<HTMLDivElement>(null);
-  const { applyCustomTheme } = useTheme();
-
-  const handleApplyQuickTheme = useCallback(
-    (light: string, dark: string) => {
-      applyCustomTheme(light, dark);
-      setIsQuickThemeOpen(false);
-    },
-    [applyCustomTheme]
-  );
-
-  const closeQuickTheme = useCallback(() => setIsQuickThemeOpen(false), []);
 
   const pieceImagesRef = useRef(pieceImages);
   useEffect(() => {
@@ -339,45 +331,51 @@ export const ChessEditor = memo(function ChessEditor({
           {/* PERSISTENT action toolbar — Settings (far left) · Command Bar
               (Copy / Share / Export · DB icons, far right). Always anchored at
               the top; only the content BELOW it swaps between tools/history. */}
-          <div className="shrink-0">
-            <div className="flex items-center justify-between w-full">
-              <div ref={themeAnchorRef} className="relative">
-                <button
-                  type="button"
-                  onClick={() => setIsQuickThemeOpen((prev) => !prev)}
-                  className={`p-1.5 rounded-lg transition-colors duration-200 ${isQuickThemeOpen ? 'bg-accent/10 text-accent' : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'}`}
-                  title="Quick Theme"
-                  aria-label="Open Quick Theme picker"
-                  aria-haspopup="dialog"
-                  aria-expanded={isQuickThemeOpen}
-                >
-                  <Settings className="w-5 h-5" />
-                </button>
-                <QuickThemePopover
-                  open={isQuickThemeOpen}
-                  currentLight={lightSquare}
-                  currentDark={darkSquare}
-                  onApply={handleApplyQuickTheme}
-                  onClose={closeQuickTheme}
-                  anchorRef={themeAnchorRef}
+          {activeRightPanel !== 'settings' && (
+            <div className="shrink-0">
+              <div className="flex items-center justify-between w-full">
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={onToggleSettings}
+                    className="p-1.5 rounded-lg transition-colors duration-200 text-text-secondary hover:text-text-primary hover:bg-surface-hover"
+                    title="Export Settings"
+                    aria-label="Open Export Settings"
+                  >
+                    <Settings className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <CommandBar
+                  onCopyFen={handleCopyFen}
+                  onShare={handleShare}
+                  onDownload={onDownload}
                 />
               </div>
-
-              <CommandBar
-                onCopyFen={handleCopyFen}
-                onShare={handleShare}
-                onDownload={onDownload}
-              />
+              {/* Separator below the toolbar header (high-contrast). */}
+              <div className="h-px bg-white/15 mt-2" />
             </div>
-            {/* Separator below the toolbar header (high-contrast). */}
-            <div className="h-px bg-white/15 mt-2" />
-          </div>
+          )}
 
           {/* Swappable content area below the persistent toolbar. Slide+fade
               transition between the two views (mode="wait" so one leaves before
               the next enters). flex-1 fills the pinned height. */}
           <AnimatePresence mode="wait" initial={false}>
-            {activeRightPanel === 'history' ? (
+            {activeRightPanel === 'settings' && homeState ? (
+              <motion.div
+                key="settings"
+                className="flex-1 min-h-0"
+                initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -12 }}
+                animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+                exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -12 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+              >
+                <ExportSettingsPanel
+                  homeState={homeState}
+                  onBack={onToggleSettings || (() => {})}
+                />
+              </motion.div>
+            ) : activeRightPanel === 'history' ? (
               <motion.div
                 key="history"
                 className="flex-1 min-h-0"
