@@ -1,6 +1,15 @@
 {
+  "name": "ChessVision — Professional Chess Diagram Generator",
   "short_name": "ChessVision",
-  "name": "ChessVision",
+  "description": "Create and export professional chess diagrams with ultra-high quality PNG, JPEG, and SVG output.",
+  "lang": "en-US",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#111827",
+  "background_color": "#f9fafb",
+  "categories": ["productivity", "utilities", "games"],
   "icons": [
     {
       "src": "favicon.ico",
@@ -10,16 +19,14 @@
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#3b82f6",
-  "background_color": "#f9fafb"
+  ]
 }
