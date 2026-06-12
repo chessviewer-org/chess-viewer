@@ -1,20 +1,33 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { supabase } from '@/features/auth/services/supabaseClient';
 
+import { logger } from '@utils/logger';
 import {
   generateBackupCodes,
   getMfaErrorMessage,
   isMfa422Error
 } from './mfaErrors';
 
+/** Lifecycle of the on-mount MFA status probe. */
+export type MfaStatus = 'loading' | 'enabled' | 'disabled';
+
+/** Minimal view of a verified TOTP factor surfaced to the UI. */
+export interface VerifiedFactor {
+  id: string;
+  friendlyName: string | null;
+  createdAt: string | null;
+}
+
 /**
- * Drives the three-step TOTP setup flow: start → QR verify → backup codes.
+ * Drives the TOTP flow AND reflects the account's real MFA status.
  *
- * Calls Supabase MFA APIs directly; backup codes are generated client-side
- * with `crypto.getRandomValues` and never stored server-side.
+ * On mount (when signed in) it probes `mfa.listFactors()`: a verified TOTP
+ * factor flips `status` to `'enabled'` and exposes a disable path; otherwise it
+ * falls back to the three-step setup flow (start → QR verify → backup codes).
  *
- * @returns Step state, TOTP URI, secret, verify-code binding, and action handlers.
+ * Calls Supabase MFA APIs directly; backup codes are generated client-side with
+ * `crypto.getRandomValues` and never stored server-side.
  */
 export function useTwoFactorSetup() {
   const [totpUri, setTotpUri] = useState<string | null>(null);
@@ -25,6 +38,69 @@ export function useTwoFactorSetup() {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isMfaUnavailable, setIsMfaUnavailable] = useState<boolean>(false);
+
+  const [status, setStatus] = useState<MfaStatus>('loading');
+  const [verifiedFactors, setVerifiedFactors] = useState<VerifiedFactor[]>([]);
+  const [isDisabling, setIsDisabling] = useState<boolean>(false);
+
+  /**
+   * Reads the live factor list and reconciles local status. Returns the set of
+   * verified TOTP factors so callers can act on them without a second read.
+   */
+  const refreshStatus = useCallback(async (): Promise<VerifiedFactor[]> => {
+    const {
+      data: { user },
+      error: userError
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      setStatus('disabled');
+      setVerifiedFactors([]);
+      return [];
+    }
+
+    const { data: factors, error: factorsError } =
+      await supabase.auth.mfa.listFactors();
+
+    if (factorsError || !factors) {
+      if (isMfa422Error(factorsError)) setIsMfaUnavailable(true);
+      // Treat an unreadable factor list as "not enabled" so the setup CTA still
+      // works; a hard error surfaces only when the user acts.
+      setStatus('disabled');
+      setVerifiedFactors([]);
+      return [];
+    }
+
+    const verified = factors.totp
+      .filter((factor) => factor.status === 'verified')
+      .map<VerifiedFactor>((factor) => ({
+        id: factor.id,
+        friendlyName: factor.friendly_name ?? null,
+        createdAt: factor.created_at ?? null
+      }));
+
+    setVerifiedFactors(verified);
+    setStatus(verified.length > 0 ? 'enabled' : 'disabled');
+    return verified;
+  }, []);
+
+  // Probe real status once on mount; ignore the result if we unmount first.
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        await refreshStatus();
+      } catch (probeError) {
+        if (!cancelled) {
+          logger.warn('Failed to probe MFA status:', probeError);
+          setStatus('disabled');
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [refreshStatus]);
 
   const handleSetupStart = async () => {
     if (isSubmitting || isMfaUnavailable) return;
@@ -61,7 +137,8 @@ export function useTwoFactorSetup() {
       (factor) => factor.status === 'verified'
     );
     if (hasVerifiedTotp) {
-      setError('2FA is already enabled for this account.');
+      setStatus('enabled');
+      await refreshStatus();
       setIsSubmitting(false);
       return;
     }
@@ -178,7 +255,41 @@ export function useTwoFactorSetup() {
     setBackupCodes(generateBackupCodes());
     setStep(3);
     setIsSubmitting(false);
+    void refreshStatus();
   };
+
+  /**
+   * Unenrolls every verified TOTP factor and refreshes status. The caller is
+   * expected to have confirmed intent (e.g. via `showConfirm`) beforehand.
+   */
+  const handleDisable = useCallback(async () => {
+    if (isDisabling) return;
+    setError('');
+    setIsDisabling(true);
+    try {
+      const targets =
+        verifiedFactors.length > 0 ? verifiedFactors : await refreshStatus();
+      for (const factor of targets) {
+        const { error: unenrollError } = await supabase.auth.mfa.unenroll({
+          factorId: factor.id
+        });
+        if (unenrollError) {
+          if (isMfa422Error(unenrollError)) setIsMfaUnavailable(true);
+          setError(getMfaErrorMessage(unenrollError));
+          return;
+        }
+      }
+      // Reset the setup flow so a future re-enable starts clean.
+      setStep(1);
+      setTotpUri(null);
+      setSecret(null);
+      setVerifyCode('');
+      setBackupCodes([]);
+      await refreshStatus();
+    } finally {
+      setIsDisabling(false);
+    }
+  }, [isDisabling, verifiedFactors, refreshStatus]);
 
   return {
     totpUri,
@@ -190,7 +301,12 @@ export function useTwoFactorSetup() {
     step,
     isSubmitting,
     isMfaUnavailable,
+    status,
+    verifiedFactors,
+    isDisabling,
     handleSetupStart,
-    handleVerify
+    handleVerify,
+    handleDisable,
+    refreshStatus
   };
 }
