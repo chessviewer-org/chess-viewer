@@ -1,7 +1,9 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { LucideIcon, X } from 'lucide-react';
+
+import { useFocusTrap } from '@hooks';
 
 export interface ModalShellProps {
   isOpen: boolean;
@@ -27,6 +29,9 @@ const ModalShell = memo(
     showCloseButton = true,
     disableBackdropClick = false
   }: ModalShellProps) => {
+    const dialogRef = useRef<HTMLDivElement>(null);
+    useFocusTrap(dialogRef, isOpen);
+
     useEffect(() => {
       if (isOpen) {
         document.body.style.overflow = 'hidden';
@@ -50,6 +55,7 @@ const ModalShell = memo(
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             />
             <motion.div
+              ref={dialogRef}
               role="dialog"
               aria-modal="true"
               aria-labelledby="modal-shell-title"
