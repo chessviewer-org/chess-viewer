@@ -1,5 +1,27 @@
 @import 'tailwindcss';
 
+/* ── Custom variants ─────────────────────────────────────────────────────────
+   `hover` is redeclared (block form, with `@slot`) so EVERY `hover:` utility
+   resolves to `@media (hover: hover) { &:hover }`. Tailwind 4 leaves `hover:`
+   un-gated by default, which lets a touch tap leave a STICKY hover state on the
+   tapped control until it is tapped elsewhere. Gating on `(hover: hover)` means
+   touch/coarse pointers simply never apply the hover utility — no sticky state,
+   pointer devices keep it. (CSS-component hovers on `.card`/`.btn-*` are handled
+   separately by the `@media (hover: none)` block further down.)
+
+   `coarse` / `fine` expose the pointer type as a variant so a control can opt
+   into a larger hit area on touch (`coarse:min-h-11`) without a JS check. These
+   are single at-rules, so the parenthesised shorthand is valid. */
+@custom-variant hover {
+  @media (hover: hover) {
+    &:hover {
+      @slot;
+    }
+  }
+}
+@custom-variant coarse (@media (pointer: coarse));
+@custom-variant fine (@media (pointer: fine));
+
 @theme {
   --breakpoint-xs: 480px;
   --breakpoint-sm: 640px;
@@ -37,6 +59,38 @@
   --font-body: var(--font-ui);
   --font-display: var(--font-ui);
   --font-mono: var(--font-data);
+
+  /* ── Fluid type scale (clamp-based) ──────────────────────────────────────
+     One systemic ladder so headings/body never need ad-hoc `text-xl sm:text-2xl`
+     chains. Each token interpolates between a mobile floor and a desktop ceiling
+     against the viewport, so type is compact on phones and roomy on desktop with
+     no breakpoint jumps. Use via the `text-display` … `text-fluid-xs` utilities.
+       text-display  — hero / page headline
+       text-h1/h2/h3 — section + panel headings
+       text-fluid-base/sm/xs — body, secondary, captions */
+  --text-display: clamp(1.5rem, 4vw + 0.5rem, 2.5rem);
+  --text-display--line-height: 1.1;
+  --text-h1: clamp(1.375rem, 2.4vw + 0.6rem, 2rem);
+  --text-h1--line-height: 1.15;
+  --text-h2: clamp(1.125rem, 1.4vw + 0.7rem, 1.5rem);
+  --text-h2--line-height: 1.25;
+  --text-h3: clamp(1rem, 0.8vw + 0.75rem, 1.25rem);
+  --text-h3--line-height: 1.3;
+  --text-fluid-base: clamp(0.9375rem, 0.25vw + 0.875rem, 1rem);
+  --text-fluid-base--line-height: 1.5;
+  --text-fluid-sm: clamp(0.8125rem, 0.2vw + 0.78rem, 0.875rem);
+  --text-fluid-sm--line-height: 1.45;
+  --text-fluid-xs: clamp(0.6875rem, 0.15vw + 0.66rem, 0.75rem);
+  --text-fluid-xs--line-height: 1.4;
+
+  /* ── Fluid spacing scale ──────────────────────────────────────────────────
+     Section/gutter rhythm that tightens on phones and opens up on desktop, so
+     `p-4 sm:p-6 lg:p-8` chains collapse to one `p-fluid-*` token. */
+  --spacing-fluid-xs: clamp(0.5rem, 1vw, 0.75rem);
+  --spacing-fluid-sm: clamp(0.75rem, 1.5vw, 1rem);
+  --spacing-fluid-md: clamp(1rem, 2.5vw, 1.5rem);
+  --spacing-fluid-lg: clamp(1.5rem, 4vw, 2.5rem);
+  --spacing-fluid-xl: clamp(2rem, 6vw, 4rem);
 
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);
@@ -430,6 +484,10 @@ html[data-theme-transition='to-dark'] {
     );
     background-attachment: fixed;
     box-shadow: var(--navbar-shadow);
+    /* Owns the TOP safe-area inset for the whole shell (see .shell-safe-area):
+       the bar's gradient fills the notch region while its inner content is
+       pushed below it, so the logo/menu never sit under the Dynamic Island. */
+    padding-top: max(0px, env(safe-area-inset-top));
   }
 
   .card {
@@ -939,7 +997,51 @@ html[data-theme-transition='to-dark'] {
   }
 }
 
+/* Marching-ants: a dashed border that travels around the perimeter. Drawn as
+   four repeating-linear-gradient edges (top/right/bottom/left) whose positions
+   animate, since a native `border-dashed` cannot be animated. The dash colour
+   is `currentColor` so it inherits the element's text colour (error red on the
+   active trash zone). */
+@keyframes marching-ants {
+  to {
+    background-position:
+      var(--ants-size) 0,
+      100% var(--ants-size),
+      calc(100% - var(--ants-size)) 100%,
+      0 calc(100% - var(--ants-size));
+  }
+}
+
 /* ===== ANIMATION UTILITY CLASSES ===== */
+
+/* Animated dashed perimeter (see @keyframes marching-ants). Replaces the static
+   border on the element it is applied to; pair with `border-transparent`. */
+.marching-ants {
+  --ants-size: 16px;
+  background-image:
+    repeating-linear-gradient(90deg, currentColor 0 8px, transparent 8px 16px),
+    repeating-linear-gradient(0deg, currentColor 0 8px, transparent 8px 16px),
+    repeating-linear-gradient(90deg, currentColor 0 8px, transparent 8px 16px),
+    repeating-linear-gradient(0deg, currentColor 0 8px, transparent 8px 16px);
+  background-size:
+    var(--ants-size) 2px,
+    2px var(--ants-size),
+    var(--ants-size) 2px,
+    2px var(--ants-size);
+  background-position:
+    0 0,
+    100% 0,
+    100% 100%,
+    0 100%;
+  background-repeat: repeat-x, repeat-y, repeat-x, repeat-y;
+  animation: marching-ants 0.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marching-ants {
+    animation: none;
+  }
+}
 
 .animate-fadeIn {
   animation: fadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) both;
@@ -1106,6 +1208,44 @@ html[data-theme-transition='to-dark'] {
   padding-bottom: env(safe-area-inset-bottom, 1rem);
 }
 
+/* ── Safe-area shell padding ──────────────────────────────────────────────────
+   The app shell pads its LEFT/RIGHT/BOTTOM edges by the device safe-area insets
+   so the scroll container and any bottom-anchored UI clear the home indicator
+   and a landscape notch's side cut-out. The TOP inset is owned by the fixed
+   `.navbar-shell` instead (it sits above the shell's flow), so the bar's content
+   — not empty shell padding — drops below the notch / Dynamic Island. `max(0px,
+   …)` keeps the value sane where `env()` is empty. Applied to the shell root
+   (App.tsx), not `body`, so the insets compose with the layout flexbox rather
+   than the fixed page gradient. */
+.shell-safe-area {
+  padding-left: max(0px, env(safe-area-inset-left));
+  padding-right: max(0px, env(safe-area-inset-right));
+  padding-bottom: max(0px, env(safe-area-inset-bottom));
+}
+
+/* A fresh stacking context for the shell root: every fixed/absolute/z-index
+   child (navbar, modals, drag layer, notifications) composites against THIS
+   context, not the document root — no z-index arms race with portalled UI. */
+.isolate-root {
+  isolation: isolate;
+}
+
+/* The scroll region: trap overscroll so a rubber-band / pull-to-refresh at the
+   top or bottom of the workspace never chains to the document (mobile Safari
+   URL-bar bounce, Android pull-to-refresh). `contain` stops the chain while
+   keeping normal scrolling. */
+.overscroll-trap {
+  overscroll-behavior: contain;
+}
+
+/* Board-card query container. ChessEditor inside it reads `@`-prefixed container
+   variants (`@2xl:flex-row`, `@5xl:…`) so the editor adapts to the CARD's width,
+   not the viewport — correct on ultra-wide where the card is wide but a single
+   viewport breakpoint would over/under-react. */
+.workspace-container {
+  container: workspace / inline-size;
+}
+
 /* Palette section: justify-between and minHeight only apply on very wide screens */
 @media (min-width: 1536px) {
   .palette-section {
@@ -1136,6 +1276,20 @@ html {
   a,
   [role='button'] {
     min-height: 44px;
+  }
+}
+
+/* Touch-device scroll performance.
+   `background-attachment: fixed` is the single biggest cause of scroll jank /
+   "frozen" finger-scroll on mobile Safari & Android: the browser must
+   re-composite the fixed gradient on every scroll frame. On touch devices the
+   gradient scrolls with the page instead (visually identical at phone/tablet
+   sizes, but smooth). We also let the body own vertical overscroll so the
+   native momentum + URL-bar collapse work, instead of the desktop trap. */
+@media (pointer: coarse), (max-width: 1023px) {
+  body {
+    background-attachment: scroll;
+    overscroll-behavior-y: auto;
   }
 }
 

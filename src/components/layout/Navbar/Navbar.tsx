@@ -48,11 +48,11 @@ function Navbar({ theme, toggleTheme, rightSlot }: NavbarProps) {
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className="navbar-shell fixed top-0 left-0 right-0 z-50"
       >
-        <div className="w-[88%] max-w-600 mx-auto">
+        <div className="w-[94%] sm:w-[88%] max-w-600 mx-auto">
           <div className="flex justify-between items-center py-3 min-h-12 sm:min-h-14 lg:min-h-16">
             <button
               onClick={handleLogoClick}
-              className="flex items-center gap-2 transition-colors duration-200 text-text-primary hover:text-accent"
+              className="flex items-center gap-2 transition-colors duration-200 text-text-primary hover:text-text-primary"
             >
               <div className="flex items-center gap-2">
                 <img
@@ -61,10 +61,10 @@ function Navbar({ theme, toggleTheme, rightSlot }: NavbarProps) {
                   className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 object-contain"
                 />
                 <div>
-                  <span className="font-display font-bold text-2xl sm:text-3xl leading-tight text-accent">
+                  <span className="font-display font-bold text-xl xs:text-2xl sm:text-3xl leading-tight text-accent">
                     Chess
                   </span>
-                  <span className="font-display font-bold text-2xl sm:text-3xl text-text-primary leading-tight ">
+                  <span className="font-display font-bold text-xl xs:text-2xl sm:text-3xl text-text-primary leading-tight ">
                     Vision
                   </span>
                 </div>
@@ -91,6 +91,7 @@ function Navbar({ theme, toggleTheme, rightSlot }: NavbarProps) {
                 onClick={toggleMobileMenu}
                 className="p-2 min-h-11 min-w-11 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors"
                 aria-expanded={isMobileMenuOpen}
+                aria-controls="mobile-nav-menu"
                 aria-label="Toggle navigation menu"
               >
                 {isMobileMenuOpen ? (

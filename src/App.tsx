@@ -127,7 +127,7 @@ function App() {
   const location = useLocation();
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const { isAuthenticated } = useAuth();
-  const { isLocked, unlock } = useSecurityCheck();
+  const { isLocked, isLoading: isSecurityLoading, unlock } = useSecurityCheck();
 
   const isToolPage = TOOL_PAGES.includes(location.pathname);
 
@@ -135,6 +135,18 @@ function App() {
     document.documentElement.setAttribute('data-theme', theme);
     saveTheme(theme);
   }, [theme]);
+
+  // Fade out and remove the first-paint splash (index.html) now that the app
+  // tree is mounted and interactive. Runs once.
+  useEffect(() => {
+    document.documentElement.classList.add('app-ready');
+    const splash = document.getElementById('app-splash');
+    if (!splash) return;
+    const remove = () => splash.remove();
+    const timer = window.setTimeout(remove, 400);
+    splash.addEventListener('transitionend', remove, { once: true });
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -200,7 +212,7 @@ function App() {
     <ErrorBoundary>
       <FENBatchProvider>
         <ModalProvider>
-          <div className="h-screen overflow-hidden flex flex-col bg-linear-to-br from-bg-gradient-start to-bg-gradient-end text-[clamp(0.9375rem,0.25vw+0.875rem,1rem)] transition-colors duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
+          <div className="isolate-root shell-safe-area min-h-dvh lg:h-screen lg:h-dvh lg:overflow-hidden flex flex-col bg-linear-to-br from-bg-gradient-start to-bg-gradient-end text-fluid-base transition-colors duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
             <a
               href="#main-content"
               className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-100 focus:px-6 focus:py-3 focus:bg-accent focus:text-bg focus:rounded-xl focus:shadow-lg focus:font-semibold"
@@ -213,9 +225,15 @@ function App() {
             <main
               id="main-content"
               tabIndex={-1}
-              className={`flex-1 min-h-0 overflow-x-hidden overflow-y-auto focus:outline-none ${!isToolPage ? 'mt-[4.5rem] sm:mt-[5rem] lg:mt-[5.5rem]' : ''}`}
+              className={`lg:overscroll-trap flex-1 min-h-0 w-full min-w-0 max-w-full overflow-x-hidden overflow-y-visible lg:overflow-y-auto focus:outline-none ${!isToolPage ? 'mt-[4.5rem] sm:mt-[5rem] lg:mt-[5.5rem]' : ''}`}
             >
-              {isAuthenticated && isLocked ? (
+              {/* Gate the lock modal on `!isSecurityLoading` so it never flashes
+                  before the security state resolves. `isLocked` stays fail-closed
+                  (defaults to `true`); we suppress the *render* while the state is
+                  still unknown rather than defaulting to unlocked. The board stays
+                  hidden until then so locked content is never momentarily shown. */}
+              {isAuthenticated && isSecurityLoading ? null : isAuthenticated &&
+                isLocked ? (
                 <Suspense fallback={null}>
                   <SecurityLockModal onUnlock={unlock} />
                 </Suspense>

@@ -153,10 +153,10 @@ function AboutPage() {
             <Info className="w-5 h-5" />
             About ChessVision
           </div>
-          <h1 className="text-4xl sm:text-5xl font-display font-bold text-text-primary mb-4">
+          <h1 className="text-display font-display font-bold text-text-primary mb-4">
             About
           </h1>
-          <p className="text-text-secondary text-lg max-w-2xl mx-auto leading-relaxed">
+          <p className="text-text-secondary text-fluid-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
             A free, open-source, privacy-first tool for creating high-quality
             chess diagrams.
           </p>
@@ -172,7 +172,7 @@ function AboutPage() {
             >
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-                  <Icon className="w-6 h-6 text-accent" />
+                  <Icon className="w-6 h-6 text-text-secondary" />
                 </div>
                 <h2
                   id={`about-${section.id}`}
@@ -217,7 +217,7 @@ function AboutPage() {
         >
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-              <FileText className="w-6 h-6 text-accent" />
+              <FileText className="w-6 h-6 text-text-secondary" />
             </div>
             <h2
               id="about-faq"
@@ -247,7 +247,7 @@ interface FAQItemProps {
 function FAQItem({ q, a }: FAQItemProps) {
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <div className="border border-border hover:border-accent/50 rounded-xl transition-colors duration-200">
+    <div className="border border-border hover:border-border rounded-xl transition-colors duration-200">
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -259,7 +259,7 @@ function FAQItem({ q, a }: FAQItemProps) {
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.2 }}
         >
-          <ChevronDown className="w-5 h-5 text-accent shrink-0" />
+          <ChevronDown className="w-5 h-5 text-text-muted shrink-0" />
         </motion.div>
       </button>
       <AnimatePresence initial={false}>

@@ -107,27 +107,46 @@ const HomePage: React.FC = () => {
         initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="w-full h-full min-h-0 bg-bg px-3 sm:px-6 lg:px-8 py-3 overflow-x-hidden"
+        className="w-full h-auto lg:h-full lg:overflow-hidden min-h-0 bg-bg py-fluid-xs overflow-x-hidden"
       >
-        <div className="w-full max-w-400 mx-auto space-y-2.5">
+        {/* Same width formula as the navbar inner container (Navbar.tsx) so the
+            page edges line up pixel-exact with the ChessVision logo on the left
+            and the account menu on the right. No extra outer px-* padding — that
+            would shrink the page narrower than the navbar.
+
+            Layout skeleton is a CSS Grid (NOT a flex column): a `auto`-sized
+            row for the FEN/control toolbar and a `minmax(0,1fr)` row for the
+            board card. The grid resolves the board card's height deterministically
+            from the remaining track instead of relying on `flex-1` reflow, and
+            `min-h-0` on the rows lets the card's own scroll/overflow take over
+            cleanly. Vertical rhythm via the fluid `gap-fluid-xs` token. */}
+        <div className="grid grid-rows-[auto_minmax(0,1fr)] gap-fluid-xs w-[94%] sm:w-[88%] max-w-600 mx-auto h-auto lg:h-full min-h-0">
           {/* Top Bar — full-width FEN / Control Panel above the board. */}
-          <ControlPanel
-            fen={fen}
-            setFen={setFen}
-            addToFavoritesRef={addToFavoritesRef}
-            onFavoriteStatusChange={setIsFavorite}
-            saveManualFen={saveManualFen}
-            saveExportFen={saveExportFen}
-            addCurrentToFavorites={addCurrentToFavorites}
-            onNotification={handleNotification}
-            isHistoryActive={activeRightPanel === 'history'}
-            onToggleHistory={toggleHistoryPanel}
-          />
+          <div className="min-w-0">
+            <ControlPanel
+              fen={fen}
+              setFen={setFen}
+              addToFavoritesRef={addToFavoritesRef}
+              onFavoriteStatusChange={setIsFavorite}
+              saveManualFen={saveManualFen}
+              saveExportFen={saveExportFen}
+              addCurrentToFavorites={addCurrentToFavorites}
+              onNotification={handleNotification}
+              isHistoryActive={activeRightPanel === 'history'}
+              onToggleHistory={toggleHistoryPanel}
+            />
+          </div>
 
           {/* Main content — board (left) + command-center panel (right).
-              Export actions now live as icons in the panel's top toolbar. */}
-          <div className="min-w-0">
-            <div className="bg-surface border border-border/40 rounded-xl p-3 sm:p-4">
+              Export actions now live as icons in the panel's top toolbar.
+
+              `workspace-container` makes this card a container-query context so
+              ChessEditor adapts to the CARD's inline width (`@5xl:flex-row`),
+              not the viewport — board+panel go side-by-side when the CARD is
+              wide enough, which is the right signal on ultra-wide. `overscroll-trap`
+              keeps a scroll bounce inside the card on touch. */}
+          <div className="min-w-0 min-h-0">
+            <div className="workspace-container lg:overscroll-trap bg-surface border border-border/40 rounded-xl p-fluid-sm h-auto lg:h-full overflow-visible lg:overflow-hidden">
               <ChessEditor
                 fen={fen}
                 onFenChange={handleEditorFenChange}

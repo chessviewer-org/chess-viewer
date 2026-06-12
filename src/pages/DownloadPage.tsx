@@ -157,7 +157,7 @@ interface PlatformCardProps {
 
 function PlatformCard({ icon, title, platforms, browsers }: PlatformCardProps) {
   return (
-    <div className="text-center p-5 rounded-xl bg-surface-elevated border border-border hover:border-accent transition-colors duration-200">
+    <div className="text-center p-5 rounded-xl bg-surface-elevated border border-border hover:border-border transition-colors duration-200">
       <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mx-auto mb-3 text-accent">
         {icon}
       </div>

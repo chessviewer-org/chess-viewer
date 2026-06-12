@@ -72,7 +72,7 @@ export const NavbarDesktopDropdown = memo(function NavbarDesktopDropdown({
                   {displayName}
                 </p>
                 {isSupporter ? (
-                  <span className="mt-1 flex items-center gap-1.5 text-sm font-medium text-accent">
+                  <span className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-text-primary">
                     <Shield className="w-4 h-4" />
                     ChessVision Supporter
                   </span>
@@ -81,7 +81,7 @@ export const NavbarDesktopDropdown = memo(function NavbarDesktopDropdown({
                     href={DONATE_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-1 flex items-center gap-1.5 text-sm font-medium text-text-secondary hover:text-accent transition-colors"
+                    className="mt-1 flex items-center gap-1.5 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
                   >
                     <Shield className="w-4 h-4" />
                     Donate ChessVision
@@ -101,7 +101,7 @@ export const NavbarDesktopDropdown = memo(function NavbarDesktopDropdown({
                   className={itemClass}
                 >
                   <User className="w-4 h-4 text-text-secondary" />
-                  <span>Account</span>
+                  <span>Settings</span>
                 </Link>
 
                 <div className="h-px bg-border my-3" />

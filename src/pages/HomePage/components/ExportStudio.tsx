@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -24,6 +24,20 @@ interface ExportStudioProps {
 const ExportStudio = ({ homeState, onClose }: ExportStudioProps) => {
   const wizard = useExportWizard();
   const themes = useExportStudioThemes();
+
+  // Full-screen overlay: lock background scroll and close on Escape. Cleanup
+  // restores `overflow` to avoid a scroll leak (matches ShareDialog).
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = 'unset';
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [onClose]);
 
   const handleThemeSelect = useCallback(
     (theme: ThemeCard) => {
@@ -55,7 +69,15 @@ const ExportStudio = ({ homeState, onClose }: ExportStudioProps) => {
   }, [homeState, onClose, wizard]);
 
   return (
-    <div className="fixed inset-x-0 top-16 sm:top-20 lg:top-24 z-60 h-[calc(100dvh-4rem)] sm:h-[calc(100dvh-5rem)] lg:h-[calc(100dvh-6rem)] bg-bg border-t border-border/40 overflow-hidden">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="export-studio-title"
+      className="fixed inset-x-0 top-16 sm:top-20 lg:top-24 z-60 h-[calc(100dvh-4rem)] sm:h-[calc(100dvh-5rem)] lg:h-[calc(100dvh-6rem)] bg-bg border-t border-border/40 overflow-hidden"
+    >
+      <h2 id="export-studio-title" className="sr-only">
+        Export Studio
+      </h2>
       <div className="h-full flex flex-col overflow-hidden">
         <header className="h-14 shrink-0 border-b border-border/40 bg-surface px-4 sm:px-6 flex items-center justify-between">
           <button
@@ -83,7 +105,7 @@ const ExportStudio = ({ homeState, onClose }: ExportStudioProps) => {
             <button
               type="button"
               onClick={handlePrimaryNavigation}
-              className="text-accent hover:text-accent-hover transition-colors"
+              className="text-accent hover:text-text-primary-hover transition-colors"
             >
               {wizard.currentStep < 3
                 ? `${wizard.currentStep}/3 Next >`
