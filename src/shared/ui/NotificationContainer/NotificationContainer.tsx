@@ -65,11 +65,11 @@ const NOTIFICATION_STYLES: Record<
     icon: <Info className="h-5 w-5" strokeWidth={2} aria-hidden="true" />,
     label: 'Information notification',
     title: 'Information',
-    strip: 'bg-accent',
-    joinBorder: 'border-accent',
-    iconBg: 'bg-accent/8',
-    iconBorder: 'border-accent/20',
-    iconColor: 'text-accent'
+    strip: 'bg-info',
+    joinBorder: 'border-info',
+    iconBg: 'bg-info/8',
+    iconBorder: 'border-info/20',
+    iconColor: 'text-info'
   }
 };
 
