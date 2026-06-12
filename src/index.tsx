@@ -24,3 +24,12 @@ root.render(
     </BrowserRouter>
   </React.StrictMode>
 );
+
+// Register the Service Worker (production builds only). `autoUpdate` activates
+// a new SW in the background; precached assets let hard refresh load from cache
+// instead of re-downloading the bundle over the network.
+if (import.meta.env.PROD) {
+  void import('virtual:pwa-register').then(({ registerSW }) => {
+    registerSW({ immediate: true });
+  });
+}
