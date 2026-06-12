@@ -1,7 +1,10 @@
+import { useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { ShieldAlert, ShieldCheck } from 'lucide-react';
+
+import { useFocusTrap } from '@hooks';
 
 import type { SecurityLockModalProps } from '../types';
 import { BackupCodeUnlockForm } from './securityLock/BackupCodeUnlockForm';
@@ -34,6 +37,9 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
     handleBackupSubmit
   } = useSecurityUnlock(onUnlock);
 
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialogRef, true);
+
   return createPortal(
     <div className="fixed inset-0 z-110 flex items-center justify-center p-4 sm:p-6">
       {/* Backdrop */}
@@ -47,6 +53,10 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
 
       {/* Card */}
       <motion.div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="security-lock-title"
         variants={{
           hidden: { opacity: 0, scale: 0.95 },
           visible: { opacity: 1, scale: 1 },
@@ -62,12 +72,15 @@ export function SecurityLockModal({ onUnlock }: SecurityLockModalProps) {
         <div className="flex flex-col items-center gap-3 px-6 pt-8 pb-4 text-center">
           <div className="w-14 h-14 rounded-full bg-warning/10 flex items-center justify-center">
             {mode === 'mfa' ? (
-              <ShieldAlert className="w-7 h-7 text-accent" />
+              <ShieldAlert className="w-7 h-7 text-text-secondary" />
             ) : (
               <ShieldCheck className="w-7 h-7 text-warning" />
             )}
           </div>
-          <h2 className="text-xl font-bold font-display text-text-primary">
+          <h2
+            id="security-lock-title"
+            className="text-xl font-bold font-display text-text-primary"
+          >
             {mode === 'mfa'
               ? 'Two-Factor Authentication'
               : 'Security Verification Required'}

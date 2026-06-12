@@ -1,5 +1,7 @@
 import { memo, useEffect, useRef, useState } from 'react';
 
+import { BOARD_THEMES } from '@constants';
+
 import { logger, parseFEN } from '@utils';
 
 /** Props for the `MiniPreview` canvas thumbnail component. */
@@ -47,11 +49,11 @@ const MiniPreview = memo(
       const defaultLight =
         lightSquare ||
         style.getPropertyValue('--color-light-square').trim() ||
-        '#f0d9b5';
+        (BOARD_THEMES['classic']?.light ?? '#f0d9b5');
       const defaultDark =
         darkSquare ||
         style.getPropertyValue('--color-dark-square').trim() ||
-        '#b58863';
+        (BOARD_THEMES['classic']?.dark ?? '#b58863');
 
       // Render at the REAL displayed device-pixel size, not a fixed 160×2.
       // The card preview stretches the canvas via `w-full h-full`; sizing the

@@ -24,7 +24,7 @@ const buttonBase =
   'flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md transition duration-150 ease-out active:scale-95 hover:bg-opacity-80 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-8 sm:min-h-9';
 
 const neutralButton =
-  'bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-accent';
+  'bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-text-primary';
 
 /** A high-contrast vertical divider between toolbar button groups. */
 const GroupDivider = () => (
@@ -46,7 +46,9 @@ const FENInputToolbar = memo(function FENInputToolbar({
 }: FENInputToolbarProps) {
   return (
     // Tight inner gaps within a group; visible dividers BETWEEN groups.
-    <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-surface-elevated border-b border-border">
+    // On phones the text labels are hidden (icon-only) so all three groups fit
+    // on a single row without wrapping; labels return from `sm` up.
+    <div className="flex flex-nowrap sm:flex-wrap items-center justify-between sm:justify-start gap-1.5 sm:gap-2.5 px-2 sm:px-3 py-1 sm:py-1.5 bg-surface-elevated border-b border-border">
       {/* Group 1 — History · Paste */}
       <div className="flex items-center gap-1">
         <button
@@ -62,7 +64,7 @@ const FENInputToolbar = memo(function FENInputToolbar({
           type="button"
         >
           <List className="w-3.5 h-3.5" strokeWidth={2.5} aria-hidden="true" />
-          <span>Clipboard</span>
+          <span className="hidden sm:inline">Clipboard</span>
         </button>
 
         <button
@@ -77,7 +79,7 @@ const FENInputToolbar = memo(function FENInputToolbar({
             strokeWidth={2.5}
             aria-hidden="true"
           />
-          <span>Paste</span>
+          <span className="hidden sm:inline">Paste</span>
         </button>
       </div>
 
@@ -93,7 +95,7 @@ const FENInputToolbar = memo(function FENInputToolbar({
           type="button"
         >
           <Plus className="w-3.5 h-3.5" strokeWidth={2.5} aria-hidden="true" />
-          <span>Add</span>
+          <span className="hidden sm:inline">Add</span>
         </button>
 
         <button
@@ -101,7 +103,7 @@ const FENInputToolbar = memo(function FENInputToolbar({
           className={`${buttonBase} ${
             isFavorite
               ? 'bg-accent/20 text-accent border border-accent/30'
-              : 'bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-accent'
+              : 'bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-text-primary'
           }`}
           title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
           aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
@@ -115,7 +117,9 @@ const FENInputToolbar = memo(function FENInputToolbar({
             fill={isFavorite ? 'currentColor' : 'none'}
             aria-hidden="true"
           />
-          <span>{isFavorite ? 'Saved' : 'Save'}</span>
+          <span className="hidden sm:inline">
+            {isFavorite ? 'Saved' : 'Save'}
+          </span>
         </button>
       </div>
 
@@ -136,7 +140,7 @@ const FENInputToolbar = memo(function FENInputToolbar({
             strokeWidth={2.5}
             aria-hidden="true"
           />
-          <span>Reset</span>
+          <span className="hidden sm:inline">Reset</span>
         </button>
 
         <button
@@ -151,7 +155,7 @@ const FENInputToolbar = memo(function FENInputToolbar({
             strokeWidth={2.5}
             aria-hidden="true"
           />
-          <span>Clear</span>
+          <span className="hidden sm:inline">Clear</span>
         </button>
       </div>
     </div>

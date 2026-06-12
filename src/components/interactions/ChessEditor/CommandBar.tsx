@@ -69,7 +69,7 @@ const CommandBar = memo(function CommandBar({
       <button
         type="button"
         onClick={onDownload}
-        className={`${iconButton} text-accent hover:text-accent-hover hover:bg-accent/10`}
+        className={`${iconButton} text-accent hover:text-text-primary-hover hover:bg-accent/10`}
         title="Download / Export"
         aria-label="Download or export board"
       >

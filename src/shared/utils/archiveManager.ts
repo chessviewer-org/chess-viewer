@@ -58,8 +58,12 @@ export async function saveArchive(
       const { kept, dropped } = trimToSyncBudget(
         sortArchivedByArchiveDate(archive)
       );
-      await syncStorage.set(ARCHIVE_STORAGE_KEY, JSON.stringify(kept));
-      emitSyncTruncation('archive', dropped);
+      const result = await syncStorage.set(
+        ARCHIVE_STORAGE_KEY,
+        JSON.stringify(kept)
+      );
+      if (result === 'too-large') emitSyncTruncation('archive', kept.length);
+      else emitSyncTruncation('archive', dropped);
     }
   } catch (error) {
     logger.error('Failed to save archive:', error);
@@ -132,8 +136,9 @@ export async function performAutoArchival(
   localStorage.setItem('fen-history', JSON.stringify(active));
   if (syncStorage) {
     const { kept, dropped } = trimToSyncBudget(sortByMostRecent(active));
-    await syncStorage.set('fen-history', JSON.stringify(kept));
-    emitSyncTruncation('history', dropped);
+    const result = await syncStorage.set('fen-history', JSON.stringify(kept));
+    if (result === 'too-large') emitSyncTruncation('history', kept.length);
+    else emitSyncTruncation('history', dropped);
   }
 
   return { updatedHistory: active, archivedCount: toArchive.length };

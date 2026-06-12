@@ -5,7 +5,10 @@ import { useDrop } from 'react-dnd';
 import { ItemTypes } from '@constants';
 import type { PieceSymbol } from '@app-types/chess';
 
+import { pieceToName } from '@utils';
 import DraggablePiece from '../DraggablePiece/DraggablePiece';
+
+const FILES = 'abcdefgh';
 
 /** The drag item payload passed between react-dnd sources and targets. */
 export interface DragItem {
@@ -56,6 +59,11 @@ export const DroppableSquare = memo(
   }: DroppableSquareProps) {
     const bgColor = isLight ? lightColor : darkColor;
 
+    const squareName = `${FILES[col] ?? col}${8 - row}`;
+    const ariaLabel = piece
+      ? `${pieceToName(piece)}, ${squareName}`
+      : `${squareName}, empty`;
+
     const handleSelect = useCallback(() => {
       onSelect?.(row, col);
     }, [onSelect, row, col]);
@@ -104,6 +112,9 @@ export const DroppableSquare = memo(
           };
         }}
         onClick={handleSelect}
+        role="gridcell"
+        aria-label={ariaLabel}
+        aria-selected={isSelected}
         className="w-full h-full flex items-center justify-center relative cursor-pointer"
         style={{
           backgroundColor: bgColor,
@@ -111,7 +122,7 @@ export const DroppableSquare = memo(
           boxShadow: isOver
             ? 'inset 0 0 0 3px rgba(255, 255, 255, 0.5)'
             : isSelected
-              ? 'inset 0 0 0 3px var(--accent)'
+              ? 'inset 0 0 0 3px var(--color-accent)'
               : 'none',
           contain: 'layout style',
           minWidth: 0,

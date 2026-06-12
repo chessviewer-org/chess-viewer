@@ -1026,3 +1026,11 @@ REVOKE EXECUTE ON FUNCTION public.check_rate_limit(TEXT, INT, INTERVAL)         
 REVOKE EXECUTE ON FUNCTION public.is_rate_limited(TEXT, INT, INTERVAL)             FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.record_audit(TEXT, BOOLEAN, JSONB)              FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.prune_auth_audit_log(INTERVAL)                  FROM PUBLIC, anon, authenticated;
+
+-- is_mfa_enabled: SECURITY DEFINER reading auth.mfa_factors — internal use only.
+REVOKE EXECUTE ON FUNCTION public.is_mfa_enabled()                                 FROM PUBLIC, anon, authenticated;
+GRANT  EXECUTE ON FUNCTION public.is_mfa_enabled()                                 TO authenticated;
+
+-- set_supporter_status: authenticated-only; anon must be explicitly denied.
+REVOKE EXECUTE ON FUNCTION public.set_supporter_status(INT)                        FROM PUBLIC, anon;
+GRANT  EXECUTE ON FUNCTION public.set_supporter_status(INT)                        TO authenticated;

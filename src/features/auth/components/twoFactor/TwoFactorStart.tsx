@@ -15,7 +15,7 @@ export function TwoFactorStart({
   return (
     <div className="flex flex-col items-center text-center gap-6 p-4">
       <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mb-2 shadow-inner">
-        <ShieldCheck className="w-8 h-8 text-accent" />
+        <ShieldCheck className="w-8 h-8 text-text-secondary" />
       </div>
       <div className="space-y-2">
         <h3 className="text-lg font-bold text-text-primary font-display">

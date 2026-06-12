@@ -25,6 +25,41 @@ export interface EditorKeyboardOptions {
   scrollStep?: number;
 }
 
+/**
+ * The element that actually scrolls. On desktop the shell locks the page and
+ * `#main-content` owns the scroll (`lg:overflow-y-auto`); on mobile the document
+ * scrolls. Returning the right one keeps Arrow/Page/Home/End working in both
+ * layouts — scrolling `window` does nothing when the overflow lives on `<main>`.
+ */
+function getScrollContainer(): HTMLElement | null {
+  const main = document.getElementById('main-content');
+  if (main && main.scrollHeight > main.clientHeight) return main;
+  return null;
+}
+
+function scrollBy(top: number): void {
+  const el = getScrollContainer();
+  if (el) el.scrollBy({ top, behavior: 'smooth' });
+  else window.scrollBy({ top, behavior: 'smooth' });
+}
+
+function scrollToY(top: number): void {
+  const el = getScrollContainer();
+  if (el) el.scrollTo({ top, behavior: 'smooth' });
+  else window.scrollTo({ top, behavior: 'smooth' });
+}
+
+function getViewportHeight(): number {
+  const el = getScrollContainer();
+  return el ? el.clientHeight : window.innerHeight;
+}
+
+function getScrollMax(): number {
+  const el = getScrollContainer();
+  if (el) return el.scrollHeight;
+  return document.documentElement.scrollHeight;
+}
+
 /** Tags/states where typing must win over editor shortcuts. */
 function isTextEntryTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
@@ -101,34 +136,31 @@ export function useEditorKeyboard(
       // ----- Document scrolling (also skipped while typing / in dialogs) -----
       if (typing || mod || e.altKey) return;
 
-      const viewport = window.innerHeight;
+      const viewport = getViewportHeight();
       switch (e.key) {
         case 'ArrowDown':
           e.preventDefault();
-          window.scrollBy({ top: scrollStep, behavior: 'smooth' });
+          scrollBy(scrollStep);
           break;
         case 'ArrowUp':
           e.preventDefault();
-          window.scrollBy({ top: -scrollStep, behavior: 'smooth' });
+          scrollBy(-scrollStep);
           break;
         case 'PageDown':
           e.preventDefault();
-          window.scrollBy({ top: viewport * 0.9, behavior: 'smooth' });
+          scrollBy(viewport * 0.9);
           break;
         case 'PageUp':
           e.preventDefault();
-          window.scrollBy({ top: -viewport * 0.9, behavior: 'smooth' });
+          scrollBy(-viewport * 0.9);
           break;
         case 'Home':
           e.preventDefault();
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          scrollToY(0);
           break;
         case 'End':
           e.preventDefault();
-          window.scrollTo({
-            top: document.documentElement.scrollHeight,
-            behavior: 'smooth'
-          });
+          scrollToY(getScrollMax());
           break;
         default:
           break;

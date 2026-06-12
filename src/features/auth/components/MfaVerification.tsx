@@ -91,9 +91,9 @@ export function MfaVerification({ onSuccess, onBack }: MfaVerificationProps) {
       <div className="flex flex-col items-center text-center gap-3">
         <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
           {mode === 'totp' ? (
-            <ShieldAlert className="w-6 h-6 text-accent" />
+            <ShieldAlert className="w-6 h-6 text-text-secondary" />
           ) : (
-            <KeyRound className="w-6 h-6 text-accent" />
+            <KeyRound className="w-6 h-6 text-text-secondary" />
           )}
         </div>
         <h3 className="text-lg font-bold text-text-primary">
@@ -118,7 +118,11 @@ export function MfaVerification({ onSuccess, onBack }: MfaVerificationProps) {
         onSubmit={mode === 'totp' ? handleVerifyTotp : handleVerifyBackup}
         className="flex flex-col gap-4"
       >
+        <label htmlFor="mfa-code" className="sr-only">
+          {mode === 'totp' ? 'Authenticator code' : 'Backup recovery code'}
+        </label>
         <input
+          id="mfa-code"
           type="text"
           placeholder={mode === 'totp' ? '000000' : 'ABC12345'}
           className="w-full text-center text-lg tracking-[0.2em] font-mono rounded-xl border border-border bg-surface-elevated px-4 py-3 text-text-primary focus:border-accent focus:ring-2 focus:ring-accent/35 outline-none transition-colors duration-200"
@@ -140,6 +144,7 @@ export function MfaVerification({ onSuccess, onBack }: MfaVerificationProps) {
 
       <div className="flex flex-col gap-3 pt-2">
         <button
+          type="button"
           onClick={() => {
             setMode(mode === 'totp' ? 'backup' : 'totp');
             setCode('');
@@ -153,6 +158,7 @@ export function MfaVerification({ onSuccess, onBack }: MfaVerificationProps) {
         </button>
 
         <button
+          type="button"
           onClick={onBack}
           className="flex items-center justify-center gap-2 text-xs text-text-secondary hover:text-text-primary transition-colors"
         >

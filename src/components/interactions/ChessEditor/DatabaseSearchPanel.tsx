@@ -22,6 +22,8 @@ export interface DatabaseSearchPanelProps {
   chessdb: ProviderState;
   pdb: ProviderState;
   yacpdb: ProviderState;
+  /** Extra classes for the outer card (e.g. `flex-1` to fill column height). */
+  className?: string;
 }
 
 /** Per-row action button: Search → Searching… (disabled) → Open ↗ (link). */
@@ -89,7 +91,7 @@ const ProviderRow = memo(function ProviderRow({
 }) {
   const found = state.status === 'found';
   return (
-    <div className="flex items-center justify-between gap-1.5 min-w-0 px-2 py-2 rounded-lg border border-border/40 bg-surface">
+    <div className="flex h-full items-center justify-between gap-1.5 min-w-0 px-2.5 py-2.5 rounded-lg border border-border/40 bg-surface">
       <div className="flex items-center gap-1.5 min-w-0">
         <Database
           className={`w-4 h-4 shrink-0 transition-colors duration-300 ${
@@ -115,18 +117,23 @@ const DatabaseSearchPanel = memo(function DatabaseSearchPanel({
   lichess,
   chessdb,
   pdb,
-  yacpdb
+  yacpdb,
+  className = ''
 }: DatabaseSearchPanelProps) {
   return (
-    <div className="w-full rounded-xl border border-border/40 bg-surface-elevated px-2.5 py-2 space-y-2">
-      <span className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-text-secondary px-1">
+    <div
+      className={`flex w-full flex-col rounded-xl border border-border/40 bg-surface-elevated px-2.5 py-2.5 ${className}`}
+    >
+      <span className="block shrink-0 text-fluid-xs font-bold uppercase tracking-wider text-text-secondary px-1 mb-2.5">
         Database Search
       </span>
 
       {/* 2×2 grid — each provider independently triggered. Top row: game
           databases (Lichess "who played this?" · ChessDB engine evals); bottom
-          row: the problem databases PDB / YACPDB. */}
-      <div className="grid grid-cols-2 gap-2">
+          row: the problem databases PDB / YACPDB. `flex-1` + `auto-rows-fr` lets
+          the two rows split the panel's full height evenly, so the provider
+          cells grow taller when the editor gives this panel more room. */}
+      <div className="grid flex-1 min-h-0 grid-cols-2 auto-rows-fr gap-2.5">
         <ProviderRow state={lichess} />
         <ProviderRow state={chessdb} />
         <ProviderRow state={pdb} />

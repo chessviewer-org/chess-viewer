@@ -72,7 +72,7 @@ export const FENHistoryGridItem: React.FC<FENHistoryGridItemProps> = memo(
 
     return (
       <div
-        className="bg-surface border border-border rounded-xl overflow-hidden hover:shadow-lg hover:shadow-accent/5 hover:border-accent/30 transition-[box-shadow,border-color] duration-200 group flex flex-col min-h-50 animate-cardReveal"
+        className="bg-surface border border-border rounded-xl overflow-hidden hover:shadow-lg hover:shadow-accent/5 hover:border-border transition-[box-shadow,border-color] duration-200 group flex flex-col min-h-50 animate-cardReveal"
         style={{ animationDelay: `${Math.min(index * 0.05, 0.3)}s` }}
       >
         <div className="aspect-square bg-bg p-2 shrink-0 border-b border-border/30">
@@ -97,7 +97,7 @@ export const FENHistoryGridItem: React.FC<FENHistoryGridItemProps> = memo(
             <button
               type="button"
               onClick={handleCopy}
-              className="shrink-0 p-1 rounded-md text-text-muted hover:text-accent hover:bg-surface-hover transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className="shrink-0 p-1 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-hover transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               title={copied ? 'Copied' : 'Copy FEN'}
               aria-label="Copy FEN to clipboard"
             >

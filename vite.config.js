@@ -2,11 +2,74 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
+import { VitePWA } from 'vite-plugin-pwa';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    // Service Worker + precaching. The win here is hard-refresh (Ctrl+F5):
+    // it bypasses the HTTP cache but NOT the Service Worker cache, so once the
+    // SW is installed every reload serves JS/CSS/icons from cache instantly
+    // instead of re-downloading ~1.3MB over the network. `autoUpdate` ships a
+    // new SW on each deploy and activates it in the background.
+    VitePWA({
+      registerType: 'autoUpdate',
+      injectRegister: null, // we register manually in src/index.tsx
+      includeAssets: [
+        'favicon.ico',
+        'logo192.png',
+        'logo512.png',
+        'robots.txt'
+      ],
+      manifest: false, // keep the existing public/manifest.json
+      workbox: {
+        // Precache the built app shell (hashed JS/CSS) so a hard refresh is
+        // served from cache. SPA navigations fall back to index.html.
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        navigateFallback: '/index.html',
+        // Supabase API, the chess-DB edge function, and auth must always hit
+        // the network — never serve a stale cached response for them.
+        navigateFallbackDenylist: [/^\/api/, /supabase/],
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+        runtimeCaching: [
+          {
+            // Lichess piece images — immutable, safe to cache long-term.
+            urlPattern: /^https:\/\/lichess1\.org\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'lichess-pieces',
+              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheableResponse: { statuses: [0, 200] }
+            }
+          },
+          {
+            // Google Fonts stylesheets.
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'google-fonts-stylesheets' }
+          },
+          {
+            // Google Fonts webfont files — immutable.
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-webfonts',
+              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] }
+            }
+          }
+        ]
+      },
+      devOptions: {
+        // Keep the SW off in `pnpm dev` so it never interferes with HMR.
+        enabled: false
+      }
+    })
+  ],
 
   resolve: {
     alias: {

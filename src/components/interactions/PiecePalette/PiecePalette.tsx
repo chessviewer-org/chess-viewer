@@ -42,9 +42,9 @@ export const PiecePalette = memo(function PiecePalette({
         <div
           key={p.id}
           className={`
-            aspect-square flex-1 min-w-0 rounded-md overflow-hidden
+            aspect-square flex-1 min-w-11 rounded-md overflow-hidden
             bg-surface-elevated hover:bg-surface-hover
-            border border-border/50 hover:border-accent/50
+            border border-border/50 hover:border-border
             grid place-items-center p-0.5
             transition-colors duration-200
             ${isLoading ? 'opacity-50' : ''}
@@ -67,13 +67,14 @@ export const PiecePalette = memo(function PiecePalette({
   const renderGroup = useCallback(
     (pieces: PalettePiece[], label: string) => (
       <div className="flex-1 min-w-0 flex flex-col">
-        {/* Header in the site's gold accent tone. */}
-        <span className="block w-full text-sm font-semibold uppercase tracking-wider text-accent text-center pb-1.5">
+        {/* Section label — neutral tone; accent is reserved for active/CTA states. */}
+        <span className="block w-full text-fluid-sm font-semibold uppercase tracking-wider text-text-secondary text-center pb-1.5">
           {label}
         </span>
         {/* Tray: `items-stretch` lets each square cell drive the row height so
-            no piece cell is clipped at the bottom. */}
-        <div className="flex items-stretch gap-1 sm:gap-2 p-1.5 sm:p-3 rounded-lg border border-white/10 bg-black/20">
+            no piece cell is clipped at the bottom. Gutter/padding are fluid
+            (gap-fluid-xs) so the tray tightens on phones and opens up on wide. */}
+        <div className="flex items-stretch gap-fluid-xs p-fluid-xs rounded-lg border border-white/10 bg-black/20">
           {pieces.map(renderPiece)}
         </div>
       </div>
@@ -83,8 +84,10 @@ export const PiecePalette = memo(function PiecePalette({
 
   return (
     <div className={`flex items-stretch ${className}`}>
-      {/* Two distinct labelled trays side by side; no divider line. */}
-      <div className="flex items-stretch gap-2 sm:gap-4 w-full">
+      {/* Two labelled trays. They stack on the narrowest phones so each tray
+          gets the full content width (keeping every piece cell ≥44px), and sit
+          side by side from xs up. No divider line. */}
+      <div className="flex flex-col xs:flex-row items-stretch gap-3 xs:gap-2 sm:gap-4 w-full">
         {renderGroup(WHITE_PIECES, 'White')}
         {renderGroup(BLACK_PIECES, 'Black')}
       </div>

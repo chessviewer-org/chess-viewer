@@ -30,7 +30,9 @@ export function SignUp({ onSuccess }: SignUpProps) {
   if (success) {
     return (
       <div className="w-full rounded-xl border border-border bg-surface-elevated px-4 py-6 text-center">
-        <h3 className="mb-2 text-xl font-bold text-accent">Check your email</h3>
+        <h3 className="mb-2 text-xl font-bold text-text-primary">
+          Check your email
+        </h3>
         <p className="text-sm text-text-secondary">
           We've sent a confirmation link to finish setting up your account.
         </p>
@@ -47,10 +49,14 @@ export function SignUp({ onSuccess }: SignUpProps) {
       )}
       <form onSubmit={handleSignUp} className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
+          <label
+            htmlFor="signup-email"
+            className="text-xs font-semibold uppercase tracking-wide text-text-secondary"
+          >
             Email
           </label>
           <input
+            id="signup-email"
             type="email"
             autoComplete="email"
             className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/50 outline-none transition-colors duration-200"
@@ -60,10 +66,14 @@ export function SignUp({ onSuccess }: SignUpProps) {
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
+          <label
+            htmlFor="signup-password"
+            className="text-xs font-semibold uppercase tracking-wide text-text-secondary"
+          >
             Password
           </label>
           <input
+            id="signup-password"
             type="password"
             autoComplete="new-password"
             className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/50 outline-none transition-colors duration-200"

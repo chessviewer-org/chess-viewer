@@ -12,10 +12,17 @@ export interface ValidationResult {
   errorMessage: string | null;
 }
 
+/** Board style family a preset belongs to (drives 2D / 3D grouping). */
+export type ThemeFamily = '2D' | '3D';
+
 export interface ThemeConfig {
   name: string;
   light: string;
   dark: string;
+  /** Board style family this preset renders as. Defaults to '2D' when absent. */
+  family?: ThemeFamily;
+  /** Curated "most-used" flag — surfaced in the compact editor settings panel. */
+  popular?: boolean;
 }
 
 export type BoardThemes = Record<string, ThemeConfig>;

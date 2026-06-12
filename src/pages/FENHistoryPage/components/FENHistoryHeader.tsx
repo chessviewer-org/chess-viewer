@@ -38,14 +38,14 @@ export const FENHistoryHeader: React.FC<FENHistoryHeaderProps> = memo(
                 className="flex items-center gap-2 sm:gap-2.5 px-3 sm:px-4 py-2 hover:bg-surface-hover rounded-xl transition-colors duration-200 group"
                 aria-label="Go back"
               >
-                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-accent group-hover:text-accent-hover transition-colors duration-200" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-accent group-hover:text-text-primary-hover transition-colors duration-200" />
                 <span className="text-xs sm:text-sm font-medium text-text-secondary group-hover:text-text-primary transition-colors duration-200">
                   Back
                 </span>
               </button>
               <div className="h-6 sm:h-8 w-px bg-border/50 hidden sm:block" />
               <div className="flex items-center gap-2 sm:gap-2.5">
-                <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-accent animate-iconBounceIn" />
+                <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-text-secondary animate-iconBounceIn" />
                 <h1 className="text-lg sm:text-2xl font-display font-bold text-text-primary animate-fadeIn">
                   FEN History
                 </h1>

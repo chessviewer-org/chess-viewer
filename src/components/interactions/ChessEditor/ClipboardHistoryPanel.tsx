@@ -68,7 +68,7 @@ const Row = ({
         className={`rounded-lg p-3 transition-colors h-full flex flex-col justify-center border ${
           isActive
             ? 'border-accent/60 bg-accent/5'
-            : 'border-border/50 bg-surface hover:border-accent/40'
+            : 'border-border/50 bg-surface hover:border-border'
         }`}
       >
         <div className="flex items-start justify-between gap-2">
@@ -113,7 +113,7 @@ const Row = ({
 
             <button
               onClick={() => onSendToAdvanced(fen)}
-              className="p-1.5 rounded-lg bg-surface-elevated hover:bg-accent/10 hover:text-accent text-text-secondary transition-colors"
+              className="p-1.5 rounded-lg bg-surface-elevated hover:bg-accent/10 hover:text-text-primary text-text-secondary transition-colors"
               title="Open in Advanced FEN editor"
               aria-label="Open in Advanced FEN editor"
             >
@@ -275,7 +275,7 @@ const ClipboardHistoryPanel = memo(function ClipboardHistoryPanel({
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-text-secondary hover:text-accent hover:bg-surface-hover border border-border/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-text-secondary hover:text-text-primary hover:bg-surface-hover border border-border/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           title="Back to tools"
           aria-label="Back to tools"
         >

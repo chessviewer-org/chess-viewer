@@ -15,15 +15,29 @@ import { logger } from '@utils/logger';
  * server cap, so a growing history can't silently stop syncing.
  *
  * @param history - Current list of active history entries
+ * @param notifyTruncation - When `false`, suppresses the "Cloud full" toast.
+ *   The first persist after hydration is a round-trip echo of what we just
+ *   loaded (not a user edit), so a truncation there must not surface a toast on
+ *   page load. Genuine user-triggered writes pass `true`.
  */
-export const persistHistory = (history: ActiveHistoryEntry[]): void => {
+export const persistHistory = (
+  history: ActiveHistoryEntry[],
+  notifyTruncation = true
+): void => {
   try {
     window.localStorage.setItem('fen-history', JSON.stringify(history));
     if (syncStorage) {
       const { kept, dropped } = trimToSyncBudget(sortByMostRecent(history));
       syncStorage
         .set('fen-history', JSON.stringify(kept))
-        .then(() => emitSyncTruncation('history', dropped))
+        .then((result) => {
+          if (!notifyTruncation) return;
+          // 'too-large' means even the trimmed prefix exceeded the server cap,
+          // so nothing reached the cloud — that's `kept.length` entries dropped.
+          if (result === 'too-large')
+            emitSyncTruncation('history', kept.length);
+          else emitSyncTruncation('history', dropped);
+        })
         .catch((err: Error) => logger.error('Cloud save failed:', err));
     }
   } catch (err) {

@@ -56,10 +56,12 @@ function getSharedWorker(): Worker {
       } else if (type === 'done') {
         pendingTasks.delete(taskId);
         workerBusy = false;
-        if (!task.cancelled) {
-          task.resolve(payload.blob!);
-        } else {
+        if (task.cancelled) {
           task.reject(new Error('Export cancelled'));
+        } else if (payload.blob) {
+          task.resolve(payload.blob);
+        } else {
+          task.reject(new Error('Worker returned no blob'));
         }
         drainQueue();
       } else if (type === 'error') {

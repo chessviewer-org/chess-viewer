@@ -29,6 +29,83 @@
     <!-- Theme Color -->
     <meta name="theme-color" content="#111827" />
 
+    <!--
+      CRITICAL CSS — paints the themed body background on first paint to
+      eliminate the white flash (FOUC) on hard refresh, before the external
+      stylesheet (~109KB, render-blocking) has loaded. `theme-init.js` sets
+      `data-theme` synchronously below, so the correct color is chosen before
+      the first paint. RGB values mirror `--val-bg`/gradient tokens in
+      src/index.css; the external stylesheet takes over seamlessly once loaded.
+    -->
+    <style>
+      html {
+        background-color: rgb(15 15 20);
+      }
+      html[data-theme='light'] {
+        background-color: rgb(248 249 252);
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background-color: rgb(15 15 20);
+        background-image: linear-gradient(135deg, rgb(18 18 24), rgb(12 12 16));
+        background-attachment: fixed;
+      }
+      html[data-theme='light'] body {
+        background-color: rgb(248 249 252);
+        background-image: linear-gradient(
+          135deg,
+          rgb(250 251 254),
+          rgb(243 244 248)
+        );
+      }
+
+      /*
+        APP SPLASH — shown only on the very first visit (before the Service
+        Worker has cached the bundle). It paints a branded spinner over the
+        themed background so the user never sees a blank screen while the
+        ~1.3MB bundle downloads. React replaces #root on mount, removing the
+        splash with it; #app-splash also fades out via the .app-ready class
+        set in src/App once the tree is interactive.
+      */
+      #app-splash {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2147483647;
+        opacity: 1;
+        transition: opacity 0.25s ease;
+        pointer-events: none;
+      }
+      html.app-ready #app-splash {
+        opacity: 0;
+      }
+      #app-splash .app-splash-spinner {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 3px solid rgb(255 255 255 / 0.15);
+        border-top-color: rgb(59 130 246);
+        animation: app-splash-spin 0.8s linear infinite;
+      }
+      html[data-theme='light'] #app-splash .app-splash-spinner {
+        border-color: rgb(0 0 0 / 0.1);
+        border-top-color: rgb(59 130 246);
+      }
+      @keyframes app-splash-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #app-splash .app-splash-spinner {
+          animation-duration: 1.6s;
+        }
+      }
+    </style>
+
     <!-- PERFORMANCE: Preconnect + non-blocking font load -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -47,6 +124,11 @@
     <script src="/theme-init.js"></script>
 
     <div id="root"></div>
+
+    <!-- First-paint splash; removed once the app is interactive (see src/App). -->
+    <div id="app-splash" aria-hidden="true">
+      <div class="app-splash-spinner"></div>
+    </div>
 
     <script type="module" src="/src/index.tsx"></script>
     <script src="/preload-cleanup.js" defer></script>

@@ -94,7 +94,7 @@ const ShareDialog = memo(function ShareDialog({
                 id="share-dialog-title"
                 className="flex items-center gap-2 text-base font-semibold text-text-primary"
               >
-                <Share2 className="w-5 h-5 text-accent" />
+                <Share2 className="w-5 h-5 text-text-secondary" />
                 Share position
               </h2>
               <button

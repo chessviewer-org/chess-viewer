@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { GripVertical, Plus, Trash2, X } from 'lucide-react';
@@ -30,6 +30,10 @@ export interface ThemeStudioStepProps {
   onDragEnd: () => void;
   onDropTheme: (targetId: number) => void;
   onSaveNewTheme: (name: string, light: string, dark: string) => void;
+  /** Overrides the default "Add" tile behaviour (open add panel) when set. */
+  onAddTheme?: () => void;
+  /** Live colour editor rendered in the Custom sub-tab while edit mode is OFF. */
+  customEditorSlot?: ReactNode;
 }
 
 /** Wizard step 1: paginated colour-theme picker with drag-reorder and add/delete in edit mode. */
@@ -55,17 +59,23 @@ export default function ThemeStudioStep({
   onDragStart,
   onDragEnd,
   onDropTheme,
-  onSaveNewTheme
+  onSaveNewTheme,
+  onAddTheme,
+  customEditorSlot
 }: ThemeStudioStepProps) {
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
+  // The Custom sub-tab swaps its grid for a live colour editor while edit mode
+  // is OFF (spec): light/dark square pickers + hue slider applied straight to
+  // the board. Edit mode ON restores the normal draggable/deletable grid.
+  const showCustomEditor =
+    themeTab === 'custom' && !isEditMode && Boolean(customEditorSlot);
+
   return (
-    <div className="h-full p-4 sm:p-6 lg:p-8 flex flex-col gap-5 overflow-hidden">
+    <div className="h-full p-3 sm:p-5 lg:p-8 flex flex-col gap-4 sm:gap-5 overflow-hidden">
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl sm:text-2xl font-bold text-text-primary">
-            Theme Studio
-          </h2>
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-h2 font-bold text-text-primary">Theme Studio</h2>
 
           {!isEditMode ? (
             <button
@@ -121,8 +131,16 @@ export default function ThemeStudioStep({
         </div>
       </div>
 
+      {showCustomEditor && (
+        <div className="min-h-0 flex-1 overflow-y-auto pr-2">
+          {customEditorSlot}
+        </div>
+      )}
+
       <div
-        className="min-h-0 flex-1 overflow-y-auto pr-2"
+        className={`min-h-0 flex-1 overflow-y-auto pr-2 ${
+          showCustomEditor ? 'hidden' : ''
+        }`}
         onTouchStart={(event) => {
           if (totalPages > 1) {
             setTouchStartX(event.touches[0]?.clientX ?? null);
@@ -233,13 +251,15 @@ export default function ThemeStudioStep({
           {canAddTheme && (
             <button
               type="button"
-              onClick={() => setIsAddingTheme(true)}
+              onClick={() =>
+                onAddTheme ? onAddTheme() : setIsAddingTheme(true)
+              }
               className="flex flex-col items-center gap-2 group"
             >
-              <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-dashed border-border text-text-muted group-hover:text-accent group-hover:border-accent transition-colors flex items-center justify-center">
+              <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-dashed border-border text-text-muted group-hover:text-text-primary group-hover:border-border transition-colors flex items-center justify-center">
                 <Plus className="w-5 h-5" />
               </span>
-              <span className="text-[10px] uppercase tracking-wide text-text-muted group-hover:text-accent transition-colors">
+              <span className="text-[10px] uppercase tracking-wide text-text-muted group-hover:text-text-primary transition-colors">
                 Add
               </span>
             </button>
@@ -247,19 +267,27 @@ export default function ThemeStudioStep({
         </div>
       </div>
 
-      <div className="min-h-4 flex justify-center gap-2">
-        {totalPages > 1 &&
+      <div className="min-h-6 flex justify-center gap-1">
+        {!showCustomEditor &&
+          totalPages > 1 &&
           Array.from({ length: totalPages }).map((_, pageIndex) => (
             <button
               // eslint-disable-next-line react/no-array-index-key
               key={pageIndex}
               type="button"
               onClick={() => setCurrentPage(pageIndex)}
-              className={`h-2 rounded-full transition-[width,background-color] duration-200 ${
-                currentPage === pageIndex ? 'w-5 bg-accent' : 'w-2 bg-border'
-              }`}
+              className="group grid h-6 min-w-6 place-items-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               aria-label={`Go to page ${pageIndex + 1}`}
-            />
+              aria-current={currentPage === pageIndex ? 'true' : undefined}
+            >
+              <span
+                className={`h-2 rounded-full transition-[width,background-color] duration-200 ${
+                  currentPage === pageIndex
+                    ? 'w-5 bg-accent'
+                    : 'w-2 bg-border group-hover:bg-text-muted'
+                }`}
+              />
+            </button>
           ))}
       </div>
 

@@ -4,6 +4,8 @@ import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 
+import { useFocusTrap } from '@hooks';
+
 import type { AuthModalProps, AuthTab } from '../types';
 import { MfaVerification } from './MfaVerification';
 import { SignIn } from './SignIn';
@@ -17,6 +19,7 @@ export function AuthModal({
 }: AuthModalProps) {
   const [activeTab, setActiveTab] = useState<AuthTab | 'mfa'>(initialTab);
   const modalRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(modalRef, isOpen);
 
   useEffect(() => {
     setActiveTab(initialTab);
@@ -61,6 +64,7 @@ export function AuthModal({
         ref={modalRef}
         role="dialog"
         aria-modal="true"
+        aria-labelledby="auth-modal-title"
         variants={{
           hidden: { opacity: 0, scale: 0.95 },
           visible: { opacity: 1, scale: 1 },
@@ -74,13 +78,17 @@ export function AuthModal({
       >
         {/* Header — fixed height */}
         <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-border bg-bg shrink-0">
-          <h2 className="text-xl font-bold font-display text-text-primary">
+          <h2
+            id="auth-modal-title"
+            className="text-xl font-bold font-display text-text-primary"
+          >
             {activeTab === 'signin' && 'Welcome Back'}
             {activeTab === 'signup' && 'Create Account'}
             {activeTab === 'security' && 'Security Settings'}
             {activeTab === 'mfa' && 'Security Verification'}
           </h2>
           <button
+            type="button"
             onClick={onClose}
             className="p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
             aria-label="Close modal"

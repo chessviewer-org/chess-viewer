@@ -60,7 +60,7 @@ function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
 
           <a
             href="/"
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-surface-elevated hover:bg-surface-hover text-text-primary font-bold rounded-xl border-2 border-border hover:border-accent transition-colors duration-200"
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-surface-elevated hover:bg-surface-hover text-text-primary font-bold rounded-xl border-2 border-border hover:border-border transition-colors duration-200"
             aria-label="Return to home page"
           >
             <Home className="w-5 h-5" aria-hidden="true" />

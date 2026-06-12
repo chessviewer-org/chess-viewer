@@ -9,8 +9,8 @@ export function TwoFactorBackupCodes({
   return (
     <div className="flex flex-col gap-6 p-2">
       <div className="flex flex-col items-center text-center gap-4 mt-2">
-        <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center shadow-inner">
-          <span className="text-3xl text-green-500">✓</span>
+        <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center shadow-inner">
+          <span className="text-3xl text-success">✓</span>
         </div>
         <div className="space-y-1.5">
           <h3 className="text-lg font-bold text-text-primary font-display">

@@ -110,7 +110,7 @@ const PositionsTab = memo(function PositionsTab({
                           )}
                           <button
                             onClick={() => onPasteFEN(idx)}
-                            className="p-1.5 text-text-muted hover:text-accent hover:bg-accent/10 rounded-lg transition-colors"
+                            className="p-1.5 text-text-muted hover:text-text-primary hover:bg-accent/10 rounded-lg transition-colors"
                             aria-label="Paste FEN"
                             title="Paste from clipboard"
                           >

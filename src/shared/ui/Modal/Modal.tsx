@@ -1,7 +1,9 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, Info, X, XCircle } from 'lucide-react';
+
+import { useFocusTrap } from '@hooks';
 
 /** Visual severity variant for the `Modal` component. */
 export type ModalType = 'warning' | 'info' | 'danger';
@@ -32,6 +34,9 @@ const Modal = memo(
     onConfirm,
     onCancel
   }: ModalProps) => {
+    const dialogRef = useRef<HTMLDivElement>(null);
+    useFocusTrap(dialogRef, isOpen);
+
     useEffect(() => {
       if (isOpen) {
         document.body.style.overflow = 'hidden';
@@ -67,6 +72,10 @@ const Modal = memo(
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             />
             <motion.div
+              ref={dialogRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modal-title"
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}

@@ -6,6 +6,8 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 import { getPieceImageKey, ItemTypes } from '@constants';
 import type { PieceSymbol } from '@app-types/chess';
 
+import { pieceToName } from '@utils';
+
 /** Props for the `DraggablePiece` memo'd drag source. */
 export interface DraggablePieceProps {
   piece: PieceSymbol | '';
@@ -94,8 +96,7 @@ export const DraggablePiece = memo(function DraggablePiece({
         contain: 'layout style'
       }}
       role="button"
-      aria-label={`Drag ${piece}`}
-      aria-grabbed={isDragging}
+      aria-label={`Drag ${pieceToName(piece)}`}
       tabIndex={disabled ? -1 : 0}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -105,7 +106,7 @@ export const DraggablePiece = memo(function DraggablePiece({
     >
       <img
         src={pieceImage.src}
-        alt={piece}
+        alt=""
         className="w-full h-full object-contain"
         style={{
           pointerEvents: 'none',

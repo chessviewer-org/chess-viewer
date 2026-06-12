@@ -19,10 +19,10 @@ function SupportPage() {
             <HelpCircle className="w-5 h-5" />
             Help Center
           </div>
-          <h1 className="text-4xl sm:text-5xl font-display font-bold text-text-primary mb-4">
+          <h1 className="text-display font-display font-bold text-text-primary mb-4">
             Support & Help
           </h1>
-          <p className="text-text-secondary text-lg max-w-2xl mx-auto">
+          <p className="text-text-secondary text-fluid-base sm:text-lg max-w-2xl mx-auto">
             Get help and find answers
           </p>
         </div>
@@ -122,7 +122,7 @@ function SupportCard({
         href={link}
         target="_blank"
         rel="noopener noreferrer"
-        className={`inline-flex items-center gap-2 text-sm font-semibold transition-colors duration-200 ${primary ? 'text-accent' : 'text-text-secondary hover:text-accent'}`}
+        className={`inline-flex items-center gap-2 text-sm font-semibold transition-colors duration-200 ${primary ? 'text-accent' : 'text-text-secondary hover:text-text-primary'}`}
       >
         {linkText}
         <ExternalLink className="w-4 h-4" />
@@ -140,7 +140,7 @@ interface FAQItemProps {
 function FAQItem({ q, a }: FAQItemProps) {
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <div className="border border-border hover:border-accent/50 rounded-xl transition-colors duration-200">
+    <div className="border border-border hover:border-border rounded-xl transition-colors duration-200">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full px-5 py-4 flex items-center justify-between text-left transition-colors duration-200"
@@ -151,7 +151,7 @@ function FAQItem({ q, a }: FAQItemProps) {
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.2 }}
         >
-          <ChevronDown className="w-5 h-5 text-accent shrink-0" />
+          <ChevronDown className="w-5 h-5 text-text-muted shrink-0" />
         </motion.div>
       </button>
       <AnimatePresence initial={false}>

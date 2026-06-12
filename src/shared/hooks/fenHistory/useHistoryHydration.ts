@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { syncStorage } from '@/features/auth/services/syncStorage';
 import type { ActiveHistoryEntry } from '@app-types/history';
@@ -22,6 +22,12 @@ export function useHistoryHydration(
   isMountedRef: React.MutableRefObject<boolean>
 ) {
   const [isHydrated, setIsHydrated] = useState(false);
+
+  // Hydration triggers two consecutive persist runs: one when isHydrated flips
+  // to true, and one when setFenHistory(data) causes fenHistory to change. Both
+  // are load-time echoes — not user edits — so suppress truncation toasts for
+  // both. A counter of 2 covers the burst; user edits arriving later are at 0.
+  const suppressPersistCountRef = useRef(2);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -63,11 +69,13 @@ export function useHistoryHydration(
 
   useEffect(() => {
     if (!isHydrated) return;
+    const suppress = suppressPersistCountRef.current > 0;
+    if (suppressPersistCountRef.current > 0) suppressPersistCountRef.current--;
     const timeoutId = setTimeout(() => {
       if ('requestIdleCallback' in window && window.requestIdleCallback) {
-        window.requestIdleCallback(() => persistHistory(fenHistory));
+        window.requestIdleCallback(() => persistHistory(fenHistory, !suppress));
       } else {
-        persistHistory(fenHistory);
+        persistHistory(fenHistory, !suppress);
       }
     }, 300);
     return () => clearTimeout(timeoutId);

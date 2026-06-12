@@ -111,17 +111,17 @@ const HistoryFilters = memo(function HistoryFilters({
     {
       value: 'manual',
       label: 'Manual Input',
-      icon: <Edit className="w-3.5 h-3.5 text-accent" />
+      icon: <Edit className="w-3.5 h-3.5 text-text-muted" />
     },
     {
       value: 'export',
       label: 'Export',
-      icon: <Download className="w-3.5 h-3.5 text-accent" />
+      icon: <Download className="w-3.5 h-3.5 text-text-muted" />
     },
     {
       value: 'drag',
       label: 'Drag & Drop',
-      icon: <MousePointer className="w-3.5 h-3.5 text-accent" />
+      icon: <MousePointer className="w-3.5 h-3.5 text-text-muted" />
     }
   ];
   return (
@@ -146,7 +146,7 @@ const HistoryFilters = memo(function HistoryFilters({
             <Filter className="w-4 h-4" />
             <span className="hidden sm:inline">Filters</span>
             {hasActiveFilters && !isExpanded && (
-              <span className="bg-bg text-accent w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center">
+              <span className="bg-surface-elevated text-text-primary w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center">
                 {Object.keys(filters).length}
               </span>
             )}

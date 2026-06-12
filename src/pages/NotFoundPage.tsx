@@ -8,7 +8,7 @@ function NotFoundPage() {
       <div className="text-center max-w-lg animate-fadeIn">
         <div className="relative mb-8">
           <div className="w-24 h-24 rounded-2xl bg-linear-to-br from-accent/20 to-accent/10 flex items-center justify-center mx-auto">
-            <Crown className="w-12 h-12 text-accent" />
+            <Crown className="w-12 h-12 text-text-secondary" />
           </div>
         </div>
 
@@ -16,10 +16,10 @@ function NotFoundPage() {
           404
         </span>
 
-        <h1 className="text-3xl font-display font-bold text-text-primary mb-4">
+        <h1 className="text-h1 font-display font-bold text-text-primary mb-4">
           Page Not Found
         </h1>
-        <p className="text-text-secondary text-lg mb-10 leading-relaxed">
+        <p className="text-text-secondary text-fluid-base sm:text-lg mb-10 leading-relaxed">
           The page you are looking for does not exist or has been moved.
         </p>
 

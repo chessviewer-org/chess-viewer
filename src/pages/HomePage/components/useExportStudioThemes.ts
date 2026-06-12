@@ -157,8 +157,13 @@ export function useExportStudioThemes() {
     [customPresets.length, savePreset]
   );
 
+  // The "Add" tile lives in the Custom theme list and is gated behind edit
+  // mode: it appears only while editing the custom presets, on the last page,
+  // and below the catalogue cap. (The compact ChessEditor settings panel has no
+  // edit mode and therefore never shows it.)
   const canAddTheme =
-    !isEditMode &&
+    isEditMode &&
+    themeTab === 'custom' &&
     customThemes.length < MAX_THEMES &&
     currentPage === totalPages - 1;
 
