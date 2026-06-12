@@ -5,6 +5,7 @@ import { useDrop } from 'react-dnd';
 import { ItemTypes } from '@constants';
 import type { PieceSymbol } from '@app-types/chess';
 
+import { describeBoardPosition } from '@utils';
 import DroppableSquare from '../DroppableSquare/DroppableSquare';
 
 /** Props for the `InteractiveBoard` DnD board grid. */
@@ -115,13 +116,22 @@ export const InteractiveBoard = memo(function InteractiveBoard({
     onSquareSelect,
     selectedSquare
   ]);
+  const boardDescription = useMemo(
+    () => describeBoardPosition(board, flipped),
+    [board, flipped]
+  );
   return (
     <div
       className="w-full max-w-full"
       style={{ aspectRatio: '1 / 1', contain: 'layout' }}
     >
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {boardDescription}
+      </div>
       <div
         ref={setRefs}
+        role="grid"
+        aria-label="Chess board, edit mode"
         className="grid grid-cols-8 grid-rows-8 overflow-hidden w-full h-full"
         style={{
           gap: 0,

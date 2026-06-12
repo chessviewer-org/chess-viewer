@@ -1,124 +1,100 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useState } from 'react';
 
-import { Download, X } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { Image, Palette } from 'lucide-react';
 
-import ExportSettingsStep from '@/pages/HomePage/components/ExportSettingsStep';
-import {
-  type BatchExportOverrides,
-  type HomeStateForExport,
-  type ThemeCard
-} from '@/pages/HomePage/components/ExportStudio.types';
+import type { HomeStateForExport } from '@/pages/HomePage/components/ExportStudio.types';
 import PieceDisplayStep from '@/pages/HomePage/components/PieceDisplayStep';
-import ThemeStudioStep from '@/pages/HomePage/components/ThemeStudioStep';
-import { useExportStudioThemes } from '@/pages/HomePage/components/useExportStudioThemes';
-import { useExportWizard } from '@/pages/HomePage/hooks/useExportWizard';
+
+import EditorThemePresets from './EditorThemePresets';
 
 export interface ExportSettingsPanelProps {
   homeState: HomeStateForExport;
-  onBack: () => void;
 }
 
+type SettingsTab = 'theme' | 'pieces';
+
+const TABS: { id: SettingsTab; label: string; Icon: typeof Palette }[] = [
+  { id: 'theme', label: 'Theme', Icon: Palette },
+  { id: 'pieces', label: 'Pieces', Icon: Image }
+];
+
 export const ExportSettingsPanel = memo(function ExportSettingsPanel({
-  homeState,
-  onBack
+  homeState
 }: ExportSettingsPanelProps) {
-  const wizard = useExportWizard();
-  const themes = useExportStudioThemes();
+  const reduceMotion = useReducedMotion();
+
+  const [activeTab, setActiveTab] = useState<SettingsTab>('theme');
+
+  const { setLightSquare, setDarkSquare } = homeState;
 
   const handleThemeSelect = useCallback(
-    (theme: ThemeCard) => {
-      homeState.setLightSquare(theme.light);
-      homeState.setDarkSquare(theme.dark);
+    (light: string, dark: string) => {
+      setLightSquare(light);
+      setDarkSquare(dark);
     },
-    [homeState]
+    [setLightSquare, setDarkSquare]
   );
 
-  const handleExport = useCallback(() => {
-    const selectedFormats = [...wizard.selectedFormats];
-    const names = selectedFormats.map(
-      (format) => wizard.resolvedFileNames[format]
-    );
-    const overrides: BatchExportOverrides = {
-      boardSize: wizard.activeBoardSize,
-      exportQuality: wizard.resolution
-    };
-
-    homeState.setBoardSize(wizard.activeBoardSize);
-    homeState.setExportQuality(wizard.resolution);
-    void homeState.handleBatchExport(selectedFormats, names, overrides);
-  }, [homeState, wizard]);
-
   return (
-    <div className="h-full flex flex-col bg-surface border border-border/40 rounded-xl overflow-hidden w-full relative">
-      {/* Header */}
-      <div className="flex items-center justify-between px-3 py-3 border-b border-border/40 shrink-0">
-        <div className="flex items-center gap-2 text-text-primary">
-          <Download className="w-4 h-4" />
-          <h3 className="text-sm font-bold tracking-wide">Export Settings</h3>
-        </div>
-        <button
-          onClick={onBack}
-          className="p-1 rounded-md text-text-secondary hover:text-text-primary hover:bg-surface-elevated transition-colors"
-          title="Close Settings"
-        >
-          <X className="w-4 h-4" />
-        </button>
+    <div className="flex flex-col h-full min-h-0">
+      {/* Tab bar — two tabs (Theme · Pieces). Sits just below the persistent
+          toolbar separator, exactly like ClipboardHistory's content starts
+          right below the header separator. */}
+      <div
+        role="tablist"
+        aria-label="Board appearance sections"
+        className="grid grid-cols-2 gap-1 pb-2 mb-1 border-b border-border/40 shrink-0"
+      >
+        {TABS.map(({ id, label, Icon }) => {
+          const isActive = activeTab === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => setActiveTab(id)}
+              className={`flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-xs font-semibold border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                isActive
+                  ? 'border-accent bg-accent/10 text-accent'
+                  : 'border-transparent text-text-muted hover:text-text-primary hover:bg-surface-elevated'
+              }`}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              <span>{label}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
-        {/* Step 1: Theme Studio (Height adjustments to let it fit inline) */}
-        <div className="shrink-0">
-          <ThemeStudioStep
-            themeTab={themes.themeTab}
-            setThemeTab={themes.setThemeTab}
-            isEditMode={themes.isEditMode}
-            beginEditMode={themes.beginEditMode}
-            cancelEditMode={themes.cancelEditMode}
-            saveEditMode={themes.saveEditMode}
-            isAddingTheme={themes.isAddingTheme}
-            setIsAddingTheme={themes.setIsAddingTheme}
-            paginatedThemes={themes.paginatedThemes}
-            currentPage={themes.currentPage}
-            setCurrentPage={themes.setCurrentPage}
-            totalPages={themes.totalPages}
-            canAddTheme={themes.canAddTheme}
-            onThemeSelect={handleThemeSelect}
-            selectedLight={homeState.lightSquare}
-            selectedDark={homeState.darkSquare}
-            onRenameDraft={themes.handleRenameDraft}
-            onDeleteDraft={themes.handleDeleteDraft}
-            onDragStart={themes.setDraggingThemeId}
-            onDragEnd={() => themes.setDraggingThemeId(null)}
-            onDropTheme={themes.handleDropTheme}
-            onSaveNewTheme={themes.handleSaveNewTheme}
-          />
-        </div>
-
-        <div className="h-px bg-border/40 mx-4 my-2 shrink-0" />
-
-        {/* Step 2: Piece Display */}
-        <div className="shrink-0">
-          <PieceDisplayStep homeState={homeState} />
-        </div>
-
-        <div className="h-px bg-border/40 mx-4 my-2 shrink-0" />
-
-        {/* Step 3: Export Settings */}
-        <div className="shrink-0">
-          <ExportSettingsStep wizard={wizard} />
-        </div>
-      </div>
-
-      {/* Footer / Action */}
-      <div className="p-3 border-t border-border/40 shrink-0">
-        <button
-          type="button"
-          onClick={handleExport}
-          className="w-full py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 bg-accent text-bg hover:bg-accent-hover shadow-sm hover:shadow-md"
-        >
-          Export Now
-        </button>
+      {/* Scrollable content — one tab at a time with slide transition. */}
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={activeTab}
+            initial={reduceMotion ? { opacity: 0 } : { opacity: 0, x: 10 }}
+            animate={reduceMotion ? { opacity: 1 } : { opacity: 1, x: 0 }}
+            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, x: -10 }}
+            transition={{ duration: 0.15, ease: 'easeOut' }}
+          >
+            {activeTab === 'theme' ? (
+              // Curated, grouped (2D · 3D) most-used presets only. The full
+              // theme studio — edit mode, add, reorder, custom colours — lives
+              // in the export flow (ThemeStudioStep), not here.
+              <EditorThemePresets
+                selectedLight={homeState.lightSquare}
+                selectedDark={homeState.darkSquare}
+                onSelect={handleThemeSelect}
+              />
+            ) : (
+              // Pieces tab is the piece-set selector ONLY — DisplayOptions is
+              // intentionally excluded from this panel (it lives in the editor
+              // controls / export flow instead).
+              <PieceDisplayStep homeState={homeState} hideHeaders pieceOnly />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

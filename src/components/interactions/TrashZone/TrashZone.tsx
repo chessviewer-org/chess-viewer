@@ -84,9 +84,15 @@ export const TrashZone = memo(function TrashZone({
       }}
       className={`
         flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5
-        rounded-lg border-2 border-dashed overflow-hidden
-        transition-all duration-200
-        ${active ? 'bg-error/30 border-error text-error shadow-lg shadow-error/30' : canDrop ? 'bg-surface-elevated/50 border-warning/40 hover:border-warning/60 text-text-muted hover:text-warning' : 'bg-surface-elevated/30 border-border/30 text-text-muted'}
+        rounded-lg border-2 overflow-hidden
+        transition-[background-color,color,box-shadow,flex-grow,transform] duration-200 ease-out
+        ${
+          active
+            ? 'marching-ants border-transparent grow scale-[1.02] origin-right bg-error/30 text-error shadow-lg shadow-error/30'
+            : canDrop
+              ? 'border-dashed border-warning/40 hover:border-warning/60 bg-surface-elevated/50 text-text-muted hover:text-warning'
+              : 'border-dashed border-border/30 bg-surface-elevated/30 text-text-muted'
+        }
         ${className}
       `}
       role="button"

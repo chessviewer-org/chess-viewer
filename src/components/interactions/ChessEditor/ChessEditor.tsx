@@ -234,12 +234,23 @@ export const ChessEditor = memo(function ChessEditor({
   return (
     <div
       ref={containerRef}
-      className={`flex flex-col gap-4 sm:gap-6 w-full min-w-0 overflow-x-hidden ${className}`}
+      className={`flex flex-col gap-fluid-md w-full min-w-0 overflow-x-hidden ${className}`}
     >
       <CustomDragLayer pieceImages={pieceImages} boardSize={boardSize} />
 
-      <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 items-center lg:items-stretch w-full min-h-0">
-        <div className="shrink-0 flex justify-center w-full lg:w-auto max-w-full min-w-0">
+      {/* Board (left, fixed px) + command-center panel (right, flex-1). The
+          single→two-column switch is a CONTAINER query (`@5xl`, ~1024px of the
+          workspace card), not a viewport breakpoint, so the columns split based
+          on the card's real width — they stay side-by-side on ultra-wide and
+          never collapse into each other. `items-stretch` so the panel matches
+          the board column height.
+
+          On ultra-wide the pair fills the FULL card width (which equals the
+          navbar width), so the right edge of the panel lines up with the navbar
+          / account menu — no width cap, no centering. The board keeps its px
+          width on the left; the panel (`flex-1`) takes the rest. */}
+      <div className="flex flex-col @5xl:flex-row gap-fluid-sm items-center @5xl:items-stretch w-full min-h-0">
+        <div className="shrink-0 flex justify-center w-full @5xl:w-auto max-w-full min-w-0">
           <div
             className="relative flex flex-col items-center justify-start min-w-0"
             style={{
@@ -256,21 +267,23 @@ export const ChessEditor = memo(function ChessEditor({
                 />
               )}
               <div
-                // "Show Board Frame" draws a thin accent frame around the live
-                // board, mirroring the thin outer frame the export pipeline adds
+                // "Show Board Frame" draws a thin frame around the live board,
+                // mirroring the thin outer frame the export pipeline adds
                 // (svgExporter/canvasRenderer) so the toggle has an immediate,
                 // visible effect in the editor — not only in the exported file.
+                // Per chess-diagram convention the frame takes the board's dark
+                // square colour (not the app accent) so it reads as part of the
+                // board rather than a UI highlight.
                 className={
-                  showThinFrame
-                    ? 'box-border border-2 border-accent/70 rounded-sm'
-                    : undefined
+                  showThinFrame ? 'box-border border-2 rounded-sm' : undefined
                 }
                 style={{
                   width: boardSize,
                   height: boardSize,
                   flexShrink: 0,
                   maxWidth: '100%',
-                  position: 'relative'
+                  position: 'relative',
+                  ...(showThinFrame ? { borderColor: darkSquare } : {})
                 }}
               >
                 <InteractiveBoard
@@ -319,61 +332,63 @@ export const ChessEditor = memo(function ChessEditor({
           </div>
         </div>
 
-        {/* Right column is pinned to the BOARD's exact pixel height on lg+
-            (via --board-h), so the controls' bottom action bar aligns with the
-            bottom of the board itself — NOT the coordinate row beneath it. The
-            persistent toolbar sits at the top; the swappable area (flex-1)
-            fills the rest. On small screens it stacks and height is auto. */}
+        {/* Right column is pinned to the BOARD's exact pixel height in the
+            two-column (container `@5xl`) state via --board-h, so the controls'
+            bottom action bar aligns with the bottom of the board itself — NOT
+            the coordinate row beneath it. --board-h is the live board PIXEL size
+            (DnD/canvas coordinate math); only the column CHROME around it is
+            fluid. The persistent toolbar sits at the top; the swappable area
+            (flex-1) fills the rest. Stacked single-column → height is auto. */}
         <div
-          className="flex flex-col gap-2.5 flex-1 w-full lg:w-auto min-w-0 lg:h-[var(--board-h)]"
+          className="flex flex-col gap-fluid-xs flex-1 w-full @5xl:w-auto min-w-0 @5xl:h-[var(--board-h)]"
           style={{ '--board-h': `${boardSize}px` } as CSSProperties}
         >
           {/* PERSISTENT action toolbar — Settings (far left) · Command Bar
               (Copy / Share / Export · DB icons, far right). Always anchored at
-              the top; only the content BELOW it swaps between tools/history. */}
-          {activeRightPanel !== 'settings' && (
-            <div className="shrink-0">
-              <div className="flex items-center justify-between w-full">
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={onToggleSettings}
-                    className="p-1.5 rounded-lg transition-colors duration-200 text-text-secondary hover:text-text-primary hover:bg-surface-hover"
-                    title="Export Settings"
-                    aria-label="Open Export Settings"
-                  >
-                    <Settings className="w-5 h-5" />
-                  </button>
-                </div>
-
-                <CommandBar
-                  onCopyFen={handleCopyFen}
-                  onShare={handleShare}
-                  onDownload={onDownload}
-                />
+              the top; only the content BELOW it swaps between tools/history/settings. */}
+          <div className="shrink-0">
+            <div className="flex items-center justify-between w-full">
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={onToggleSettings}
+                  className={`p-1.5 coarse:min-h-11 coarse:min-w-11 flex items-center justify-center rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                    activeRightPanel === 'settings'
+                      ? 'text-accent bg-accent/10'
+                      : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+                  }`}
+                  title="Board Settings"
+                  aria-label="Open Board Settings"
+                  aria-pressed={activeRightPanel === 'settings'}
+                >
+                  <Settings className="w-5 h-5" />
+                </button>
               </div>
-              {/* Separator below the toolbar header (high-contrast). */}
-              <div className="h-px bg-white/15 mt-2" />
+
+              <CommandBar
+                onCopyFen={handleCopyFen}
+                onShare={handleShare}
+                onDownload={onDownload}
+              />
             </div>
-          )}
+            {/* Separator below the toolbar header (high-contrast). */}
+            <div className="h-px bg-white/15 mt-2" />
+          </div>
 
           {/* Swappable content area below the persistent toolbar. Slide+fade
-              transition between the two views (mode="wait" so one leaves before
-              the next enters). flex-1 fills the pinned height. */}
+              transition between views (mode="wait" so one leaves before the
+              next enters). flex-1 fills the pinned height. */}
           <AnimatePresence mode="wait" initial={false}>
             {activeRightPanel === 'settings' && homeState ? (
               <motion.div
                 key="settings"
-                className="flex-1 min-h-0"
-                initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -12 }}
+                className="flex-1 min-h-0 overflow-y-auto"
+                initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
                 animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-                exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -12 }}
-                transition={{ duration: 0.2, ease: 'easeOut' }}
+                exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
+                transition={{ duration: 0.18, ease: 'easeOut' }}
               >
-                <ExportSettingsPanel
-                  homeState={homeState}
-                  onBack={onToggleSettings || (() => {})}
-                />
+                <ExportSettingsPanel homeState={homeState} />
               </motion.div>
             ) : activeRightPanel === 'history' ? (
               <motion.div
@@ -397,19 +412,21 @@ export const ChessEditor = memo(function ChessEditor({
             ) : (
               <motion.div
                 key="controls"
-                className="flex flex-col justify-between gap-2.5 flex-1 min-h-0"
+                className="flex flex-col gap-2.5 flex-1 min-h-0"
                 initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 12 }}
                 animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
                 exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 12 }}
                 transition={{ duration: 0.2, ease: 'easeOut' }}
               >
                 <>
-                  {/* Top cluster: palette + option cards. Roomier vertical rhythm
-              (gap-4) between functional sections. min-h-0 + overflow-y-auto so a
-              tall cluster can never push past the pinned board height. */}
-                  <div className="flex flex-col gap-4 min-h-0 overflow-y-auto">
+                  {/* Top cluster: palette + option cards + DB search. flex-1 so
+              this cluster absorbs the full space between the toolbar and the
+              bottom action bar — no dead gap on tall desktop boards. min-h-0 so
+              an over-tall cluster scrolls rather than pushing past the pinned
+              board height. */}
+                  <div className="flex flex-col gap-fluid-xs flex-1 min-h-0 overscroll-trap">
                     {/* Piece palette — single row (White · divider · Black). */}
-                    <div className="w-full overflow-hidden rounded-xl border border-border/40 bg-surface-elevated px-2.5 py-2">
+                    <div className="w-full shrink-0 overflow-hidden rounded-xl border border-border/40 bg-surface-elevated px-2.5 py-2">
                       <PiecePalette
                         pieceImages={pieceImages}
                         isLoading={isLoading}
@@ -418,8 +435,8 @@ export const ChessEditor = memo(function ChessEditor({
 
                     {/* Display Options — bare on the background (no card), label + free
               checkboxes. */}
-                    <div className="w-full px-1">
-                      <span className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-text-secondary mb-1">
+                    <div className="w-full shrink-0 px-1">
+                      <span className="block text-fluid-xs font-bold uppercase tracking-wider text-text-secondary mb-1.5">
                         Display Options
                       </span>
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -438,26 +455,32 @@ export const ChessEditor = memo(function ChessEditor({
                       </div>
                     </div>
 
-                    {/* Database Search — dedicated manual-search panel. */}
+                    {/* Database Search — dedicated manual-search panel. flex-1 so
+                it grows to fill the remaining column height (the palette and
+                options keep their natural height); its 2×2 grid stretches with
+                it, enlarging the provider cells and filling the previously
+                empty middle of the editor. */}
                     <DatabaseSearchPanel
                       lichess={lichessState}
                       chessdb={chessdbState}
                       pdb={pdbState}
                       yacpdb={yacpdbState}
+                      className="flex-1 min-h-0"
                     />
                   </div>
 
                   {/* Bottom action bar: Undo/Redo/Flip grouped left; Trash zone right
-              (expands on hover). justify-between on the column pins this row to
-              the board's bottom edge. (Clear/Reset now live in the FEN toolbar.) */}
-                  <div className="flex flex-row items-center gap-2 w-full">
+              (expands on hover). shrink-0 keeps it at natural height while the
+              cluster above grows to pin this row to the board's bottom edge.
+              (Clear/Reset now live in the FEN toolbar.) */}
+                  <div className="flex flex-row items-center gap-2 w-full shrink-0">
                     <div className="flex flex-row items-center gap-1.5 shrink-0">
                       {/* Undo / Redo — backed by the board history stack. */}
                       <button
                         type="button"
                         onClick={undo}
                         disabled={!canUndo}
-                        className="flex items-center justify-center px-2.5 py-2 min-h-10 rounded-lg border border-border bg-surface-elevated text-text-secondary transition duration-200 ease-out shadow-sm enabled:hover:bg-surface-hover enabled:hover:border-accent/40 enabled:hover:text-accent enabled:active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                        className="flex items-center justify-center px-2.5 py-2 min-h-10 coarse:min-w-11 rounded-lg border border-border bg-surface-elevated text-text-secondary transition duration-200 ease-out shadow-sm enabled:hover:bg-surface-hover enabled:hover:border-border enabled:hover:text-text-primary enabled:active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
                         title="Undo (Ctrl+Z)"
                         aria-label="Undo last change"
                       >
@@ -467,7 +490,7 @@ export const ChessEditor = memo(function ChessEditor({
                         type="button"
                         onClick={redo}
                         disabled={!canRedo}
-                        className="flex items-center justify-center px-2.5 py-2 min-h-10 rounded-lg border border-border bg-surface-elevated text-text-secondary transition duration-200 ease-out shadow-sm enabled:hover:bg-surface-hover enabled:hover:border-accent/40 enabled:hover:text-accent enabled:active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                        className="flex items-center justify-center px-2.5 py-2 min-h-10 coarse:min-w-11 rounded-lg border border-border bg-surface-elevated text-text-secondary transition duration-200 ease-out shadow-sm enabled:hover:bg-surface-hover enabled:hover:border-border enabled:hover:text-text-primary enabled:active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
                         title="Redo (Ctrl+Y)"
                         aria-label="Redo last change"
                       >
@@ -477,7 +500,7 @@ export const ChessEditor = memo(function ChessEditor({
                       <button
                         type="button"
                         onClick={onFlip}
-                        className="flex items-center justify-center gap-1.5 px-3 py-2 min-h-10 text-sm font-semibold text-text-secondary bg-surface-elevated hover:bg-surface-hover border border-border hover:border-accent/40 hover:text-accent rounded-lg transition duration-200 ease-out shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:scale-[0.98]"
+                        className="flex items-center justify-center gap-1.5 px-3 py-2 min-h-10 text-sm font-semibold text-text-secondary bg-surface-elevated hover:bg-surface-hover border border-border hover:border-border hover:text-text-primary rounded-lg transition duration-200 ease-out shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:scale-[0.98]"
                         title="Flip board (F)"
                         aria-label="Flip board orientation"
                       >
@@ -486,10 +509,11 @@ export const ChessEditor = memo(function ChessEditor({
                       </button>
                     </div>
 
-                    {/* Spacious trash zone — fluid width that grows with the row
-                        but never crowds the controls on a narrow phone; expands
-                        further on hover. */}
-                    <div className="ml-auto h-10 min-h-10 flex-1 max-w-44 sm:max-w-none sm:w-44 sm:hover:w-56 transition-[width] duration-300 ease-out">
+                    {/* Trash zone — sized to show its full label, and grows a
+                        little further to the LEFT while a board piece is being
+                        dragged over it (handled inside TrashZone via flex-grow
+                        on the active state). */}
+                    <div className="ml-auto h-10 min-h-10 flex-1 max-w-52 shrink">
                       <TrashZone
                         onDrop={handleTrashDrop}
                         className="h-full w-full rounded-lg"
