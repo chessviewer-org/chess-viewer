@@ -1,45 +1,28 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 
-import { Code2, Database, ShieldCheck, User } from 'lucide-react';
+import { Database, Mail, ShieldCheck, User } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { ToolPageHeader } from '@/components/layout';
-import { TwoFactorSetup } from '@/features/auth/components/TwoFactorSetup';
-import { DataManagement, DeveloperOptions } from '@/pages/settings';
+import {
+  AccountSection,
+  DataManagement,
+  SecuritySection,
+  type SettingsSection,
+  SettingsSidebar
+} from '@/pages/settings';
 
-import { Button } from '@shared/ui';
-
-const pageTabs = [
-  {
-    id: 'profile',
-    label: 'Account Profile',
-    shortLabel: 'Profile',
-    icon: User
-  },
-  {
-    id: 'security',
-    label: 'Security & Privacy',
-    shortLabel: 'Security',
-    icon: ShieldCheck
-  },
-  {
-    id: 'data',
-    label: 'Data Management',
-    shortLabel: 'Data',
-    icon: Database
-  },
-  {
-    id: 'developer',
-    label: 'Developer Options',
-    shortLabel: 'Developer',
-    icon: Code2
-  }
+const sections: readonly SettingsSection[] = [
+  { id: 'profile', label: 'Account', icon: User },
+  { id: 'security', label: 'Security', icon: ShieldCheck },
+  { id: 'data', label: 'Data Management', icon: Database }
 ];
 
-const VALID_TAB_IDS = new Set(pageTabs.map((t) => t.id));
+const VALID_TAB_IDS = new Set(sections.map((s) => s.id));
 const DEFAULT_TAB = 'profile';
 
-/** Full-page settings shell with tab-based navigation for profile, security, export, and data sections. */
+/** Full-page settings shell with a collapsible left sidebar for the account,
+ *  security, and data sections. The active section is mirrored to `?tab=`. */
 const SettingsPage = memo(function SettingsPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -50,16 +33,21 @@ const SettingsPage = memo(function SettingsPage() {
       : DEFAULT_TAB;
 
   const [activeTab, setActiveTab] = useState(initialTab);
+  // Start collapsed on narrow viewports so the icon rail doesn't crowd the
+  // content; users can still expand it. SSR-safe via the typeof guard.
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth < 640
+  );
 
-  // Redirect a retired tab key (e.g. ?tab=theme, ?tab=export) to the default
-  // tab so old bookmarks land on a valid page instead of an empty content area.
+  // Redirect a retired tab key (e.g. ?tab=developer, ?tab=export) to the default
+  // tab so old bookmarks land on a valid section instead of an empty area.
   useEffect(() => {
     if (requestedTab && !VALID_TAB_IDS.has(requestedTab)) {
       setSearchParams({ tab: DEFAULT_TAB }, { replace: true });
     }
   }, [requestedTab, setSearchParams]);
 
-  const handleBack = useCallback(() => navigate(-1), [navigate]);
+  const handleBack = useCallback(() => navigate('/'), [navigate]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -69,137 +57,82 @@ const SettingsPage = memo(function SettingsPage() {
     return () => window.removeEventListener('keydown', handler);
   }, [handleBack]);
 
-  const handleTabChange = (tabId: string) => {
-    setActiveTab(tabId);
-    setSearchParams({ tab: tabId });
-  };
+  const handleSelect = useCallback(
+    (tabId: string) => {
+      setActiveTab(tabId);
+      setSearchParams({ tab: tabId });
+    },
+    [setSearchParams]
+  );
+
+  const toggleSidebar = useCallback(
+    () => setSidebarCollapsed((prev) => !prev),
+    []
+  );
 
   return (
-    <div className="h-full max-h-full flex flex-col bg-bg overflow-hidden">
-      <ToolPageHeader
-        title="Account Preferences"
-        onBack={handleBack}
-        showSave={false}
-      />
+    <div className="flex min-h-dvh flex-col bg-bg lg:h-full lg:max-h-full lg:overflow-hidden">
+      <ToolPageHeader title="Settings" onBack={handleBack} showSave={false} />
 
-      <div className="shrink-0 bg-surface-elevated border-b border-border animate-fadeIn scrollbar-hide">
-        <div className="px-3 sm:px-6 overflow-x-auto">
-          <div className="flex gap-0 min-w-max sm:min-w-0">
-            {pageTabs.map(({ id, icon: Icon, label, shortLabel }) => (
-              <button
-                key={id}
-                onClick={() => handleTabChange(id)}
-                className={`px-3 sm:px-5 py-3.5 sm:py-4 flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold transition-colors duration-200 border-b-2 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset ${
-                  activeTab === id
-                    ? 'text-accent border-accent bg-accent/5'
-                    : 'text-text-secondary hover:text-text-primary border-transparent hover:bg-surface-hover'
-                }`}
-              >
-                <Icon
-                  className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-200 ${activeTab === id ? 'scale-110' : ''}`}
-                />
-                <span className="sm:hidden">{shortLabel}</span>
-                <span className="hidden sm:inline">{label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <div className="flex min-h-0 flex-1">
+        <SettingsSidebar
+          sections={sections}
+          activeId={activeTab}
+          onSelect={handleSelect}
+          collapsed={sidebarCollapsed}
+          onToggleCollapsed={toggleSidebar}
+        />
 
-      <main className="flex-1 overflow-y-auto min-h-0">
-        <div className="h-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8 py-6 sm:py-10">
-          {activeTab === 'profile' && (
-            <div className="space-y-8 animate-pageEnter">
-              <section>
-                <h3 className="text-xl font-bold text-text-primary font-display flex items-center gap-2 mb-4">
-                  <User className="w-5 h-5 text-accent" />
-                  Profile Information
-                </h3>
-                <div className="bg-surface-elevated border border-border rounded-2xl p-6 space-y-4">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-xs font-bold text-text-secondary uppercase tracking-wider">
-                      Email Address
-                    </label>
-                    <p className="text-text-primary font-medium">
-                      Logged in with your Supabase account.
-                    </p>
-                  </div>
-                  <p className="text-sm text-text-secondary italic">
-                    Profile editing is coming soon in v6.1.0
-                  </p>
-                </div>
-              </section>
-            </div>
-          )}
+        <main className="min-h-0 flex-1 overflow-visible lg:overflow-y-auto">
+          <div className="w-full max-w-5xl px-4 py-6 sm:px-8 sm:py-10 lg:px-10">
+            {activeTab === 'profile' && <AccountSection />}
 
-          {activeTab === 'security' && (
-            <div className="space-y-10 animate-pageEnter">
-              <section>
-                <h3 className="text-xl font-bold text-text-primary font-display flex items-center gap-2 mb-4">
-                  <ShieldCheck className="w-5 h-5 text-accent" />
-                  Security Settings
-                </h3>
-                <div className="bg-surface-elevated border border-border rounded-2xl overflow-hidden">
-                  <div className="p-6 border-b border-border/50">
-                    <TwoFactorSetup />
-                  </div>
-                  <div className="p-6 bg-surface/30">
-                    <h4 className="text-sm font-bold text-text-primary mb-2">
-                      Password Management
-                    </h4>
-                    <p className="text-xs text-text-secondary mb-4">
-                      You can request a password reset email if you wish to
-                      change your login credentials.
-                    </p>
-                    <Button size="sm" variant="outline" className="text-xs">
-                      Request Password Reset
-                    </Button>
-                  </div>
-                </div>
-              </section>
-            </div>
-          )}
+            {activeTab === 'security' && <SecuritySection />}
 
-          {activeTab === 'data' && (
-            <div className="space-y-8 animate-pageEnter">
-              <section>
-                <h3 className="text-xl font-bold text-text-primary font-display flex items-center gap-2 mb-4">
-                  <Database className="w-5 h-5 text-accent" />
-                  Data & Privacy
-                </h3>
+            {activeTab === 'data' && (
+              <div className="space-y-8 animate-pageEnter">
+                <h2 className="flex items-center gap-2 font-display text-xl font-bold text-text-primary">
+                  <Database
+                    className="h-5 w-5 text-text-secondary"
+                    aria-hidden="true"
+                  />
+                  Data Management
+                </h2>
                 <DataManagement />
-              </section>
 
-              <section className="pt-8 border-t border-error/20">
-                <div className="bg-error/5 border border-error/20 rounded-2xl p-6">
-                  <h4 className="text-lg font-bold text-error mb-2">
+                <section className="rounded-2xl border border-error/20 bg-error/5 p-6">
+                  <h3 className="mb-2 text-lg font-bold text-error">
                     Danger Zone
-                  </h4>
-                  <p className="text-sm text-text-secondary mb-4">
-                    Permanently delete your account and all associated cloud
-                    data. This action cannot be undone.
+                  </h3>
+                  <p className="mb-4 text-sm text-text-secondary">
+                    Permanent account deletion isn&apos;t self-service yet. To
+                    erase your account and all associated cloud data, email us
+                    and we&apos;ll remove it. This cannot be undone.
                   </p>
-                  <button className="px-6 py-2.5 bg-error text-white rounded-xl font-bold text-sm hover:bg-error/90 transition-all">
-                    Delete Account Forever
-                  </button>
-                </div>
-              </section>
-            </div>
-          )}
-
-          {activeTab === 'developer' && (
-            <div className="space-y-8 animate-pageEnter">
-              <section>
-                <h3 className="text-xl font-bold text-text-primary font-display flex items-center gap-2 mb-4">
-                  <Code2 className="w-5 h-5 text-accent" />
-                  Developer Options
-                </h3>
-                <DeveloperOptions />
-              </section>
-            </div>
-          )}
-        </div>
-      </main>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      disabled
+                      aria-disabled="true"
+                      title="Account deletion is handled by support — see the link"
+                      className="cursor-not-allowed rounded-xl border border-error/30 bg-error/10 px-6 py-2.5 text-sm font-bold text-error/70"
+                    >
+                      Delete Account Forever
+                    </button>
+                    <a
+                      href="mailto:contact@chessvision.org?subject=Account%20deletion%20request"
+                      className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                    >
+                      <Mail className="h-4 w-4" aria-hidden="true" />
+                      Contact support to delete
+                    </a>
+                  </div>
+                </section>
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
     </div>
   );
 });

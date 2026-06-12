@@ -1,6 +1,12 @@
 import React, { memo, useRef, useState } from 'react';
 
-import { Download, RotateCcw, Upload } from 'lucide-react';
+import {
+  CheckCircle2,
+  Download,
+  type LucideIcon,
+  RotateCcw,
+  Upload
+} from 'lucide-react';
 
 import { useModal } from '@/contexts';
 
@@ -89,59 +95,115 @@ const DataManagement = memo(function DataManagement() {
   }
 
   return (
-    <div className="h-full flex items-center justify-center p-4">
-      <div className="max-w-md w-full space-y-5">
-        <div>
-          <h3 className="text-lg font-semibold text-text-primary">
-            Data Management
-          </h3>
-          <p className="text-sm text-text-secondary mt-1">
-            Export, import, or reset local browser data.
-          </p>
-        </div>
-
-        <div className="space-y-3">
-          <button
-            type="button"
-            onClick={handleExportData}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-accent hover:bg-accent-hover text-bg rounded-lg font-semibold transition-colors"
-          >
-            <Download className="w-4 h-4" />
-            Export Data
-          </button>
-
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-surface-elevated hover:bg-surface-hover border border-border text-text-primary rounded-lg font-semibold transition-colors"
-          >
-            <Upload className="w-4 h-4" />
-            Import Data
-          </button>
-
-          <button
-            type="button"
-            onClick={handleResetData}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-error/10 hover:bg-error/20 border border-error/30 text-error rounded-lg font-semibold transition-colors"
-          >
-            <RotateCcw className="w-4 h-4" />
-            Reset Local Data
-          </button>
-        </div>
-
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="application/json,.json"
-          onChange={handleImportFile}
-          className="hidden"
+    <div className="space-y-4">
+      <div className="overflow-hidden rounded-2xl border border-border bg-surface-elevated divide-y divide-border/60">
+        <DataRow
+          icon={Download}
+          title="Export Data"
+          description="Download a JSON backup of your boards, history, and preferences from this browser."
+          actionLabel="Export"
+          onAction={handleExportData}
+          variant="primary"
         />
-
-        {message && <p className="text-sm text-text-secondary">{message}</p>}
+        <DataRow
+          icon={Upload}
+          title="Import Data"
+          description="Restore from a previously exported backup file. Existing keys are overwritten."
+          actionLabel="Choose File"
+          onAction={() => fileInputRef.current?.click()}
+          variant="neutral"
+        />
+        <DataRow
+          icon={RotateCcw}
+          title="Reset Local Data"
+          description="Clear all ChessVision data stored in this browser. This cannot be undone."
+          actionLabel="Reset"
+          onAction={handleResetData}
+          variant="danger"
+        />
       </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="application/json,.json"
+        onChange={handleImportFile}
+        className="hidden"
+      />
+
+      {message && (
+        <div
+          aria-live="polite"
+          className="flex items-center gap-2 rounded-xl border border-success/20 bg-success/10 px-4 py-3 text-sm font-medium text-text-primary"
+        >
+          <CheckCircle2
+            className="h-4 w-4 shrink-0 text-success"
+            aria-hidden="true"
+          />
+          {message}
+        </div>
+      )}
     </div>
   );
 });
+
+type DataRowVariant = 'primary' | 'neutral' | 'danger';
+
+const ROW_BUTTON_CLASSES: Record<DataRowVariant, string> = {
+  primary:
+    'bg-accent text-bg hover:bg-accent-hover focus-visible:ring-accent focus-visible:ring-offset-bg',
+  neutral:
+    'border border-border bg-surface text-text-primary hover:bg-surface-hover focus-visible:ring-accent focus-visible:ring-offset-bg',
+  danger:
+    'border border-error/30 bg-error/10 text-error hover:bg-error/20 focus-visible:ring-error focus-visible:ring-offset-bg'
+};
+
+const ROW_ICON_CLASSES: Record<DataRowVariant, string> = {
+  primary: 'bg-accent/10 text-accent',
+  neutral: 'bg-surface text-text-secondary',
+  danger: 'bg-error/10 text-error'
+};
+
+function DataRow({
+  icon: Icon,
+  title,
+  description,
+  actionLabel,
+  onAction,
+  variant
+}: {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  actionLabel: string;
+  onAction: () => void;
+  variant: DataRowVariant;
+}) {
+  return (
+    <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-start gap-3">
+        <div
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${ROW_ICON_CLASSES[variant]}`}
+        >
+          <Icon className="h-5 w-5" aria-hidden="true" />
+        </div>
+        <div className="min-w-0">
+          <h4 className="text-sm font-bold text-text-primary">{title}</h4>
+          <p className="mt-0.5 text-xs leading-relaxed text-text-secondary">
+            {description}
+          </p>
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={onAction}
+        className={`inline-flex shrink-0 items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:w-auto ${ROW_BUTTON_CLASSES[variant]}`}
+      >
+        {actionLabel}
+      </button>
+    </div>
+  );
+}
 
 DataManagement.displayName = 'DataManagement';
 export default DataManagement;
