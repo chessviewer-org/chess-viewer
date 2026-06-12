@@ -7,8 +7,14 @@ export type {
 } from './useEditorKeyboard';
 export { useEditorKeyboard } from './useEditorKeyboard';
 export { useFENHistory } from './useFENHistory';
+export { useFocusTrap } from './useFocusTrap';
 export { useInteractiveBoard } from './useInteractiveBoard';
 export { useIntersectionObserver } from './useIntersectionObserver';
+export type {
+  UseListboxKeyboard,
+  UseListboxKeyboardParams
+} from './useListboxKeyboard';
+export { useListboxKeyboard } from './useListboxKeyboard';
 export { useLocalStorage } from './useLocalStorage';
 export { useNotifications } from './useNotifications';
 export { useOutsideClick } from './useOutsideClick';
