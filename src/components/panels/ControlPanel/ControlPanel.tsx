@@ -99,11 +99,14 @@ const ControlPanel = memo(function ControlPanel({
 
   return (
     <>
-      {/* Slim full-width topbar: reduced padding for a minimal toolbar feel. */}
-      <div className="bg-surface border border-border/40 rounded-xl px-4 sm:px-5 py-2.5 sm:py-3">
+      {/* Slim full-width topbar: reduced padding for a minimal toolbar feel.
+          Fluid horizontal padding (p-fluid-sm collapses the px-4 sm:px-5 chain);
+          vertical padding stays compact so the toolbar height budget the board
+          sizer assumes (~92px) holds. */}
+      <div className="bg-surface border border-border/40 rounded-xl px-fluid-sm py-2.5 sm:py-3">
         <div className="space-y-2.5">
           <div className="flex items-center justify-between gap-2">
-            <label className="text-sm font-semibold text-text-primary">
+            <label className="text-fluid-sm font-semibold text-text-primary">
               FEN Notation
             </label>
             <div className="flex items-center gap-2">
@@ -111,7 +114,7 @@ const ControlPanel = memo(function ControlPanel({
               <button
                 onClick={() => navigate('/advanced-fen')}
                 {...prefetch('/advanced-fen')}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-lg text-accent text-xs sm:text-sm font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 coarse:min-h-11 rounded-lg text-accent text-fluid-xs font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10"
                 aria-label="Advanced FEN Input"
                 title="Advanced FEN Input"
               >
@@ -121,7 +124,7 @@ const ControlPanel = memo(function ControlPanel({
               <button
                 onClick={() => navigate('/fen-history')}
                 {...prefetch('/fen-history')}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-lg text-accent text-xs sm:text-sm font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 coarse:min-h-11 rounded-lg text-accent text-fluid-xs font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10"
                 aria-label="FEN History"
                 title="FEN History"
               >

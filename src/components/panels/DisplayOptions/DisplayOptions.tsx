@@ -13,6 +13,8 @@ export interface DisplayOptionsProps {
   showThinFrame: boolean;
   setShowThinFrame: (show: boolean) => void;
   exportQuality?: number;
+  /** Hide the "Display Options" section label (compact contexts). */
+  hideLabel?: boolean;
 }
 
 /**
@@ -28,7 +30,8 @@ function DisplayOptions({
   setShowCoordinateBorder,
   showThinFrame,
   setShowThinFrame,
-  exportQuality = 2
+  exportQuality = 2,
+  hideLabel = false
 }: DisplayOptionsProps) {
   const preset = QUALITY_PRESETS.find((p) => p.value === exportQuality);
   const isBorderForced = preset?.forceCoordinateBorder || false;
@@ -39,9 +42,11 @@ function DisplayOptions({
 
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-semibold text-text-secondary mb-3">
-        Display Options
-      </label>
+      {!hideLabel && (
+        <label className="block text-sm font-semibold text-text-secondary mb-3">
+          Display Options
+        </label>
+      )}
 
       <Checkbox
         checked={showCoords}

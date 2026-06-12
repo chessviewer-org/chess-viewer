@@ -8,16 +8,22 @@ import { SearchableSelect } from '@shared/ui';
 interface PieceSelectorProps {
   pieceStyle: string;
   setPieceStyle: (style: string) => void;
+  /** Hide the "Piece Style" field label (compact contexts). */
+  hideLabel?: boolean;
 }
 
 /** Searchable select for choosing the active piece set. */
-function PieceSelector({ pieceStyle, setPieceStyle }: PieceSelectorProps) {
+function PieceSelector({
+  pieceStyle,
+  setPieceStyle,
+  hideLabel = false
+}: PieceSelectorProps) {
   return (
     <SearchableSelect
       options={PIECE_SETS}
       value={pieceStyle}
       onChange={setPieceStyle}
-      label="Piece Style"
+      {...(hideLabel ? {} : { label: 'Piece Style' })}
       placeholder="Search piece style..."
       emptyMessage="No matching piece styles"
     />

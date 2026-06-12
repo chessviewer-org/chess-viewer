@@ -75,7 +75,7 @@ const ExportProgress = memo(function ExportProgress({
       onClose={onClose || (() => {})}
       title={`Exporting ${String(format).toUpperCase()}`}
       icon={FileImage}
-      iconColor="text-accent"
+      iconColor="text-text-secondary"
       maxWidth="max-w-md"
       showCloseButton={!!onClose}
       disableBackdropClick={true}
