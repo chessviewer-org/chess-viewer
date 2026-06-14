@@ -3,11 +3,10 @@ import { lazy, memo, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 
-import Logo from '@/assets/Logo.png';
+import { Logo } from '@/components/layout/Logo';
 
 import { NavbarDesktopDropdown } from './parts/NavbarDesktopDropdown';
 import { NavbarMobileMenu } from './parts/NavbarMobileMenu';
-import { ThemeToggle } from './parts/ThemeToggle';
 import { useNavbarState } from './useNavbarState';
 
 const AuthModal = lazy(() =>
@@ -18,12 +17,10 @@ const AuthModal = lazy(() =>
 
 /** Props for the `Navbar` shell component. */
 interface NavbarProps {
-  theme: 'light' | 'dark';
-  toggleTheme: (event?: React.SyntheticEvent | Event) => void;
   rightSlot?: React.ReactNode;
 }
 
-function Navbar({ theme, toggleTheme, rightSlot }: NavbarProps) {
+function Navbar({ rightSlot }: NavbarProps) {
   const {
     isMobileMenuOpen,
     setIsMobileMenuOpen,
@@ -55,11 +52,7 @@ function Navbar({ theme, toggleTheme, rightSlot }: NavbarProps) {
               className="flex items-center gap-2 transition-colors duration-200 text-text-primary hover:text-text-primary"
             >
               <div className="flex items-center gap-2">
-                <img
-                  src={Logo}
-                  alt="Logo"
-                  className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 object-contain"
-                />
+                <Logo className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 object-contain" />
                 <div>
                   <span className="font-display font-bold text-xl xs:text-2xl sm:text-3xl leading-tight text-accent">
                     Chess
@@ -73,8 +66,6 @@ function Navbar({ theme, toggleTheme, rightSlot }: NavbarProps) {
 
             <div className="hidden sm:flex items-center gap-1.5">
               {rightSlot}
-
-              <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
 
               <NavbarDesktopDropdown
                 isAuthenticated={isAuthenticated}
@@ -106,8 +97,6 @@ function Navbar({ theme, toggleTheme, rightSlot }: NavbarProps) {
 
         <NavbarMobileMenu
           isOpen={isMobileMenuOpen}
-          theme={theme}
-          toggleTheme={toggleTheme}
           isAuthenticated={isAuthenticated}
           setIsMobileMenuOpen={setIsMobileMenuOpen}
           openAuthModal={openAuthModal}
