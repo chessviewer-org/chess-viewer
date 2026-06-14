@@ -1,28 +1,40 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 
-import { Database, Mail, ShieldCheck, User } from 'lucide-react';
+import { Database, LayoutGrid, Palette, ShieldCheck, User } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { ToolPageHeader } from '@/components/layout';
+import { type PageTabGroup, PageTabs } from '@/components/layout';
 import {
   AccountSection,
+  AppearanceSection,
+  BoardSection,
   DataManagement,
-  SecuritySection,
-  type SettingsSection,
-  SettingsSidebar
+  SecuritySection
 } from '@/pages/settings';
 
-const sections: readonly SettingsSection[] = [
-  { id: 'profile', label: 'Account', icon: User },
-  { id: 'security', label: 'Security', icon: ShieldCheck },
-  { id: 'data', label: 'Data Management', icon: Database }
+const groups: readonly PageTabGroup[] = [
+  {
+    label: 'Profile',
+    items: [
+      { id: 'profile', label: 'Account', icon: User },
+      { id: 'appearance', label: 'Appearance', icon: Palette },
+      { id: 'board', label: 'Board', icon: LayoutGrid }
+    ]
+  },
+  {
+    label: 'Access',
+    items: [
+      { id: 'security', label: 'Security', icon: ShieldCheck },
+      { id: 'data', label: 'Data Management', icon: Database }
+    ]
+  }
 ];
 
-const VALID_TAB_IDS = new Set(sections.map((s) => s.id));
+const VALID_TAB_IDS = new Set(groups.flatMap((g) => g.items).map((s) => s.id));
 const DEFAULT_TAB = 'profile';
 
-/** Full-page settings shell with a collapsible left sidebar for the account,
- *  security, and data sections. The active section is mirrored to `?tab=`. */
+/** Full-page settings shell. A centered tab strip under the navbar selects the
+ *  active section; the active section is mirrored to `?tab=`. */
 const SettingsPage = memo(function SettingsPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -33,11 +45,6 @@ const SettingsPage = memo(function SettingsPage() {
       : DEFAULT_TAB;
 
   const [activeTab, setActiveTab] = useState(initialTab);
-  // Start collapsed on narrow viewports so the icon rail doesn't crowd the
-  // content; users can still expand it. SSR-safe via the typeof guard.
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(
-    () => typeof window !== 'undefined' && window.innerWidth < 640
-  );
 
   // Redirect a retired tab key (e.g. ?tab=developer, ?tab=export) to the default
   // tab so old bookmarks land on a valid section instead of an empty area.
@@ -65,73 +72,46 @@ const SettingsPage = memo(function SettingsPage() {
     [setSearchParams]
   );
 
-  const toggleSidebar = useCallback(
-    () => setSidebarCollapsed((prev) => !prev),
-    []
-  );
-
   return (
-    <div className="flex min-h-dvh flex-col bg-bg lg:h-full lg:max-h-full lg:overflow-hidden">
-      <ToolPageHeader title="Settings" onBack={handleBack} showSave={false} />
+    <div
+      data-page-scroll
+      className="min-h-full bg-bg lg:h-full lg:max-h-full lg:overflow-y-auto"
+    >
+      {/* Two-column shell, constrained to the navbar's width so the page reads
+          as one column under the bar: a sticky left section rail (always
+          visible, never collapses) and a scrolling content column on the right
+          (GitHub-settings pattern). */}
+      <div className="mx-auto flex w-[94%] max-w-600 flex-col gap-6 py-6 sm:w-[88%] sm:py-8 lg:flex-row lg:gap-10">
+        <div className="shrink-0 lg:w-56">
+          <PageTabs
+            groups={groups}
+            activeId={activeTab}
+            onSelect={handleSelect}
+            ariaLabel="Settings sections"
+          />
+        </div>
 
-      <div className="flex min-h-0 flex-1">
-        <SettingsSidebar
-          sections={sections}
-          activeId={activeTab}
-          onSelect={handleSelect}
-          collapsed={sidebarCollapsed}
-          onToggleCollapsed={toggleSidebar}
-        />
-
-        <main className="min-h-0 flex-1 overflow-visible lg:overflow-y-auto">
-          <div className="w-full max-w-5xl px-4 py-6 sm:px-8 sm:py-10 lg:px-10">
-            {activeTab === 'profile' && <AccountSection />}
-
-            {activeTab === 'security' && <SecuritySection />}
-
-            {activeTab === 'data' && (
-              <div className="space-y-8 animate-pageEnter">
-                <h2 className="flex items-center gap-2 font-display text-xl font-bold text-text-primary">
-                  <Database
-                    className="h-5 w-5 text-text-secondary"
-                    aria-hidden="true"
-                  />
-                  Data Management
-                </h2>
-                <DataManagement />
-
-                <section className="rounded-2xl border border-error/20 bg-error/5 p-6">
-                  <h3 className="mb-2 text-lg font-bold text-error">
-                    Danger Zone
-                  </h3>
-                  <p className="mb-4 text-sm text-text-secondary">
-                    Permanent account deletion isn&apos;t self-service yet. To
-                    erase your account and all associated cloud data, email us
-                    and we&apos;ll remove it. This cannot be undone.
-                  </p>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <button
-                      type="button"
-                      disabled
-                      aria-disabled="true"
-                      title="Account deletion is handled by support — see the link"
-                      className="cursor-not-allowed rounded-xl border border-error/30 bg-error/10 px-6 py-2.5 text-sm font-bold text-error/70"
-                    >
-                      Delete Account Forever
-                    </button>
-                    <a
-                      href="mailto:contact@chessvision.org?subject=Account%20deletion%20request"
-                      className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-                    >
-                      <Mail className="h-4 w-4" aria-hidden="true" />
-                      Contact support to delete
-                    </a>
-                  </div>
-                </section>
-              </div>
-            )}
-          </div>
-        </main>
+        {/* Scroll region, NOT a landmark: the app shell already owns the single
+            `<main id="main-content">`. A second `<main>` is an ARIA landmark
+            violation (1.3.1). `role="region"` + label keeps it navigable. */}
+        <div role="region" aria-label="Settings" className="min-w-0 flex-1">
+          {activeTab === 'profile' && <AccountSection />}
+          {activeTab === 'appearance' && <AppearanceSection />}
+          {activeTab === 'board' && <BoardSection />}
+          {activeTab === 'security' && <SecuritySection />}
+          {activeTab === 'data' && (
+            <div className="space-y-4 animate-pageEnter">
+              <h2 className="flex items-center gap-2 border-b border-border pb-3 font-display text-2xl font-bold text-text-primary">
+                <Database
+                  className="h-6 w-6 text-text-secondary"
+                  aria-hidden="true"
+                />
+                Data Management
+              </h2>
+              <DataManagement />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
