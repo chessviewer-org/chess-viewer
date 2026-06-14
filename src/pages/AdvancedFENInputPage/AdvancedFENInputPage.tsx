@@ -2,7 +2,6 @@ import React, { memo } from 'react';
 
 import { ChevronRight, Eye, Globe, List, Sliders } from 'lucide-react';
 
-import { ToolPageHeader } from '@/components/layout';
 import { ExportProgress } from '@/components/panels';
 import { ADVANCED_FEN_CONFIG } from '@constants';
 
@@ -29,12 +28,7 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
   ];
 
   return (
-    <div className="flex flex-col bg-bg min-h-dvh">
-      <ToolPageHeader
-        title="Advanced FEN Editor"
-        onBack={handlers.handleBack}
-      />
-
+    <div className="flex flex-col bg-bg min-h-full">
       <div className="shrink-0 bg-surface border-b border-border">
         <div className="px-3 sm:px-6 overflow-x-auto">
           <div className="flex gap-0 min-w-max sm:min-w-0">
