@@ -18,10 +18,12 @@ import {
   useInteractiveBoard,
   usePieceImages
 } from '@hooks';
+import type { PieceSymbol } from '@app-types/chess';
 
 import type { ExportConfig } from '@utils';
 import { Checkbox } from '@shared/ui';
 import CustomDragLayer from '../CustomDragLayer/CustomDragLayer';
+import type { BoardKeyboardApi } from '../InteractiveBoard/InteractiveBoard';
 import InteractiveBoard from '../InteractiveBoard/InteractiveBoard';
 import PiecePalette from '../PiecePalette/PiecePalette';
 import TrashZone from '../TrashZone/TrashZone';
@@ -141,6 +143,16 @@ export const ChessEditor = memo(function ChessEditor({
 
   const clearSelection = useCallback(() => setSelectedSquare(null), []);
 
+  // Board's imperative keyboard API (set once from InteractiveBoard). Lets a
+  // palette piece chosen by keyboard be carried on the board's roving cursor.
+  const boardKeyboardApiRef = useRef<BoardKeyboardApi | null>(null);
+  const handleKeyboardApi = useCallback((api: BoardKeyboardApi) => {
+    boardKeyboardApiRef.current = api;
+  }, []);
+  const handlePalettePick = useCallback((piece: PieceSymbol) => {
+    boardKeyboardApiRef.current?.pickUpFromPalette(piece);
+  }, []);
+
   useEffect(() => {
     syncFromFen(fen);
   }, [fen, syncFromFen]);
@@ -234,7 +246,7 @@ export const ChessEditor = memo(function ChessEditor({
   return (
     <div
       ref={containerRef}
-      className={`flex flex-col gap-fluid-md w-full min-w-0 overflow-x-hidden ${className}`}
+      className={`flex flex-col gap-fluid-sm w-full min-w-0 overflow-x-hidden ${className}`}
     >
       <CustomDragLayer pieceImages={pieceImages} boardSize={boardSize} />
 
@@ -296,6 +308,8 @@ export const ChessEditor = memo(function ChessEditor({
                   onPieceDrop={handlePieceDrop}
                   onSquareSelect={handleSquareSelect}
                   selectedSquare={selectedSquare}
+                  onPieceRemove={handlePieceRemove}
+                  onKeyboardApi={handleKeyboardApi}
                 />
               </div>
             </div>
@@ -424,12 +438,13 @@ export const ChessEditor = memo(function ChessEditor({
               bottom action bar — no dead gap on tall desktop boards. min-h-0 so
               an over-tall cluster scrolls rather than pushing past the pinned
               board height. */}
-                  <div className="flex flex-col gap-fluid-xs flex-1 min-h-0 overscroll-trap">
+                  <div className="flex flex-col gap-fluid-xs flex-1 min-h-0 lg:overscroll-trap">
                     {/* Piece palette — single row (White · divider · Black). */}
                     <div className="w-full shrink-0 overflow-hidden rounded-xl border border-border/40 bg-surface-elevated px-2.5 py-2">
                       <PiecePalette
                         pieceImages={pieceImages}
                         isLoading={isLoading}
+                        onKeyboardPick={handlePalettePick}
                       />
                     </div>
 
@@ -473,14 +488,18 @@ export const ChessEditor = memo(function ChessEditor({
               (expands on hover). shrink-0 keeps it at natural height while the
               cluster above grows to pin this row to the board's bottom edge.
               (Clear/Reset now live in the FEN toolbar.) */}
-                  <div className="flex flex-row items-center gap-2 w-full shrink-0">
-                    <div className="flex flex-row items-center gap-1.5 shrink-0">
+                  <div className="flex flex-row items-stretch gap-2 w-full shrink-0 h-10 coarse:h-11">
+                    {/* Left group — Undo/Redo are equal-width square icon
+                        buttons; Flip matches the same height with a slightly
+                        wider footprint for its label, so the three read as one
+                        consistent group. */}
+                    <div className="flex flex-row items-stretch gap-1.5 shrink-0">
                       {/* Undo / Redo — backed by the board history stack. */}
                       <button
                         type="button"
                         onClick={undo}
                         disabled={!canUndo}
-                        className="flex items-center justify-center px-2.5 py-2 min-h-10 coarse:min-w-11 rounded-lg border border-border bg-surface-elevated text-text-secondary transition duration-200 ease-out shadow-sm enabled:hover:bg-surface-hover enabled:hover:border-border enabled:hover:text-text-primary enabled:active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                        className="flex items-center justify-center w-10 coarse:w-11 coarse:min-w-11 rounded-lg border border-border bg-surface-elevated text-text-secondary transition duration-200 ease-out shadow-sm enabled:hover:bg-surface-hover enabled:hover:border-border enabled:hover:text-text-primary enabled:active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
                         title="Undo (Ctrl+Z)"
                         aria-label="Undo last change"
                       >
@@ -490,7 +509,7 @@ export const ChessEditor = memo(function ChessEditor({
                         type="button"
                         onClick={redo}
                         disabled={!canRedo}
-                        className="flex items-center justify-center px-2.5 py-2 min-h-10 coarse:min-w-11 rounded-lg border border-border bg-surface-elevated text-text-secondary transition duration-200 ease-out shadow-sm enabled:hover:bg-surface-hover enabled:hover:border-border enabled:hover:text-text-primary enabled:active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                        className="flex items-center justify-center w-10 coarse:w-11 coarse:min-w-11 rounded-lg border border-border bg-surface-elevated text-text-secondary transition duration-200 ease-out shadow-sm enabled:hover:bg-surface-hover enabled:hover:border-border enabled:hover:text-text-primary enabled:active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
                         title="Redo (Ctrl+Y)"
                         aria-label="Redo last change"
                       >
@@ -500,7 +519,7 @@ export const ChessEditor = memo(function ChessEditor({
                       <button
                         type="button"
                         onClick={onFlip}
-                        className="flex items-center justify-center gap-1.5 px-3 py-2 min-h-10 text-sm font-semibold text-text-secondary bg-surface-elevated hover:bg-surface-hover border border-border hover:border-border hover:text-text-primary rounded-lg transition duration-200 ease-out shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:scale-[0.98]"
+                        className="flex items-center justify-center gap-1.5 px-3 text-sm font-semibold text-text-secondary bg-surface-elevated hover:bg-surface-hover border border-border hover:border-border hover:text-text-primary rounded-lg transition duration-200 ease-out shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:scale-[0.98]"
                         title="Flip board (F)"
                         aria-label="Flip board orientation"
                       >
@@ -509,11 +528,12 @@ export const ChessEditor = memo(function ChessEditor({
                       </button>
                     </div>
 
-                    {/* Trash zone — sized to show its full label, and grows a
-                        little further to the LEFT while a board piece is being
-                        dragged over it (handled inside TrashZone via flex-grow
-                        on the active state). */}
-                    <div className="ml-auto h-10 min-h-10 flex-1 max-w-52 shrink">
+                    {/* Trash zone — resting width is constrained so it sits in
+                        balance with the left group rather than greedily filling
+                        the bar; it still grows further LEFT while a board piece
+                        is dragged over it (flex-grow on the active state inside
+                        TrashZone). */}
+                    <div className="ml-auto h-full w-32 sm:w-40 shrink-0">
                       <TrashZone
                         onDrop={handleTrashDrop}
                         className="h-full w-full rounded-lg"
