@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@fontsource-variable/inter':
+        specifier: ^5.2.8
+        version: 5.2.8
       '@supabase/supabase-js':
         specifier: ^2.107.0
         version: 2.107.0
@@ -1007,6 +1010,9 @@ packages:
   '@eslint/plugin-kit@0.4.1':
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@fontsource-variable/inter@5.2.8':
+    resolution: {integrity: sha512-kOfP2D+ykbcX/P3IFnokOhVRNoTozo5/JxhAIVYLpea/UBmCQ/YWPBfWIDuBImXX/15KH+eKh4xpEUyS2sQQGQ==}
 
   '@gitbeaker/core@38.12.1':
     resolution: {integrity: sha512-8XMVcBIdVAAoxn7JtqmZ2Ee8f+AZLcCPmqEmPFOXY2jPS84y/DERISg/+sbhhb18iRy+ZsZhpWgQ/r3CkYNJOQ==}
@@ -5190,7 +5196,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.29.0
       '@babel/helper-plugin-utils': 7.29.7
-      '@babel/types': 7.29.0
+      '@babel/types': 7.29.7
       esutils: 2.0.3
 
   '@babel/runtime@7.29.2': {}
@@ -5501,6 +5507,8 @@ snapshots:
       '@eslint/core': 0.17.0
       levn: 0.4.1
 
+  '@fontsource-variable/inter@5.2.8': {}
+
   '@gitbeaker/core@38.12.1':
     dependencies:
       '@gitbeaker/requester-utils': 38.12.1
@@ -5764,7 +5772,7 @@ snapshots:
   '@rollup/plugin-babel@6.1.0(@babel/core@7.29.0)(rollup@4.61.1)':
     dependencies:
       '@babel/core': 7.29.0
-      '@babel/helper-module-imports': 7.28.6
+      '@babel/helper-module-imports': 7.29.7
       '@rollup/pluginutils': 5.4.0(rollup@4.61.1)
     optionalDependencies:
       rollup: 4.61.1
@@ -5798,7 +5806,7 @@ snapshots:
 
   '@rollup/pluginutils@5.4.0(rollup@4.61.1)':
     dependencies:
-      '@types/estree': 1.0.8
+      '@types/estree': 1.0.9
       estree-walker: 2.0.2
       picomatch: 4.0.4
     optionalDependencies:
