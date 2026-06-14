@@ -12,7 +12,6 @@ import { lazy } from 'react';
 const homeImport = () => import('@/pages/HomePage/HomePage');
 const aboutImport = () => import('@/pages/AboutPage');
 const downloadImport = () => import('@/pages/DownloadPage');
-const supportImport = () => import('@/pages/SupportPage');
 const settingsImport = () => import('@/pages/SettingsPage');
 const fenHistoryImport = () => import('@/pages/FENHistoryPage/FENHistoryPage');
 const advancedFenImport = () =>
@@ -22,7 +21,6 @@ const notFoundImport = () => import('@/pages/NotFoundPage');
 export const HomePage = lazy(homeImport);
 export const AboutPage = lazy(aboutImport);
 export const DownloadPage = lazy(downloadImport);
-export const SupportPage = lazy(supportImport);
 export const SettingsPage = lazy(settingsImport);
 export const FENHistoryPage = lazy(fenHistoryImport);
 export const AdvancedFENInputPage = lazy(advancedFenImport);
@@ -36,7 +34,6 @@ export const prefetchByPath: Record<string, () => Promise<unknown>> = {
   '/': homeImport,
   '/about': aboutImport,
   '/download': downloadImport,
-  '/support': supportImport,
   '/settings': settingsImport,
   '/fen-history': fenHistoryImport,
   '/advanced-fen': advancedFenImport
