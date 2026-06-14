@@ -19,13 +19,22 @@ export interface Profile {
   avatarUrl: string | null;
   /** ISO timestamp; current supporter iff this is in the future. Null = not a supporter. */
   supporterUntil: string | null;
+  /**
+   * Voluntary monthly donation amount in USD, used purely to derive the
+   * display-only membership tier (see services/membership.ts). There is no
+   * billing backend: this defaults to 0 and is only persisted for guests in
+   * localStorage. Registered profiles have no dollar column server-side today,
+   * so it resolves to 0 unless an active supporter window is present.
+   */
+  supporterMonthlyUsd: number;
 }
 
 /** Default profile for a brand-new guest or an unmigrated/empty registered profile. */
 export const DEFAULT_PROFILE: Profile = {
   displayName: 'User',
   avatarUrl: null,
-  supporterUntil: null
+  supporterUntil: null,
+  supporterMonthlyUsd: 0
 };
 
 interface ProfileRow {
@@ -73,7 +82,10 @@ export const profileService = {
       return {
         displayName: data.display_name ?? 'User',
         avatarUrl: data.avatar_url ?? null,
-        supporterUntil: data.supporter_until ?? null
+        supporterUntil: data.supporter_until ?? null,
+        // No dollar column server-side today; amount-driven tier stays 0 for
+        // registered users until a real billing field exists.
+        supporterMonthlyUsd: 0
       };
     } catch (error: unknown) {
       logger.error('profileService.get error:', error);
@@ -91,6 +103,24 @@ export const profileService = {
       if (error && !isMissingSchemaError(error)) throw error;
     } catch (error: unknown) {
       logger.error('profileService.updateDisplayName error:', error);
+    }
+  },
+
+  /**
+   * Mirror a new email onto the relational `profiles.email` column (RLS: users
+   * update own profile). The authoritative email change happens via
+   * supabase.auth.updateUser — this only keeps the profile row in step. Missing
+   * schema is treated as a no-op so the auth update still succeeds.
+   */
+  updateEmail: async (userId: string, email: string): Promise<void> => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ email })
+        .eq('user_id', userId);
+      if (error && !isMissingSchemaError(error)) throw error;
+    } catch (error: unknown) {
+      logger.error('profileService.updateEmail error:', error);
     }
   },
 
