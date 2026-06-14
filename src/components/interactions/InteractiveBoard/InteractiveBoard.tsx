@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useRef } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { useDrop } from 'react-dnd';
 
@@ -7,6 +7,13 @@ import type { PieceSymbol } from '@app-types/chess';
 
 import { describeBoardPosition } from '@utils';
 import DroppableSquare from '../DroppableSquare/DroppableSquare';
+import { useBoardKeyboard } from './useBoardKeyboard';
+
+/** Imperative keyboard handle the board exposes to its host (palette wiring). */
+export interface BoardKeyboardApi {
+  /** Carry a palette piece on the keyboard cursor and focus the grid. */
+  pickUpFromPalette: (piece: PieceSymbol) => void;
+}
 
 /** Props for the `InteractiveBoard` DnD board grid. */
 export interface InteractiveBoardProps {
@@ -28,6 +35,10 @@ export interface InteractiveBoardProps {
   onSquareSelect?: ((row: number, col: number) => void) | undefined;
   /** Currently selected square as `[row, col]`, or null when none. */
   selectedSquare?: readonly [number, number] | null | undefined;
+  /** Remove the piece on a square (keyboard Delete/Backspace on the grid). */
+  onPieceRemove?: ((row: number, col: number) => void) | undefined;
+  /** Receives the board's imperative keyboard API once (palette → board). */
+  onKeyboardApi?: ((api: BoardKeyboardApi) => void) | undefined;
 }
 
 export const InteractiveBoard = memo(function InteractiveBoard({
@@ -39,9 +50,39 @@ export const InteractiveBoard = memo(function InteractiveBoard({
   flipped,
   onPieceDrop,
   onSquareSelect,
-  selectedSquare
+  selectedSquare,
+  onPieceRemove,
+  onKeyboardApi
 }: InteractiveBoardProps) {
   const boardRef = useRef<HTMLDivElement | null>(null);
+  const {
+    cursor,
+    isFocused,
+    heldFrom,
+    activeDescendantId,
+    announcement,
+    onKeyDown,
+    onFocus,
+    onBlur,
+    pickUpFromPalette
+  } = useBoardKeyboard({
+    board,
+    flipped,
+    ...(onPieceDrop ? { onPieceDrop } : {}),
+    ...(onPieceRemove ? { onPieceRemove } : {})
+  });
+
+  // Publish the imperative API to the host so the palette can hand a freshly
+  // chosen piece to the keyboard cursor and we can focus the grid for placement.
+  useEffect(() => {
+    if (!onKeyboardApi) return;
+    onKeyboardApi({
+      pickUpFromPalette: (piece: PieceSymbol) => {
+        pickUpFromPalette(piece);
+        boardRef.current?.focus();
+      }
+    });
+  }, [onKeyboardApi, pickUpFromPalette]);
   const handleDrop = useCallback(
     (
       piece: PieceSymbol,
@@ -86,6 +127,12 @@ export const InteractiveBoard = memo(function InteractiveBoard({
         const isSelected =
           selectedSquare?.[0] === actualRow &&
           selectedSquare?.[1] === actualCol;
+        // Only paint the cursor ring while the grid is focused — otherwise the
+        // board would carry a stray highlight on a8 at rest.
+        const isCursor =
+          isFocused && cursor.row === actualRow && cursor.col === actualCol;
+        const isHeldSource =
+          heldFrom?.row === actualRow && heldFrom?.col === actualCol;
         result.push(
           <DroppableSquare
             key={`square-${actualRow}-${actualCol}`}
@@ -99,6 +146,8 @@ export const InteractiveBoard = memo(function InteractiveBoard({
             onDrop={handleDrop}
             onSelect={onSquareSelect}
             isSelected={isSelected}
+            isCursor={isCursor}
+            isHeldSource={isHeldSource}
             isLoading={isLoading}
           />
         );
@@ -114,7 +163,10 @@ export const InteractiveBoard = memo(function InteractiveBoard({
     handleDrop,
     pieceImages,
     onSquareSelect,
-    selectedSquare
+    selectedSquare,
+    cursor,
+    isFocused,
+    heldFrom
   ]);
   const boardDescription = useMemo(
     () => describeBoardPosition(board, flipped),
@@ -128,11 +180,26 @@ export const InteractiveBoard = memo(function InteractiveBoard({
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {boardDescription}
       </div>
+      {/* Action announcer — narrates cursor moves, pickups, placements, and
+          removals so a keyboard/SR user can drive the board without sight. */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {announcement}
+      </div>
       <div
         ref={setRefs}
         role="grid"
-        aria-label="Chess board, edit mode"
-        className="grid grid-cols-8 grid-rows-8 overflow-hidden w-full h-full"
+        // Single tab stop with a roving cursor (aria-activedescendant) instead
+        // of 64 tab stops — keyboard users land here once, then arrow around.
+        tabIndex={0}
+        aria-label="Chess board, edit mode. Use arrow keys to move, Enter or Space to pick up and place a piece, Delete to remove, Escape to cancel."
+        aria-activedescendant={activeDescendantId}
+        // Tell the app-wide page scroller to keep its hands off the arrow keys
+        // while this grid owns focus (see usePageScrollKeys / ownsArrowKeys).
+        data-arrow-keys="self"
+        onKeyDown={onKeyDown}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        className="grid grid-cols-8 grid-rows-8 overflow-hidden w-full h-full outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
         style={{
           gap: 0,
           zIndex: 1,
