@@ -4,10 +4,9 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useRef,
   useState
 } from 'react';
-
-import { useLocation } from 'react-router-dom';
 
 import { Navbar } from '@/components/layout';
 import { FENBatchProvider } from '@/contexts/FENBatchContext';
@@ -15,8 +14,16 @@ import { ModalProvider } from '@/contexts/ModalContext';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useSecurityCheck } from '@/features/auth/hooks/useSecurityCheck';
 import Routes from '@/routes/Router';
+import { useAccentTheme, usePageScrollKeys, useThemeModeSync } from '@hooks';
 
-import { logger } from '@utils/logger';
+import {
+  isFollowingSystem,
+  readThemeModePreference,
+  resolveThemeMode,
+  systemThemeMode,
+  THEME_MODE_CHANGE_EVENT,
+  type ThemeMode
+} from '@utils';
 import { ErrorBoundary } from '@shared/ui';
 
 /** Lazy-loaded: only needed when an authenticated user hits the 90-day lock. */
@@ -32,55 +39,17 @@ declare global {
   }
 }
 
-/**
- * Tool pages where navbar should be hidden for distraction-free experience.
- */
-const TOOL_PAGES: string[] = ['/settings', '/fen-history', '/advanced-fen'];
-
-const VALID_THEMES = new Set<string>(['light', 'dark']);
-
-type Theme = 'light' | 'dark';
-
-function isTheme(value: string): value is Theme {
-  return VALID_THEMES.has(value);
-}
-
-const THEME_REVEAL_DEFAULT_OFFSET = 24;
-
-/**
- * Sets CSS variables for circular reveal animation.
- *
- * @param x - Reveal origin X in viewport
- * @param y - Reveal origin Y in viewport
- */
-function setThemeRevealVars(x: number, y: number): void {
-  const clampedX = Math.min(Math.max(x, 0), window.innerWidth);
-  const clampedY = Math.min(Math.max(y, 0), window.innerHeight);
-  const maxDx = Math.max(clampedX, window.innerWidth - clampedX);
-  const maxDy = Math.max(clampedY, window.innerHeight - clampedY);
-  const radius = Math.hypot(maxDx, maxDy);
-
-  document.documentElement.style.setProperty(
-    '--theme-reveal-x',
-    `${clampedX}px`
-  );
-  document.documentElement.style.setProperty(
-    '--theme-reveal-y',
-    `${clampedY}px`
-  );
-  document.documentElement.style.setProperty(
-    '--theme-reveal-radius',
-    `${radius}px`
-  );
+function isTheme(value: string): value is ThemeMode {
+  return value === 'light' || value === 'dark';
 }
 
 /**
- * Retrieves the initial theme from various sources.
- * Priority: window variable > localStorage > system preference.
+ * Resolves the initial mode for first paint.
+ * Priority: boot-script value > stored manual override > system preference.
  *
- * @returns Theme value
+ * @returns The concrete 'light' | 'dark' to apply
  */
-function getInitialTheme(): Theme {
+function getInitialTheme(): ThemeMode {
   if (
     typeof window !== 'undefined' &&
     typeof window.__INITIAL_THEME__ === 'string' &&
@@ -89,32 +58,45 @@ function getInitialTheme(): Theme {
     return window.__INITIAL_THEME__;
   }
 
-  try {
-    const saved = localStorage.getItem('chess-theme');
-    if (saved && isTheme(saved)) {
-      return saved;
-    }
-  } catch (error) {
-    logger.warn('localStorage access blocked:', error);
-  }
-
-  const prefersDark = window.matchMedia?.(
-    '(prefers-color-scheme: dark)'
-  ).matches;
-  return prefersDark ? 'dark' : 'light';
+  return resolveThemeMode(readThemeModePreference());
 }
 
 /**
- * Saves theme to localStorage safely.
+ * Whether the Telegram-style circular reveal should run for a theme flip.
+ * False for browsers without the View Transitions API and when the user has
+ * `prefers-reduced-motion: reduce` (the CSS no-ops it too, but we skip the API
+ * call entirely for those cases).
  *
- * @param theme - Theme value to save
+ * @returns Whether to animate the next theme change
  */
-function saveTheme(theme: Theme): void {
-  try {
-    localStorage.setItem('chess-theme', theme);
-  } catch (error) {
-    logger.warn('localStorage access blocked:', error);
-  }
+function canAnimateThemeReveal(): boolean {
+  return (
+    typeof document !== 'undefined' &&
+    'startViewTransition' in document &&
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+}
+
+/**
+ * Seeds the CSS reveal vars so the circle ORIGINATES at the TOP-RIGHT corner
+ * and grows toward the BOTTOM-LEFT, covering the full diagonal. The CSS
+ * keyframe `theme-circular-reveal` animates the clip-path radius from 0 to
+ * `--theme-reveal-radius`, so we feed it the corner-to-corner distance. We also
+ * set `data-theme-transition` so the per-direction duration/ease overrides
+ * (`to-dark` / `to-light`) apply.
+ *
+ * @param next - The concrete theme being applied (drives the direction attr)
+ */
+function primeThemeReveal(next: ThemeMode): void {
+  const root = document.documentElement;
+  const x = window.innerWidth;
+  const y = 0;
+  // Distance from the top-right origin to the bottom-left corner.
+  const radius = Math.hypot(window.innerWidth, window.innerHeight);
+  root.style.setProperty('--theme-reveal-x', `${x}px`);
+  root.style.setProperty('--theme-reveal-y', `${y}px`);
+  root.style.setProperty('--theme-reveal-radius', `${radius}px`);
+  root.setAttribute('data-theme-transition', `to-${next}`);
 }
 
 /**
@@ -124,17 +106,63 @@ function saveTheme(theme: Theme): void {
  * @returns Application root
  */
 function App() {
-  const location = useLocation();
-  const [theme, setTheme] = useState<Theme>(getInitialTheme);
+  const [theme, setTheme] = useState<ThemeMode>(getInitialTheme);
+  // Latest concrete theme, read synchronously inside event handlers to decide
+  // whether a change is a real flip (worth animating) without re-subscribing.
+  const themeRef = useRef<ThemeMode>(theme);
+  themeRef.current = theme;
   const { isAuthenticated } = useAuth();
   const { isLocked, isLoading: isSecurityLoading, unlock } = useSecurityCheck();
 
-  const isToolPage = TOOL_PAGES.includes(location.pathname);
+  // App-wide keyboard scrolling (Arrow / Page / Home / End) on EVERY route, not
+  // just the board editor, so the site is operable without a mouse. The board
+  // grid opts out of arrow hijacking via `data-arrow-keys="self"`. WCAG 2.1.1.
+  usePageScrollKeys();
+
+  // App is the single owner of `data-theme`. The Appearance settings expose a
+  // Light / Dark / System control (see `useThemeMode`). Every choice is
+  // persisted (`cv_theme_mode`) + E2EE-synced as an EXPLICIT value; the default
+  // for a fresh user (nothing stored) is DARK, not the OS. 'System' is stored
+  // literally and makes the `prefers-color-scheme` listener below track the OS.
+  // We re-resolve on `THEME_MODE_CHANGE_EVENT` (same-tab live change) and
+  // `storage` (other tabs), and hydrate the synced preference once via
+  // `useThemeModeSync`.
+  useThemeModeSync();
 
   useLayoutEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    saveTheme(theme);
   }, [theme]);
+
+  // Applies the next concrete theme. When it is a real flip from the current
+  // `data-theme`, run the Telegram-style circular reveal (top-right → bottom-
+  // left) via the View Transitions API; otherwise just set state. Falls back to
+  // a plain `setTheme` when the API is unavailable or reduced-motion is on.
+  const applyTheme = useCallback((next: ThemeMode) => {
+    if (next === themeRef.current) return;
+    if (!canAnimateThemeReveal()) {
+      setTheme(next);
+      return;
+    }
+    primeThemeReveal(next);
+    const transition = document.startViewTransition(() => setTheme(next));
+    transition.finished.finally(() => {
+      document.documentElement.removeAttribute('data-theme-transition');
+    });
+  }, []);
+
+  // React to a manual mode change (this tab via the event, other tabs via
+  // `storage`): re-resolve the effective mode from the stored preference. With
+  // no stored preference the default is DARK (see `readThemeModePreference`).
+  useEffect(() => {
+    const onChange = () =>
+      applyTheme(resolveThemeMode(readThemeModePreference()));
+    window.addEventListener(THEME_MODE_CHANGE_EVENT, onChange);
+    window.addEventListener('storage', onChange);
+    return () => {
+      window.removeEventListener(THEME_MODE_CHANGE_EVENT, onChange);
+      window.removeEventListener('storage', onChange);
+    };
+  }, [applyTheme]);
 
   // Fade out and remove the first-paint splash (index.html) now that the app
   // tree is mounted and interactive. Runs once.
@@ -151,62 +179,22 @@ function App() {
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-    function handleMediaChange(event: MediaQueryListEvent) {
-      try {
-        const manualOverride = localStorage.getItem('chess-theme');
-        if (!manualOverride) {
-          setTheme(event.matches ? 'dark' : 'light');
-        }
-      } catch (error) {
-        logger.warn('localStorage access blocked:', error);
+    function handleMediaChange() {
+      // Only track the OS while the user explicitly chose 'system'. (No stored
+      // preference now means DARK, not OS — so absence is NOT "follow OS".)
+      if (isFollowingSystem()) {
+        applyTheme(systemThemeMode());
       }
     }
 
     mediaQuery.addEventListener('change', handleMediaChange);
     return () => mediaQuery.removeEventListener('change', handleMediaChange);
-  }, []);
+  }, [applyTheme]);
 
-  const toggleTheme = useCallback(
-    (event?: React.SyntheticEvent | Event) => {
-      const nextTheme: Theme = theme === 'dark' ? 'light' : 'dark';
-      const prefersReducedMotion = window.matchMedia?.(
-        '(prefers-reduced-motion: reduce)'
-      ).matches;
-
-      let revealX = window.innerWidth - THEME_REVEAL_DEFAULT_OFFSET;
-      let revealY = THEME_REVEAL_DEFAULT_OFFSET;
-
-      if (event?.currentTarget instanceof Element) {
-        const rect = event.currentTarget.getBoundingClientRect();
-        revealX = rect.left + rect.width / 2;
-        revealY = rect.top + rect.height / 2;
-      }
-
-      setThemeRevealVars(revealX, revealY);
-
-      const startViewTransition = document.startViewTransition?.bind(document);
-      if (!startViewTransition || prefersReducedMotion) {
-        setTheme(nextTheme);
-        return;
-      }
-
-      const transitionDirection =
-        nextTheme === 'light' ? 'to-light' : 'to-dark';
-      document.documentElement.setAttribute(
-        'data-theme-transition',
-        transitionDirection
-      );
-
-      const transition = startViewTransition(() => {
-        setTheme(nextTheme);
-      });
-
-      transition.finished.finally(() => {
-        document.documentElement.removeAttribute('data-theme-transition');
-      });
-    },
-    [theme]
-  );
+  // Apply the saved site accent theme to `--val-accent*` and re-apply the
+  // correct (dark vs light) triple whenever `data-theme` flips, since App owns
+  // the theme. Lives here so App stays the single theme owner (see the hook).
+  useAccentTheme(theme);
 
   return (
     <ErrorBoundary>
@@ -220,12 +208,12 @@ function App() {
               Skip to main content
             </a>
 
-            {!isToolPage && <Navbar theme={theme} toggleTheme={toggleTheme} />}
+            <Navbar />
 
             <main
               id="main-content"
               tabIndex={-1}
-              className={`lg:overscroll-trap flex-1 min-h-0 w-full min-w-0 max-w-full overflow-x-hidden overflow-y-visible lg:overflow-y-auto focus:outline-none ${!isToolPage ? 'mt-[4.5rem] sm:mt-[5rem] lg:mt-[5.5rem]' : ''}`}
+              className="main-content-offset lg:overscroll-trap flex-1 min-h-0 w-full min-w-0 max-w-full overflow-visible lg:overflow-x-hidden lg:overflow-y-auto focus:outline-none"
             >
               {/* Gate the lock modal on `!isSecurityLoading` so it never flashes
                   before the security state resolves. `isLocked` stays fail-closed
