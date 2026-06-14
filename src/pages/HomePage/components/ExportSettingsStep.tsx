@@ -123,8 +123,14 @@ export default function ExportSettingsStep({
             Custom
           </button>
 
+          {/* Native number input: arrow keys (and the platform stepper) already
+              increment/decrement by `step`, so the board size is fully
+              keyboard-adjustable. Labelled + error-linked so a screen reader
+              announces the field name, range, and any validation message. */}
           <input
+            id="custom-board-size"
             type="number"
+            inputMode="decimal"
             min={4}
             max={16}
             step={0.1}
@@ -134,11 +140,24 @@ export default function ExportSettingsStep({
               wizard.updateCustomBoardSize(event.target.value)
             }
             placeholder="4-16"
+            aria-label="Custom board size in centimetres (4 to 16)"
+            aria-invalid={wizard.customBoardSizeError ? true : undefined}
+            aria-describedby={
+              wizard.customBoardSizeError
+                ? 'custom-board-size-error'
+                : undefined
+            }
             className="w-24 rounded-lg border border-border/60 bg-surface px-2 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
           />
         </div>
         {wizard.customBoardSizeError && (
-          <p className="text-xs text-error">{wizard.customBoardSizeError}</p>
+          <p
+            id="custom-board-size-error"
+            role="alert"
+            className="text-xs text-error"
+          >
+            {wizard.customBoardSizeError}
+          </p>
         )}
       </section>
 
