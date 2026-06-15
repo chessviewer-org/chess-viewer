@@ -28,6 +28,9 @@ workerContext.onmessage = async (event: MessageEvent) => {
     });
   };
 
+  let bitmap: ImageBitmap | null = null;
+  let canvas: OffscreenCanvas | null = null;
+
   try {
     if (typeof OffscreenCanvas === 'undefined') {
       throw new Error('OffscreenCanvas is not available');
@@ -48,10 +51,10 @@ workerContext.onmessage = async (event: MessageEvent) => {
     const svgBlob = new Blob([svgString], {
       type: 'image/svg+xml;charset=utf-8'
     });
-    const bitmap = await createImageBitmap(svgBlob);
+    bitmap = await createImageBitmap(svgBlob);
 
     postProgress(45, 'Rendering');
-    const canvas = new OffscreenCanvas(width, height);
+    canvas = new OffscreenCanvas(width, height);
     const useAlpha = format !== 'jpeg';
     const ctx = canvas.getContext('2d', {
       alpha: useAlpha,
@@ -67,9 +70,6 @@ workerContext.onmessage = async (event: MessageEvent) => {
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(bitmap, 0, 0, width, height);
-    if (typeof bitmap.close === 'function') {
-      bitmap.close();
-    }
 
     postProgress(80, 'Encoding');
     const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
@@ -77,10 +77,6 @@ workerContext.onmessage = async (event: MessageEvent) => {
       type: mimeType,
       quality: format === 'jpeg' ? quality : undefined
     });
-
-    // Mandatory disposal to release GPU memory (Rule 9)
-    canvas.width = 0;
-    canvas.height = 0;
 
     workerContext.postMessage({
       type: 'done',
@@ -95,5 +91,13 @@ workerContext.onmessage = async (event: MessageEvent) => {
         message: error instanceof Error ? error.message : String(error)
       }
     });
+  } finally {
+    // Release decoded bitmap and GPU canvas memory on every exit path —
+    // Safari/iOS does not GC OffscreenCanvas on reference drop (Rule 9).
+    bitmap?.close();
+    if (canvas) {
+      canvas.width = 0;
+      canvas.height = 0;
+    }
   }
 };
