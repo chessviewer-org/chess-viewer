@@ -24,7 +24,6 @@ import {
 export function useAccentTheme(mode: 'dark' | 'light'): void {
   // Apply synchronously before paint for the current mode, and re-apply on flip.
   useLayoutEffect(() => {
-    const root = document.documentElement;
     const reapply = () =>
       applyAccentVars(getAccentTheme(readStoredAccentId()), mode);
 
@@ -39,7 +38,6 @@ export function useAccentTheme(mode: 'dark' | 'light'): void {
     return () => {
       window.removeEventListener(ACCENT_CHANGE_EVENT, onAccentChange);
       window.removeEventListener('storage', onStorage);
-      void root; // keep ref stable lint-wise
     };
   }, [mode]);
 
