@@ -1,2 +1,6 @@
 export { default as Navbar } from './Navbar/Navbar';
-export { default as ToolPageHeader } from './ToolPageHeader';
+export {
+  type PageTab,
+  type PageTabGroup,
+  default as PageTabs
+} from './PageTabs';

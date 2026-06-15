@@ -10,6 +10,11 @@ export interface PiecePaletteProps {
   pieceImages: Record<string, HTMLImageElement | null>;
   isLoading: boolean;
   className?: string;
+  /**
+   * Keyboard alternative to dragging a palette piece: activating a piece hands
+   * it to the board's roving cursor for placement (no mouse required).
+   */
+  onKeyboardPick?: ((piece: PieceSymbol) => void) | undefined;
 }
 
 /** Internal structure of a palette piece entry. */
@@ -31,22 +36,33 @@ const BLACK_PIECES = PALETTE_PIECES.filter(
 export const PiecePalette = memo(function PiecePalette({
   pieceImages,
   isLoading,
-  className = ''
+  className = '',
+  onKeyboardPick
 }: PiecePaletteProps) {
   const renderPiece = useCallback(
     (p: PalettePiece) => {
       const imageKey = getPieceImageKey(p.piece);
       const pieceImage = imageKey ? pieceImages[imageKey] || null : null;
+      const disabled = isLoading || !pieceImage;
 
+      // A real <button> wraps the drag source so the cell is keyboard- and
+      // screen-reader-operable: activating it hands the piece to the board's
+      // roving cursor for placement (the DnD path is unchanged for mouse/touch).
       return (
-        <div
+        <button
           key={p.id}
+          type="button"
+          disabled={disabled}
+          onClick={() => onKeyboardPick?.(p.piece)}
+          aria-label={`Place ${p.name}`}
           className={`
             aspect-square flex-1 min-w-11 rounded-md overflow-hidden
             bg-surface-elevated hover:bg-surface-hover
             border border-border/50 hover:border-border
             grid place-items-center p-0.5
             transition-colors duration-200
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-bg
+            disabled:cursor-not-allowed
             ${isLoading ? 'opacity-50' : ''}
           `}
           title={p.name}
@@ -56,12 +72,12 @@ export const PiecePalette = memo(function PiecePalette({
             pieceImage={pieceImage}
             isFromPalette={true}
             size="100%"
-            disabled={isLoading || !pieceImage}
+            disabled={disabled}
           />
-        </div>
+        </button>
       );
     },
-    [pieceImages, isLoading]
+    [pieceImages, isLoading, onKeyboardPick]
   );
 
   const renderGroup = useCallback(

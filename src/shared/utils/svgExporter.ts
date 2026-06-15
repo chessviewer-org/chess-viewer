@@ -98,7 +98,11 @@ export async function generateBoardSVG(
   );
 
   const fontSize = Math.round(Math.max(10, Math.min(480, borderPx * 0.72)));
-  const fontFamily = "system-ui, -apple-system, 'Segoe UI', sans-serif";
+  // Match the in-app / canvas-export coordinate font (Inter) so SVG, PNG/JPEG,
+  // and the live board render coordinates in the same typeface. The system
+  // stack is the fallback for viewers without Inter installed.
+  const fontFamily =
+    "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif";
   const coordTextColor = '#000000';
   const parts: string[] = [];
 

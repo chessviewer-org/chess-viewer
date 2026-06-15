@@ -74,7 +74,10 @@ const FENHistoryPage: React.FC = memo(() => {
 
       {/* Single page-internal scroll region BELOW the sticky header + filters.
           The board cards scroll here; there is no separate inner scrollbar. */}
-      <main className="flex-1 min-h-0 overflow-visible lg:overflow-y-auto">
+      <main
+        data-page-scroll
+        className="flex-1 min-h-0 overflow-visible lg:overflow-y-auto"
+      >
         <div className="px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
           {currentData.length === 0 ? (
             <FENHistoryEmptyState activeTab={activeTab} />

@@ -6,8 +6,6 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 import { getPieceImageKey, ItemTypes } from '@constants';
 import type { PieceSymbol } from '@app-types/chess';
 
-import { pieceToName } from '@utils';
-
 /** Props for the `DraggablePiece` memo'd drag source. */
 export interface DraggablePieceProps {
   piece: PieceSymbol | '';
@@ -82,7 +80,7 @@ export const DraggablePiece = memo(function DraggablePiece({
       }}
       className={`
           flex items-center justify-center
-          select-none touch-none
+          select-none
           ${disabled ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'}
         `}
       style={{
@@ -93,16 +91,18 @@ export const DraggablePiece = memo(function DraggablePiece({
           ? 'none'
           : 'opacity 200ms cubic-bezier(0.4, 0, 0.2, 1)',
         visibility: isDragging ? 'hidden' : 'visible',
-        contain: 'layout style'
+        contain: 'layout style',
+        // Only suppress native touch gestures (pan/scroll) ON this draggable so
+        // the TouchBackend owns the gesture; the rest of the page scrolls
+        // normally. Set inline (not the global `touch-none` class) so a finger
+        // that starts on a piece can still trigger a scroll via the backend's
+        // `scrollAngleRanges`, while a horizontal/diagonal drag starts a move.
+        touchAction: disabled ? 'auto' : 'none'
       }}
-      role="button"
-      aria-label={`Drag ${pieceToName(piece)}`}
-      tabIndex={disabled ? -1 : 0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-        }
-      }}
+      // Decorative for assistive tech: the wrapping control (palette button or
+      // board gridcell) names the piece, so this inner drag source is silent to
+      // avoid double announcement and is not a separate tab stop.
+      aria-hidden="true"
     >
       <img
         src={pieceImage.src}

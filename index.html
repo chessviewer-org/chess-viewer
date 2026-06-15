@@ -106,13 +106,13 @@
       }
     </style>
 
-    <!-- PERFORMANCE: Preconnect + non-blocking font load -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=optional"
-      rel="stylesheet"
-    />
+    <!--
+      Fonts are SELF-HOSTED: Inter (variable) is bundled via
+      @fontsource-variable/inter (imported in src/index.tsx) and served from our
+      own origin. No Google Fonts request — privacy-first, no third-party
+      network call, no FOUC / font-swap drift across loads, and no font-src CSP
+      entry needed for external hosts.
+    -->
 
     <!-- PERFORMANCE: Preconnect to Lichess CDN for piece images -->
     <link rel="dns-prefetch" href="https://lichess1.org" />

@@ -68,20 +68,20 @@
        text-display  — hero / page headline
        text-h1/h2/h3 — section + panel headings
        text-fluid-base/sm/xs — body, secondary, captions */
-  --text-display: clamp(1.5rem, 4vw + 0.5rem, 2.5rem);
-  --text-display--line-height: 1.1;
-  --text-h1: clamp(1.375rem, 2.4vw + 0.6rem, 2rem);
-  --text-h1--line-height: 1.15;
-  --text-h2: clamp(1.125rem, 1.4vw + 0.7rem, 1.5rem);
-  --text-h2--line-height: 1.25;
-  --text-h3: clamp(1rem, 0.8vw + 0.75rem, 1.25rem);
+  --text-display: clamp(1.625rem, 4.2vw + 0.6rem, 3rem);
+  --text-display--line-height: 1.08;
+  --text-h1: clamp(1.4375rem, 2.6vw + 0.7rem, 2.375rem);
+  --text-h1--line-height: 1.12;
+  --text-h2: clamp(1.1875rem, 1.6vw + 0.8rem, 1.75rem);
+  --text-h2--line-height: 1.22;
+  --text-h3: clamp(1.0625rem, 0.9vw + 0.85rem, 1.375rem);
   --text-h3--line-height: 1.3;
-  --text-fluid-base: clamp(0.9375rem, 0.25vw + 0.875rem, 1rem);
-  --text-fluid-base--line-height: 1.5;
-  --text-fluid-sm: clamp(0.8125rem, 0.2vw + 0.78rem, 0.875rem);
-  --text-fluid-sm--line-height: 1.45;
-  --text-fluid-xs: clamp(0.6875rem, 0.15vw + 0.66rem, 0.75rem);
-  --text-fluid-xs--line-height: 1.4;
+  --text-fluid-base: clamp(0.9375rem, 0.3vw + 0.9rem, 1.0625rem);
+  --text-fluid-base--line-height: 1.55;
+  --text-fluid-sm: clamp(0.8125rem, 0.25vw + 0.79rem, 0.9375rem);
+  --text-fluid-sm--line-height: 1.5;
+  --text-fluid-xs: clamp(0.6875rem, 0.2vw + 0.67rem, 0.8125rem);
+  --text-fluid-xs--line-height: 1.45;
 
   /* ── Fluid spacing scale ──────────────────────────────────────────────────
      Section/gutter rhythm that tightens on phones and opens up on desktop, so
@@ -117,31 +117,60 @@
   --blur-xs: 2px;
 }
 
+/* Metric-matched fallback for 'Inter Variable': while the woff2 swaps in (it is
+   `font-display: swap`), text is laid out with local Arial scaled to Inter's
+   metrics, so the swap causes no visible reflow/jump (CLS ≈ 0). Inter is wired
+   to use this via the fallback chain shape — see --font-ui. */
 @font-face {
-  font-family: 'Poppins-fallback';
+  font-family: 'Inter-fallback';
   src: local('Arial');
-  size-adjust: 97%;
-  ascent-override: 105%;
-  descent-override: 35%;
+  size-adjust: 107%;
+  ascent-override: 90%;
+  descent-override: 22.5%;
   line-gap-override: 0%;
 }
 
 :root {
-  /* Typography System */
+  /* Typography System
+     ONE app-wide sans: self-hosted Inter ('Inter Variable', see
+     @fontsource-variable/inter imported in index.tsx). Inter is a neutral,
+     highly legible humanist UI sans — clean at small sizes, beautiful at large.
+     The system stack is the fallback chain only (used pre-load / if the woff2
+     ever fails); 'Inter Variable' wins for every glyph it covers, so the UI
+     reads identically on every device — no more font-to-font drift.
+     --font-data stays monospace for FEN / code surfaces (intentional). */
   --font-ui:
-    'Poppins', 'Poppins-fallback', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', sans-serif;
+    'Inter Variable', 'Inter', 'Inter-fallback', -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-data:
     ui-monospace, 'Cascadia Code', 'DejaVu Mono', 'Liberation Mono',
-    'Courier New', 'Inter', monospace;
+    'Courier New', monospace;
 
   /* Animation System */
   --animation-duration: 200ms;
   --animation-curve: cubic-bezier(0.4, 0, 0.2, 1);
   --animation-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  --theme-reveal-x: calc(100vw - 24px);
-  --theme-reveal-y: 24px;
-  --theme-reveal-radius: 0px;
+
+  /* ── Navbar height (single source of truth) ──────────────────────────────
+     The fixed navbar's rendered height and the `<main>` top offset are derived
+     from THIS one token instead of two unrelated magic numbers. Keeping them
+     identical is what makes the bar and the page meet flush: the navbar fills
+     exactly `--navbar-height`, and `<main>` starts exactly `--navbar-height`
+     below the top, so the page gradient continues from precisely where the
+     navbar's gradient ends — no gap, no overlap, at any width/zoom/DPR.
+     Ladder mirrors the bar's `py-3` (0.75rem ×2) + `min-h` rungs:
+       base  0.75×2 + 3rem  = 4.5rem
+       sm    0.75×2 + 3.5rem = 5rem
+       lg    0.75×2 + 4rem  = 5.5rem
+     Overridden per breakpoint below. */
+  --navbar-height: 4.5rem;
+  /* Reveal ORIGIN: top-right corner; the circle grows toward bottom-left.
+     App.tsx (primeThemeReveal) overrides these per-transition with exact pixel
+     values (origin = innerWidth,0; radius = corner-to-corner diagonal); these
+     are only fallbacks. The radius default covers the viewport diagonal. */
+  --theme-reveal-x: 100vw;
+  --theme-reveal-y: 0px;
+  --theme-reveal-radius: 150vmax;
   --theme-reveal-duration: 760ms;
   --theme-reveal-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --theme-old-fade-duration: 440ms;
@@ -183,12 +212,14 @@
   --shadow-glow:
     0 0 20px rgba(198, 156, 48, 0.2), 0 0 40px rgba(198, 156, 48, 0.1);
 
-  /* Navbar — Lichess-style translucent gold glow that drops below the bar.
-     Derived from --val-accent so a theme/accent change carries through. */
-  --navbar-shadow:
-    0 1px 0 0 rgb(var(--val-accent) / 0.14),
-    0 6px 18px -6px rgb(var(--val-accent) / 0.22),
-    0 14px 40px -18px rgb(var(--val-accent) / 0.16);
+  /* Navbar — NO drop-shadow.
+     The previous gold glow + a 2px `::after` overhang were the actual source of
+     the reported "light line": the glow's top edge and the overhang both
+     introduce a tonal step right where the bar meets the page. Because the bar
+     and the page now paint the IDENTICAL fixed gradient and share one height
+     token, no shadow/overlay is needed to hide a seam — there is no seam. Kept
+     as a token (set to `none`) so any future depth treatment is one edit. */
+  --navbar-shadow: none;
 
   /* Glass morphism */
   --glass-bg: color-mix(in srgb, var(--color-surface), transparent 25%);
@@ -305,11 +336,8 @@ html[data-theme-transition='to-dark'] {
   --shadow-glow:
     0 0 24px rgba(160, 120, 25, 0.2), 0 0 48px rgba(160, 120, 25, 0.1);
 
-  /* Navbar — Lichess-style translucent gold glow, softened for light mode. */
-  --navbar-shadow:
-    0 1px 0 0 rgb(var(--val-accent) / 0.16),
-    0 6px 16px -6px rgb(var(--val-accent) / 0.18),
-    0 12px 34px -18px rgb(var(--val-accent) / 0.12);
+  /* Navbar — NO drop-shadow in light mode either (see dark block rationale). */
+  --navbar-shadow: none;
 
   /* Glass morphism - Light mode adjustments */
   --glass-bg: color-mix(in srgb, var(--color-surface), transparent 15%);
@@ -328,7 +356,11 @@ html[data-theme-transition='to-dark'] {
     min-height: 100%;
     max-width: 100vw;
     overflow-x: hidden;
-    font-size: clamp(14px, 0.2vw + 13.5px, 16px);
+    /* Root type scale: mobile floor 15px, desktop ceiling 17.5px (was 14→16px,
+       which left desktop text cramped). The fluid `--text-*` tokens and any
+       `rem`-based sizing inherit this, so the whole app reads a notch larger and
+       more comfortable on desktop while staying compact on phones. */
+    font-size: clamp(15px, 0.35vw + 13.6px, 17.5px);
     scroll-behavior: smooth;
     font-synthesis: none;
   }
@@ -460,22 +492,25 @@ html[data-theme-transition='to-dark'] {
 
 /* ===== COMPONENTS LAYER ===== */
 @layer components {
-  /* Fixed top navbar shell.
+  /* Fixed top navbar shell — seamless join with the page.
 
-     The bottom-edge hairline was NOT anti-aliasing — it was a background
-     MISMATCH. `body` paints a 135deg gradient with `background-attachment:
-     fixed`; the navbar painted a FLAT `--color-bg`. Along the navbar's bottom
-     edge the flat fill met the page gradient, which differs from the flat value
-     by a few RGB steps — visible as a thin light line that faded left→right as
-     the 135deg gradient crossed the flat colour. (It got worse with the bar's
-     fractional fixed height, but the colour gap is the real cause.)
+     ROOT CAUSE of the reported "line / something is there under the navbar":
+     the bar painted a gold drop-shadow (`--navbar-shadow`) AND a 2px gradient
+     `::after` overhang. The page (`body`) and the bar both paint the SAME 135deg
+     gradient with `background-attachment: fixed`, so they are already
+     pixel-continuous — but the shadow's top edge and the overhang strip each add
+     a faint tonal step exactly at the join, which is what read as a light line.
 
-     Fix: paint the SAME fixed gradient as `body`. Because `background-attachment:
-     fixed` anchors both gradients to the viewport, the navbar's gradient lines
-     up pixel-for-pixel with the page's behind it — there is no colour step at
-     the seam, so no line, at any width. The Lichess-style gold shadow below is
-     now decoration only, not a cover-up. */
+     FIX: drop the shadow and the `::after` entirely, and pin the bar's height to
+     the `--navbar-height` token that `<main>` also uses for its top offset
+     (`.main-content-offset`). The bar therefore fills exactly `--navbar-height`
+     and the page resumes the identical fixed gradient at exactly that line, with
+     no decoration to introduce a step. Because the gradient is viewport-fixed,
+     the continuity holds at any width, zoom, and device-pixel-ratio, in both
+     light and dark. `box-shadow` is kept wired to the (now `none`) token so a
+     future depth treatment is a single token edit. Verified light + dark. */
   .navbar-shell {
+    position: fixed;
     background-color: var(--color-bg);
     background-image: linear-gradient(
       135deg,
@@ -488,6 +523,27 @@ html[data-theme-transition='to-dark'] {
        the bar's gradient fills the notch region while its inner content is
        pushed below it, so the logo/menu never sit under the Dynamic Island. */
     padding-top: max(0px, env(safe-area-inset-top));
+  }
+
+  /* `<main>` top offset — IDENTICAL value to the bar's height so content sits
+     flush against the bar (no gap, no overlap). Single source: --navbar-height
+     plus the same top safe-area inset the bar consumes. */
+  .main-content-offset {
+    margin-top: calc(var(--navbar-height) + max(0px, env(safe-area-inset-top)));
+  }
+
+  /* --navbar-height ladder, matching the bar's `py-3` (1.5rem total) + `min-h-*`
+     rungs (sm:min-h-14 = 3.5rem, lg:min-h-16 = 4rem). Defined here, next to the
+     consumers, so the bar height and the `<main>` offset never drift apart. */
+  @media (min-width: 640px) {
+    :root {
+      --navbar-height: 5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    :root {
+      --navbar-height: 5.5rem;
+    }
   }
 
   .card {
@@ -1279,6 +1335,18 @@ html {
   }
 }
 
+/* Kill the grey/blue tap-highlight flash on the interactive board surfaces
+   only. Each square is `cursor:pointer` with an onClick (click-to-select), so on
+   touch every tap — including the first move of a drag — flashed a highlight box
+   over the square, which read as a glitch mid-gesture. Scoped to the board grid
+   and the piece palette so ordinary links/buttons keep their native tap feedback
+   (removing it app-wide is an a11y regression for sighted touch users). */
+[role='grid'],
+[role='grid'] [role='gridcell'],
+[role='grid'] [role='gridcell'] * {
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* Touch-device scroll performance.
    `background-attachment: fixed` is the single biggest cause of scroll jank /
    "frozen" finger-scroll on mobile Safari & Android: the browser must
@@ -1293,11 +1361,25 @@ html {
   }
 }
 
-/* Smooth momentum scrolling on iOS */
+/* Smooth momentum scrolling on iOS. Keep it on every scroller and every device. */
 .overflow-y-auto,
 .overflow-y-scroll {
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
+}
+
+/* Overscroll trapping (`contain`) belongs ONLY to the desktop layout, where the
+   shell locks the page and an inner region owns the scroll, so a rubber-band at
+   the region's edge must not chain to a non-scrolling document. On touch the
+   document itself scrolls and the body owns overscroll (above); trapping it on
+   every nested `.overflow-y-auto` made a finger-swipe that started inside a
+   region whose content happens to fit get SWALLOWED instead of chaining to the
+   page — the reported "scroll down, can't scroll back up, then freeze". Scoped
+   to fine pointers / wide viewports it never reaches that path. */
+@media (pointer: fine) and (min-width: 1024px) {
+  .overflow-y-auto,
+  .overflow-y-scroll {
+    overscroll-behavior-y: contain;
+  }
 }
 
 /* Remove hover effects on touch devices to avoid sticky hover states */
@@ -1453,6 +1535,10 @@ html {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    /* Kill CSS smooth-scroll too (anchor jumps, programmatic scroll) so a
+       reduced-motion user gets an instant jump, not an animated glide.
+       The JS scroll layer (pageScroll.ts) honours the same preference. */
+    scroll-behavior: auto !important;
   }
 }
 

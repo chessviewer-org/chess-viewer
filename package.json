@@ -9,6 +9,7 @@
     "pnpm": ">=10.0.0"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
     "@supabase/supabase-js": "^2.107.0",
     "framer-motion": "^12.40.0",
     "lucide-react": "^1.17.0",

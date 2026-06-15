@@ -1,27 +1,16 @@
 import { memo, useEffect } from 'react';
 
-import {
-  Info,
-  LogOut,
-  Moon,
-  Shield,
-  Sun,
-  User,
-  UserCircle,
-  UserPlus
-} from 'lucide-react';
+import { Info, LogOut, Shield, User, UserCircle, UserPlus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { useProfile } from '@/features/auth/hooks/useProfile';
 import { usePrefetchRoute } from '@hooks';
 
-const DONATE_URL = 'https://www.buymeacoffee.com/bilgegates';
+const DONATE_URL = 'https://github.com/sponsors/chessvision-org';
 
 /** Props for the `NavbarMobileMenu` slide-down panel. */
 interface NavbarMobileMenuProps {
   isOpen: boolean;
-  theme: 'light' | 'dark';
-  toggleTheme: (event?: React.SyntheticEvent | Event) => void;
   isAuthenticated: boolean;
   setIsMobileMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
   openAuthModal: (tab: 'signin' | 'signup' | 'security') => void;
@@ -30,8 +19,6 @@ interface NavbarMobileMenuProps {
 
 export const NavbarMobileMenu = memo(function NavbarMobileMenu({
   isOpen,
-  theme,
-  toggleTheme,
   isAuthenticated,
   setIsMobileMenuOpen,
   openAuthModal,
@@ -129,7 +116,9 @@ export const NavbarMobileMenu = memo(function NavbarMobileMenu({
             </>
           )}
 
-          {/* Bottom: About (+ theme), then Sign Out / Add Account at the very bottom */}
+          {/* Bottom: About, then Sign Out / Add Account at the very bottom. The
+              site follows the OS light/dark setting, so there is no manual theme
+              toggle here (removed by design — see App.tsx). */}
           <Link
             to="/about"
             {...prefetch('/about')}
@@ -139,20 +128,6 @@ export const NavbarMobileMenu = memo(function NavbarMobileMenu({
             <Info className="w-5 h-5" />
             <span className="font-medium text-base">About</span>
           </Link>
-          <button
-            onClick={(e) => {
-              toggleTheme(e);
-              setIsMobileMenuOpen(false);
-            }}
-            className="flex w-full items-center space-x-3 px-3 py-3.5 min-h-12 rounded-lg transition-colors duration-200 text-text-secondary hover:text-text-primary hover:bg-surface-hover active:bg-surface-elevated"
-          >
-            {theme === 'dark' ? (
-              <Sun className="w-5 h-5" />
-            ) : (
-              <Moon className="w-5 h-5" />
-            )}
-            <span className="font-medium text-base">Toggle Theme</span>
-          </button>
           {isAuthenticated ? (
             <button
               onClick={handleSignOut}

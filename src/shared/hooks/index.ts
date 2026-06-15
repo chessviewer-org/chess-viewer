@@ -1,3 +1,4 @@
+export { useAccentSetting, useAccentTheme } from './useAccentTheme';
 export { useChessBoard } from './useChessBoard';
 export { useColorState } from './useColorState';
 export { useDatabaseSearch } from './useDatabaseSearch';
@@ -18,8 +19,11 @@ export { useListboxKeyboard } from './useListboxKeyboard';
 export { useLocalStorage } from './useLocalStorage';
 export { useNotifications } from './useNotifications';
 export { useOutsideClick } from './useOutsideClick';
+export type { PageScrollKeysOptions } from './usePageScrollKeys';
+export { usePageScrollKeys } from './usePageScrollKeys';
 export { usePieceImages } from './usePieceImages';
 export { usePrefetchRoute } from './usePrefetchRoute';
 export { useTheme } from './useTheme';
+export { useThemeMode, useThemeModeSync } from './useThemeMode';
 export { useThemePresets } from './useThemePresets';
 export { useFENBatch } from '@/contexts/useFENBatch';

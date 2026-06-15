@@ -1,3 +1,4 @@
+export * from './accentTheme';
 export * from './archiveManager';
 export * from './boardUtils';
 export * from './canvasExporter';
@@ -11,7 +12,9 @@ export * from './fenParser';
 export * from './historyUtils';
 export * from './imageOptimizer';
 export * from './logger';
+export * from './pageScroll';
 export * from './performance';
 export * from './pieceImageCache';
 export * from './svgExporter';
+export * from './themeMode';
 export * from './validation';

@@ -1,13 +1,20 @@
 import { memo } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { Info, LogOut, Shield, User, UserCircle, UserPlus } from 'lucide-react';
+import {
+  Info,
+  LogOut,
+  Settings,
+  Shield,
+  UserCircle,
+  UserPlus
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { useProfile } from '@/features/auth/hooks/useProfile';
 import { usePrefetchRoute } from '@hooks';
 
-const DONATE_URL = 'https://www.buymeacoffee.com/bilgegates';
+const DONATE_URL = 'https://github.com/sponsors/chessvision-org';
 
 /** Props for the `NavbarDesktopDropdown` popover menu. */
 interface NavbarDesktopDropdownProps {
@@ -100,7 +107,7 @@ export const NavbarDesktopDropdown = memo(function NavbarDesktopDropdown({
                   onClick={() => setIsDropdownOpen(false)}
                   className={itemClass}
                 >
-                  <User className="w-4 h-4 text-text-secondary" />
+                  <Settings className="w-4 h-4 text-text-secondary" />
                   <span>Settings</span>
                 </Link>
 

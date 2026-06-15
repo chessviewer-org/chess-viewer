@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { logger } from '@utils/logger';
 import { safeJSONParse } from '@utils/validation';
+import { getMembershipTier } from '../services/membership';
 import {
   GUEST_PROFILE_KEY,
   PROFILE_REFRESH_EVENT
@@ -31,7 +32,12 @@ function readGuestProfile(): Profile {
     return {
       displayName: parsed.displayName ?? DEFAULT_PROFILE.displayName,
       avatarUrl: parsed.avatarUrl ?? null,
-      supporterUntil: parsed.supporterUntil ?? null
+      supporterUntil: parsed.supporterUntil ?? null,
+      supporterMonthlyUsd:
+        typeof parsed.supporterMonthlyUsd === 'number' &&
+        Number.isFinite(parsed.supporterMonthlyUsd)
+          ? parsed.supporterMonthlyUsd
+          : 0
     };
   } catch (error) {
     logger.error('readGuestProfile error:', error);
@@ -129,6 +135,8 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     displayName: profile.displayName,
     avatarUrl: profile.avatarUrl,
     isSupporter: isActiveSupporter(profile.supporterUntil),
+    supporterMonthlyUsd: profile.supporterMonthlyUsd,
+    membershipTier: getMembershipTier(profile.supporterMonthlyUsd),
     loading,
     setDisplayName,
     setSupporter,

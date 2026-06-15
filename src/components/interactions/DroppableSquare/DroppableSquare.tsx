@@ -40,6 +40,10 @@ export interface DroppableSquareProps {
   onSelect?: ((row: number, col: number) => void) | undefined;
   /** Whether this square is the active selection (keyboard target). */
   isSelected?: boolean;
+  /** Whether the roving keyboard cursor is currently on this square. */
+  isCursor?: boolean;
+  /** Whether this square holds the piece that was picked up for keyboard move. */
+  isHeldSource?: boolean;
   isLoading: boolean;
 }
 
@@ -55,6 +59,8 @@ export const DroppableSquare = memo(
     onDrop,
     onSelect,
     isSelected = false,
+    isCursor = false,
+    isHeldSource = false,
     isLoading
   }: DroppableSquareProps) {
     const bgColor = isLight ? lightColor : darkColor;
@@ -111,19 +117,29 @@ export const DroppableSquare = memo(
             drop(null);
           };
         }}
+        id={`sq-${row}-${col}`}
         onClick={handleSelect}
         role="gridcell"
         aria-label={ariaLabel}
-        aria-selected={isSelected}
+        aria-selected={isSelected || isCursor}
         className="w-full h-full flex items-center justify-center relative cursor-pointer"
         style={{
           backgroundColor: bgColor,
-          zIndex: isSelected ? 2 : 0,
+          zIndex: isCursor || isSelected || isHeldSource ? 2 : 0,
+          // Ring precedence: pointer drag-over → keyboard cursor → keyboard
+          // selection. Click-selection uses a thin neutral (text-primary) ring
+          // so it reads as a default highlight rather than the accent yellow.
+          // The held-source square keeps a faint accent ring so the user can
+          // see where the carried piece came from.
           boxShadow: isOver
             ? 'inset 0 0 0 3px rgba(255, 255, 255, 0.5)'
-            : isSelected
-              ? 'inset 0 0 0 3px var(--color-accent)'
-              : 'none',
+            : isCursor
+              ? 'inset 0 0 0 3px var(--color-accent), inset 0 0 0 5px rgba(0,0,0,0.35)'
+              : isSelected
+                ? 'inset 0 0 0 2px var(--color-text-primary)'
+                : isHeldSource
+                  ? 'inset 0 0 0 3px var(--color-accent)'
+                  : 'none',
           contain: 'layout style',
           minWidth: 0,
           minHeight: 0
@@ -138,7 +154,10 @@ export const DroppableSquare = memo(
           <div
             key={piece}
             className="w-full h-full flex items-center justify-center animate-piece-in"
-            style={{ contain: 'layout style' }}
+            style={{
+              contain: 'layout style',
+              opacity: isHeldSource ? 0.45 : 1
+            }}
           >
             <DraggablePiece
               piece={piece}
@@ -169,6 +188,8 @@ export const DroppableSquare = memo(
       prevProps.onDrop === nextProps.onDrop &&
       prevProps.onSelect === nextProps.onSelect &&
       prevProps.isSelected === nextProps.isSelected &&
+      prevProps.isCursor === nextProps.isCursor &&
+      prevProps.isHeldSource === nextProps.isHeldSource &&
       prevProps.pieceImage === nextProps.pieceImage
     );
   }

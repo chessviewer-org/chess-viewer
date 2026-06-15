@@ -145,8 +145,8 @@ const HomePage: React.FC = () => {
               not the viewport — board+panel go side-by-side when the CARD is
               wide enough, which is the right signal on ultra-wide. `overscroll-trap`
               keeps a scroll bounce inside the card on touch. */}
-          <div className="min-w-0 min-h-0">
-            <div className="workspace-container lg:overscroll-trap bg-surface border border-border/40 rounded-xl p-fluid-sm h-auto lg:h-full overflow-visible lg:overflow-hidden">
+          <div className="min-w-0 min-h-0 self-start w-full">
+            <div className="workspace-container lg:overscroll-trap bg-surface border border-border/40 rounded-xl p-fluid-xs sm:p-fluid-sm h-auto lg:max-h-full overflow-visible lg:overflow-hidden">
               <ChessEditor
                 fen={fen}
                 onFenChange={handleEditorFenChange}

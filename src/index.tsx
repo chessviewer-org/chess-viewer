@@ -10,6 +10,12 @@ import App from './App';
 
 import './index.css';
 
+// Self-hosted Inter (variable wght axis, Latin + Latin-ext incl. Azerbaijani
+// glyphs). Bundled — no Google Fonts request, no FOUC, privacy-first. The
+// @font-face family name is 'Inter Variable' (referenced by --font-ui in
+// index.css).
+import '@fontsource-variable/inter';
+
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
