@@ -103,7 +103,7 @@ const PageTabs = memo(function PageTabs({
         {groups.map((group, groupIndex) => (
           <div
             key={group.label ?? `group-${groupIndex}`}
-            className={groupIndex > 0 ? 'mt-4' : ''}
+            className={groupIndex > 0 ? 'mt-3 border-t border-border pt-3' : ''}
           >
             {group.label && (
               <span
