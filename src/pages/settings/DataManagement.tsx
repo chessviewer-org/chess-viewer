@@ -3,6 +3,7 @@ import React, { memo, useRef, useState } from 'react';
 import {
   CheckCircle2,
   Download,
+  HardDrive,
   type LucideIcon,
   RotateCcw,
   Upload
@@ -12,32 +13,91 @@ import { useModal } from '@/contexts';
 
 import { safeJSONParse } from '@utils/validation';
 
-const STORAGE_KEYS = [
-  'chess-fen',
-  'chess-piece-style',
-  'chess-show-coords',
-  'chess-show-coordinate-border',
-  'chess-show-thin-frame',
-  'chess-light-square',
-  'chess-dark-square',
-  'chess-board-size',
-  'chess-flipped',
-  'chess-file-name',
-  'chess-export-quality',
-  'fen-history',
-  'fen-history-archive',
-  'favoriteFens',
-  'fenClipboardHistory',
-  'fenBatchList',
-  'advancedFENFavorites',
-  'advanced-fen-position-settings',
-  'customThemePresets'
-];
+/** localStorage keys grouped by the user-facing data category they belong to. */
+const STORAGE_CATEGORIES = [
+  {
+    id: 'board',
+    label: 'Board & display',
+    keys: [
+      'chess-fen',
+      'chess-piece-style',
+      'chess-show-coords',
+      'chess-show-coordinate-border',
+      'chess-show-thin-frame',
+      'chess-light-square',
+      'chess-dark-square',
+      'chess-board-size',
+      'chess-flipped',
+      'chess-file-name',
+      'chess-export-quality'
+    ]
+  },
+  {
+    id: 'history',
+    label: 'History & favorites',
+    keys: [
+      'fen-history',
+      'fen-history-archive',
+      'favoriteFens',
+      'fenClipboardHistory',
+      'fenBatchList',
+      'advancedFENFavorites',
+      'advanced-fen-position-settings'
+    ]
+  },
+  {
+    id: 'themes',
+    label: 'Custom themes',
+    keys: ['customThemePresets']
+  }
+] as const;
+
+const STORAGE_KEYS = STORAGE_CATEGORIES.flatMap((c) => c.keys);
+
+/** Total bytes held under a set of keys (UTF-16 string length ≈ bytes). */
+function bytesForKeys(keys: readonly string[]): number {
+  let total = 0;
+  for (const key of keys) {
+    const value = localStorage.getItem(key);
+    if (value !== null) total += key.length + value.length;
+  }
+  return total;
+}
+
+/** Formats a byte count as a compact human label. */
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 const DataManagement = memo(function DataManagement() {
   const { showConfirm, showAlert } = useModal();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState('');
+  // Per-category byte usage, held in state and recomputed after any mutation.
+  const computeUsage = () =>
+    STORAGE_CATEGORIES.map((cat) => ({
+      ...cat,
+      bytes: bytesForKeys(cat.keys)
+    }));
+  const [usage, setUsage] = useState(computeUsage);
+  const totalBytes = usage.reduce((sum, c) => sum + c.bytes, 0);
+  const refreshUsage = () => setUsage(computeUsage());
+
+  async function handleClearCategory(
+    category: (typeof STORAGE_CATEGORIES)[number]
+  ) {
+    const confirmed = await showConfirm(
+      `Clear ${category.label}`,
+      `Remove all "${category.label}" data from this browser? This cannot be undone.`,
+      'danger'
+    );
+    if (!confirmed) return;
+    category.keys.forEach((key) => localStorage.removeItem(key));
+    refreshUsage();
+    setMessage(`${category.label} cleared. Refresh the page to see changes.`);
+  }
 
   function handleExportData() {
     const data: Record<string, string> = {};
@@ -79,6 +139,7 @@ const DataManagement = memo(function DataManagement() {
       const safeValue = reparsed === null ? raw : JSON.stringify(reparsed);
       localStorage.setItem(key, safeValue);
     });
+    refreshUsage();
     setMessage('Data imported. Refresh the page to see all changes.');
     event.target.value = '';
   }
@@ -91,11 +152,49 @@ const DataManagement = memo(function DataManagement() {
     );
     if (!confirmed) return;
     STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
+    refreshUsage();
     setMessage('Data reset. Refresh the page to start clean.');
   }
 
   return (
     <div className="space-y-4">
+      <section className="rounded-2xl border border-border bg-surface-elevated p-5">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h4 className="flex items-center gap-2 text-sm font-bold text-text-primary">
+            <HardDrive className="h-4 w-4 text-text-muted" aria-hidden="true" />
+            Storage used on this browser
+          </h4>
+          <span className="shrink-0 text-sm font-semibold text-text-secondary">
+            {formatBytes(totalBytes)}
+          </span>
+        </div>
+        <ul className="divide-y divide-border/60">
+          {usage.map((cat) => (
+            <li
+              key={cat.id}
+              className="flex items-center justify-between gap-4 py-2.5"
+            >
+              <span className="min-w-0 text-sm text-text-primary">
+                {cat.label}
+              </span>
+              <span className="flex shrink-0 items-center gap-3">
+                <span className="text-xs font-medium text-text-secondary">
+                  {formatBytes(cat.bytes)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => void handleClearCategory(cat)}
+                  disabled={cat.bytes === 0}
+                  className="rounded-md border border-border bg-surface px-2.5 py-1 text-xs font-semibold text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Clear
+                </button>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <div className="overflow-hidden rounded-2xl border border-border bg-surface-elevated divide-y divide-border/60">
         <DataRow
           icon={Download}
