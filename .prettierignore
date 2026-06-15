@@ -25,9 +25,11 @@ coverage
 .env.production.local
 .env.test.local
 
-# Editor directories
+# Editor & AI tool directories
 .vscode
 .idea
+.claude
+.gemini
 
 # OS files
 .DS_Store
