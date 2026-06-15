@@ -7,9 +7,9 @@ import {
   ACCENT_CHANGE_EVENT,
   ACCENT_STORAGE_KEY,
   applyAccentVars,
+  hydrateFromSync,
   logger,
-  readStoredAccentId,
-  safeJSONParse
+  readStoredAccentId
 } from '@utils';
 
 /**
@@ -24,7 +24,6 @@ import {
 export function useAccentTheme(mode: 'dark' | 'light'): void {
   // Apply synchronously before paint for the current mode, and re-apply on flip.
   useLayoutEffect(() => {
-    const root = document.documentElement;
     const reapply = () =>
       applyAccentVars(getAccentTheme(readStoredAccentId()), mode);
 
@@ -39,7 +38,6 @@ export function useAccentTheme(mode: 'dark' | 'light'): void {
     return () => {
       window.removeEventListener(ACCENT_CHANGE_EVENT, onAccentChange);
       window.removeEventListener('storage', onStorage);
-      void root; // keep ref stable lint-wise
     };
   }, [mode]);
 
@@ -48,24 +46,18 @@ export function useAccentTheme(mode: 'dark' | 'light'): void {
   // cloud preference for a freshly signed-in device.
   useEffect(() => {
     let cancelled = false;
-    const hydrate = async () => {
-      try {
-        if (!syncStorage) return;
-        const result = await syncStorage.get(ACCENT_STORAGE_KEY);
-        if (cancelled || !result || typeof result.value !== 'string') return;
-        const id = normalizeAccentId(
-          safeJSONParse<string>(result.value, result.value)
-        );
-        const current = readStoredAccentId();
-        if (id !== current) {
+    void hydrateFromSync(
+      ACCENT_STORAGE_KEY,
+      (decoded) => {
+        const id = normalizeAccentId(decoded);
+        if (id !== readStoredAccentId()) {
           window.localStorage.setItem(ACCENT_STORAGE_KEY, JSON.stringify(id));
           window.dispatchEvent(new Event(ACCENT_CHANGE_EVENT));
         }
-      } catch (err) {
-        logger.error('Failed to hydrate accent from sync:', err);
-      }
-    };
-    hydrate();
+      },
+      () => cancelled,
+      'accent'
+    );
     return () => {
       cancelled = true;
     };

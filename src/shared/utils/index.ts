@@ -16,5 +16,6 @@ export * from './pageScroll';
 export * from './performance';
 export * from './pieceImageCache';
 export * from './svgExporter';
+export * from './syncHydration';
 export * from './themeMode';
 export * from './validation';

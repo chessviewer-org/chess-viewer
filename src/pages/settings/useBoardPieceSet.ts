@@ -4,7 +4,7 @@ import { syncStorage } from '@/features/auth/services/syncStorage';
 import { useLocalStorage } from '@hooks';
 import { PIECE_SETS } from '@constants';
 
-import { logger, safeJSONParse } from '@utils';
+import { hydrateFromSync, logger } from '@utils';
 
 /**
  * Board piece-set preference, wired to the SAME source the board already reads.
@@ -45,20 +45,15 @@ export function useBoardPieceSet(): [string, (id: string) => void] {
     if (didHydrate.current) return;
     didHydrate.current = true;
     let cancelled = false;
-    const hydrate = async () => {
-      try {
-        if (!syncStorage) return;
-        const result = await syncStorage.get(PIECE_STYLE_KEY);
-        if (cancelled || !result || typeof result.value !== 'string') return;
-        const id = normalizePieceId(
-          safeJSONParse<string>(result.value, result.value)
-        );
+    void hydrateFromSync(
+      PIECE_STYLE_KEY,
+      (decoded) => {
+        const id = normalizePieceId(decoded);
         if (id !== pieceStyle) setPieceStyle(id);
-      } catch (err) {
-        logger.error('Failed to hydrate piece set from sync:', err);
-      }
-    };
-    void hydrate();
+      },
+      () => cancelled,
+      'piece set'
+    );
     return () => {
       cancelled = true;
     };

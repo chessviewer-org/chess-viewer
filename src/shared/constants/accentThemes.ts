@@ -34,14 +34,16 @@ export interface AccentTheme {
   light: AccentTriple;
 }
 
+/** Built-in default accent — mirrors the gold tokens in src/index.css. */
+const GOLD_ACCENT: AccentTheme = {
+  id: 'gold',
+  label: 'Gold',
+  dark: { accent: '198 156 48', hover: '218 176 68', muted: '158 126 38' },
+  light: { accent: '160 120 25', hover: '140 100 15', muted: '180 145 55' }
+};
+
 export const ACCENT_THEMES: readonly AccentTheme[] = [
-  {
-    id: 'gold',
-    label: 'Gold',
-    // Mirrors the built-in default in src/index.css.
-    dark: { accent: '198 156 48', hover: '218 176 68', muted: '158 126 38' },
-    light: { accent: '160 120 25', hover: '140 100 15', muted: '180 145 55' }
-  },
+  GOLD_ACCENT,
   {
     id: 'green',
     label: 'Green',
@@ -89,9 +91,5 @@ export function normalizeAccentId(value: unknown): string {
 
 /** Looks up an accent theme by id, falling back to the default. */
 export function getAccentTheme(id: string): AccentTheme {
-  return (
-    ACCENT_THEMES.find((t) => t.id === id) ??
-    ACCENT_THEMES.find((t) => t.id === DEFAULT_ACCENT_ID) ??
-    ACCENT_THEMES[0]!
-  );
+  return ACCENT_THEMES.find((t) => t.id === id) ?? GOLD_ACCENT;
 }
