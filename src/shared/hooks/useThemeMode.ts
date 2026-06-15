@@ -3,10 +3,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { syncStorage } from '@/features/auth/services/syncStorage';
 
 import {
+  hydrateFromSync,
   isThemeModePreference,
   logger,
   readThemeModePreference,
-  safeJSONParse,
   THEME_MODE_CHANGE_EVENT,
   THEME_MODE_STORAGE_KEY,
   type ThemeModePreference
@@ -72,27 +72,20 @@ export function useThemeMode(): [
 export function useThemeModeSync(): void {
   useEffect(() => {
     let cancelled = false;
-    const hydrate = async () => {
-      try {
-        if (!syncStorage) return;
-        const result = await syncStorage.get(THEME_MODE_STORAGE_KEY);
-        if (cancelled || !result || typeof result.value !== 'string') return;
-        const remote = safeJSONParse<ThemeModePreference | null>(
-          result.value,
-          null
-        );
-        if (!isThemeModePreference(remote)) return;
+    void hydrateFromSync(
+      THEME_MODE_STORAGE_KEY,
+      (decoded) => {
+        if (!isThemeModePreference(decoded)) return;
         const current = window.localStorage.getItem(THEME_MODE_STORAGE_KEY);
-        const next = JSON.stringify(remote satisfies ThemeModePreference);
+        const next = JSON.stringify(decoded satisfies ThemeModePreference);
         if (current !== next) {
           window.localStorage.setItem(THEME_MODE_STORAGE_KEY, next);
           window.dispatchEvent(new Event(THEME_MODE_CHANGE_EVENT));
         }
-      } catch (err) {
-        logger.error('Failed to hydrate theme mode from sync:', err);
-      }
-    };
-    hydrate();
+      },
+      () => cancelled,
+      'theme mode'
+    );
     return () => {
       cancelled = true;
     };
