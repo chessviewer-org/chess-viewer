@@ -2,6 +2,7 @@ import { memo, useCallback, useRef } from 'react';
 
 import {
   Check,
+  Contrast,
   type LucideIcon,
   Monitor,
   Moon,
@@ -9,10 +10,10 @@ import {
   Sun
 } from 'lucide-react';
 
-import { useAccentSetting, useThemeMode } from '@hooks';
+import { useAccentSetting, useContrastSetting, useThemeMode } from '@hooks';
 import { ACCENT_THEMES } from '@constants';
 
-import type { ThemeModePreference } from '@utils';
+import type { ContrastPreference, ThemeModePreference } from '@utils';
 import { SettingsBlock, SettingsHeading } from './parts';
 
 /** The Light / Dark / System options for the theme-mode control. */
@@ -24,6 +25,24 @@ const THEME_MODE_OPTIONS: ReadonlyArray<{
   { id: 'light', label: 'Light', icon: Sun },
   { id: 'dark', label: 'Dark', icon: Moon },
   { id: 'system', label: 'System', icon: Monitor }
+];
+
+/** The contrast options, GitHub-style (Default / High contrast). */
+const CONTRAST_OPTIONS: ReadonlyArray<{
+  id: ContrastPreference;
+  label: string;
+  description: string;
+}> = [
+  {
+    id: 'normal',
+    label: 'Default',
+    description: 'The standard balance of colour and legibility.'
+  },
+  {
+    id: 'high',
+    label: 'High contrast',
+    description: 'Stronger borders and text for improved readability.'
+  }
 ];
 
 /**
@@ -42,8 +61,46 @@ const THEME_MODE_OPTIONS: ReadonlyArray<{
 const AppearanceSection = memo(function AppearanceSection() {
   const [accentId, select] = useAccentSetting();
   const [themeMode, setThemeMode] = useThemeMode();
+  const [contrast, setContrast] = useContrastSetting();
   const swatchRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const modeRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const contrastRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+
+  const handleContrastKeyDown = useCallback(
+    (event: React.KeyboardEvent, currentId: ContrastPreference) => {
+      const index = CONTRAST_OPTIONS.findIndex((o) => o.id === currentId);
+      if (index < 0) return;
+      let nextIndex: number | null = null;
+
+      switch (event.key) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+          nextIndex = (index + 1) % CONTRAST_OPTIONS.length;
+          break;
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          nextIndex =
+            (index - 1 + CONTRAST_OPTIONS.length) % CONTRAST_OPTIONS.length;
+          break;
+        case 'Home':
+          nextIndex = 0;
+          break;
+        case 'End':
+          nextIndex = CONTRAST_OPTIONS.length - 1;
+          break;
+        default:
+          return;
+      }
+
+      event.preventDefault();
+      const next = CONTRAST_OPTIONS[nextIndex];
+      if (next) {
+        setContrast(next.id);
+        contrastRefs.current.get(next.id)?.focus();
+      }
+    },
+    [setContrast]
+  );
 
   const focusSwatch = useCallback((id: string) => {
     swatchRefs.current.get(id)?.focus();
@@ -161,6 +218,63 @@ const AppearanceSection = memo(function AppearanceSection() {
               >
                 <Icon className="h-4 w-4" aria-hidden="true" />
                 {label}
+              </button>
+            );
+          })}
+        </div>
+      </SettingsBlock>
+
+      <SettingsBlock
+        title="Contrast"
+        description="Increase the contrast of borders and text against backgrounds for better readability. Applies on top of your Light or Dark theme."
+      >
+        <div
+          role="radiogroup"
+          aria-label="Contrast"
+          className="grid gap-3 sm:grid-cols-2"
+        >
+          {CONTRAST_OPTIONS.map(({ id, label, description }) => {
+            const isSelected = id === contrast;
+            return (
+              <button
+                key={id}
+                ref={(el) => {
+                  if (el) contrastRefs.current.set(id, el);
+                  else contrastRefs.current.delete(id);
+                }}
+                type="button"
+                role="radio"
+                aria-checked={isSelected}
+                tabIndex={isSelected ? 0 : -1}
+                onClick={() => setContrast(id)}
+                onKeyDown={(e) => handleContrastKeyDown(e, id)}
+                className={`flex items-start gap-3 rounded-xl border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                  isSelected
+                    ? 'border-accent bg-accent/5'
+                    : 'border-border bg-surface-elevated hover:border-text-muted'
+                }`}
+              >
+                <Contrast
+                  className={`mt-0.5 h-5 w-5 shrink-0 ${
+                    isSelected ? 'text-accent' : 'text-text-muted'
+                  }`}
+                  aria-hidden="true"
+                />
+                <span className="min-w-0">
+                  <span className="flex items-center gap-1.5 text-sm font-bold text-text-primary">
+                    {label}
+                    {isSelected && (
+                      <Check
+                        className="h-4 w-4 text-accent"
+                        strokeWidth={3}
+                        aria-hidden="true"
+                      />
+                    )}
+                  </span>
+                  <span className="mt-0.5 block text-xs leading-relaxed text-text-secondary">
+                    {description}
+                  </span>
+                </span>
               </button>
             );
           })}

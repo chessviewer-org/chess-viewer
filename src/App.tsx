@@ -14,7 +14,12 @@ import { ModalProvider } from '@/contexts/ModalContext';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useSecurityCheck } from '@/features/auth/hooks/useSecurityCheck';
 import Routes from '@/routes/Router';
-import { useAccentTheme, usePageScrollKeys, useThemeModeSync } from '@hooks';
+import {
+  useAccentTheme,
+  useContrast,
+  usePageScrollKeys,
+  useThemeModeSync
+} from '@hooks';
 
 import {
   isFollowingSystem,
@@ -195,6 +200,10 @@ function App() {
   // correct (dark vs light) triple whenever `data-theme` flips, since App owns
   // the theme. Lives here so App stays the single theme owner (see the hook).
   useAccentTheme(theme);
+
+  // Apply the saved contrast preference (`data-contrast`) and hydrate it from
+  // E2EE sync for a freshly signed-in device.
+  useContrast();
 
   return (
     <ErrorBoundary>

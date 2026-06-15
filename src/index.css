@@ -345,6 +345,26 @@ html[data-theme-transition='to-dark'] {
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
+/* High-contrast preference (data-contrast="high"). Strengthens borders and
+   secondary/muted text against surfaces for readability, keyed off the
+   attribute App applies via useContrast. Layered AFTER both theme blocks so it
+   overrides whichever mode is active. */
+[data-contrast='high'] {
+  /* Dark mode: brighter borders + text. */
+  --val-border: 110 110 130;
+  --val-border-subtle: 80 80 96;
+  --val-text-secondary: 215 215 228;
+  --val-text-muted: 175 175 195;
+}
+
+[data-theme='light'][data-contrast='high'] {
+  /* Light mode: darker borders + text. */
+  --val-border: 140 148 164;
+  --val-border-subtle: 180 186 198;
+  --val-text-secondary: 36 42 56;
+  --val-text-muted: 64 70 84;
+}
+
 /* ===== BASE LAYER ===== */
 @layer base {
   * {

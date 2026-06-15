@@ -1,6 +1,7 @@
 export { useAccentSetting, useAccentTheme } from './useAccentTheme';
 export { useChessBoard } from './useChessBoard';
 export { useColorState } from './useColorState';
+export { useContrast, useContrastSetting } from './useContrast';
 export { useDatabaseSearch } from './useDatabaseSearch';
 export type {
   EditorKeyboardActions,
