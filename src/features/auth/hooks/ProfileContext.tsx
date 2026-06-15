@@ -108,6 +108,22 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     [isAuthenticated, userId]
   );
 
+  const setAvatarUrl = useCallback(
+    (url: string | null) => {
+      const next = url && url.trim() ? url.trim() : null;
+      setProfile((prev) => {
+        const updated = { ...prev, avatarUrl: next };
+        if (isAuthenticated && userId) {
+          void profileService.updateAvatar(userId, next);
+        } else {
+          writeGuestProfile(updated);
+        }
+        return updated;
+      });
+    },
+    [isAuthenticated, userId]
+  );
+
   const setSupporter = useCallback(
     (months: number = 1) => {
       if (isAuthenticated && userId) {
@@ -139,6 +155,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     membershipTier: getMembershipTier(profile.supporterMonthlyUsd),
     loading,
     setDisplayName,
+    setAvatarUrl,
     setSupporter,
     refresh: () => void load()
   };

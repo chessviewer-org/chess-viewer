@@ -107,6 +107,26 @@ export const profileService = {
   },
 
   /**
+   * Update the avatar URL on the relational `profiles.avatar_url` column (RLS:
+   * users update own profile). Pass `null` to clear it. Missing schema is a
+   * no-op for back-compat.
+   */
+  updateAvatar: async (
+    userId: string,
+    avatarUrl: string | null
+  ): Promise<void> => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ avatar_url: avatarUrl })
+        .eq('user_id', userId);
+      if (error && !isMissingSchemaError(error)) throw error;
+    } catch (error: unknown) {
+      logger.error('profileService.updateAvatar error:', error);
+    }
+  },
+
+  /**
    * Mirror a new email onto the relational `profiles.email` column (RLS: users
    * update own profile). The authoritative email change happens via
    * supabase.auth.updateUser — this only keeps the profile row in step. Missing

@@ -13,6 +13,8 @@ export interface ProfileContextValue {
   membershipTier: MembershipTier;
   loading: boolean;
   setDisplayName: (name: string) => void;
+  /** Set or clear (null) the avatar URL on the profile. */
+  setAvatarUrl: (url: string | null) => void;
   /** months <= 0 clears supporter status. Defaults to a 1-month window. */
   setSupporter: (months?: number) => void;
   refresh: () => void;
