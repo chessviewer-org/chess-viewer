@@ -1,53 +1,20 @@
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useState } from 'react';
 
-import {
-  History,
-  KeyRound,
-  LogOut,
-  RotateCcw,
-  ShieldCheck
-} from 'lucide-react';
+import { KeyRound, LogOut, RotateCcw, ShieldCheck } from 'lucide-react';
 
 import { useModal } from '@/contexts';
 import { TwoFactorSetup } from '@/features/auth/components/TwoFactorSetup';
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import {
-  type SecurityEvent,
-  securityEventsService
-} from '@/features/auth/services/securityEvents';
 import { supabase } from '@/features/auth/services/supabaseClient';
 import { useLocalStorage } from '@hooks';
 
 import { logger } from '@utils/logger';
 import { Switch } from '@shared/ui';
 import { SettingsHeading } from './parts';
+import { SecurityActivity } from './security/SecurityActivity';
 
 const MIN_PASSWORD = 8;
 const MAX_PASSWORD = 128;
-
-/** Human label for an audit `event_type`; unknown types fall back to themselves. */
-const EVENT_LABELS: Record<string, string> = {
-  SECURITY_REFRESH: 'Security re-verified',
-  RECOVERY_CODES_GENERATED: 'Recovery codes generated',
-  RECOVERY_CODE_SUCCESS: 'Recovery code used',
-  RECOVERY_CODE_FAILURE: 'Recovery code failed',
-  MFA_ENABLED: 'Two-factor enabled',
-  MFA_DISABLED: 'Two-factor disabled',
-  LOGIN_SUCCESS: 'Successful sign-in',
-  LOGIN_FAILURE: 'Failed sign-in attempt',
-  PASSWORD_CHANGE: 'Password changed'
-};
-
-function formatEventTime(iso: string): string {
-  const ms = Date.parse(iso);
-  if (Number.isNaN(ms)) return '';
-  return new Date(ms).toLocaleString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-}
 
 /**
  * Security section: two-factor setup, an inline password change, a
@@ -72,17 +39,7 @@ const SecuritySection = memo(function SecuritySection() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [changingPassword, setChangingPassword] = useState(false);
   const [signingOutAll, setSigningOutAll] = useState(false);
-  const [events, setEvents] = useState<SecurityEvent[]>([]);
-
-  const loadEvents = useCallback(async () => {
-    if (!isAuthenticated) return;
-    const recent = await securityEventsService.recent(5);
-    setEvents(recent);
-  }, [isAuthenticated]);
-
-  useEffect(() => {
-    void loadEvents();
-  }, [loadEvents]);
+  const [activityRefresh, setActivityRefresh] = useState(0);
 
   const handlePasswordReset = async () => {
     if (!user?.email || sendingReset) return;
@@ -129,7 +86,7 @@ const SecuritySection = memo(function SecuritySection() {
         'Your password has been changed. Use it the next time you sign in.',
         'info'
       );
-      void loadEvents();
+      setActivityRefresh((n) => n + 1);
     } catch (error) {
       logger.warn('Password change failed:', error);
       showAlert(
@@ -281,36 +238,10 @@ const SecuritySection = memo(function SecuritySection() {
             </button>
           </section>
 
-          <section className="rounded-2xl border border-border bg-surface-elevated p-5">
-            <h3 className="mb-1 flex items-center gap-2 text-sm font-bold text-text-primary">
-              <History className="h-4 w-4 text-text-muted" aria-hidden="true" />
-              Recent Security Activity
-            </h3>
-            <p className="mb-3 text-xs text-text-secondary">
-              The latest security-related events on your account.
-            </p>
-            {events.length === 0 ? (
-              <p className="text-xs text-text-muted">
-                No recent activity to show.
-              </p>
-            ) : (
-              <ul className="divide-y divide-border/60">
-                {events.map((event) => (
-                  <li
-                    key={event.id}
-                    className="flex items-center justify-between gap-4 py-2.5 text-sm"
-                  >
-                    <span className="text-text-primary">
-                      {EVENT_LABELS[event.eventType] ?? event.eventType}
-                    </span>
-                    <span className="shrink-0 text-xs text-text-muted">
-                      {formatEventTime(event.createdAt)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
+          <SecurityActivity
+            enabled={isAuthenticated}
+            refreshSignal={activityRefresh}
+          />
 
           <section className="space-y-4 rounded-2xl border border-border bg-surface-elevated p-5">
             <h3 className="text-sm font-bold text-text-primary">Preferences</h3>
