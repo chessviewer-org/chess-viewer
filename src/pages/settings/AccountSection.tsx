@@ -30,6 +30,7 @@ import { supabase } from '@/features/auth/services/supabaseClient';
 
 import { logger } from '@utils/logger';
 import { sanitizeInput } from '@utils/validation';
+import { SettingsHeading } from './parts';
 
 const DONATE_URL = 'https://github.com/sponsors/chessvision-org';
 const MAX_DISPLAY_NAME = 60;
@@ -72,7 +73,7 @@ const AccountSection = memo(function AccountSection() {
   if (!isAuthenticated || !user) {
     return (
       <div className="space-y-4 animate-pageEnter">
-        <SectionHeading icon={UserIcon} title="Account" />
+        <SettingsHeading icon={UserIcon} title="Account" />
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface-elevated p-8 text-center">
           <LogIn className="h-8 w-8 text-text-muted" aria-hidden="true" />
           <p className="font-semibold text-text-primary">
@@ -93,7 +94,7 @@ const AccountSection = memo(function AccountSection() {
 
   return (
     <div className="space-y-5 animate-pageEnter">
-      <SectionHeading icon={UserIcon} title="Account" />
+      <SettingsHeading icon={UserIcon} title="Account" />
 
       <IdentityHeader
         displayName={displayName}
@@ -447,21 +448,6 @@ function AccountActions() {
         </a>
       </div>
     </section>
-  );
-}
-
-function SectionHeading({
-  icon: Icon,
-  title
-}: {
-  icon: typeof UserIcon;
-  title: string;
-}) {
-  return (
-    <h2 className="flex items-center gap-2.5 border-b border-border pb-3 font-display text-2xl font-bold text-text-primary">
-      <Icon className="h-6 w-6 text-text-secondary" aria-hidden="true" />
-      {title}
-    </h2>
   );
 }
 

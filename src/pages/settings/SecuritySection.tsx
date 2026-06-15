@@ -20,6 +20,7 @@ import { useLocalStorage } from '@hooks';
 
 import { logger } from '@utils/logger';
 import { Switch } from '@shared/ui';
+import { SettingsHeading } from './parts';
 
 const MIN_PASSWORD = 8;
 const MAX_PASSWORD = 128;
@@ -167,13 +168,7 @@ const SecuritySection = memo(function SecuritySection() {
 
   return (
     <div className="space-y-5 animate-pageEnter">
-      <h2 className="flex items-center gap-2.5 border-b border-border pb-3 font-display text-2xl font-bold text-text-primary">
-        <ShieldCheck
-          className="h-6 w-6 text-text-secondary"
-          aria-hidden="true"
-        />
-        Security
-      </h2>
+      <SettingsHeading icon={ShieldCheck} title="Security" />
 
       {isAuthenticated ? (
         <>
