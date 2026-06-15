@@ -12,7 +12,6 @@ import { useHome } from './hooks/useHome';
 
 /** Primary workspace combining the DnD board editor, control panel, and export studio trigger. */
 const HomePage: React.FC = () => {
-  throw new Error('TEMP: preview error page'); // TEMP — remove after preview
   const {
     fen,
     setFen,
