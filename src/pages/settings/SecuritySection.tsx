@@ -12,6 +12,7 @@ import { logger } from '@utils/logger';
 import { Switch } from '@shared/ui';
 import { SettingsHeading } from './parts';
 import { SecurityActivity } from './security/SecurityActivity';
+import { SecurityOverview } from './security/SecurityOverview';
 
 const MIN_PASSWORD = 8;
 const MAX_PASSWORD = 128;
@@ -129,6 +130,8 @@ const SecuritySection = memo(function SecuritySection() {
 
       {isAuthenticated ? (
         <>
+          <SecurityOverview lastSignInAt={user?.last_sign_in_at} />
+
           <section className="overflow-hidden rounded-2xl border border-border bg-surface-elevated">
             <div className="border-b border-border/50 p-5">
               <h3 className="mb-1 text-sm font-bold text-text-primary">
