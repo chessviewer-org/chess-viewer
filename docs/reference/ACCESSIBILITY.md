@@ -146,7 +146,7 @@ A complete keyboard alternative to drag-and-drop, in `useBoardKeyboard`
 
 ## Known Issues
 
-| Issue                                              | Impact                                                          |
+| Issue                                              | Impact                                                         |
 | -------------------------------------------------- | -------------------------------------------------------------- |
 | Export/preview `ChessBoard` has no text equivalent | Outside the editor, the rendered position is not described     |
 | No status announcements for export completion      | Screen readers are silent during and after export              |
