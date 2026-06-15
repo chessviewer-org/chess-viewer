@@ -1,6 +1,8 @@
 import React from 'react';
 
-import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
+import { Home, RefreshCw } from 'lucide-react';
+
+import { Logo } from '@/components/layout/Logo';
 
 import { logger } from '@utils';
 
@@ -11,47 +13,39 @@ interface ErrorFallbackProps {
 }
 
 /**
- * Full-page fallback UI displayed when `ErrorBoundary` catches an unhandled render error.
+ * Full-page fallback UI displayed when `ErrorBoundary` catches an unhandled
+ * render error. Professional, brand-led apology screen — logo lockup, a clear
+ * apology, and recovery actions. No raw error details are exposed to the user.
  */
-function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
+function ErrorFallback({ resetErrorBoundary }: ErrorFallbackProps) {
   return (
     <div
       role="alert"
       aria-live="assertive"
-      className="min-h-dvh w-full bg-bg text-text-primary flex items-center justify-center px-4 py-8 sm:px-6 animate-fadeIn"
+      className="min-h-dvh w-full flex flex-col items-center justify-center px-6 py-16 bg-bg text-text-primary"
     >
-      <div className="w-full max-w-xl rounded-2xl border border-border/60 bg-surface shadow-lg px-5 py-8 sm:px-8 sm:py-10 text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-error/10 border border-error/30 rounded-2xl mb-6">
-          <AlertTriangle
-            className="w-8 h-8 sm:w-10 sm:h-10 text-error"
-            aria-hidden="true"
-          />
+      <div className="w-full max-w-md text-center animate-fadeIn">
+        {/* Brand lockup: the real accent-themed logo + wordmark. */}
+        <div className="inline-flex items-center gap-2.5 mb-12">
+          <Logo className="w-9 h-9 object-contain" />
+          <span className="text-xl font-display font-bold text-text-primary tracking-tight">
+            ChessVision
+          </span>
         </div>
 
-        <h2 className="text-2xl sm:text-3xl font-display font-bold text-text-primary mb-3">
-          Something went wrong
-        </h2>
-
-        <p className="text-text-secondary text-sm sm:text-base mb-7 sm:mb-8 leading-relaxed">
-          An unexpected error occurred. The application encountered a problem
-          and couldn't continue.
+        <h1 className="text-h2 font-display font-bold text-text-primary mb-3">
+          We&rsquo;re sorry — something went wrong
+        </h1>
+        <p className="text-text-secondary text-fluid-base leading-relaxed mb-10">
+          An unexpected error stopped this page from loading. Our team has been
+          notified. Please try again, or return home — your work is safe.
         </p>
-
-        {error?.message && (
-          <div className="rounded-xl p-4 sm:p-5 mb-8 text-left border border-border/60 bg-surface-elevated">
-            <p className="text-xs text-text-muted uppercase tracking-wider mb-2 font-semibold">
-              Error Details
-            </p>
-            <code className="text-error text-sm break-all font-mono">
-              {error.message}
-            </code>
-          </div>
-        )}
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button
+            type="button"
             onClick={resetErrorBoundary}
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-accent hover:bg-accent-hover text-bg font-bold rounded-xl transition-colors duration-200"
+            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-accent hover:bg-accent-hover text-bg rounded-xl font-bold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             aria-label="Try again to recover from error"
           >
             <RefreshCw className="w-5 h-5" aria-hidden="true" />
@@ -60,7 +54,7 @@ function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
 
           <a
             href="/"
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-surface-elevated hover:bg-surface-hover text-text-primary font-bold rounded-xl border-2 border-border hover:border-border transition-colors duration-200"
+            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-surface-elevated text-text-primary rounded-xl font-bold hover:bg-surface-hover transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             aria-label="Return to home page"
           >
             <Home className="w-5 h-5" aria-hidden="true" />
