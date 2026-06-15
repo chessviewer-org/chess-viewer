@@ -24,15 +24,25 @@ import {
   ThanksSection
 } from '@/pages/about';
 
-// Single flat group: About renders with no group separators.
 const groups: readonly PageTabGroup[] = [
   {
+    label: 'Project',
     items: [
       { id: 'about', label: 'About ChessVision', icon: Info },
       { id: 'changelog', label: 'Changelog', icon: History },
+      { id: 'privacy', label: 'Privacy', icon: Shield }
+    ]
+  },
+  {
+    label: 'Help',
+    items: [
       { id: 'faq', label: 'FAQ', icon: HelpCircle },
-      { id: 'contact', label: 'Contact', icon: Mail },
-      { id: 'privacy', label: 'Privacy', icon: Shield },
+      { id: 'contact', label: 'Contact', icon: Mail }
+    ]
+  },
+  {
+    label: 'Community',
+    items: [
       { id: 'contribute', label: 'Contribute', icon: Code2 },
       { id: 'donate', label: 'Donate', icon: Heart },
       { id: 'thanks', label: 'Thanks', icon: HeartHandshake }
