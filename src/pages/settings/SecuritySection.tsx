@@ -12,6 +12,7 @@ import { logger } from '@utils/logger';
 import { Switch } from '@shared/ui';
 import { SettingsHeading } from './parts';
 import { SecurityActivity } from './security/SecurityActivity';
+import { SecurityOverview } from './security/SecurityOverview';
 
 const MIN_PASSWORD = 8;
 const MAX_PASSWORD = 128;
@@ -129,6 +130,8 @@ const SecuritySection = memo(function SecuritySection() {
 
       {isAuthenticated ? (
         <>
+          <SecurityOverview lastSignInAt={user?.last_sign_in_at} />
+
           <section className="overflow-hidden rounded-2xl border border-border bg-surface-elevated">
             <div className="border-b border-border/50 p-5">
               <h3 className="mb-1 text-sm font-bold text-text-primary">
@@ -265,7 +268,7 @@ const SecuritySection = memo(function SecuritySection() {
           <p className="font-semibold text-text-primary">
             Sign in to manage security
           </p>
-          <p className="mx-auto mt-2 max-w-sm text-sm text-text-secondary">
+          <p className="mx-auto mt-2 text-sm text-text-secondary">
             Two-factor authentication and password management are available once
             you&apos;re signed in.
           </p>

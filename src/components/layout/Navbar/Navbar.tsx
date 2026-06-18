@@ -1,4 +1,4 @@
-import { lazy, memo, Suspense } from 'react';
+import { memo } from 'react';
 
 import { motion } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
@@ -7,36 +7,35 @@ import { Logo } from '@/components/layout/Logo';
 
 import { NavbarDesktopDropdown } from './parts/NavbarDesktopDropdown';
 import { NavbarMobileMenu } from './parts/NavbarMobileMenu';
-import { useNavbarState } from './useNavbarState';
-
-const AuthModal = lazy(() =>
-  import('@/features/auth/components/AuthModal').then((m) => ({
-    default: m.AuthModal
-  }))
-);
 
 /** Props for the `Navbar` shell component. */
 interface NavbarProps {
   rightSlot?: React.ReactNode;
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isAuthenticated: boolean;
+  isDropdownOpen: boolean;
+  setIsDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  dropdownRef: React.RefObject<HTMLDivElement | null>;
+  handleLogoClick: () => void;
+  toggleMobileMenu: () => void;
+  openAuthModal: (tab: 'signin' | 'signup' | 'security') => void;
+  handleSignOut: () => void;
 }
 
-function Navbar({ rightSlot }: NavbarProps) {
-  const {
-    isMobileMenuOpen,
-    setIsMobileMenuOpen,
-    isAuthenticated,
-    isAuthModalOpen,
-    setIsAuthModalOpen,
-    authModalTab,
-    isDropdownOpen,
-    setIsDropdownOpen,
-    dropdownRef,
-    handleLogoClick,
-    toggleMobileMenu,
-    openAuthModal,
-    handleSignOut
-  } = useNavbarState();
-
+function Navbar({
+  rightSlot,
+  isMobileMenuOpen,
+  setIsMobileMenuOpen,
+  isAuthenticated,
+  isDropdownOpen,
+  setIsDropdownOpen,
+  dropdownRef,
+  handleLogoClick,
+  toggleMobileMenu,
+  openAuthModal,
+  handleSignOut
+}: NavbarProps) {
   return (
     <>
       <motion.nav
@@ -45,11 +44,13 @@ function Navbar({ rightSlot }: NavbarProps) {
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className="navbar-shell fixed top-0 left-0 right-0 z-50"
       >
-        <div className="w-[94%] sm:w-[88%] max-w-600 mx-auto">
+        <div className="page-container">
           <div className="flex justify-between items-center py-3 min-h-12 sm:min-h-14 lg:min-h-16">
             <button
+              type="button"
               onClick={handleLogoClick}
-              className="flex items-center gap-2 transition-colors duration-200 text-text-primary hover:text-text-primary"
+              aria-label="ChessVision home"
+              className="flex items-center gap-2 rounded-lg transition-colors duration-200 text-text-primary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               <div className="flex items-center gap-2">
                 <Logo className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 object-contain" />
@@ -79,16 +80,17 @@ function Navbar({ rightSlot }: NavbarProps) {
 
             <div className="flex sm:hidden items-center">
               <button
+                type="button"
                 onClick={toggleMobileMenu}
-                className="p-2 min-h-11 min-w-11 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors"
+                className="p-2 min-h-11 min-w-11 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 aria-expanded={isMobileMenuOpen}
                 aria-controls="mobile-nav-menu"
                 aria-label="Toggle navigation menu"
               >
                 {isMobileMenuOpen ? (
-                  <X className="w-6 h-6" />
+                  <X className="w-6 h-6" aria-hidden="true" />
                 ) : (
-                  <Menu className="w-6 h-6" />
+                  <Menu className="w-6 h-6" aria-hidden="true" />
                 )}
               </button>
             </div>
@@ -103,16 +105,6 @@ function Navbar({ rightSlot }: NavbarProps) {
           handleSignOut={handleSignOut}
         />
       </motion.nav>
-
-      {isAuthModalOpen && (
-        <Suspense fallback={null}>
-          <AuthModal
-            isOpen={isAuthModalOpen}
-            onClose={() => setIsAuthModalOpen(false)}
-            initialTab={authModalTab}
-          />
-        </Suspense>
-      )}
     </>
   );
 }

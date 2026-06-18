@@ -7,7 +7,6 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 import {
   AboutPage,
   AdvancedFENInputPage,
-  DownloadPage,
   FENHistoryPage,
   HomePage,
   NotFoundPage,
@@ -161,14 +160,6 @@ function AppRoutes() {
             element={
               <AnimatedPage>
                 <AboutPage />
-              </AnimatedPage>
-            }
-          />
-          <Route
-            path="/download"
-            element={
-              <AnimatedPage>
-                <DownloadPage />
               </AnimatedPage>
             }
           />

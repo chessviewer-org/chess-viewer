@@ -7,4 +7,5 @@ export { default as Modal } from './Modal/Modal';
 export { default as ModalShell } from './Modal/ModalShell';
 export { default as NotificationContainer } from './NotificationContainer/NotificationContainer';
 export { default as SearchableSelect } from './SearchableSelect/SearchableSelect';
+export { Seo } from './Seo';
 export { default as Switch } from './Switch/Switch';

@@ -345,6 +345,26 @@ html[data-theme-transition='to-dark'] {
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
+/* High-contrast preference (data-contrast="high"). Strengthens borders and
+   secondary/muted text against surfaces for readability, keyed off the
+   attribute App applies via useContrast. Layered AFTER both theme blocks so it
+   overrides whichever mode is active. */
+[data-contrast='high'] {
+  /* Dark mode: brighter borders + text. */
+  --val-border: 110 110 130;
+  --val-border-subtle: 80 80 96;
+  --val-text-secondary: 215 215 228;
+  --val-text-muted: 175 175 195;
+}
+
+[data-theme='light'][data-contrast='high'] {
+  /* Light mode: darker borders + text. */
+  --val-border: 140 148 164;
+  --val-border-subtle: 180 186 198;
+  --val-text-secondary: 36 42 56;
+  --val-text-muted: 64 70 84;
+}
+
 /* ===== BASE LAYER ===== */
 @layer base {
   * {
@@ -361,7 +381,14 @@ html[data-theme-transition='to-dark'] {
        `rem`-based sizing inherit this, so the whole app reads a notch larger and
        more comfortable on desktop while staying compact on phones. */
     font-size: clamp(15px, 0.35vw + 13.6px, 17.5px);
-    scroll-behavior: smooth;
+    /* Root scroll is INSTANT, not smooth. With `scroll-behavior: smooth` on the
+       root, holding Up/Down (or PageUp/PageDown) fires one keystroke per repeat,
+       and EACH one kicks off a fresh smooth-scroll animation. The animations
+       stack and fight each other, so the page appears to crawl / freeze under a
+       held key. Smooth scroll is now opt-in per element via `.scroll-smooth`
+       (anchor/programmatic glides that genuinely want it); the JS scroll layer
+       (pageScroll.ts) already passes its own `behavior` and is unaffected. */
+    scroll-behavior: auto;
     font-synthesis: none;
   }
 
@@ -466,8 +493,18 @@ html[data-theme-transition='to-dark'] {
     height: 10px;
   }
 
+  /* Strip the up/down (and left/right) arrow buttons off every native
+     scrollbar. `display: none` alone can leave a reserved 0-or-default-sized
+     slot in some WebKit builds, so width/height: 0 collapses it fully. */
+  ::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
   ::-webkit-scrollbar-track {
     background: var(--color-surface-elevated);
+    border-radius: 0; /* Square corners */
   }
 
   ::-webkit-scrollbar-thumb {
@@ -481,6 +518,7 @@ html[data-theme-transition='to-dark'] {
 
   ::-webkit-scrollbar-corner {
     background: var(--color-surface-elevated);
+    border-radius: 0; /* Square corners */
   }
 
   /* Firefox */
@@ -543,6 +581,21 @@ html[data-theme-transition='to-dark'] {
   @media (min-width: 1024px) {
     :root {
       --navbar-height: 5.5rem;
+    }
+  }
+
+  /* Single source of truth for the page content width — mirrors the navbar's
+     inner div so every page reads as one continuous column under the bar.
+     Padding-based (not percentage-width) so the content fills 100% and the
+     gutters are purely decorative breathing room. */
+  .page-container {
+    width: 100%;
+    padding-inline: 3%;
+    box-sizing: border-box;
+  }
+  @media (min-width: 640px) {
+    .page-container {
+      padding-inline: 6%;
     }
   }
 
@@ -721,9 +774,15 @@ html[data-theme-transition='to-dark'] {
     height: 8px;
   }
 
+  .custom-scrollbar::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
   .custom-scrollbar::-webkit-scrollbar-track {
     background: var(--color-surface);
-    border-radius: 10px;
+    border-radius: 0;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
@@ -732,7 +791,7 @@ html[data-theme-transition='to-dark'] {
       var(--color-accent),
       var(--color-accent-muted)
     );
-    border-radius: 10px;
+    border-radius: 0;
     transition: background 0.3s ease;
   }
 
@@ -755,12 +814,17 @@ html[data-theme-transition='to-dark'] {
     width: 6px;
     height: 6px;
   }
+  .history-scrollbar::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
   .history-scrollbar::-webkit-scrollbar-track {
     background: transparent;
   }
   .history-scrollbar::-webkit-scrollbar-thumb {
     background: rgb(82 82 91); /* gray-600 */
-    border-radius: 9999px;
+    border-radius: 0;
   }
   .history-scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgb(113 113 122); /* gray-500 */
@@ -1400,6 +1464,14 @@ html {
 
 /* ===== UTILITIES LAYER ===== */
 @layer utilities {
+  /* Opt-in smooth scrolling. The root defaults to `scroll-behavior: auto` (see
+     the `html` base rule for why), so attach this to a specific scroll container
+     or anchor target that genuinely wants an animated glide. Reduced-motion is
+     still honoured by the global `prefers-reduced-motion` rule below. */
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus,

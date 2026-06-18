@@ -1,5 +1,7 @@
 import { lazy } from 'react';
 
+import { prefetchByPath } from './prefetchRegistry';
+
 /**
  * Single source of truth for lazily-loaded page chunks.
  *
@@ -11,7 +13,6 @@ import { lazy } from 'react';
 
 const homeImport = () => import('@/pages/HomePage/HomePage');
 const aboutImport = () => import('@/pages/AboutPage');
-const downloadImport = () => import('@/pages/DownloadPage');
 const settingsImport = () => import('@/pages/SettingsPage');
 const fenHistoryImport = () => import('@/pages/FENHistoryPage/FENHistoryPage');
 const advancedFenImport = () =>
@@ -20,7 +21,6 @@ const notFoundImport = () => import('@/pages/NotFoundPage');
 
 export const HomePage = lazy(homeImport);
 export const AboutPage = lazy(aboutImport);
-export const DownloadPage = lazy(downloadImport);
 export const SettingsPage = lazy(settingsImport);
 export const FENHistoryPage = lazy(fenHistoryImport);
 export const AdvancedFENInputPage = lazy(advancedFenImport);
@@ -30,11 +30,10 @@ export const NotFoundPage = lazy(notFoundImport);
  * Maps a route pathname to its chunk-prefetch factory. Query strings are
  * ignored by the prefetch hook, so `/settings?tab=data` resolves to `/settings`.
  */
-export const prefetchByPath: Record<string, () => Promise<unknown>> = {
+Object.assign(prefetchByPath, {
   '/': homeImport,
   '/about': aboutImport,
-  '/download': downloadImport,
   '/settings': settingsImport,
   '/fen-history': fenHistoryImport,
   '/advanced-fen': advancedFenImport
-};
+});

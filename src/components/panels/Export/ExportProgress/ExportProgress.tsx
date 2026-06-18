@@ -129,8 +129,9 @@ const ExportProgress = memo(function ExportProgress({
         <div className="flex gap-3">
           {onPause && onResume && (
             <button
+              type="button"
               onClick={isPaused ? onResume : onPause}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-surface-elevated hover:bg-surface-hover border border-border rounded-lg transition-colors text-text-primary font-semibold text-sm"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-surface-elevated hover:bg-surface-hover border border-border rounded-lg transition-colors text-text-primary font-semibold text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               aria-label={isPaused ? 'Resume export' : 'Pause export'}
             >
               {isPaused ? (
@@ -158,8 +159,9 @@ const ExportProgress = memo(function ExportProgress({
 
           {onCancel && (
             <button
+              type="button"
               onClick={onCancel}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-error/10 hover:bg-error/20 border border-error/30 rounded-lg transition-colors text-error font-semibold text-sm"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-error/10 hover:bg-error/20 border border-error/30 rounded-lg transition-colors text-error font-semibold text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               aria-label="Cancel export"
             >
               <XCircle

@@ -4,6 +4,9 @@
 User-agent: *
 Allow: /
 
+# Private, user-specific page — keep out of the index.
+Disallow: /settings
+
 # Optimal crawl delay
 Crawl-delay: 1
 

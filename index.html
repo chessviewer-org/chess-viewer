@@ -3,6 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="ChessVision" />
+    <meta
+      name="google-site-verification"
+      content="JOQDA_IVktrTpKqQ6hedH3jk7ixrSYA_WZMT5QLSOOU"
+    />
+
+    <!-- prerender:strip:start -->
     <meta
       name="description"
       content="ChessVision — a free, open-source, privacy-first chess diagram editor with ultra-high-quality PNG, JPEG, and SVG export."
@@ -11,10 +18,38 @@
       name="keywords"
       content="chess, diagram, generator, export, PNG, JPEG, SVG"
     />
+
+    <!--
+      Static SEO / social-sharing fallbacks for the home route. These are the
+      tags non-JS crawlers (Twitter, Facebook, LinkedIn, WhatsApp, Slack) read
+      before any JavaScript runs. The `<Seo>` component overrides them
+      per route at runtime, and the build-time prerender step bakes the correct
+      per-route tags into each page's HTML. Keep these in sync with the home
+      entry of src/shared/constants/seoConstants.ts.
+    -->
+    <link rel="canonical" href="https://chessvision.org/" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ChessVision" />
+    <meta property="og:title" content="ChessVision" />
     <meta
-      name="google-site-verification"
-      content="JOQDA_IVktrTpKqQ6hedH3jk7ixrSYA_WZMT5QLSOOU"
+      property="og:description"
+      content="ChessVision is a free, open-source, privacy-first chess diagram editor with ultra-high-quality PNG, JPEG, and SVG export. No tracking, no sign-up required."
     />
+    <meta property="og:url" content="https://chessvision.org/" />
+    <meta property="og:image" content="https://chessvision.org/og-image.png" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ChessVision" />
+    <meta
+      name="twitter:description"
+      content="ChessVision is a free, open-source, privacy-first chess diagram editor with ultra-high-quality PNG, JPEG, and SVG export. No tracking, no sign-up required."
+    />
+    <meta name="twitter:image" content="https://chessvision.org/og-image.png" />
+    <!-- prerender:strip:end -->
 
     <!-- Favicons and Icons -->
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />

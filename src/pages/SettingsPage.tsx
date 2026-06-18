@@ -1,10 +1,19 @@
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { Database, LayoutGrid, Palette, ShieldCheck, User } from 'lucide-react';
+import {
+  Accessibility,
+  Database,
+  LayoutGrid,
+  Palette,
+  ShieldCheck,
+  User
+} from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { type PageTabGroup, PageTabs } from '@/components/layout';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import {
+  AccessibilitySection,
   AccountSection,
   AppearanceSection,
   BoardSection,
@@ -12,47 +21,65 @@ import {
   SecuritySection
 } from '@/pages/settings';
 
-const groups: readonly PageTabGroup[] = [
-  {
-    label: 'Profile',
-    items: [
-      { id: 'profile', label: 'Account', icon: User },
-      { id: 'appearance', label: 'Appearance', icon: Palette },
-      { id: 'board', label: 'Board', icon: LayoutGrid }
-    ]
-  },
-  {
-    label: 'Access',
-    items: [
-      { id: 'security', label: 'Security', icon: ShieldCheck },
-      { id: 'data', label: 'Data Management', icon: Database }
-    ]
-  }
-];
-
-const VALID_TAB_IDS = new Set(groups.flatMap((g) => g.items).map((s) => s.id));
-const DEFAULT_TAB = 'profile';
+import { Seo } from '@shared/ui';
 
 /** Full-page settings shell. A centered tab strip under the navbar selects the
  *  active section; the active section is mirrored to `?tab=`. */
 const SettingsPage = memo(function SettingsPage() {
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const groups: PageTabGroup[] = useMemo(
+    () => [
+      {
+        label: 'Profile',
+        items: [
+          { id: 'profile', label: 'Account', icon: User },
+          { id: 'appearance', label: 'Appearance', icon: Palette },
+          { id: 'board', label: 'Board Style', icon: LayoutGrid },
+          { id: 'accessibility', label: 'Accessibility', icon: Accessibility }
+        ]
+      },
+      ...(isAuthenticated
+        ? [
+            {
+              label: 'Access',
+              items: [
+                { id: 'security', label: 'Security', icon: ShieldCheck },
+                { id: 'data', label: 'Data Management', icon: Database }
+              ]
+            }
+          ]
+        : [
+            {
+              label: 'Access',
+              items: [{ id: 'data', label: 'Data Management', icon: Database }]
+            }
+          ])
+    ],
+    [isAuthenticated]
+  );
+
+  const validTabIds = useMemo(
+    () => new Set(groups.flatMap((g) => g.items).map((s) => s.id)),
+    [groups]
+  );
+  const defaultTab = 'profile';
+
   const requestedTab = searchParams.get('tab');
   const initialTab =
-    requestedTab && VALID_TAB_IDS.has(requestedTab)
-      ? requestedTab
-      : DEFAULT_TAB;
+    requestedTab && validTabIds.has(requestedTab) ? requestedTab : defaultTab;
 
   const [activeTab, setActiveTab] = useState(initialTab);
 
   // Redirect a retired tab key (e.g. ?tab=developer, ?tab=export) to the default
   // tab so old bookmarks land on a valid section instead of an empty area.
   useEffect(() => {
-    if (requestedTab && !VALID_TAB_IDS.has(requestedTab)) {
-      setSearchParams({ tab: DEFAULT_TAB }, { replace: true });
+    if (requestedTab && !validTabIds.has(requestedTab)) {
+      setSearchParams({ tab: defaultTab }, { replace: true });
     }
-  }, [requestedTab, setSearchParams]);
+  }, [requestedTab, validTabIds, setSearchParams]);
 
   const handleBack = useCallback(() => navigate('/'), [navigate]);
 
@@ -72,16 +99,21 @@ const SettingsPage = memo(function SettingsPage() {
     [setSearchParams]
   );
 
+  const activeTabLabel = groups
+    .flatMap((g) => g.items)
+    .find((item) => item.id === activeTab)?.label;
+
   return (
     <div
       data-page-scroll
       className="min-h-full bg-bg lg:h-full lg:max-h-full lg:overflow-y-auto"
     >
+      <Seo name={activeTabLabel} noindex />
       {/* Two-column shell, constrained to the navbar's width so the page reads
           as one column under the bar: a sticky left section rail (always
           visible, never collapses) and a scrolling content column on the right
           (GitHub-settings pattern). */}
-      <div className="mx-auto flex w-[94%] max-w-600 flex-col gap-6 py-6 sm:w-[88%] sm:py-8 lg:flex-row lg:gap-10">
+      <div className="page-container flex flex-col gap-6 py-6 sm:py-8 lg:flex-row lg:gap-10">
         <div className="shrink-0 lg:w-56">
           <PageTabs
             groups={groups}
@@ -98,6 +130,7 @@ const SettingsPage = memo(function SettingsPage() {
           {activeTab === 'profile' && <AccountSection />}
           {activeTab === 'appearance' && <AppearanceSection />}
           {activeTab === 'board' && <BoardSection />}
+          {activeTab === 'accessibility' && <AccessibilitySection />}
           {activeTab === 'security' && <SecuritySection />}
           {activeTab === 'data' && (
             <div className="space-y-4 animate-pageEnter">

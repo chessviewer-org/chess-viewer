@@ -167,8 +167,6 @@ src/
 │   │   ├── ExportCustomization.tsx
 │   │   └── DataManagement.tsx
 │   ├── AboutPage.tsx
-│   ├── DownloadPage.tsx
-│   ├── SupportPage.tsx
 │   ├── SettingsPage.tsx
 │   └── NotFoundPage.tsx
 │

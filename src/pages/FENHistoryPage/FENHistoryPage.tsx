@@ -1,7 +1,9 @@
 import React, { memo } from 'react';
 
 import { ConfirmationModal, HistoryFilters } from '@/components/panels/History';
+import { getRouteSeo, SOFTWARE_APP_SCHEMA } from '@constants';
 
+import { Seo } from '@shared/ui';
 import { FENHistoryEmptyState } from './components/FENHistoryEmptyState';
 import { FENHistoryGrid } from './components/FENHistoryGrid';
 import { FENHistoryHeader } from './components/FENHistoryHeader';
@@ -42,6 +44,7 @@ const FENHistoryPage: React.FC = memo(() => {
 
   return (
     <div className="min-h-dvh lg:h-full lg:max-h-full flex flex-col bg-bg lg:overflow-hidden">
+      <Seo {...getRouteSeo('/fen-history')} schema={SOFTWARE_APP_SCHEMA} />
       <FENHistoryHeader
         currentDataLength={currentData.length}
         fenHistoryLength={fenHistory.length}
@@ -78,7 +81,7 @@ const FENHistoryPage: React.FC = memo(() => {
         data-page-scroll
         className="flex-1 min-h-0 overflow-visible lg:overflow-y-auto"
       >
-        <div className="px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
+        <div className="page-container py-4 sm:py-6">
           {currentData.length === 0 ? (
             <FENHistoryEmptyState activeTab={activeTab} />
           ) : (

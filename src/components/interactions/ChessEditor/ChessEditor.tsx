@@ -9,9 +9,8 @@ import {
 } from 'react';
 
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { Redo2, Repeat2, Settings, Undo2 } from 'lucide-react';
+import { Redo2, Repeat2, Undo2 } from 'lucide-react';
 
-import type { HomeStateForExport } from '@/pages/HomePage/components/ExportStudio.types';
 import {
   useDatabaseSearch,
   useEditorKeyboard,
@@ -31,7 +30,6 @@ import ClipboardHistoryPanel from './ClipboardHistoryPanel';
 import CommandBar from './CommandBar';
 import DatabaseSearchPanel from './DatabaseSearchPanel';
 import { FileCoordinates, RankCoordinates } from './EditorCoordinates';
-import ExportSettingsPanel from './ExportSettingsPanel';
 import ShareDialog from './ShareDialog';
 import { useEditorBoardSize } from './useEditorBoardSize';
 import { useShareBoard } from './useShareBoard';
@@ -61,17 +59,13 @@ export interface ChessEditorProps {
   ) => void;
   onPieceImagesChange?: (images: Record<string, HTMLImageElement>) => void;
   /** Which view fills the right-side column. Defaults to 'controls'. */
-  activeRightPanel?: 'controls' | 'history' | 'settings';
+  activeRightPanel?: 'controls' | 'history';
   /** Load a FEN from history onto the board (does not close the panel). */
   onSelectHistoryFen?: (fen: string) => void;
   /** Open a history FEN in the Advanced FEN editor (navigates away). */
   onSendToAdvanced?: (fen: string) => void;
   /** Switch the right side back to the control tools. */
   onCloseHistory?: () => void;
-  /** Toggles the Settings panel (Export Settings). */
-  onToggleSettings?: () => void;
-  /** The full home state for export studio steps. */
-  homeState?: HomeStateForExport;
   className?: string;
 }
 
@@ -96,8 +90,6 @@ export const ChessEditor = memo(function ChessEditor({
   onSelectHistoryFen,
   onSendToAdvanced,
   onCloseHistory,
-  onToggleSettings,
-  homeState,
   className = ''
 }: ChessEditorProps) {
   const { pieceImages, isLoading } = usePieceImages(pieceStyle);
@@ -234,11 +226,12 @@ export const ChessEditor = memo(function ChessEditor({
     ]
   );
 
-  const { targets, openTarget, copyLink, shareImage, isBusy } = useShareBoard({
-    fen,
-    buildExportConfig,
-    ...(onNotify ? { onNotify } : {})
-  });
+  const { payload, targets, openTarget, copyLink, shareImage, isBusy } =
+    useShareBoard({
+      fen,
+      buildExportConfig,
+      ...(onNotify ? { onNotify } : {})
+    });
 
   const handleShare = useCallback(() => setIsShareOpen(true), []);
   const closeShare = useCallback(() => setIsShareOpen(false), []);
@@ -337,7 +330,7 @@ export const ChessEditor = memo(function ChessEditor({
                     <div className="absolute inset-0 rounded-full border-4 border-border"></div>
                     <div className="absolute inset-0 rounded-full border-4 border-accent border-t-transparent animate-spin"></div>
                   </div>
-                  <div className="text-text-primary text-sm font-semibold animate-pulse text-center px-4 break-words">
+                  <div className="text-text-primary text-sm font-semibold animate-pulse text-center px-4 wrap-break-word">
                     Loading pieces...
                   </div>
                 </div>
@@ -346,39 +339,24 @@ export const ChessEditor = memo(function ChessEditor({
           </div>
         </div>
 
-        {/* Right column is pinned to the BOARD's exact pixel height in the
-            two-column (container `@5xl`) state via --board-h, so the controls'
-            bottom action bar aligns with the bottom of the board itself — NOT
-            the coordinate row beneath it. --board-h is the live board PIXEL size
-            (DnD/canvas coordinate math); only the column CHROME around it is
-            fluid. The persistent toolbar sits at the top; the swappable area
-            (flex-1) fills the rest. Stacked single-column → height is auto. */}
+        {/* Right column height matches the board's total column height (board
+            + optional coordinates) so the top toolbar and bottom action bar
+            align exactly with the left side's edges. Only the middle tools area
+            is fluid and grows to fill the pinned height. Stacked single-column
+            height remains auto. */}
         <div
-          className="flex flex-col gap-fluid-xs flex-1 w-full @5xl:w-auto min-w-0 @5xl:h-[var(--board-h)]"
-          style={{ '--board-h': `${boardSize}px` } as CSSProperties}
+          className="flex flex-col gap-fluid-xs flex-1 w-full @5xl:w-auto min-w-0 @5xl:h-(--board-h)"
+          style={
+            {
+              '--board-h': `${boardSize + (showCoords ? gutterSize : 0)}px`
+            } as CSSProperties
+          }
         >
-          {/* PERSISTENT action toolbar — Settings (far left) · Command Bar
-              (Copy / Share / Export · DB icons, far right). Always anchored at
-              the top; only the content BELOW it swaps between tools/history/settings. */}
+          {/* PERSISTENT action toolbar — Command Bar (Copy / Share / Export ·
+              DB icons, far right). Always anchored at the top; only the content
+              BELOW it swaps between tools and history. */}
           <div className="shrink-0">
-            <div className="flex items-center justify-between w-full">
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={onToggleSettings}
-                  className={`p-1.5 coarse:min-h-11 coarse:min-w-11 flex items-center justify-center rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                    activeRightPanel === 'settings'
-                      ? 'text-accent bg-accent/10'
-                      : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
-                  }`}
-                  title="Board Settings"
-                  aria-label="Open Board Settings"
-                  aria-pressed={activeRightPanel === 'settings'}
-                >
-                  <Settings className="w-5 h-5" />
-                </button>
-              </div>
-
+            <div className="flex items-center justify-end w-full">
               <CommandBar
                 onCopyFen={handleCopyFen}
                 onShare={handleShare}
@@ -393,18 +371,7 @@ export const ChessEditor = memo(function ChessEditor({
               transition between views (mode="wait" so one leaves before the
               next enters). flex-1 fills the pinned height. */}
           <AnimatePresence mode="wait" initial={false}>
-            {activeRightPanel === 'settings' && homeState ? (
-              <motion.div
-                key="settings"
-                className="flex-1 min-h-0 overflow-y-auto"
-                initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
-                animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-                exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
-                transition={{ duration: 0.18, ease: 'easeOut' }}
-              >
-                <ExportSettingsPanel homeState={homeState} />
-              </motion.div>
-            ) : activeRightPanel === 'history' ? (
+            {activeRightPanel === 'history' ? (
               <motion.div
                 key="history"
                 className="flex-1 min-h-0"
@@ -440,7 +407,7 @@ export const ChessEditor = memo(function ChessEditor({
               board height. */}
                   <div className="flex flex-col gap-fluid-xs flex-1 min-h-0 lg:overscroll-trap">
                     {/* Piece palette — single row (White · divider · Black). */}
-                    <div className="w-full shrink-0 overflow-hidden rounded-xl border border-border/40 bg-surface-elevated px-2.5 py-2">
+                    <div className="w-full shrink-0 overflow-hidden rounded-xl border border-border/40 bg-surface-elevated px-2 py-1.5">
                       <PiecePalette
                         pieceImages={pieceImages}
                         isLoading={isLoading}
@@ -451,7 +418,7 @@ export const ChessEditor = memo(function ChessEditor({
                     {/* Display Options — bare on the background (no card), label + free
               checkboxes. */}
                     <div className="w-full shrink-0 px-1">
-                      <span className="block text-fluid-xs font-bold uppercase tracking-wider text-text-secondary mb-1.5">
+                      <span className="block text-[11px] font-bold uppercase tracking-wider text-text-secondary mb-1.5">
                         Display Options
                       </span>
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -459,13 +426,13 @@ export const ChessEditor = memo(function ChessEditor({
                           checked={showCoords}
                           onChange={(e) => setShowCoords?.(e.target.checked)}
                           label="Show Coordinates"
-                          className="!p-1"
+                          className="p-1!"
                         />
                         <Checkbox
                           checked={showThinFrame}
                           onChange={(e) => setShowThinFrame?.(e.target.checked)}
                           label="Show Board Frame"
-                          className="!p-1"
+                          className="p-1!"
                         />
                       </div>
                     </div>
@@ -551,6 +518,7 @@ export const ChessEditor = memo(function ChessEditor({
         isOpen={isShareOpen}
         onClose={closeShare}
         fen={fen}
+        positionUrl={payload.positionUrl}
         targets={targets}
         onOpenTarget={openTarget}
         onCopyLink={() => void copyLink()}

@@ -100,8 +100,9 @@ const Row = ({
 
           <div className="flex items-center gap-1.5 shrink-0">
             <button
+              type="button"
               onClick={() => onSelect(fen)}
-              className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                 isActive
                   ? 'bg-accent/20 text-accent border border-accent/40'
                   : 'bg-accent hover:bg-accent-hover text-bg'
@@ -112,36 +113,43 @@ const Row = ({
             </button>
 
             <button
+              type="button"
               onClick={() => onSendToAdvanced(fen)}
-              className="p-1.5 rounded-lg bg-surface-elevated hover:bg-accent/10 hover:text-text-primary text-text-secondary transition-colors"
+              className="p-1.5 rounded-lg bg-surface-elevated hover:bg-accent/10 hover:text-text-primary text-text-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               title="Open in Advanced FEN editor"
               aria-label="Open in Advanced FEN editor"
             >
-              <SquarePen className="w-4 h-4" />
+              <SquarePen className="w-4 h-4" aria-hidden="true" />
             </button>
 
             <button
+              type="button"
               onClick={() => onCopy(fen, index)}
-              className={`p-1.5 rounded-lg transition-colors ${
+              className={`p-1.5 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                 copiedIndex === index
                   ? 'bg-success/20 text-success'
                   : 'bg-surface-elevated hover:bg-surface-hover text-text-secondary'
               }`}
               title="Copy to clipboard"
+              aria-label={
+                copiedIndex === index ? 'Copied' : 'Copy to clipboard'
+              }
             >
               {copiedIndex === index ? (
-                <Check className="w-4 h-4" />
+                <Check className="w-4 h-4" aria-hidden="true" />
               ) : (
-                <Copy className="w-4 h-4" />
+                <Copy className="w-4 h-4" aria-hidden="true" />
               )}
             </button>
 
             <button
+              type="button"
               onClick={() => onRemove(index)}
-              className="p-1.5 rounded-lg bg-surface-elevated hover:bg-error/10 hover:text-error text-text-secondary transition-colors"
+              className="p-1.5 rounded-lg bg-surface-elevated hover:bg-error/10 hover:text-error text-text-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               title="Remove"
+              aria-label="Remove from history"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
         </div>

@@ -27,7 +27,7 @@ export function SettingsHeading({
         {title}
       </h2>
       {description && (
-        <p className="max-w-prose text-base leading-relaxed text-text-secondary">
+        <p className="text-base leading-relaxed text-text-secondary">
           {description}
         </p>
       )}
@@ -50,7 +50,7 @@ export function SettingsBlock({
       <div className="space-y-1 border-b border-border/60 pb-2">
         <h3 className="text-lg font-bold text-text-primary">{title}</h3>
         {description && (
-          <p className="max-w-prose text-sm leading-relaxed text-text-secondary">
+          <p className="text-sm leading-relaxed text-text-secondary">
             {description}
           </p>
         )}

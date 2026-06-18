@@ -192,11 +192,12 @@ const Toast = memo(function Toast({
 
       {/* Dismiss Button */}
       <button
+        type="button"
         onClick={onRemove}
         className="shrink-0 -mr-1 rounded-full p-2 text-text-muted/60 transition-colors duration-200 hover:bg-surface-hover hover:text-text-primary focus:outline-none focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 active:scale-90"
         aria-label="Dismiss notification"
       >
-        <X className="w-4.5 h-4.5" />
+        <X className="w-4.5 h-4.5" aria-hidden="true" />
       </button>
 
       {/* L-shaped accent hugging the bottom-left corner: a thin coloured line

@@ -1,5 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { syncStorage } from '@/features/auth/services/syncStorage';
+
+import { hydrateFromSync } from '@utils';
 import { logger } from '@utils/logger';
 import { safeJSONParse } from '@utils/validation';
 
@@ -49,6 +52,30 @@ export function useThemePresets(): UseThemePresetsResult {
     }
   }, []);
 
+  // Hydrate from cloud once (best-effort, E2EE). Local storage stays the
+  // synchronous source of truth; this only fills in a freshly signed-in device.
+  const didHydrate = useRef(false);
+  useEffect(() => {
+    if (didHydrate.current) return;
+    didHydrate.current = true;
+    let cancelled = false;
+    void hydrateFromSync(
+      CUSTOM_THEME_PRESETS_KEY,
+      (decoded) => {
+        if (!Array.isArray(decoded)) return;
+        const cloud = decoded as ThemePreset[];
+        setCustomPresets((prev) =>
+          JSON.stringify(prev) === JSON.stringify(cloud) ? prev : cloud
+        );
+      },
+      () => cancelled,
+      'custom theme presets'
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const persistPresets = useCallback((presets: ThemePreset[]) => {
     try {
       window.localStorage.setItem(
@@ -57,6 +84,12 @@ export function useThemePresets(): UseThemePresetsResult {
       );
     } catch (err) {
       logger.error('Failed to persist presets:', err);
+    }
+    try {
+      if (syncStorage)
+        void syncStorage.set(CUSTOM_THEME_PRESETS_KEY, JSON.stringify(presets));
+    } catch (err) {
+      logger.error('Failed to sync custom presets:', err);
     }
   }, []);
 
@@ -127,6 +160,12 @@ export function useThemePresets(): UseThemePresetsResult {
       window.localStorage.removeItem(CUSTOM_THEME_PRESETS_KEY);
     } catch (err) {
       logger.error('Failed to clear presets:', err);
+    }
+    try {
+      if (syncStorage)
+        void syncStorage.set(CUSTOM_THEME_PRESETS_KEY, JSON.stringify([]));
+    } catch (err) {
+      logger.error('Failed to sync cleared presets:', err);
     }
   }, []);
 

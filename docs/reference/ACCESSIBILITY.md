@@ -86,7 +86,12 @@ A complete keyboard alternative to drag-and-drop, in `useBoardKeyboard`
 - Skip-to-main-content link in `App.tsx`
 - Focus trap in modal components via the shared `useFocusTrap` hook (`src/shared/hooks/useFocusTrap.ts`): moves focus into the dialog on open, cycles Tab/Shift+Tab within it, and restores focus to the previously focused element on close
 - Explicit `<label htmlFor>`/`id` associations on the auth forms (sign in, sign up, MFA verification)
-- Keyboard handling in Navbar: Escape closes mobile menu, scroll lock when menu is open
+- Keyboard handling in Navbar: Escape closes mobile menu, scroll lock when menu is open. The collapsed mobile menu is `inert` + `aria-hidden` while closed, so its links/buttons are not in the tab order or the accessibility tree when hidden (WCAG 2.4.3 / 4.1.2)
+- **Every interactive `<button>` carries an explicit `type="button"`** so an enclosing form can never be submitted by an action control (verified by a repo-wide scan)
+- **Icon-only controls have an `aria-label`; every decorative icon is `aria-hidden="true"`** so screen readers announce the control's name once, not the icon glyph (Navbar, modals, export/progress, FEN-history, advanced-FEN, clipboard-history, playback, notifications)
+- **Visible focus on every interactive control**: `focus-visible:ring-accent` (or `outline-accent`) on the Navbar logo/menu/account triggers, all modal buttons, the `Checkbox` (focus ring moved to the wrapping label via `:has(:focus-visible)` after its native outline was suppressed), and the page/wizard/history action buttons
+- **Custom controls expose correct name/role/value**: `Switch` (`role="switch"`), `CustomSelect` / `SearchableSelect` (`role="combobox"` + `role="listbox"`/`option`, `aria-activedescendant`, dedicated `useListboxKeyboard`), `PageTabs` and the auth / FEN-history / advanced-FEN tab strips (`role="tablist"`/`role="tab"` + `aria-selected`), the advanced-FEN wizard stepper (`aria-current="step"`), and popover triggers (`aria-haspopup` + `aria-expanded`)
+- The drop-to-delete `TrashZone` is a pointer-only affordance marked `aria-hidden="true"` (it has no click/keyboard action); its function — removing a piece — is fully available to keyboard/SR users via Delete/Backspace on the board cursor, so it no longer advertises a non-operable `role="button"`
 
 ### Interactive Board Screen-Reader Model (edit mode)
 
@@ -154,7 +159,12 @@ A complete keyboard alternative to drag-and-drop, in `useBoardKeyboard`
 
 ---
 
-## WCAG 2.2 AA — Criteria Now Covered (board editor + global nav)
+## WCAG 2.2 AA — Criteria Now Covered (app-wide)
+
+- **3.2.2 On Input / 2.5.x** — no action `<button>` can implicitly submit a form
+  (explicit `type="button"` everywhere), preventing unexpected context changes.
+
+### Board editor + global nav
 
 - **2.1.1 Keyboard** — page scrolling on every route; full keyboard board
   editing (move/place/remove pieces, palette placement) with no keyboard trap
@@ -165,7 +175,10 @@ A complete keyboard alternative to drag-and-drop, in `useBoardKeyboard`
   buttons, and action buttons; a roving accent cursor on the focused square.
 - **4.1.2 Name, Role, Value** — grid (`role="grid"`), cells (`role="gridcell"` +
   algebraic `aria-label` + `aria-selected`), `aria-activedescendant`, palette
-  `<button>`s with names.
+  `<button>`s with names. App-wide: icon-only controls are named via `aria-label`
+  with their icons `aria-hidden`; tab strips use `role="tab"`/`aria-selected`;
+  popover triggers use `aria-haspopup`/`aria-expanded`; the collapsed mobile menu
+  is `inert`/`aria-hidden`.
 - **4.1.3 Status Messages** — polite `aria-live` regions for the position
   description and for each keyboard action; the custom-board-size validation
   message is a `role="alert"`.
@@ -179,8 +192,13 @@ A complete keyboard alternative to drag-and-drop, in `useBoardKeyboard`
 
 **Low effort:**
 
-- Add `aria-label` to remaining unlabeled buttons
 - Add `aria-live="polite"` region for export status announcements
+  (the notification toast region is already `aria-live="polite"`; export
+  progress is not yet announced)
+- Add roving-`tabIndex` + arrow-key traversal to the auth / FEN-history /
+  advanced-FEN tab strips (they now expose `role="tab"` + `aria-selected`, but
+  unlike `PageTabs` they are still individual tab stops rather than a single
+  roving one)
 
 **Medium effort:**
 
@@ -207,4 +225,4 @@ See [CONTRIBUTING.md](../../CONTRIBUTING.md) for setup instructions.
 
 ---
 
-_Last updated: June 2026 — v6.0.0 (board keyboard model, app-wide keyboard scrolling — now correctly resolving inner page scroll columns, keyboard-adjustable + labelled numeric controls, capability-based DnD backend for touch)_
+_Last updated: June 2026 — v6.0.0 (board keyboard model, app-wide keyboard scrolling — now correctly resolving inner page scroll columns, keyboard-adjustable + labelled numeric controls, capability-based DnD backend for touch; app-wide keyboard/ARIA audit: explicit `type="button"` on all action buttons, `aria-hidden` on decorative icons + `aria-label` on icon-only controls, visible focus on Navbar/modals/Checkbox, tablist/combobox/switch roles verified, collapsed mobile menu made `inert`)_

@@ -25,7 +25,9 @@
   "scripts": {
     "dev": "vite",
     "start": "vite",
-    "build": "vite build",
+    "build": "vite build && pnpm prerender",
+    "build:vite": "vite build",
+    "prerender": "node scripts/prerender.mjs",
     "preview": "vite preview",
     "build:analyze": "vite build && npx vite-bundle-visualizer",
     "typecheck": "tsc --noEmit",
@@ -71,6 +73,7 @@
     "lint-staged": "^17.0.7",
     "postcss": "^8.5.15",
     "prettier": "^3.8.3",
+    "puppeteer": "^25.1.0",
     "semantic-release": "^24.2.9",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3",

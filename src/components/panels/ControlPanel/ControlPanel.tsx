@@ -112,23 +112,28 @@ const ControlPanel = memo(function ControlPanel({
             <div className="flex items-center gap-2">
               {/* Advanced FEN Input — distinct icon immediately left of History. */}
               <button
+                type="button"
                 onClick={() => navigate('/advanced-fen')}
                 {...prefetch('/advanced-fen')}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 coarse:min-h-11 rounded-lg text-accent text-fluid-xs font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 coarse:min-h-11 rounded-lg text-accent text-fluid-xs font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 aria-label="Advanced FEN Input"
                 title="Advanced FEN Input"
               >
-                <ListPlus className="w-4 h-4 sm:w-5 sm:h-5" />
+                <ListPlus
+                  className="w-4 h-4 sm:w-5 sm:h-5"
+                  aria-hidden="true"
+                />
                 <span className="hidden sm:inline">Advanced</span>
               </button>
               <button
+                type="button"
                 onClick={() => navigate('/fen-history')}
                 {...prefetch('/fen-history')}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 coarse:min-h-11 rounded-lg text-accent text-fluid-xs font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 coarse:min-h-11 rounded-lg text-accent text-fluid-xs font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 aria-label="FEN History"
                 title="FEN History"
               >
-                <History className="w-4 h-4 sm:w-5 sm:h-5" />
+                <History className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
                 <span className="hidden sm:inline">History</span>
               </button>
             </div>

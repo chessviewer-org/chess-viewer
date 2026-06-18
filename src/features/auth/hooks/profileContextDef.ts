@@ -5,7 +5,6 @@ import type { MembershipTier } from '../services/membership';
 /** Shared profile state contract (see ProfileProvider in ProfileContext.tsx). */
 export interface ProfileContextValue {
   displayName: string;
-  avatarUrl: string | null;
   isSupporter: boolean;
   /** Voluntary monthly donation amount (USD); drives the membership tier. */
   supporterMonthlyUsd: number;

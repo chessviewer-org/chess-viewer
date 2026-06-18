@@ -32,9 +32,8 @@ export default function ContactSection() {
       <InfoCard title="Report a bug or request a feature">
         <p>
           If something is broken or you have an idea, open a GitHub issue. When
-          reporting a bug, include the FEN string you were using, your browser
-          and version, and the steps to reproduce it — that makes a fix much
-          faster.
+          reporting a bug, include your browser type and version, and the steps
+          to reproduce it — that makes a fix much faster.
         </p>
         <div className="pt-1">
           <ExternalLinkButton
@@ -76,15 +75,8 @@ export default function ContactSection() {
       <InfoCard title="Reporting a security issue">
         <p>
           If you believe you have found a security vulnerability, please do not
-          post it publicly. Email{' '}
-          <a
-            href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Security report')}`}
-            className="font-semibold text-accent hover:underline"
-          >
-            {CONTACT_EMAIL}
-          </a>{' '}
-          with the subject &quot;Security report&quot; and details of the issue,
-          and give us a reasonable chance to address it before disclosure.
+          post it publicly. Please report it to us by opening a &quot;Security
+          report&quot; on GitHub or contacting us via email.
         </p>
         <div className="flex flex-wrap items-center gap-3 pt-1">
           <MailButton

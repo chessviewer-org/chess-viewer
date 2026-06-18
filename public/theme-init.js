@@ -76,4 +76,23 @@
   const theme = getInitialTheme();
   document.documentElement.setAttribute('data-theme', theme);
   window.__INITIAL_THEME__ = theme;
+
+  // Apply the high-contrast preference before paint to avoid a flash. Mirrors
+  // useContrast: cv_contrast may hold 'normal' | 'high' (JSON or raw string).
+  try {
+    const rawContrast = localStorage.getItem('cv_contrast');
+    if (rawContrast) {
+      let contrast = rawContrast;
+      try {
+        contrast = JSON.parse(rawContrast);
+      } catch {
+        /* tolerate an un-quoted value */
+      }
+      if (contrast === 'high') {
+        document.documentElement.setAttribute('data-contrast', 'high');
+      }
+    }
+  } catch {
+    /* localStorage blocked — skip, App re-applies. */
+  }
 })();

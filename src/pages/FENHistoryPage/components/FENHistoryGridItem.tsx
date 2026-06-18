@@ -125,7 +125,10 @@ export const FENHistoryGridItem: React.FC<FENHistoryGridItemProps> = memo(
                   {formatDate(timestamp)}
                 </span>
                 <span className="inline-flex items-center gap-1">
-                  <Clock className="w-3 h-3 shrink-0 text-text-muted/70" />
+                  <Clock
+                    className="w-3 h-3 shrink-0 text-text-muted/70"
+                    aria-hidden="true"
+                  />
                   {formatTime(timestamp)}
                 </span>
               </div>
@@ -134,28 +137,32 @@ export const FENHistoryGridItem: React.FC<FENHistoryGridItemProps> = memo(
             {activeTab === 'archive' ? (
               <div className="flex gap-1.5">
                 <button
+                  type="button"
                   onClick={() => handleReactivate(entry.id)}
                   className="flex-1 px-2.5 py-2 bg-accent hover:bg-accent-hover text-bg text-xs font-semibold rounded-lg transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:outline-none"
                 >
                   Reactivate
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleDelete(entry.id)}
                   className="p-2 hover:bg-error/10 text-text-muted hover:text-error rounded-lg transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-1 focus-visible:outline-none"
                   aria-label="Delete"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
                 </button>
               </div>
             ) : (
               <div className="flex gap-1.5">
                 <button
+                  type="button"
                   onClick={() => handleLoad(entry.fen)}
                   className="flex-1 px-2.5 py-2 bg-accent hover:bg-accent-hover text-bg text-xs font-semibold rounded-lg transition-colors duration-200 shadow-sm focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:outline-none"
                 >
                   Load
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleToggleFavorite(entry.id)}
                   className={`p-2 rounded-lg transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:outline-none ${
                     entry.isFavorite
@@ -171,14 +178,16 @@ export const FENHistoryGridItem: React.FC<FENHistoryGridItemProps> = memo(
                   <Star
                     className="w-3.5 h-3.5"
                     fill={entry.isFavorite ? 'currentColor' : 'none'}
+                    aria-hidden="true"
                   />
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleDelete(entry.id)}
                   className="p-2 hover:bg-surface-hover text-text-muted hover:text-text-secondary rounded-lg transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:outline-none"
                   aria-label="Archive"
                 >
-                  <Inbox className="w-3.5 h-3.5" />
+                  <Inbox className="w-3.5 h-3.5" aria-hidden="true" />
                 </button>
               </div>
             )}

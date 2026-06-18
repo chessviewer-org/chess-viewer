@@ -93,7 +93,7 @@ export function AuthModal({
             className="p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none"
             aria-label="Close modal"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -101,15 +101,25 @@ export function AuthModal({
         <div className="p-5 sm:p-6 overflow-y-auto flex-1 min-h-0">
           {activeTab !== 'security' && activeTab !== 'mfa' && (
             <>
-              <div className="flex gap-2 mb-5 bg-surface-elevated p-1.5 rounded-xl border border-border">
+              <div
+                role="tablist"
+                aria-label="Authentication mode"
+                className="flex gap-2 mb-5 bg-surface-elevated p-1.5 rounded-xl border border-border"
+              >
                 <button
-                  className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${activeTab === 'signin' ? 'bg-bg text-text-primary shadow-sm ring-1 ring-border' : 'text-text-secondary hover:text-text-primary'}`}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === 'signin'}
+                  className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${activeTab === 'signin' ? 'bg-bg text-text-primary shadow-sm ring-1 ring-border' : 'text-text-secondary hover:text-text-primary'}`}
                   onClick={() => setActiveTab('signin')}
                 >
                   Sign In
                 </button>
                 <button
-                  className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${activeTab === 'signup' ? 'bg-bg text-text-primary shadow-sm ring-1 ring-border' : 'text-text-secondary hover:text-text-primary'}`}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === 'signup'}
+                  className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${activeTab === 'signup' ? 'bg-bg text-text-primary shadow-sm ring-1 ring-border' : 'text-text-secondary hover:text-text-primary'}`}
                   onClick={() => setActiveTab('signup')}
                 >
                   Sign Up

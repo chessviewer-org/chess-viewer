@@ -31,7 +31,6 @@ function readGuestProfile(): Profile {
     const parsed = safeJSONParse<Partial<Profile>>(raw, {});
     return {
       displayName: parsed.displayName ?? DEFAULT_PROFILE.displayName,
-      avatarUrl: parsed.avatarUrl ?? null,
       supporterUntil: parsed.supporterUntil ?? null,
       supporterMonthlyUsd:
         typeof parsed.supporterMonthlyUsd === 'number' &&
@@ -133,7 +132,6 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
 
   const value: ProfileContextValue = {
     displayName: profile.displayName,
-    avatarUrl: profile.avatarUrl,
     isSupporter: isActiveSupporter(profile.supporterUntil),
     supporterMonthlyUsd: profile.supporterMonthlyUsd,
     membershipTier: getMembershipTier(profile.supporterMonthlyUsd),

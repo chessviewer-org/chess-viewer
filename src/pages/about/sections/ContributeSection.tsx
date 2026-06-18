@@ -55,8 +55,8 @@ export default function ContributeSection() {
           ChessVision is licensed under the{' '}
           <strong className="text-text-primary">{LICENSE_NAME}</strong>. In
           short, you are free to use, study, modify, and share it — but if you
-          run a modified version as a network service, you must make your source
-          available under the same license.
+          run a modified version, you must make your source available under the
+          same license.
         </p>
         <div className="pt-1">
           <ExternalLinkButton href={REPO_LICENSE_URL} icon={Scale}>
@@ -86,8 +86,8 @@ export default function ContributeSection() {
             />
             <span>
               <strong className="text-text-primary">Report bugs.</strong> Clear,
-              reproducible bug reports are genuinely valuable. Include the FEN,
-              your browser, and the steps to reproduce.
+              reproducible bug reports are genuinely valuable. Include your
+              browser and the steps to reproduce.
             </span>
           </li>
           <li className="flex gap-3">

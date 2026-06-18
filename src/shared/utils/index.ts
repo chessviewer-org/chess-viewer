@@ -5,6 +5,8 @@ export * from './canvasExporter';
 export * from './canvasRenderer';
 export * from './classNames';
 export * from './colorConversions';
+export * from './colorVision';
+export * from './contrast';
 export * from './coordinateCalculations';
 export * from './databaseSearch';
 export * from './dpiEncoder';
