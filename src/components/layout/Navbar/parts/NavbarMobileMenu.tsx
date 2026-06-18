@@ -1,12 +1,51 @@
 import { memo, useEffect } from 'react';
 
-import { Info, LogOut, Shield, User, UserCircle, UserPlus } from 'lucide-react';
+import {
+  Crown,
+  Diamond,
+  Gem,
+  HeartHandshake,
+  Info,
+  LogIn,
+  LogOut,
+  Settings,
+  Star,
+  UserCircle,
+  UserPlus
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { useProfile } from '@/features/auth/hooks/useProfile';
+import type { MembershipTierId } from '@/features/auth/services/membership';
 import { usePrefetchRoute } from '@hooks';
 
 const DONATE_URL = 'https://github.com/sponsors/chessvision-org';
+
+const TIER_CONFIG: Record<
+  Exclude<MembershipTierId, 'none'>,
+  { icon: React.ElementType; label: string; classes: string }
+> = {
+  gold: {
+    icon: Star,
+    label: 'Gold Supporter',
+    classes: 'text-[var(--color-gold,#f59e0b)]'
+  },
+  platinum: {
+    icon: Gem,
+    label: 'Platinum Supporter',
+    classes: 'text-[var(--color-platinum,#94a3b8)]'
+  },
+  diamond: {
+    icon: Diamond,
+    label: 'Diamond Supporter',
+    classes: 'text-[var(--color-diamond,#38bdf8)]'
+  },
+  patron: {
+    icon: Crown,
+    label: 'Patron',
+    classes: 'text-[var(--color-patron,#a78bfa)]'
+  }
+};
 
 /** Props for the `NavbarMobileMenu` slide-down panel. */
 interface NavbarMobileMenuProps {
@@ -25,10 +64,14 @@ export const NavbarMobileMenu = memo(function NavbarMobileMenu({
   handleSignOut
 }: NavbarMobileMenuProps) {
   const prefetch = usePrefetchRoute();
-  const { displayName, avatarUrl, isSupporter } = useProfile();
+  const { displayName, isSupporter, membershipTier } = useProfile();
 
-  // Lock background scroll while the slide-down menu is open, and close it on
-  // Escape. Cleanup restores `overflow` to avoid a leak (matches ShareDialog).
+  const tierCfg =
+    isSupporter && membershipTier.id !== 'none'
+      ? TIER_CONFIG[membershipTier.id as Exclude<MembershipTierId, 'none'>]
+      : null;
+
+  // Lock background scroll while open; close on Escape.
   useEffect(() => {
     if (!isOpen) return;
     document.body.style.overflow = 'hidden';
@@ -42,10 +85,12 @@ export const NavbarMobileMenu = memo(function NavbarMobileMenu({
     };
   }, [isOpen, setIsMobileMenuOpen]);
 
+  const linkClass =
+    'flex w-full items-center gap-3 px-3 py-3.5 min-h-12 rounded-lg transition-colors duration-200 text-text-secondary hover:text-text-primary hover:bg-surface-hover active:bg-surface-elevated';
+
   return (
     <>
-      {/* Backdrop scrim — closes the menu on tap and visually separates the
-          slide-down panel from the page content behind it. */}
+      {/* Backdrop */}
       <div
         className={`sm:hidden fixed inset-0 top-0 z-40 bg-black/50 backdrop-blur-[1px] transition-opacity duration-300 ${
           isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
@@ -56,32 +101,40 @@ export const NavbarMobileMenu = memo(function NavbarMobileMenu({
 
       <div
         id="mobile-nav-menu"
+        // When collapsed the panel is visually clipped (`max-h-0`) but its links
+        // and buttons would still be in the tab order — a keyboard user would
+        // tab into invisible controls. `inert` removes the whole subtree from
+        // focus order and the accessibility tree while closed (WCAG 2.4.3 /
+        // 4.1.2). React 19 forwards `inert` as a boolean attribute.
+        inert={!isOpen}
+        aria-hidden={!isOpen}
         className={`sm:hidden relative z-50 overflow-hidden transition-all duration-300 ease-in-out ${
           isOpen
-            ? 'max-h-[34rem] border-b border-border/50 bg-surface'
+            ? 'max-h-[40rem] border-b border-border/50 bg-surface'
             : 'max-h-0'
         }`}
       >
         <div className="px-4 py-3">
-          {/* Top: profile block — name + donate/supporter line (everyone, unified model) */}
+          {/* Profile block */}
           <div className="flex items-center gap-3 px-3 py-2">
-            {avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt=""
-                className="w-11 h-11 rounded-full object-cover shrink-0"
-              />
-            ) : (
-              <UserCircle className="w-11 h-11 text-text-secondary shrink-0" />
-            )}
+            <div className="w-11 h-11 rounded-full bg-accent/10 text-accent flex items-center justify-center font-bold text-lg uppercase shrink-0">
+              {displayName ? (
+                displayName.charAt(0)
+              ) : (
+                <UserCircle className="w-8 h-8" aria-hidden="true" />
+              )}
+            </div>
             <div className="min-w-0">
               <p className="text-base font-bold text-text-primary truncate">
-                {displayName}
+                {displayName ||
+                  (isAuthenticated ? 'ChessVision user' : 'Local user')}
               </p>
-              {isSupporter ? (
-                <span className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-text-primary">
-                  <Shield className="w-4 h-4" />
-                  ChessVision Supporter
+              {tierCfg ? (
+                <span
+                  className={`mt-1 flex items-center gap-1.5 text-sm font-semibold ${tierCfg.classes}`}
+                >
+                  <tierCfg.icon className="w-4 h-4" aria-hidden="true" />
+                  {tierCfg.label}
                 </span>
               ) : (
                 <a
@@ -90,8 +143,8 @@ export const NavbarMobileMenu = memo(function NavbarMobileMenu({
                   rel="noopener noreferrer"
                   className="mt-1 flex items-center gap-1.5 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
                 >
-                  <Shield className="w-4 h-4" />
-                  Donate ChessVision
+                  <HeartHandshake className="w-4 h-4" aria-hidden="true" />
+                  Support ChessVision
                 </a>
               )}
             </div>
@@ -99,51 +152,63 @@ export const NavbarMobileMenu = memo(function NavbarMobileMenu({
 
           <div className="border-t border-border/50 my-3" />
 
-          {/* Middle: Account — authenticated users only */}
-          {isAuthenticated && (
-            <>
-              <Link
-                to="/settings?tab=profile"
-                {...prefetch('/settings')}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex w-full items-center space-x-3 px-3 py-3.5 min-h-12 rounded-lg transition-colors duration-200 text-text-secondary hover:text-text-primary hover:bg-surface-hover active:bg-surface-elevated"
-              >
-                <User className="w-5 h-5" />
-                <span className="font-medium text-base">Settings</span>
-              </Link>
-
-              <div className="border-t border-border/50 my-3" />
-            </>
-          )}
-
-          {/* Bottom: About, then Sign Out / Add Account at the very bottom. The
-              site follows the OS light/dark setting, so there is no manual theme
-              toggle here (removed by design — see App.tsx). */}
+          {/* Navigation group: Settings + About */}
+          <Link
+            to="/settings?tab=profile"
+            {...prefetch('/settings')}
+            onClick={() => setIsMobileMenuOpen(false)}
+            className={linkClass}
+          >
+            <Settings className="w-5 h-5" aria-hidden="true" />
+            <span className="font-medium text-base">Settings</span>
+          </Link>
           <Link
             to="/about"
             {...prefetch('/about')}
             onClick={() => setIsMobileMenuOpen(false)}
-            className="flex w-full items-center space-x-3 px-3 py-3.5 min-h-12 rounded-lg transition-colors duration-200 text-text-secondary hover:text-text-primary hover:bg-surface-hover active:bg-surface-elevated"
+            className={linkClass}
           >
-            <Info className="w-5 h-5" />
+            <Info className="w-5 h-5" aria-hidden="true" />
             <span className="font-medium text-base">About</span>
           </Link>
+
+          <div className="border-t border-border/50 my-3" />
+
+          {/* Auth group */}
           {isAuthenticated ? (
             <button
+              type="button"
               onClick={handleSignOut}
-              className="flex w-full items-center space-x-3 px-3 py-3.5 min-h-12 rounded-lg transition-colors duration-200 text-error hover:bg-error/10 active:bg-error/20"
+              className="flex w-full items-center gap-3 px-3 py-3.5 min-h-12 rounded-lg transition-colors duration-200 text-error hover:bg-error/10 active:bg-error/20"
             >
-              <LogOut className="w-5 h-5" />
+              <LogOut className="w-5 h-5" aria-hidden="true" />
               <span className="font-medium text-base">Sign Out</span>
             </button>
           ) : (
-            <button
-              onClick={() => openAuthModal('signup')}
-              className="flex w-full items-center space-x-3 px-3 py-3.5 min-h-12 rounded-lg transition-colors duration-200 text-text-secondary hover:text-text-primary hover:bg-surface-hover active:bg-surface-elevated"
-            >
-              <UserPlus className="w-5 h-5" />
-              <span className="font-medium text-base">Add Account</span>
-            </button>
+            <div className="flex flex-col">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  openAuthModal('signin');
+                }}
+                className={linkClass}
+              >
+                <LogIn className="w-5 h-5" aria-hidden="true" />
+                <span className="font-medium text-base">Sign In</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  openAuthModal('signup');
+                }}
+                className={linkClass}
+              >
+                <UserPlus className="w-5 h-5" aria-hidden="true" />
+                <span className="font-medium text-base">Sign Up</span>
+              </button>
+            </div>
           )}
         </div>
       </div>
