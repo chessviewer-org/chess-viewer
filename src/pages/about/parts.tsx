@@ -33,9 +33,7 @@ export function SectionHeading({
 /** Lead paragraph shown under a section heading. */
 export function Lead({ children }: { children: ReactNode }) {
   return (
-    <p className="max-w-prose text-lg leading-relaxed text-text-secondary">
-      {children}
-    </p>
+    <p className="text-lg leading-relaxed text-text-secondary">{children}</p>
   );
 }
 
@@ -56,7 +54,7 @@ export function InfoCard({
       <h3 className="border-b border-border pb-2 text-xl font-bold text-text-primary">
         {title}
       </h3>
-      <div className="max-w-prose space-y-3 text-base leading-relaxed text-text-secondary">
+      <div className="space-y-3 text-base leading-relaxed text-text-secondary">
         {children}
       </div>
     </section>
@@ -80,7 +78,7 @@ export function FactRow({
 }: {
   icon: LucideIcon;
   label: string;
-  value: string;
+  value: ReactNode;
 }) {
   return (
     <div className="flex items-center justify-between gap-4 px-6 py-4">
