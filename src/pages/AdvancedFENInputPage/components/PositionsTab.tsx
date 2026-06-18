@@ -53,7 +53,7 @@ const PositionsTab = memo(function PositionsTab({
   };
 
   return (
-    <div className="flex flex-col gap-4 3xl:gap-6 w-[95%] max-w-600 mx-auto">
+    <div className="flex flex-col gap-4 3xl:gap-6 page-container">
       <AnimatePresence mode="popLayout">
         {rows.map((row) => {
           const isSingle = row.items.length === 1;
@@ -92,44 +92,61 @@ const PositionsTab = memo(function PositionsTab({
                             Position {idx + 1}
                           </span>
                           {fen && validateFEN(fen) && (
-                            <span className="w-1.5 h-1.5 rounded-full bg-success" />
+                            <span
+                              className="w-1.5 h-1.5 rounded-full bg-success"
+                              role="img"
+                              aria-label="Valid position"
+                            />
                           )}
                         </div>
                         <div className="flex items-center gap-1">
                           {fen && validateFEN(fen) && (
                             <button
+                              type="button"
                               onClick={() => onToggleFavorite(fen)}
-                              className={`p-1.5 rounded-lg transition-colors ${favorites[fen] ? 'bg-error/15 text-error hover:bg-error/25' : 'text-text-muted hover:text-error hover:bg-error/10'}`}
+                              className={`p-1.5 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${favorites[fen] ? 'bg-error/15 text-error hover:bg-error/25' : 'text-text-muted hover:text-error hover:bg-error/10'}`}
                               aria-label="Toggle favorite"
                             >
                               <Heart
                                 className="w-3.5 h-3.5"
                                 fill={favorites[fen] ? 'currentColor' : 'none'}
+                                aria-hidden="true"
                               />
                             </button>
                           )}
                           <button
+                            type="button"
                             onClick={() => onPasteFEN(idx)}
-                            className="p-1.5 text-text-muted hover:text-text-primary hover:bg-accent/10 rounded-lg transition-colors"
+                            className="p-1.5 text-text-muted hover:text-text-primary hover:bg-accent/10 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                             aria-label="Paste FEN"
                             title="Paste from clipboard"
                           >
                             {pastedIndex === idx ? (
-                              <Check className="w-3.5 h-3.5 text-success" />
+                              <Check
+                                className="w-3.5 h-3.5 text-success"
+                                aria-hidden="true"
+                              />
                             ) : (
-                              <Clipboard className="w-3.5 h-3.5" />
+                              <Clipboard
+                                className="w-3.5 h-3.5"
+                                aria-hidden="true"
+                              />
                             )}
                           </button>
                           {fens.length > 3 &&
                             idx >= 3 &&
                             fen.trim().length > 0 && (
                               <button
+                                type="button"
                                 onClick={() => onRemoveFen(idx)}
-                                className="p-1.5 text-text-muted hover:text-error hover:bg-error/10 rounded-lg transition-colors"
+                                className="p-1.5 text-text-muted hover:text-error hover:bg-error/10 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                                 aria-label="Remove position"
                                 title="Remove this position"
                               >
-                                <Trash2 className="w-3.5 h-3.5" />
+                                <Trash2
+                                  className="w-3.5 h-3.5"
+                                  aria-hidden="true"
+                                />
                               </button>
                             )}
                         </div>

@@ -5,10 +5,13 @@ import { useNavigate } from 'react-router-dom';
 
 import { ChessEditor, DndProvider } from '@/components/interactions';
 import { ControlPanel, ExportProgress } from '@/components/panels';
+import { getRouteSeo, SOFTWARE_APP_SCHEMA, WEBSITE_SCHEMA } from '@constants';
 
-import { NotificationContainer } from '@shared/ui';
+import { NotificationContainer, Seo } from '@shared/ui';
 import ExportStudio from './components/ExportStudio';
 import { useHome } from './hooks/useHome';
+
+const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
 /** Primary workspace combining the DnD board editor, control panel, and export studio trigger. */
 const HomePage: React.FC = () => {
@@ -60,14 +63,11 @@ const HomePage: React.FC = () => {
   // inline Clipboard History (lifted here as it is toggled from the FEN toolbar
   // but rendered inside ChessEditor's right column).
   const [activeRightPanel, setActiveRightPanel] = useState<
-    'controls' | 'history' | 'settings'
+    'controls' | 'history'
   >('controls');
   const toggleHistoryPanel = () =>
     setActiveRightPanel((p) => (p === 'history' ? 'controls' : 'history'));
   const closeHistoryPanel = () => setActiveRightPanel('controls');
-  const toggleSettingsPanel = useCallback(() => {
-    setActiveRightPanel((p) => (p === 'settings' ? 'controls' : 'settings'));
-  }, []);
 
   // Send a history FEN to the Advanced FEN editor. The page reads `addFen` from
   // navigation state and drops it into the batch (see useFENBatchSync).
@@ -101,13 +101,35 @@ const HomePage: React.FC = () => {
     handleBatchExport
   };
 
+  const isCustomFen = fen && fen !== STARTING_FEN;
+  // If user is viewing a custom FEN, append it to canonical URL and point to
+  // the Supabase Edge Function for dynamic OG image generation.
+  const dynamicParams = isCustomFen
+    ? `?fen=${encodeURIComponent(fen)}`
+    : undefined;
+
+  // Use VITE_SUPABASE_URL to construct the absolute URL to the Edge Function.
+  // We cannot use SITE_URL/api/og because Nginx does not proxy it by default.
+  const supabaseUrl =
+    import.meta.env['VITE_SUPABASE_URL']?.replace(/\/$/, '') ||
+    'https://placeholder.supabase.co';
+  const dynamicOgImage = isCustomFen
+    ? `${supabaseUrl}/functions/v1/og-image${dynamicParams}`
+    : undefined;
+
   return (
     <DndProvider>
+      <Seo
+        {...getRouteSeo('/')}
+        dynamicParams={dynamicParams}
+        image={dynamicOgImage ?? getRouteSeo('/').image}
+        schema={[WEBSITE_SCHEMA, SOFTWARE_APP_SCHEMA]}
+      />
       <motion.div
         initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="w-full h-auto lg:h-full lg:overflow-hidden min-h-0 bg-bg py-fluid-xs overflow-x-hidden"
+        className="w-full h-auto lg:h-full lg:overflow-hidden min-h-0 bg-bg py-2 overflow-x-hidden"
       >
         {/* Same width formula as the navbar inner container (Navbar.tsx) so the
             page edges line up pixel-exact with the ChessVision logo on the left
@@ -120,7 +142,7 @@ const HomePage: React.FC = () => {
             from the remaining track instead of relying on `flex-1` reflow, and
             `min-h-0` on the rows lets the card's own scroll/overflow take over
             cleanly. Vertical rhythm via the fluid `gap-fluid-xs` token. */}
-        <div className="grid grid-rows-[auto_minmax(0,1fr)] gap-fluid-xs w-[94%] sm:w-[88%] max-w-600 mx-auto h-auto lg:h-full min-h-0">
+        <div className="grid grid-rows-[auto_minmax(0,1fr)] gap-fluid-xs page-container h-auto lg:h-full min-h-0">
           {/* Top Bar — full-width FEN / Control Panel above the board. */}
           <div className="min-w-0">
             <ControlPanel
@@ -168,8 +190,6 @@ const HomePage: React.FC = () => {
                 onSelectHistoryFen={handleEditorFenChange}
                 onSendToAdvanced={handleSendToAdvanced}
                 onCloseHistory={closeHistoryPanel}
-                onToggleSettings={toggleSettingsPanel}
-                homeState={homeState}
               />
             </div>
           </div>
