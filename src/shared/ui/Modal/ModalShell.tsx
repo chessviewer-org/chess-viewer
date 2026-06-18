@@ -66,7 +66,12 @@ const ModalShell = memo(
             >
               <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border shrink-0">
                 <div className="flex items-center gap-3 min-w-0">
-                  {Icon && <Icon className={`w-5 h-5 shrink-0 ${iconColor}`} />}
+                  {Icon && (
+                    <Icon
+                      className={`w-5 h-5 shrink-0 ${iconColor}`}
+                      aria-hidden="true"
+                    />
+                  )}
                   <h3
                     id="modal-shell-title"
                     className="text-base sm:text-lg font-bold text-text-primary truncate"
@@ -81,7 +86,7 @@ const ModalShell = memo(
                     aria-label="Close dialog"
                     className="p-2 -mr-1 min-h-11 min-w-11 flex items-center justify-center hover:bg-surface-hover rounded-lg transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                   >
-                    <X className="w-5 h-5 text-text-muted" />
+                    <X className="w-5 h-5 text-text-muted" aria-hidden="true" />
                   </button>
                 )}
               </div>

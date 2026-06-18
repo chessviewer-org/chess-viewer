@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { prefetchByPath } from '@/routes/lazyPages';
+import { prefetchByPath } from '@/routes/prefetchRegistry';
 
 // Module-level so the guard is shared across every hook consumer: a chunk is
 // prefetched at most once per session regardless of which link triggers it.

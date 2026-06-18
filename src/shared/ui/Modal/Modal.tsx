@@ -49,9 +49,11 @@ const Modal = memo(
     }, [isOpen]);
 
     const icons = {
-      info: <Info className="w-6 h-6 text-blue-500" />,
-      warning: <AlertTriangle className="w-6 h-6 text-amber-500" />,
-      danger: <XCircle className="w-6 h-6 text-red-500" />
+      info: <Info className="w-6 h-6 text-blue-500" aria-hidden="true" />,
+      warning: (
+        <AlertTriangle className="w-6 h-6 text-amber-500" aria-hidden="true" />
+      ),
+      danger: <XCircle className="w-6 h-6 text-red-500" aria-hidden="true" />
     };
 
     const buttonStyles = {
@@ -76,6 +78,7 @@ const Modal = memo(
               role="dialog"
               aria-modal="true"
               aria-labelledby="modal-title"
+              aria-describedby="modal-description"
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -87,31 +90,41 @@ const Modal = memo(
                     {icons[type]}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-bold text-text-primary mb-1">
+                    <h3
+                      id="modal-title"
+                      className="text-lg font-bold text-text-primary mb-1"
+                    >
                       {title}
                     </h3>
-                    <div className="text-sm text-text-secondary leading-relaxed">
+                    <div
+                      id="modal-description"
+                      className="text-sm text-text-secondary leading-relaxed"
+                    >
                       {children || message}
                     </div>
                   </div>
                   <button
+                    type="button"
                     onClick={onCancel}
-                    className="shrink-0 p-1 text-text-muted hover:text-text-primary transition-colors"
+                    aria-label="Close dialog"
+                    className="shrink-0 p-1 text-text-muted hover:text-text-primary transition-colors rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-5 h-5" aria-hidden="true" />
                   </button>
                 </div>
 
                 <div className="mt-8 flex items-center justify-end gap-3">
                   <button
+                    type="button"
                     onClick={onCancel}
-                    className="px-4 py-2 text-sm font-semibold text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-lg transition-all"
+                    className="px-4 py-2 text-sm font-semibold text-text-secondary hover:text-text-primary hover:bg-surface-hover rounded-lg transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                   >
                     Cancel
                   </button>
                   <button
+                    type="button"
                     onClick={onConfirm}
-                    className={`px-6 py-2 text-sm font-bold text-white rounded-lg transition-all shadow-lg ${buttonStyles[type]}`}
+                    className={`px-6 py-2 text-sm font-bold text-white rounded-lg transition-all shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${buttonStyles[type]}`}
                   >
                     Confirm
                   </button>
