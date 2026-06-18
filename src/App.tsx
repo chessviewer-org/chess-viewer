@@ -9,13 +9,16 @@ import {
 } from 'react';
 
 import { Navbar } from '@/components/layout';
+import { useNavbarState } from '@/components/layout/Navbar/useNavbarState';
 import { FENBatchProvider } from '@/contexts/FENBatchContext';
 import { ModalProvider } from '@/contexts/ModalContext';
+import { AuthModal } from '@/features/auth/components/AuthModal';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useSecurityCheck } from '@/features/auth/hooks/useSecurityCheck';
 import Routes from '@/routes/Router';
 import {
   useAccentTheme,
+  useColorVision,
   useContrast,
   usePageScrollKeys,
   useThemeModeSync
@@ -205,10 +208,21 @@ function App() {
   // E2EE sync for a freshly signed-in device.
   useContrast();
 
+  // Apply the saved color vision (CVD) simulation filter and hydrate from sync.
+  useColorVision();
+
+  const {
+    openAuthModal,
+    isAuthModalOpen,
+    setIsAuthModalOpen,
+    authModalTab,
+    ...navState
+  } = useNavbarState();
+
   return (
     <ErrorBoundary>
       <FENBatchProvider>
-        <ModalProvider>
+        <ModalProvider openAuthModal={openAuthModal}>
           <div className="isolate-root shell-safe-area min-h-dvh lg:h-screen lg:h-dvh lg:overflow-hidden flex flex-col bg-linear-to-br from-bg-gradient-start to-bg-gradient-end text-fluid-base transition-colors duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
             <a
               href="#main-content"
@@ -217,7 +231,7 @@ function App() {
               Skip to main content
             </a>
 
-            <Navbar />
+            <Navbar {...navState} openAuthModal={openAuthModal} />
 
             <main
               id="main-content"
@@ -241,6 +255,16 @@ function App() {
           </div>
         </ModalProvider>
       </FENBatchProvider>
+
+      {isAuthModalOpen && (
+        <Suspense fallback={null}>
+          <AuthModal
+            isOpen={isAuthModalOpen}
+            onClose={() => setIsAuthModalOpen(false)}
+            initialTab={authModalTab}
+          />
+        </Suspense>
+      )}
     </ErrorBoundary>
   );
 }

@@ -29,6 +29,7 @@ interface ModalContextType {
     message: string,
     type?: ModalType
   ) => Promise<boolean>;
+  openAuthModal: (tab: 'signin' | 'signup' | 'security') => void;
 }
 
 const ModalContext = createContext<ModalContextType | undefined>(undefined);
@@ -37,7 +38,13 @@ const ModalContext = createContext<ModalContextType | undefined>(undefined);
  * Mounts the singleton `Modal` component and exposes `showAlert`/`showConfirm`
  * as promise-based imperatives through `ModalContext`.
  */
-export function ModalProvider({ children }: { children: React.ReactNode }) {
+export function ModalProvider({
+  children,
+  openAuthModal
+}: {
+  children: React.ReactNode;
+  openAuthModal: (tab: 'signin' | 'signup' | 'security') => void;
+}) {
   const [modalState, setModalState] = useState<ModalState>({
     isOpen: false,
     title: '',
@@ -92,8 +99,8 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
   );
 
   const value = useMemo(
-    () => ({ showAlert, showConfirm }),
-    [showAlert, showConfirm]
+    () => ({ showAlert, showConfirm, openAuthModal }),
+    [showAlert, showConfirm, openAuthModal]
   );
 
   return (

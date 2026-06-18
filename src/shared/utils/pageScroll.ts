@@ -91,14 +91,6 @@ function getScrollContainer(): HTMLElement | null {
   return null;
 }
 
-/** Honour the user's reduced-motion preference for programmatic scrolling. */
-function scrollBehavior(): ScrollBehavior {
-  const reduce =
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  return reduce ? 'auto' : 'smooth';
-}
-
 /**
  * Whether a keyboard scroll in `direction` (-1 up / +1 down) can move anything.
  * Lets the caller avoid swallowing an arrow key (`preventDefault`) on a route
@@ -116,17 +108,23 @@ export function canPageScroll(direction: -1 | 1): boolean {
   return y + window.innerHeight + 1 < document.documentElement.scrollHeight;
 }
 
-/** Scroll the active container (or the window) by `top` pixels. */
+/**
+ * Scroll the active container by `top` pixels.
+ * Always instant — smooth behavior stacks on repeated keydown events
+ * (held Up/Down) and causes scroll to freeze/lag. Callers that want smooth
+ * scroll (e.g. click-triggered jumps) use pageScrollToY with explicit behavior.
+ */
 export function pageScrollBy(top: number): void {
-  const behavior = scrollBehavior();
   const el = getScrollContainer();
-  if (el) el.scrollBy({ top, behavior });
-  else window.scrollBy({ top, behavior });
+  if (el) el.scrollBy({ top, behavior: 'instant' });
+  else window.scrollBy({ top, behavior: 'instant' });
 }
 
 /** Scroll the active container (or the window) to absolute `top`. */
-export function pageScrollToY(top: number): void {
-  const behavior = scrollBehavior();
+export function pageScrollToY(
+  top: number,
+  behavior: ScrollBehavior = 'instant'
+): void {
   const el = getScrollContainer();
   if (el) el.scrollTo({ top, behavior });
   else window.scrollTo({ top, behavior });
