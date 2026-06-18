@@ -16,7 +16,6 @@ import { supabase } from './supabaseClient';
 /** Canonical profile shape shared by the guest (localStorage) and user (DB) paths. */
 export interface Profile {
   displayName: string;
-  avatarUrl: string | null;
   /** ISO timestamp; current supporter iff this is in the future. Null = not a supporter. */
   supporterUntil: string | null;
   /**
@@ -32,14 +31,12 @@ export interface Profile {
 /** Default profile for a brand-new guest or an unmigrated/empty registered profile. */
 export const DEFAULT_PROFILE: Profile = {
   displayName: 'User',
-  avatarUrl: null,
   supporterUntil: null,
   supporterMonthlyUsd: 0
 };
 
 interface ProfileRow {
   display_name: string | null;
-  avatar_url: string | null;
   supporter_until: string | null;
 }
 
@@ -69,7 +66,7 @@ export const profileService = {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('display_name, avatar_url, supporter_until')
+        .select('display_name, supporter_until')
         .eq('user_id', userId)
         .maybeSingle<ProfileRow>();
 
@@ -81,7 +78,6 @@ export const profileService = {
 
       return {
         displayName: data.display_name ?? 'User',
-        avatarUrl: data.avatar_url ?? null,
         supporterUntil: data.supporter_until ?? null,
         // No dollar column server-side today; amount-driven tier stays 0 for
         // registered users until a real billing field exists.
@@ -103,26 +99,6 @@ export const profileService = {
       if (error && !isMissingSchemaError(error)) throw error;
     } catch (error: unknown) {
       logger.error('profileService.updateDisplayName error:', error);
-    }
-  },
-
-  /**
-   * Update the avatar URL on the relational `profiles.avatar_url` column (RLS:
-   * users update own profile). Pass `null` to clear it. Missing schema is a
-   * no-op for back-compat.
-   */
-  updateAvatar: async (
-    userId: string,
-    avatarUrl: string | null
-  ): Promise<void> => {
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ avatar_url: avatarUrl })
-        .eq('user_id', userId);
-      if (error && !isMissingSchemaError(error)) throw error;
-    } catch (error: unknown) {
-      logger.error('profileService.updateAvatar error:', error);
     }
   },
 
