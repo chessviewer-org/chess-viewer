@@ -15,7 +15,10 @@ export function TwoFactorStart({
   return (
     <div className="flex flex-col items-center text-center gap-6 p-4">
       <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mb-2 shadow-inner">
-        <ShieldCheck className="w-8 h-8 text-text-secondary" />
+        <ShieldCheck
+          className="w-8 h-8 text-text-secondary"
+          aria-hidden="true"
+        />
       </div>
       <div className="space-y-2">
         <h3 className="text-lg font-bold text-text-primary font-display">
@@ -28,9 +31,10 @@ export function TwoFactorStart({
         </p>
       </div>
       <button
+        type="button"
         onClick={onStart}
         disabled={isSubmitting || isMfaUnavailable}
-        className="w-full mt-2 bg-accent text-bg px-4 py-3.5 rounded-xl hover:bg-accent-hover transition-colors duration-200 font-semibold shadow-md disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+        className="w-full mt-2 bg-accent text-bg px-4 py-3.5 rounded-xl hover:bg-accent-hover transition-colors duration-200 font-semibold shadow-md disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
       >
         {isMfaUnavailable
           ? '2FA Unavailable'

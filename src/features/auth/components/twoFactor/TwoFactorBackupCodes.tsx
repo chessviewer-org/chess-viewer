@@ -35,8 +35,9 @@ export function TwoFactorBackupCodes({
       </div>
 
       <button
+        type="button"
         onClick={() => window.print()}
-        className="w-full mt-2 bg-surface-elevated text-text-primary px-4 py-3.5 rounded-xl hover:bg-surface-hover transition-colors duration-200 font-semibold border border-border shadow-sm active:scale-[0.98]"
+        className="w-full mt-2 bg-surface-elevated text-text-primary px-4 py-3.5 rounded-xl hover:bg-surface-hover transition-colors duration-200 font-semibold border border-border shadow-sm active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
         Download / Print Codes
       </button>
