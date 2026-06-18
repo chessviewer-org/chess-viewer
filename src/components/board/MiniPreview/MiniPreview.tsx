@@ -64,27 +64,36 @@ const MiniPreview = memo(
         Math.round(canvas.clientWidth || canvas.parentElement?.clientWidth || 0)
       );
       const dpr = Math.min(window.devicePixelRatio || 1, 3);
-      const squareSize = cssSize / 8;
       setHasError(false);
       canvas.width = Math.round(cssSize * dpr);
       canvas.height = Math.round(cssSize * dpr);
       canvas.style.width = '100%';
       canvas.style.height = '100%';
       ctx.scale(dpr, dpr);
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
+      // SVGs are vectors; disabling smoothing gives crisp piece edges at the
+      // integer-snapped device-pixel sizes computed below, instead of the blur
+      // from upscaling the rasterised image.
+      ctx.imageSmoothingEnabled = false;
       try {
         const board = parseFEN(fen);
         if (!board || !Array.isArray(board) || board.length !== 8) {
           throw new Error('Invalid board structure');
         }
+        // Snap every square to integer CSS-pixel edges so adjacent fills share
+        // an exact boundary. Using `col * squareSize` with a fractional
+        // squareSize leaves sub-pixel gaps that render as thin hairlines
+        // ("cuts") inside the board — computing each edge from the rounded next
+        // edge eliminates them.
+        const edge = (i: number) => Math.round((i * cssSize) / 8);
         for (let row = 0; row < 8; row++) {
           for (let col = 0; col < 8; col++) {
             const isLight = (row + col) % 2 === 0;
-            const x = col * squareSize;
-            const y = row * squareSize;
+            const x = edge(col);
+            const y = edge(row);
+            const w = edge(col + 1) - x;
+            const h = edge(row + 1) - y;
             ctx.fillStyle = isLight ? defaultLight : defaultDark;
-            ctx.fillRect(x, y, squareSize, squareSize);
+            ctx.fillRect(x, y, w, h);
           }
         }
         for (let row = 0; row < 8; row++) {
@@ -96,10 +105,15 @@ const MiniPreview = memo(
               const pieceKey = color + pieceType;
               const img = pieceImages[pieceKey];
               if (img && img.complete && img.naturalWidth > 0) {
-                const x = col * squareSize;
-                const y = row * squareSize;
-                const pieceSize = squareSize * 0.9;
-                const offset = (squareSize - pieceSize) / 2;
+                const x = edge(col);
+                const y = edge(row);
+                const cellW = edge(col + 1) - x;
+                // Snap the piece box to whole DEVICE pixels. With ctx.scale(dpr),
+                // a fractional CSS offset lands the SVG between device pixels and
+                // the rasteriser blurs it. Rounding to 1/dpr keeps edges crisp.
+                const snap = (val: number) => Math.round(val * dpr) / dpr;
+                const pieceSize = snap(cellW * 0.9);
+                const offset = snap((cellW - pieceSize) / 2);
                 ctx.drawImage(
                   img,
                   x + offset,

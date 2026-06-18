@@ -126,10 +126,13 @@ const HistoryFilters = memo(function HistoryFilters({
   ];
   return (
     <div className="bg-surface-elevated border-b border-border">
-      <div className="px-4 sm:px-6 py-3">
+      <div className="page-container py-3">
         <div className="flex items-center gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none"
+              aria-hidden="true"
+            />
             <input
               type="text"
               placeholder="Search FEN positions..."
@@ -140,10 +143,13 @@ const HistoryFilters = memo(function HistoryFilters({
           </div>
 
           <button
+            type="button"
             onClick={() => setIsExpanded(!isExpanded)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors ${isExpanded || hasActiveFilters ? 'bg-accent text-bg' : 'bg-surface text-text-secondary hover:text-text-primary hover:bg-surface-hover border border-border'}`}
+            aria-expanded={isExpanded}
+            aria-label="Toggle filters"
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${isExpanded || hasActiveFilters ? 'bg-accent text-bg' : 'bg-surface text-text-secondary hover:text-text-primary hover:bg-surface-hover border border-border'}`}
           >
-            <Filter className="w-4 h-4" />
+            <Filter className="w-4 h-4" aria-hidden="true" />
             <span className="hidden sm:inline">Filters</span>
             {hasActiveFilters && !isExpanded && (
               <span className="bg-surface-elevated text-text-primary w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center">
@@ -154,11 +160,12 @@ const HistoryFilters = memo(function HistoryFilters({
 
           {hasActiveFilters && (
             <button
+              type="button"
               onClick={clearFilters}
-              className="p-2.5 rounded-lg text-text-muted hover:text-error hover:bg-error/10 transition-colors"
+              className="p-2.5 rounded-lg text-text-muted hover:text-error hover:bg-error/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               aria-label="Clear filters"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4" aria-hidden="true" />
             </button>
           )}
         </div>
