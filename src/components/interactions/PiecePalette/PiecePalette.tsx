@@ -84,7 +84,7 @@ export const PiecePalette = memo(function PiecePalette({
     (pieces: PalettePiece[], label: string) => (
       <div className="flex-1 min-w-0 flex flex-col">
         {/* Section label — neutral tone; accent is reserved for active/CTA states. */}
-        <span className="block w-full text-fluid-sm font-semibold uppercase tracking-wider text-text-secondary text-center pb-1.5">
+        <span className="block w-full text-fluid-xs font-semibold uppercase tracking-wider text-text-secondary text-center pb-1.5">
           {label}
         </span>
         {/* Tray: `items-stretch` lets each square cell drive the row height so
