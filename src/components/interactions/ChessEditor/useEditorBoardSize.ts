@@ -14,23 +14,23 @@ const MIN_BOARD_PX = 200;
 // mobile the board sits ABOVE the palette + tab bar + active panel, so it takes
 // the lion's share of what's left after the FEN toolbar; the remainder feeds
 // the tool strip so NOTHING is clipped and the page never scrolls horizontally.
-const MOBILE_BOARD_VH = 0.78;
+const MOBILE_BOARD_VH = 0.68;
 
 // On desktop the WHOLE workspace must fit inside one viewport (no page scroll):
 // navbar gap + FEN control panel + board, all within 100vh. Height is therefore
 // the practical limit, not width — the board shrinks to fill exactly the space
-// left after the chrome, and the right panel reflows beside it. ~1.0 so the
-// board consumes essentially all the post-chrome height.
-const DESKTOP_BOARD_VH = 0.98;
+// left after the chrome, and the right panel reflows beside it. ~0.88 leaves
+// headroom for the card padding and gaps so nothing overflows 100vh.
+const DESKTOP_BOARD_VH = 0.88;
 
 // Reserved vertical space inside the viewport that is NOT the board. Subtracted
 // from the viewport height before applying the VH fraction so the height budget
 // reflects the real space the board column gets.
 //   Mobile: navbar gap + FEN toolbar (board is ABOVE the tool strip).
-//   Desktop: navbar gap (~88) + HomePage py-3 (24) + space-y-2 gap (8) +
-//   ControlPanel/FEN toolbar (~92) + board-card p-3.5 (28) ≈ 240px.
-const MOBILE_VERTICAL_CHROME = 132;
-const DESKTOP_VERTICAL_CHROME = 240;
+//   Desktop: navbar (64) + FEN toolbar (56) + card padding (28×2) +
+//   gap (8×2) + page py (16) ≈ 300px.
+const MOBILE_VERTICAL_CHROME = 160;
+const DESKTOP_VERTICAL_CHROME = 300;
 
 /** Pixel-align a raw board size down to a multiple of 8 (one full cell). */
 const align8 = (raw: number) => Math.floor(raw / 8) * 8;
@@ -65,12 +65,12 @@ function calculateBoardSize(
   // ── Width budget ──────────────────────────────────────────────────────
   let widthRaw: number;
   if (containerWidth < 640) {
-    widthRaw = Math.min(containerWidth / widthFactor, 440);
+    widthRaw = Math.min(containerWidth / widthFactor, 380);
   } else if (containerWidth < 1024) {
-    widthRaw = Math.min((containerWidth * 0.92) / widthFactor, 520);
+    widthRaw = Math.min((containerWidth * 0.92) / widthFactor, 460);
   } else {
     const shrunk = containerWidth * 0.8 - BOARD_SHRINK_PX;
-    widthRaw = Math.min(shrunk / widthFactor, 560);
+    widthRaw = Math.min(shrunk / widthFactor, 480);
   }
 
   // ── Height budget ─────────────────────────────────────────────────────

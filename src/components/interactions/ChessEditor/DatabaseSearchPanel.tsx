@@ -40,7 +40,7 @@ const SearchActionButton = memo(function SearchActionButton({
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex shrink-0 items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-bg bg-accent hover:bg-accent-hover transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:scale-[0.98]"
+        className="flex shrink-0 items-center justify-center gap-1 px-2 py-1 rounded-lg text-xs font-bold text-bg bg-accent hover:bg-accent-hover transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:scale-[0.98]"
         aria-label={`Open ${state.label} result in a new tab`}
       >
         <span>Open</span>
@@ -64,7 +64,7 @@ const SearchActionButton = memo(function SearchActionButton({
       type="button"
       onClick={state.search}
       disabled={searching}
-      className={`flex shrink-0 items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg ${
+      className={`flex shrink-0 items-center justify-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg ${
         searching
           ? 'cursor-wait border-border/50 bg-surface text-text-muted'
           : status === 'notfound'
@@ -91,17 +91,17 @@ const ProviderRow = memo(function ProviderRow({
 }) {
   const found = state.status === 'found';
   return (
-    <div className="flex h-full items-center justify-between gap-1.5 min-w-0 px-2.5 py-2.5 rounded-lg border border-border/40 bg-surface">
+    <div className="flex h-full items-center justify-between gap-1 min-w-0 px-2 py-2 rounded-lg border border-border/40 bg-surface">
       <div className="flex items-center gap-1.5 min-w-0">
         <Database
-          className={`w-4 h-4 shrink-0 transition-colors duration-300 ${
+          className={`w-3.5 h-3.5 shrink-0 transition-colors duration-300 ${
             found ? 'text-accent' : 'text-text-muted'
           }`}
           strokeWidth={found ? 2.5 : 2}
           aria-hidden="true"
         />
         <span
-          className={`text-sm font-bold truncate transition-colors duration-300 ${
+          className={`text-[13px] font-semibold truncate transition-colors duration-300 ${
             found ? 'text-accent' : 'text-text-primary'
           }`}
         >
@@ -122,18 +122,16 @@ const DatabaseSearchPanel = memo(function DatabaseSearchPanel({
 }: DatabaseSearchPanelProps) {
   return (
     <div
-      className={`flex w-full flex-col rounded-xl border border-border/40 bg-surface-elevated px-2.5 py-2.5 ${className}`}
+      className={`flex w-full flex-col rounded-xl border border-border/40 bg-surface-elevated px-2 py-1.5 ${className}`}
     >
-      <span className="block shrink-0 text-fluid-xs font-bold uppercase tracking-wider text-text-secondary px-1 mb-2.5">
+      <span className="block shrink-0 text-xs font-bold uppercase tracking-wider text-text-secondary px-1 mb-1.5">
         Database Search
       </span>
 
-      {/* 2×2 grid — each provider independently triggered. Top row: game
-          databases (Lichess "who played this?" · ChessDB engine evals); bottom
-          row: the problem databases PDB / YACPDB. `flex-1` + `auto-rows-fr` lets
-          the two rows split the panel's full height evenly, so the provider
-          cells grow taller when the editor gives this panel more room. */}
-      <div className="grid flex-1 min-h-0 grid-cols-2 auto-rows-fr gap-2.5">
+      {/* 2×2 grid restored. `auto-rows-fr` ensures that when the editor height
+          increases (via DESKTOP_BOARD_VH), these cells stretch vertically,
+          preventing the buttons from feeling cramped. */}
+      <div className="grid flex-1 min-h-0 grid-cols-2 auto-rows-fr gap-1.5">
         <ProviderRow state={lichess} />
         <ProviderRow state={chessdb} />
         <ProviderRow state={pdb} />

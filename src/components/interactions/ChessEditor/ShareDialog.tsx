@@ -21,6 +21,7 @@ export interface ShareDialogProps {
   isOpen: boolean;
   onClose: () => void;
   fen: string;
+  positionUrl?: string;
   targets: ShareTarget[];
   onOpenTarget: (target: ShareTarget) => void;
   onCopyLink: () => void;
@@ -44,6 +45,7 @@ const ShareDialog = memo(function ShareDialog({
   isOpen,
   onClose,
   fen,
+  positionUrl,
   targets,
   onOpenTarget,
   onCopyLink,
@@ -145,10 +147,25 @@ const ShareDialog = memo(function ShareDialog({
 
             {mode === 'fen' ? (
               <div className="space-y-4">
-                <div className="px-3 py-2 bg-surface rounded-lg border border-border">
-                  <p className="text-xs font-mono text-text-secondary break-all">
-                    {fen}
-                  </p>
+                <div className="px-3 py-2 bg-surface rounded-lg border border-border flex flex-col gap-2">
+                  {positionUrl && (
+                    <div className="flex flex-col gap-1 pb-2 border-b border-border/50">
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-text-secondary">
+                        Shareable Link
+                      </span>
+                      <p className="text-xs font-medium text-accent break-all">
+                        {positionUrl}
+                      </p>
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-text-secondary">
+                      FEN Code
+                    </span>
+                    <p className="text-xs font-mono text-text-secondary break-all">
+                      {fen}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-4 gap-2">
