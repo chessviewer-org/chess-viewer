@@ -268,7 +268,7 @@ const SecuritySection = memo(function SecuritySection() {
           <p className="font-semibold text-text-primary">
             Sign in to manage security
           </p>
-          <p className="mx-auto mt-2 max-w-sm text-sm text-text-secondary">
+          <p className="mx-auto mt-2 text-sm text-text-secondary">
             Two-factor authentication and password management are available once
             you&apos;re signed in.
           </p>
