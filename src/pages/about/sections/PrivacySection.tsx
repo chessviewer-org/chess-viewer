@@ -1,6 +1,5 @@
 import { Shield } from 'lucide-react';
 
-import { CONTACT_EMAIL } from '../aboutConstants';
 import { InfoCard, Lead, SectionHeading } from '../parts';
 
 /**
@@ -16,11 +15,11 @@ export default function PrivacySection() {
       <div className="space-y-3">
         <SectionHeading icon={Shield} title="Privacy" />
         <Lead>
-          ChessVision is designed to need as little of your data as possible.
-          Your data is stored in your browser; there is no tracking; and the two
-          things that ever leave your device — a position-database search and
-          optional cloud sync — are limited and, in the case of sync, encrypted
-          so that not even the server can read it.
+          ChessVision is designed not to use your data. Your data is stored in
+          your browser; there is no tracking; and the two things that ever leave
+          your device — a position-database search and optional cloud sync — are
+          limited and, in the case of sync, encrypted so that not even the
+          server can read it.
         </Lead>
       </div>
 
@@ -57,38 +56,29 @@ export default function PrivacySection() {
         <p>
           When sync is enabled, your synced data is{' '}
           <strong className="text-text-primary">end-to-end encrypted</strong> in
-          your browser before it is uploaded, using the Web Crypto API (AES-GCM
-          256 with a key derived via PBKDF2). What is stored on the server is
-          only an <code className="text-text-primary">enc:</code>-prefixed
-          ciphertext blob it cannot read or decrypt. Your local copy always
-          remains the source of truth, and cloud sync is treated as a
-          best-effort convenience.
+          your browser before it is uploaded. What is stored on the server is
+          only an unreadable or undecryptable encrypted data block.
         </p>
       </InfoCard>
 
       <InfoCard title="How accounts are protected">
         <p>
           Authentication and storage are handled by Supabase. Every database
-          table is protected by row-level security that is default-deny and
-          scoped to the owning user, so one account cannot read another&apos;s
-          data. Accounts can enable two-factor authentication (2FA) for an extra
-          layer of protection.
-        </p>
-        <p>
-          The app is served with a strict Content-Security-Policy that restricts
-          which external hosts the page may talk to, and does not allow inline
-          or evaluated scripts.
+          table is protected by row-level security that only allows access to
+          the owning user, so one account cannot read another&apos;s data.
+          Accounts can enable two-factor authentication (2FA) for an extra layer
+          of protection.
         </p>
       </InfoCard>
 
       <InfoCard title="Position database lookups">
         <p>
           When you explicitly run a position-database search, the FEN string of
-          that position is sent to a Supabase edge function, which queries the
-          Lichess opening explorer and the PDB (Problemdatenbank) and YACPDB
-          problem databases on your behalf and caches the result. Only the FEN
-          leaves your device — no account, history, or other data is attached —
-          and only when you start a search. It is never done in the background.
+          that position is sent to a function that queries the Lichess, PDB, and
+          YACPDB databases on your behalf. Only the FEN string leaves your
+          device — no account, history, or other data is attached — and this
+          only happens when you start a search. It is never done in the
+          background.
         </p>
       </InfoCard>
 
@@ -96,14 +86,7 @@ export default function PrivacySection() {
         <p>
           You can export a full backup of your local data, import it again, or
           reset it from the Data Management section in Settings. To delete your
-          account and any associated cloud data, email us at{' '}
-          <a
-            href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Account deletion request')}`}
-            className="font-semibold text-accent hover:underline"
-          >
-            {CONTACT_EMAIL}
-          </a>{' '}
-          and we will remove it.
+          account and any associated cloud data, email us and we will remove it.
         </p>
       </InfoCard>
     </div>

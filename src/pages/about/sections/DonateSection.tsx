@@ -44,19 +44,35 @@ export default function DonateSection() {
           ChessVision is free and will stay free. A donation is voluntary, not
           payment for work — it helps fund ongoing maintenance, security and
           dependency updates, and infrastructure and hosting. Nothing is locked
-          behind it, and contributing never requires payment. For the time
-          being, cryptocurrency is the primary way to give, with GitHub Sponsors
-          as an alternative.
+          behind it, and contributing never requires payment. Currently, GitHub
+          Sponsors and cryptocurrency payments are available.
         </Lead>
       </div>
 
+      <InfoCard title="GitHub Sponsors">
+        <p>
+          You can also support the project through GitHub Sponsors. Either way,
+          there are no special perks, premium tiers, or paywalls attached —
+          every feature stays available to everyone regardless of whether you
+          donate.
+        </p>
+        <div className="pt-1">
+          <ExternalLinkButton
+            href={SPONSORS_URL}
+            icon={Heart}
+            variant="primary"
+          >
+            Sponsor on GitHub
+          </ExternalLinkButton>
+        </div>
+      </InfoCard>
+
       <InfoCard title="Crypto (USDT / USDC / ETH)">
         <p>
-          For now, crypto is the main donation channel. You can send USDT, USDC,
-          or ETH to the single EVM wallet address below — the same address works
-          for all three. Always double-check the address before sending.
+          You can send USDT, USDC, or ETH to the single EVM wallet address below
+          — the same address works for all three. Always double-check the
+          address before sending.
         </p>
-        {/* Genuinely distinct callout: the copyable wallet block keeps a card. */}
         <Callout>
           <div className="flex items-stretch gap-2">
             <code className="min-w-0 flex-1 select-all break-all rounded-xl border border-border bg-surface px-4 py-3 font-mono text-base text-text-primary">
@@ -76,23 +92,6 @@ export default function DonateSection() {
         </Callout>
       </InfoCard>
 
-      <InfoCard title="GitHub Sponsors">
-        <p>
-          You can also support the project through GitHub Sponsors. Either way,
-          there are no perks, premium tiers, or paywalls attached — every
-          feature stays available to everyone regardless of whether you give.
-        </p>
-        <div className="pt-1">
-          <ExternalLinkButton
-            href={SPONSORS_URL}
-            icon={Heart}
-            variant="primary"
-          >
-            Sponsor on GitHub
-          </ExternalLinkButton>
-        </div>
-      </InfoCard>
-
       <InfoCard title="Other ways to support, for free">
         <p>
           Money is not the only way to help. Contributing code, writing good bug
@@ -105,9 +104,7 @@ export default function DonateSection() {
               className="mt-0.5 h-4 w-4 shrink-0 text-text-muted"
               aria-hidden="true"
             />
-            <span>
-              Contribute on GitHub — see the Contribute section for details.
-            </span>
+            <span>Contribute on GitHub.</span>
           </li>
           <li className="flex gap-3">
             <Megaphone

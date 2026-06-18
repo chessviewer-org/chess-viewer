@@ -38,24 +38,24 @@ export default function ThanksSection() {
         </Lead>
       </div>
 
-      <div className="max-w-3xl space-y-5 text-base leading-relaxed text-text-secondary">
+      <div className="space-y-5 text-base leading-relaxed text-text-secondary">
         <p>
           The interface is a <Ext href="https://react.dev">React</Ext>{' '}
           application written in{' '}
-          <Ext href="https://www.typescriptlang.org">TypeScript</Ext>, built and
-          served in development by <Ext href="https://vitejs.dev">Vite</Ext> and
-          styled with <Ext href="https://tailwindcss.com">Tailwind CSS</Ext>.
-          Navigation between pages is handled by{' '}
+          <Ext href="https://www.typescriptlang.org">TypeScript</Ext>, built by{' '}
+          <Ext href="https://vitejs.dev">Vite</Ext> and styled with{' '}
+          <Ext href="https://tailwindcss.com">Tailwind CSS</Ext>. Navigation
+          between pages is handled by{' '}
           <Ext href="https://reactrouter.com">React Router</Ext>, the motion and
           page transitions come from{' '}
           <Ext href="https://www.framer.com/motion/">Framer Motion</Ext>, and
-          the drag-and-drop board editor is powered by{' '}
+          the interactive board editor is powered by{' '}
           <Ext href="https://react-dnd.github.io/react-dnd/">react-dnd</Ext>.
         </p>
         <p>
-          Large lists, such as a long FEN history, stay smooth thanks to{' '}
+          Large lists (such as a long FEN history) stay smooth thanks to{' '}
           <Ext href="https://github.com/bvaughn/react-window">react-window</Ext>
-          , the icons throughout the app are from{' '}
+          , the icons throughout the app come from{' '}
           <Ext href="https://lucide.dev">Lucide</Ext>, and the two-factor setup
           QR codes are rendered with{' '}
           <Ext href="https://github.com/zpao/qrcode.react">qrcode.react</Ext>.
@@ -63,19 +63,17 @@ export default function ThanksSection() {
           <Ext href="https://supabase.com">Supabase</Ext>.
         </p>
         <p>
-          The app is packaged and deployed with{' '}
+          The app is packaged with{' '}
           <Ext href="https://www.docker.com">Docker</Ext> and served by{' '}
           <Ext href="https://nginx.org">nginx</Ext>, and the source code,
-          issues, and discussions all live on{' '}
+          errors, and discussions live on{' '}
           <Ext href="https://github.com">GitHub</Ext>. The position-database
           search would not be possible without the open chess data published by{' '}
           <Ext href="https://lichess.org">Lichess</Ext> and{' '}
           <Ext href="https://chessdb.cn/queryc_en/">ChessDB</Ext>, together with
-          the composed-problem collections at{' '}
+          the problem collections at{' '}
           <Ext href="https://pdb.dieschwalbe.de">PDB (Problemdatenbank)</Ext>{' '}
-          and <Ext href="https://www.yacpdb.org">YACPDB</Ext>. Those lookups run
-          through a Supabase edge function that caches results in Postgres so
-          repeat searches stay fast.
+          and <Ext href="https://www.yacpdb.org">YACPDB</Ext>.
         </p>
         <p>
           Finally, thank you to everyone who reports bugs, suggests
