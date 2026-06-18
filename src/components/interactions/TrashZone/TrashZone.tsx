@@ -95,8 +95,7 @@ export const TrashZone = memo(function TrashZone({
         }
         ${className}
       `}
-      role="button"
-      aria-label="Drop here to remove piece"
+      aria-hidden="true"
     >
       <svg
         className={`w-5 h-5 shrink-0 transition-colors duration-200`}
