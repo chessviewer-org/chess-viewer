@@ -1033,4 +1033,30 @@ GRANT  EXECUTE ON FUNCTION public.is_mfa_enabled()                              
 
 -- set_supporter_status: authenticated-only; anon must be explicitly denied.
 REVOKE EXECUTE ON FUNCTION public.set_supporter_status(INT)                        FROM PUBLIC, anon;
+-- FUNCTION: delete_own_account — PERMANENTLY remove the caller's account and data.
+-- Cascade handles profiles, user_data, batches, etc.
+CREATE OR REPLACE FUNCTION public.delete_own_account()
+RETURNS void AS $$
+DECLARE
+    v_user_id UUID;
+BEGIN
+    v_user_id := auth.uid();
+    
+    IF v_user_id IS NULL THEN
+        RAISE EXCEPTION 'Not authenticated';
+    END IF;
+
+    -- Record audit before deletion (user_id will become NULL via SET NULL in log)
+    PERFORM public.record_audit('account_deleted_self', true, jsonb_build_object('user_id', v_user_id));
+
+    -- The big red button. Cascade deletes all public.* data.
+    DELETE FROM auth.users WHERE id = v_user_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = auth, public;
+
+-- ... (around line 1010)
+REVOKE EXECUTE ON FUNCTION public.delete_own_account()                          FROM PUBLIC, anon, authenticated;
+GRANT  EXECUTE ON FUNCTION public.delete_own_account()                          TO authenticated;
+
+-- ... (rest of grants)
 GRANT  EXECUTE ON FUNCTION public.set_supporter_status(INT)                        TO authenticated;
