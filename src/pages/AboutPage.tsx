@@ -23,6 +23,9 @@ import {
   PrivacySection,
   ThanksSection
 } from '@/pages/about';
+import { getRouteSeo, ORGANIZATION_SCHEMA, WEBSITE_SCHEMA } from '@constants';
+
+import { Seo } from '@shared/ui';
 
 const groups: readonly PageTabGroup[] = [
   {
@@ -100,11 +103,15 @@ const AboutPage = memo(function AboutPage() {
       data-page-scroll
       className="min-h-full bg-bg lg:h-full lg:max-h-full lg:overflow-y-auto"
     >
+      <Seo
+        {...getRouteSeo('/about')}
+        schema={[WEBSITE_SCHEMA, ORGANIZATION_SCHEMA]}
+      />
       {/* Two-column shell, constrained to the navbar's width so the page reads
           as one column under the bar: a sticky left category rail (always
           visible, never collapses) and a scrolling content column on the right
           (GitHub-settings pattern), mirroring the Settings page layout. */}
-      <div className="mx-auto flex w-[94%] max-w-600 flex-col gap-6 py-6 sm:w-[88%] sm:py-10 lg:flex-row lg:gap-10">
+      <div className="page-container flex flex-col gap-6 py-6 sm:py-10 lg:flex-row lg:gap-10">
         <div className="shrink-0 lg:w-56">
           <PageTabs
             groups={groups}
