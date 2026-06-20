@@ -2,11 +2,11 @@
  * Light/dark THEME-MODE persistence helpers.
  *
  * This is the site UI mode (`data-theme` = 'light' | 'dark'), distinct from the
- * board-square colours (`useThemePersistence`) and the accent (`accentTheme`).
+ * board-square colours (`useThemePersistence`).
  *
  * Three user choices exist:
  *   - 'light' / 'dark' — a manual override that pins the site, persisted so it
- *     survives reloads and (E2EE) syncs across signed-in devices.
+ *     survives reloads and syncs across signed-in devices.
  *   - 'system'         — an EXPLICIT choice to follow the OS `prefers-color-scheme`
  *     and track it live. It is STORED (as the literal 'system'), not the absence
  *     of a key.
@@ -14,8 +14,8 @@
  * Default (no stored preference at all): DARK. A brand-new user sees dark, NOT
  * the OS setting; 'system' must be chosen explicitly to follow the OS.
  *
- * Mirrors the accent pattern: localStorage is the synchronous source of truth,
- * `syncStorage` (E2EE) is best-effort, and an in-app event lets a change on the
+ * Persistence pattern: localStorage is the synchronous source of truth,
+ * `syncStorage` is best-effort, and an in-app event lets a change on the
  * Appearance page reach App immediately.
  */
 
