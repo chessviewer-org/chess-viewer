@@ -1,4 +1,3 @@
-export * from './accentTheme';
 export * from './archiveManager';
 export * from './boardUtils';
 export * from './canvasExporter';
@@ -17,6 +16,7 @@ export * from './logger';
 export * from './pageScroll';
 export * from './performance';
 export * from './pieceImageCache';
+export * from './reducedMotion';
 export * from './svgExporter';
 export * from './syncHydration';
 export * from './themeMode';
