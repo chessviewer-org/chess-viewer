@@ -42,19 +42,3 @@ export function getMfaErrorMessage(error: unknown): string {
 
   return msg;
 }
-
-/**
- * Generates cryptographically random hex backup codes.
- *
- * @param count - Number of codes to generate (default 10).
- * @returns Array of uppercase 8-character hex strings.
- */
-export function generateBackupCodes(count = 10): string[] {
-  return Array.from({ length: count }, () => {
-    const array = new Uint8Array(4);
-    crypto.getRandomValues(array);
-    return Array.from(array, (byte) => byte.toString(16).padStart(2, '0'))
-      .join('')
-      .toUpperCase();
-  });
-}

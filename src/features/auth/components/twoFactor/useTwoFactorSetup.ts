@@ -3,11 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/features/auth/services/supabaseClient';
 
 import { logger } from '@utils/logger';
-import {
-  generateBackupCodes,
-  getMfaErrorMessage,
-  isMfa422Error
-} from './mfaErrors';
+import { getMfaErrorMessage, isMfa422Error } from './mfaErrors';
 
 /** Lifecycle of the on-mount MFA status probe. */
 export type MfaStatus = 'loading' | 'enabled' | 'disabled';
@@ -26,8 +22,9 @@ export interface VerifiedFactor {
  * factor flips `status` to `'enabled'` and exposes a disable path; otherwise it
  * falls back to the three-step setup flow (start → QR verify → backup codes).
  *
- * Calls Supabase MFA APIs directly; backup codes are generated client-side with
- * `crypto.getRandomValues` and never stored server-side.
+ * Calls Supabase MFA APIs directly; recovery codes are issued by the server
+ * `generate_recovery_codes` RPC, which returns the plaintext codes once and
+ * persists only their bcrypt hashes (the codes `verify_recovery_code` accepts).
  */
 export function useTwoFactorSetup() {
   const [totpUri, setTotpUri] = useState<string | null>(null);
@@ -48,12 +45,16 @@ export function useTwoFactorSetup() {
    * verified TOTP factors so callers can act on them without a second read.
    */
   const refreshStatus = useCallback(async (): Promise<VerifiedFactor[]> => {
+    // `getSession()` reads the cached local session synchronously instead of
+    // round-tripping to the server like `getUser()` — enough to know we are
+    // signed in, and it removes one of the two network hops that made the
+    // "Checking two-factor status…" spinner sit for ~2s on mount.
     const {
-      data: { user },
-      error: userError
-    } = await supabase.auth.getUser();
+      data: { session },
+      error: sessionError
+    } = await supabase.auth.getSession();
 
-    if (userError || !user) {
+    if (sessionError || !session?.user) {
       setStatus('disabled');
       setVerifiedFactors([]);
       return [];
@@ -252,7 +253,26 @@ export function useTwoFactorSetup() {
       return;
     }
 
-    setBackupCodes(generateBackupCodes());
+    // Issue real recovery codes via the server RPC. It returns the plaintext
+    // codes ONCE while persisting only their bcrypt hashes in user_security —
+    // these are the exact codes verify_recovery_code() will later accept. The
+    // session is now AAL2 (TOTP just verified), satisfying the RPC's aal2 gate.
+    const { data: recoveryCodes, error: codesError } = await supabase.rpc(
+      'generate_recovery_codes'
+    );
+
+    if (codesError || !recoveryCodes) {
+      // TOTP is enabled and working; only code generation failed. Surface it but
+      // do not block — the user can regenerate codes later from security settings.
+      logger.error('Failed to generate recovery codes:', codesError);
+      setError(
+        'Two-factor authentication is enabled, but recovery codes could not be generated. You can generate them later from Security settings.'
+      );
+      setBackupCodes([]);
+    } else {
+      setBackupCodes(recoveryCodes);
+    }
+
     setStep(3);
     setIsSubmitting(false);
     void refreshStatus();
