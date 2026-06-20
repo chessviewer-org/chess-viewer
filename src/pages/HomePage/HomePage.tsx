@@ -163,7 +163,7 @@ const HomePage: React.FC = () => {
               Export actions now live as icons in the panel's top toolbar.
 
               `workspace-container` makes this card a container-query context so
-              ChessEditor adapts to the CARD's inline width (`@5xl:flex-row`),
+              ChessEditor adapts to the CARD's inline width (`@3xl:flex-row`),
               not the viewport — board+panel go side-by-side when the CARD is
               wide enough, which is the right signal on ultra-wide. `overscroll-trap`
               keeps a scroll bounce inside the card on touch. */}
