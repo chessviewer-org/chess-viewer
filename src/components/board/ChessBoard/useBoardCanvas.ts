@@ -183,12 +183,6 @@ export function useBoardCanvas({
     const squareSize = playSize / 8;
     ctx.clearRect(0, 0, totalSize, totalSize);
 
-    if (showCoords) {
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(borderSize, borderSize, playSize, playSize);
-    }
-
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
         const isLight = isLightSquare(row, col);
@@ -207,6 +201,21 @@ export function useBoardCanvas({
         );
         ctx.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
       }
+    }
+
+    // Stroke is drawn after fills so it sits flush on top of the outermost
+    // squares with no gap. Offset by half lineWidth so the stroke is fully
+    // outside the board area (outset stroke).
+    if (showCoords) {
+      const lw = 1;
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.15)';
+      ctx.lineWidth = lw;
+      ctx.strokeRect(
+        borderSize - lw / 2,
+        borderSize - lw / 2,
+        playSize + lw,
+        playSize + lw
+      );
     }
 
     for (let row = 0; row < 8; row++) {
