@@ -4,15 +4,15 @@ import { useCallback, useMemo, useReducer } from 'react';
 export type ExportFormat = 'jpeg' | 'png' | 'svg';
 /** Print quality tiers — 1×–4× mapping to 300/600/900/1200 DPI at physical size. */
 export type ExportResolution = 1 | 2 | 3 | 4;
-/** Three-step wizard progression: theme → piece display → export settings. */
-export type WizardStep = 1 | 2 | 3;
-/** Preset board size options in centimetres, or 'custom' for free-form input. */
-export type BoardSizePreset = 4 | 8 | 12 | 'custom';
+/** Two-step wizard progression: board style → export settings. */
+export type WizardStep = 1 | 2;
+/** Preset board size options in centimetres, or free-form input. */
+export type BoardSizePreset = 4 | 6 | 8 | 'custom';
 
 const DEFAULT_FILE_NAME = 'chessboard';
 const FORMAT_ORDER: ExportFormat[] = ['jpeg', 'png', 'svg'];
 const BOARD_SIZE_MIN = 4;
-const BOARD_SIZE_MAX = 16;
+const BOARD_SIZE_MAX = 8;
 
 /** Internal reducer state for the three-step export wizard. */
 interface ExportWizardState {
@@ -81,7 +81,7 @@ function exportWizardReducer(
     case 'NEXT_STEP':
       return {
         ...state,
-        currentStep: Math.min(state.currentStep + 1, 3) as WizardStep
+        currentStep: Math.min(state.currentStep + 1, 2) as WizardStep
       };
     case 'PREVIOUS_STEP':
       return {
