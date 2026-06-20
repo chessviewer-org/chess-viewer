@@ -60,7 +60,7 @@ export function useContrast(): void {
 
 /**
  * Appearance-page contrast control. Returns the current preference and a setter
- * that persists to localStorage (truth) + E2EE `syncStorage`, and dispatches
+ * that persists to localStorage (truth) + cloud `syncStorage`, and dispatches
  * `CONTRAST_CHANGE_EVENT` so `useContrast` applies it immediately.
  */
 export function useContrastSetting(): [
