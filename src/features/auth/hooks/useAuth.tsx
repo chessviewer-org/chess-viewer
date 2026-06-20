@@ -32,8 +32,8 @@ export interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 /**
- * Resolves the initial Supabase session, subscribes to auth state changes,
- * and triggers the `localStorage → Supabase` data migration on first login.
+ * Resolves the initial Supabase session, subscribes to auth state changes, and
+ * triggers the `localStorage → Supabase` data migration on first login.
  *
  * Wrap the application root with this provider before any component calls `useAuth`.
  */
@@ -44,17 +44,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   /**
    * Circuit breaker for the data migration. Supabase emits a fresh `session`
    * object on every auth event (INITIAL_SESSION, SIGNED_IN, TOKEN_REFRESHED),
-   * so triggering migration off the session reference would re-fire on every
-   * token refresh and feed an unbounded re-render loop. Tracking migrated user
-   * ids in a ref keeps migration at most once per user per mount without
-   * participating in render.
+   * so triggering off the session reference would re-fire on every token
+   * refresh. Tracking migrated user ids in a ref keeps migration at most once
+   * per user per mount without participating in render.
    */
   const migratedUserIds = useRef<Set<string>>(new Set());
 
   const runMigration = useCallback((userId: string) => {
     if (migratedUserIds.current.has(userId)) return;
     migratedUserIds.current.add(userId);
-    dataMigration.migrateToCloud(userId);
+    void dataMigration.migrateToCloud(userId);
   }, []);
 
   useEffect(() => {
@@ -81,9 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data } = supabase.auth.onAuthStateChange((_event, newSession) => {
         if (cancelled) return;
         setSession(newSession);
-        if (newSession?.user) {
-          runMigration(newSession.user.id);
-        }
+        if (newSession?.user) runMigration(newSession.user.id);
       });
       subscription = data.subscription;
     }
