@@ -15,7 +15,7 @@ import {
 /**
  * Appearance-page light/dark control. Returns the current mode preference
  * ('light' | 'dark' | 'system') and a setter that persists to localStorage
- * (synchronous truth) + E2EE `syncStorage`, and dispatches
+ * (synchronous truth) + cloud `syncStorage`, and dispatches
  * `THEME_MODE_CHANGE_EVENT` so App applies the new `data-theme` immediately.
  *
  * 'system' is now an EXPLICIT, stored choice (the literal 'system'), not the
@@ -47,7 +47,7 @@ export function useThemeMode(): [
     setPreference(next);
     try {
       // Every choice (incl. 'system') is now an explicit stored value, since
-      // absence of a key means DARK. Persist local (truth) + E2EE (best-effort).
+      // absence of a key means DARK. Persist local (truth) + cloud (best-effort).
       const value = JSON.stringify(next satisfies ThemeModePreference);
       window.localStorage.setItem(THEME_MODE_STORAGE_KEY, value);
       if (syncStorage) void syncStorage.set(THEME_MODE_STORAGE_KEY, value);
@@ -61,7 +61,7 @@ export function useThemeMode(): [
 }
 
 /**
- * One-time hydration of the theme-mode preference from E2EE `syncStorage` for a
+ * One-time hydration of the theme-mode preference from cloud `syncStorage` for a
  * freshly signed-in device. Local storage stays the synchronous source of truth;
  * this only fills in the cloud preference, then fires `THEME_MODE_CHANGE_EVENT`
  * so App re-resolves `data-theme`. Mount once (App-level).
