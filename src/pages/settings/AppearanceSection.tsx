@@ -1,13 +1,14 @@
 import { memo } from 'react';
 
-import { Check, Contrast, Monitor, Moon, Palette, Sun } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Check, Contrast, Monitor, Moon, Sparkles, Sun } from 'lucide-react';
 
-import { useAccentSetting, useContrastSetting, useThemeMode } from '@hooks';
-import { ACCENT_THEMES } from '@constants';
+import { useContrastSetting, useThemeMode } from '@hooks';
+import { useEffectiveReducedMotion } from '@hooks';
 
 import type { ContrastPreference, ThemeModePreference } from '@utils';
 import { CustomSelect } from '@shared/ui';
-import { SettingsBlock, SettingsHeading } from './parts';
+import { SettingsBlock } from './parts';
 
 const THEME_MODE_OPTIONS: Array<{
   value: ThemeModePreference;
@@ -41,30 +42,65 @@ const CONTRAST_OPTIONS: ReadonlyArray<{
 ];
 
 const AppearanceSection = memo(function AppearanceSection() {
-  const [accentId, select] = useAccentSetting();
   const [themeMode, setThemeMode] = useThemeMode();
   const [contrast, setContrast] = useContrastSetting();
+  const reduceMotion = useEffectiveReducedMotion();
+
+  // The dark-mode recommendation note expands/collapses to follow the choice:
+  // shown unless the user has explicitly picked light.
+  const showDarkHint = themeMode !== 'light';
 
   return (
     <div className="space-y-8 animate-pageEnter">
-      <SettingsHeading
-        icon={Palette}
-        title="Appearance"
-        description="Personalise how ChessVision looks. Your choices are saved on this device, and sync (end-to-end encrypted) across your devices when you are signed in."
-      />
-
       <SettingsBlock
         title="Theme"
-        description="Choose Light or Dark, or let ChessVision follow your system setting."
+        description="Personalise how ChessVision looks, saved on this device and synced when you sign in."
       >
-        <div className="max-w-xs">
+        <div className="max-w-xs space-y-2.5">
+          <span className="block text-base font-bold text-text-primary">
+            Theme mode
+          </span>
           <CustomSelect
             value={themeMode}
             onChange={setThemeMode}
             options={THEME_MODE_OPTIONS}
-            label="Theme mode"
           />
         </div>
+        <AnimatePresence initial={false}>
+          {showDarkHint && (
+            <motion.div
+              initial={
+                reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0, y: -4 }
+              }
+              animate={
+                reduceMotion
+                  ? { opacity: 1 }
+                  : { opacity: 1, height: 'auto', y: 0 }
+              }
+              exit={
+                reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0, y: -4 }
+              }
+              transition={
+                reduceMotion
+                  ? { duration: 0 }
+                  : { duration: 0.22, ease: [0.4, 0, 0.2, 1] }
+              }
+              className="overflow-hidden"
+            >
+              <p className="flex items-start gap-2 rounded-lg border border-accent/30 bg-accent/5 px-3 py-2 text-xs leading-relaxed text-text-secondary">
+                <Sparkles
+                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent"
+                  aria-hidden="true"
+                />
+                <span>
+                  ChessVision is better optimised for{' '}
+                  <span className="font-semibold text-accent">dark mode</span> —
+                  recommended.
+                </span>
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </SettingsBlock>
 
       <SettingsBlock
@@ -112,58 +148,6 @@ const AppearanceSection = memo(function AppearanceSection() {
                   <span className="mt-0.5 block text-xs leading-relaxed text-text-secondary">
                     {description}
                   </span>
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </SettingsBlock>
-
-      <SettingsBlock
-        title="Accent colour"
-        description="The accent colour is used for highlights, the active state, links, and buttons throughout the app. It applies instantly."
-      >
-        <div
-          role="radiogroup"
-          aria-label="Accent colour"
-          className="grid grid-cols-3 gap-4 sm:grid-cols-6"
-        >
-          {ACCENT_THEMES.map((theme) => {
-            const isSelected = theme.id === accentId;
-            const swatchColor = `rgb(${theme.dark.accent})`;
-            return (
-              <button
-                key={theme.id}
-                type="button"
-                role="radio"
-                aria-checked={isSelected}
-                aria-label={theme.label}
-                tabIndex={isSelected ? 0 : -1}
-                onClick={() => select(theme.id)}
-                className="flex flex-col items-center gap-2 rounded-xl p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              >
-                <span
-                  className={`flex h-12 w-12 items-center justify-center rounded-full border-2 transition-[border-color,box-shadow] duration-200 ${
-                    isSelected
-                      ? 'border-accent ring-2 ring-accent/30'
-                      : 'border-border/60 hover:border-text-muted'
-                  }`}
-                  style={{ backgroundColor: swatchColor }}
-                >
-                  {isSelected && (
-                    <Check
-                      className="h-5 w-5 text-bg"
-                      strokeWidth={3}
-                      aria-hidden="true"
-                    />
-                  )}
-                </span>
-                <span
-                  className={`text-xs font-semibold ${
-                    isSelected ? 'text-accent' : 'text-text-secondary'
-                  }`}
-                >
-                  {theme.label}
                 </span>
               </button>
             );
