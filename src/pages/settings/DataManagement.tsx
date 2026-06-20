@@ -48,7 +48,7 @@ const STORAGE_CATEGORIES = [
   {
     id: 'themes',
     label: 'Custom themes',
-    keys: ['customThemePresets']
+    keys: ['custom-theme-presets']
   }
 ] as const;
 
