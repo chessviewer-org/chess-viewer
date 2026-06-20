@@ -5,7 +5,7 @@
  * readability, applied via a `data-contrast="high"` attribute on the document
  * element that `src/index.css` keys token overrides off. Mirrors the accent /
  * theme-mode pattern: localStorage is the synchronous source of truth,
- * `syncStorage` (E2EE) is best-effort, and an in-app event lets a change on the
+ * `syncStorage` is best-effort, and an in-app event lets a change on the
  * Appearance page reach App immediately.
  */
 
