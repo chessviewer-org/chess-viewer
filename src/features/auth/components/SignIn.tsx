@@ -3,8 +3,9 @@ import React, { useState } from 'react';
 import { supabase } from '@/features/auth/services/supabaseClient';
 
 import type { SignInProps } from '../types';
+import { getAuthErrorMessage } from './authErrors';
 
-export function SignIn({ onSuccess }: SignInProps) {
+export function SignIn({ onSuccess, onMfaRequired }: SignInProps) {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
@@ -19,10 +20,28 @@ export function SignIn({ onSuccess }: SignInProps) {
     });
 
     if (signInError) {
-      setError(signInError.message);
-    } else if (onSuccess) {
-      onSuccess();
+      setError(getAuthErrorMessage(signInError));
+      return;
     }
+
+    // Password verified the session at AAL1. If the account has a verified MFA
+    // factor, Supabase reports nextLevel = 'aal2' while currentLevel is still
+    // 'aal1' — the session is NOT fully authenticated until the TOTP step-up
+    // completes. Route to the MFA challenge instead of treating sign-in as done.
+    const { data: aal, error: aalError } =
+      await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+
+    if (
+      !aalError &&
+      aal &&
+      aal.nextLevel === 'aal2' &&
+      aal.nextLevel !== aal.currentLevel
+    ) {
+      if (onMfaRequired) onMfaRequired();
+      return;
+    }
+
+    if (onSuccess) onSuccess();
   };
 
   return (
