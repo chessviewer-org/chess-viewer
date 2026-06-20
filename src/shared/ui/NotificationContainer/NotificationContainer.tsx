@@ -1,7 +1,9 @@
 import React, { memo, useEffect } from 'react';
 
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { AlertCircle, CheckCircle, Info, X, XCircle } from 'lucide-react';
+
+import { useEffectiveReducedMotion } from '@hooks';
 
 const MAX_NOTIFICATION_DURATION = 5000;
 
@@ -122,7 +124,7 @@ const Toast = memo(function Toast({
   notification: Notification;
   onRemove: () => void;
 }) {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useEffectiveReducedMotion();
   const { type, message } = notification;
   const durationMs = Math.min(
     Math.max(Number(notification.duration) || 0, 0),
