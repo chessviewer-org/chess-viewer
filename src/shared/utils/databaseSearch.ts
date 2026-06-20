@@ -28,21 +28,6 @@ export const PROVIDER_LABEL: Record<DatabaseProvider, string> = {
   chessdb: 'ChessDB'
 };
 
-/**
- * The provider a result matched in, or null for a clean miss. Lets the UI fire
- * the correct "Found in X" toast / status without re-deriving it from the map.
- */
-export function matchedProvider(
-  result: DatabaseSearchResult | null
-): DatabaseProvider | null {
-  if (!result) return null;
-  if (result.lichess.found) return 'lichess';
-  if (result.chessdb.found) return 'chessdb';
-  if (result.pdb.found) return 'pdb';
-  if (result.yacpdb.found) return 'yacpdb';
-  return null;
-}
-
 /** Result for a single database provider. */
 export interface DatabaseHit {
   /** True only when the position is confirmed present in this database. */
