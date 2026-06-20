@@ -193,10 +193,18 @@ export async function createUltraQualityCanvas(
     );
   }
 
+  // Draw border flush outside the board area — offset by half lineWidth so
+  // the stroke doesn't overlap the outermost squares (outset stroke).
   const boardBorderWidth = Math.max(1, finalBoardPixels * 0.002);
+  const bHalf = boardBorderWidth / 2;
   ctx.strokeStyle = '#000000';
   ctx.lineWidth = boardBorderWidth;
-  ctx.strokeRect(boardX, boardY, finalBoardPixels, finalBoardPixels);
+  ctx.strokeRect(
+    boardX - bHalf,
+    boardY - bHalf,
+    finalBoardPixels + boardBorderWidth,
+    finalBoardPixels + boardBorderWidth
+  );
 
   await yieldToMain();
 
