@@ -1,42 +1,33 @@
 import type { User } from '@supabase/supabase-js';
 
-import { crypto } from '@utils/crypto';
 import { logger } from '@utils/logger';
 import { supabase } from './supabaseClient';
-
-const ENCRYPTION_KEY_STORAGE = 'cv_privacy_key';
 
 interface UserDataValueRow {
   value: string;
 }
 
 /**
- * Outcome of a `syncStorage.set`. Callers that persist unbounded data (history,
- * archive) inspect this to decide whether to trim + warn the user; fire-and-
- * forget callers may ignore it. `'too-large'` means the cloud write was skipped
- * (local copy is unaffected); `'skipped'` means there was no authenticated user.
+ * Outcome of a `syncStorage.set`.
+ *  - `'ok'`        — written to the cloud.
+ *  - `'too-large'` — exceeded the server cap; cloud write skipped (local intact).
+ *  - `'skipped'`   — no authenticated user.
+ *  - `'error'`     — an unexpected failure.
  */
 export type SyncSetResult = 'ok' | 'too-large' | 'skipped' | 'error';
 
-const isTableMissingError = (err: unknown) =>
-  err &&
+const isTableMissingError = (err: unknown): boolean =>
+  !!err &&
   typeof err === 'object' &&
   'code' in err &&
   (err as { code: string }).code === '42P01';
 
-/**
- * Hard cap mirroring the `user_data.value` CHECK constraint (schema.sql). The
- * E2EE path stores `enc:<ciphertext>`, which is ~33% larger than the plaintext,
- * so callers sizing a payload to fit should budget against the SAFE estimate
- * below, not this raw cap.
- */
+/** Hard cap mirroring the `user_data.value` CHECK constraint (schema.sql). */
 export const MAX_USER_DATA_VALUE_LENGTH = 10_000;
 
 /**
- * Conservative plaintext budget that still fits once E2EE-encoded. Base64 of
- * AES-GCM ciphertext is ~1.37× the input plus the `enc:` prefix and IV; 7_000
- * leaves comfortable headroom under the 10_000 cap. Callers trimming history to
- * fit should target this, not MAX_USER_DATA_VALUE_LENGTH.
+ * Conservative budget callers trim unbounded payloads (history, archive) to so
+ * they comfortably fit under {@link MAX_USER_DATA_VALUE_LENGTH}.
  */
 export const SAFE_SYNC_PLAINTEXT_BUDGET = 7_000;
 
@@ -66,19 +57,10 @@ if (import.meta.hot) {
 }
 
 /**
- * Retrieves the E2EE encryption key from localStorage.
- *
- * @returns The passphrase used for AES-GCM encryption, or `null` if E2EE is not configured
- */
-function getEncryptionKey(): string | null {
-  return localStorage.getItem(ENCRYPTION_KEY_STORAGE);
-}
-
-/**
- * Key-value store backed by the `user_data` Supabase table with transparent E2EE.
- *
- * Values are encrypted with AES-GCM before upload when a `cv_privacy_key` is present in
- * `localStorage`. Falls back to a no-op when no authenticated user session is active.
+ * Key-value store backed by the `user_data` Supabase table. Access is owner-
+ * scoped by RLS (each user reads/writes only their own rows). No-ops when there
+ * is no authenticated session — the local copy is the source of truth and cloud
+ * sync is best-effort.
  */
 export const syncStorage = {
   get: async (key: string): Promise<{ value: string } | null> => {
@@ -99,24 +81,6 @@ export const syncStorage = {
       if (!data || typeof data.value !== 'string' || data.value === '')
         return null;
 
-      const encryptionKey = getEncryptionKey();
-      if (encryptionKey && data.value.startsWith('enc:')) {
-        try {
-          const decrypted = await crypto.decrypt(
-            data.value.replace('enc:', ''),
-            encryptionKey
-          );
-          if (typeof decrypted !== 'string') return null;
-          return { value: decrypted };
-        } catch (decErr) {
-          logger.warn(
-            'Failed to decrypt cloud data. Returning raw value.',
-            decErr
-          );
-          return { value: data.value };
-        }
-      }
-
       return { value: data.value };
     } catch (error: unknown) {
       logger.error('Supabase sync get error:', error);
@@ -127,18 +91,10 @@ export const syncStorage = {
   set: async (key: string, value: string): Promise<SyncSetResult> => {
     if (!currentUser) return 'skipped';
     try {
-      let valueToStore = value;
-      const encryptionKey = getEncryptionKey();
-
-      if (encryptionKey) {
-        const encrypted = await crypto.encrypt(value, encryptionKey);
-        valueToStore = `enc:${encrypted}`;
-      }
-
-      if (valueToStore.length > MAX_USER_DATA_VALUE_LENGTH) {
+      if (value.length > MAX_USER_DATA_VALUE_LENGTH) {
         logger.warn('syncStorage.set rejected: value exceeds server cap', {
           key,
-          length: valueToStore.length
+          length: value.length
         });
         return 'too-large';
       }
@@ -147,7 +103,7 @@ export const syncStorage = {
         {
           user_id: currentUser.id,
           key,
-          value: valueToStore,
+          value,
           updated_at: new Date().toISOString()
         },
         { onConflict: 'user_id,key' }
