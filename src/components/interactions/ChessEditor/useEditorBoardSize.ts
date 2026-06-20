@@ -14,7 +14,7 @@ const MIN_BOARD_PX = 200;
 // mobile the board sits ABOVE the palette + tab bar + active panel, so it takes
 // the lion's share of what's left after the FEN toolbar; the remainder feeds
 // the tool strip so NOTHING is clipped and the page never scrolls horizontally.
-const MOBILE_BOARD_VH = 0.68;
+const MOBILE_BOARD_VH = 0.74;
 
 // On desktop the WHOLE workspace must fit inside one viewport (no page scroll):
 // navbar gap + FEN control panel + board, all within 100vh. Height is therefore
@@ -60,15 +60,23 @@ function calculateBoardSize(
   if (containerWidth <= 0) return MIN_BOARD_PX;
 
   const widthFactor = showCoords ? 1.0625 : 1;
-  const isMobile = containerWidth < 1024;
+  // The layout splits into two columns (board left, panel right) at the `@3xl`
+  // container query (~768px). Below that it is the single stacked column. Keep
+  // this threshold in sync with ChessEditor's `@3xl` classes so the width
+  // budget matches the actual layout: stacked → fill width; two-column → share.
+  const isSingleColumn = containerWidth < 768;
 
   // ── Width budget ──────────────────────────────────────────────────────
   let widthRaw: number;
-  if (containerWidth < 640) {
-    widthRaw = Math.min(containerWidth / widthFactor, 380);
-  } else if (containerWidth < 1024) {
-    widthRaw = Math.min((containerWidth * 0.92) / widthFactor, 460);
+  if (isSingleColumn) {
+    // Stacked column (phone / small tablet portrait): let the board grow close
+    // to the container width so it no longer floats small with wide empty
+    // margins, keeping just a little symmetric breathing room — not full-bleed.
+    widthRaw = Math.min(containerWidth / widthFactor, 440);
   } else {
+    // Two-column (tablet landscape + desktop): the board takes the left share
+    // and the command panel reflows beside it. Same formula across the range so
+    // a tablet behaves like a small desktop, not a blown-up phone.
     const shrunk = containerWidth * 0.8 - BOARD_SHRINK_PX;
     widthRaw = Math.min(shrunk / widthFactor, 480);
   }
@@ -79,8 +87,10 @@ function calculateBoardSize(
   // same factor to get the board edge that fits the available height.
   let heightRaw = Infinity;
   if (viewportHeight > 0) {
-    const chrome = isMobile ? MOBILE_VERTICAL_CHROME : DESKTOP_VERTICAL_CHROME;
-    const vhFraction = isMobile ? MOBILE_BOARD_VH : DESKTOP_BOARD_VH;
+    const chrome = isSingleColumn
+      ? MOBILE_VERTICAL_CHROME
+      : DESKTOP_VERTICAL_CHROME;
+    const vhFraction = isSingleColumn ? MOBILE_BOARD_VH : DESKTOP_BOARD_VH;
     const available = Math.max(viewportHeight - chrome, 0);
     heightRaw = (available * vhFraction) / widthFactor;
   }

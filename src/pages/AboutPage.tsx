@@ -101,7 +101,7 @@ const AboutPage = memo(function AboutPage() {
   return (
     <div
       data-page-scroll
-      className="min-h-full bg-bg lg:h-full lg:max-h-full lg:overflow-y-auto"
+      className="min-h-full bg-bg md:h-full md:max-h-full md:overflow-y-auto"
     >
       <Seo
         {...getRouteSeo('/about')}
@@ -111,8 +111,8 @@ const AboutPage = memo(function AboutPage() {
           as one column under the bar: a sticky left category rail (always
           visible, never collapses) and a scrolling content column on the right
           (GitHub-settings pattern), mirroring the Settings page layout. */}
-      <div className="page-container flex flex-col gap-6 py-6 sm:py-10 lg:flex-row lg:gap-10">
-        <div className="shrink-0 lg:w-56">
+      <div className="page-container flex flex-col gap-6 py-6 sm:py-10 md:flex-row md:gap-8 lg:gap-10">
+        <div className="shrink-0 border-r border-border pr-8 md:w-52 lg:w-56">
           <PageTabs
             groups={groups}
             activeId={activeTab}

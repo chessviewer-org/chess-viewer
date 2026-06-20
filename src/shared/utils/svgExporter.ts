@@ -138,9 +138,13 @@ export async function generateBoardSVG(
     );
   }
 
+  // stroke-alignment isn't in SVG 1.1, so shift the rect outward by half
+  // stroke-width to get an outset stroke (no overlap with the squares).
   const borderStroke = Math.max(1, Math.round(boardPx * 0.002));
+  const bHalf = borderStroke / 2;
   parts.push(
-    `<rect x="${boardX}" y="${boardY}" width="${boardPx}" height="${boardPx}" ` +
+    `<rect x="${boardX - bHalf}" y="${boardY - bHalf}" ` +
+      `width="${boardPx + borderStroke}" height="${boardPx + borderStroke}" ` +
       `fill="none" stroke="#000000" stroke-width="${borderStroke}"/>`
   );
 

@@ -291,12 +291,19 @@ html[data-theme-transition='to-dark'] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-group(root),
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
+  html:not([data-reduced-motion='full']) ::view-transition-group(root),
+  html:not([data-reduced-motion='full']) ::view-transition-old(root),
+  html:not([data-reduced-motion='full']) ::view-transition-new(root) {
     animation-duration: 1ms;
     filter: none;
   }
+}
+
+html[data-reduced-motion='reduce'] ::view-transition-group(root),
+html[data-reduced-motion='reduce'] ::view-transition-old(root),
+html[data-reduced-motion='reduce'] ::view-transition-new(root) {
+  animation-duration: 1ms;
+  filter: none;
 }
 
 [data-theme='light'] {
@@ -1158,9 +1165,13 @@ html[data-theme-transition='to-dark'] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .marching-ants {
+  html:not([data-reduced-motion='full']) .marching-ants {
     animation: none;
   }
+}
+
+html[data-reduced-motion='reduce'] .marching-ants {
+  animation: none;
 }
 
 .animate-fadeIn {
@@ -1599,11 +1610,18 @@ html {
   offset: 100%;
 }
 
-/* ===== PERFORMANCE - Reduce motion ===== */
+/* ===== PERFORMANCE - Reduce motion =====
+   Two triggers, one rule set:
+   1. The OS `prefers-reduced-motion` media query (default, `system` mode).
+   2. The in-app override `html[data-reduced-motion='reduce']` (Accessibility
+      page), which forces reduced motion regardless of the OS.
+   The `full` override (`html[data-reduced-motion='full']`) intentionally adds
+   no selector here, so it leaves both triggers off and full motion plays even
+   when the OS asks for reduced motion. */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  html:not([data-reduced-motion='full']) *,
+  html:not([data-reduced-motion='full']) *::before,
+  html:not([data-reduced-motion='full']) *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -1612,6 +1630,25 @@ html {
        The JS scroll layer (pageScroll.ts) honours the same preference. */
     scroll-behavior: auto !important;
   }
+}
+
+html[data-reduced-motion='reduce'] *,
+html[data-reduced-motion='reduce'] *::before,
+html[data-reduced-motion='reduce'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* ===== GLOBAL FOCUS STYLE =====
+   Remove all focus rings and outlines app-wide. Tailwind ring utilities use
+   box-shadow; outline utilities use outline. Both are reset here so no yellow
+   or accent colour appears on focus anywhere in the app. */
+*:focus,
+*:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 /* ===== PRINT STYLES ===== */

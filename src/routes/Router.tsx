@@ -1,6 +1,6 @@
 import { ReactNode, Suspense } from 'react';
 
-import type { Transition } from 'framer-motion';
+import type { Transition, Variants } from 'framer-motion';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Route, Routes, useLocation } from 'react-router-dom';
 
@@ -12,15 +12,36 @@ import {
   NotFoundPage,
   SettingsPage
 } from '@/routes/lazyPages';
+import { useEffectiveReducedMotion } from '@hooks';
 
-const pageTransition = {
-  initial: { opacity: 0, y: 8 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -8 },
-  transition: {
-    duration: 0.2,
-    ease: [0.4, 0, 0.2, 1] as [number, number, number, number]
-  } as Transition
+const EXPO_OUT = [0.16, 1, 0.3, 1] as [number, number, number, number];
+
+/**
+ * Page-transition variants. The full motion slides + fades + softly scales the
+ * incoming page (and pushes the outgoing one the other way) over ~0.4s with an
+ * expo-out ease, so the route change reads as a deliberate transition rather
+ * than an instant swap. The reduced-motion variant collapses to a quick fade.
+ */
+const pageVariants: Variants = {
+  initial: { opacity: 0, y: 24, scale: 0.98 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.42, ease: EXPO_OUT } as Transition
+  },
+  exit: {
+    opacity: 0,
+    y: -18,
+    scale: 0.985,
+    transition: { duration: 0.26, ease: [0.4, 0, 1, 1] } as Transition
+  }
+};
+
+const reducedVariants: Variants = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.15 } as Transition },
+  exit: { opacity: 0, transition: { duration: 0.1 } as Transition }
 };
 
 /**
@@ -122,15 +143,16 @@ function PageLoader() {
 
 interface AnimatedPageProps {
   children: ReactNode;
+  reduced: boolean;
 }
 
-function AnimatedPage({ children }: AnimatedPageProps) {
+function AnimatedPage({ children, reduced }: AnimatedPageProps) {
   return (
     <motion.div
-      initial={pageTransition.initial}
-      animate={pageTransition.animate}
-      exit={pageTransition.exit}
-      transition={pageTransition.transition}
+      variants={reduced ? reducedVariants : pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
       className="h-full"
     >
       {children}
@@ -143,6 +165,7 @@ function AnimatedPage({ children }: AnimatedPageProps) {
  */
 function AppRoutes() {
   const location = useLocation();
+  const reduced = useEffectiveReducedMotion();
   return (
     <Suspense fallback={<PageLoader />}>
       <AnimatePresence mode="wait">
@@ -150,7 +173,7 @@ function AppRoutes() {
           <Route
             path="/"
             element={
-              <AnimatedPage>
+              <AnimatedPage reduced={reduced}>
                 <HomePage />
               </AnimatedPage>
             }
@@ -158,7 +181,7 @@ function AppRoutes() {
           <Route
             path="/about"
             element={
-              <AnimatedPage>
+              <AnimatedPage reduced={reduced}>
                 <AboutPage />
               </AnimatedPage>
             }
@@ -166,7 +189,7 @@ function AppRoutes() {
           <Route
             path="/settings"
             element={
-              <AnimatedPage>
+              <AnimatedPage reduced={reduced}>
                 <SettingsPage />
               </AnimatedPage>
             }
@@ -174,7 +197,7 @@ function AppRoutes() {
           <Route
             path="/fen-history"
             element={
-              <AnimatedPage>
+              <AnimatedPage reduced={reduced}>
                 <FENHistoryPage />
               </AnimatedPage>
             }
@@ -182,7 +205,7 @@ function AppRoutes() {
           <Route
             path="/advanced-fen"
             element={
-              <AnimatedPage>
+              <AnimatedPage reduced={reduced}>
                 <AdvancedFENInputPage />
               </AnimatedPage>
             }
@@ -190,7 +213,7 @@ function AppRoutes() {
           <Route
             path="*"
             element={
-              <AnimatedPage>
+              <AnimatedPage reduced={reduced}>
                 <NotFoundPage />
               </AnimatedPage>
             }

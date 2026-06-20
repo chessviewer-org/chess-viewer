@@ -51,6 +51,7 @@ const ModalShell = memo(
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               onClick={disableBackdropClick ? undefined : onClose}
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             />
@@ -59,9 +60,19 @@ const ModalShell = memo(
               role="dialog"
               aria-modal="true"
               aria-labelledby="modal-shell-title"
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              initial={{ scale: 0.92, opacity: 0, y: 24 }}
+              animate={{
+                scale: 1,
+                opacity: 1,
+                y: 0,
+                transition: { duration: 0.34, ease: [0.16, 1, 0.3, 1] }
+              }}
+              exit={{
+                scale: 0.96,
+                opacity: 0,
+                y: 12,
+                transition: { duration: 0.2, ease: [0.4, 0, 1, 1] }
+              }}
               className={`relative w-full ${maxWidth} max-h-[90vh] flex flex-col bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden`}
             >
               <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border shrink-0">

@@ -54,6 +54,39 @@ export const PIECE_SETS: PieceSet[] = [
   { id: 'tatiana', name: 'Tatiana' }
 ];
 
+/**
+ * Curated popularity ranking of piece-set ids (most → least used), used to
+ * drive the "Most Popular" sort in the Board settings picker. Ids not listed
+ * fall back behind the ranked ones, then alphabetically. Order reflects the
+ * common Lichess defaults / community favourites — `cburnett` is the app
+ * default, so it leads.
+ */
+export const PIECE_SET_POPULARITY: readonly string[] = [
+  'cburnett',
+  'merida',
+  'alpha',
+  'staunty',
+  'maestro',
+  'horsey',
+  'fantasy',
+  'leipzig',
+  'pixel',
+  'gioco',
+  'governor',
+  'tatiana',
+  'dubrovny',
+  'fresca',
+  'cardinal',
+  'icpieces',
+  'companion',
+  'california',
+  'pirouetti',
+  'kosal',
+  'reillycraig',
+  'spatial',
+  'riohacha'
+];
+
 // `family` groups presets by board style: the flat colour boards read as the
 // classic flat ('2D') look, while the wood / stone / high-contrast boards read
 // with more depth and are grouped as '3D'. `popular` flags the curated short
@@ -144,37 +177,6 @@ export interface CuratedThemeGroup {
   label: string;
   presets: CuratedThemePreset[];
 }
-
-/**
- * The curated "most-used" presets (those flagged `popular`), split into board
- * style families (2D · 3D). Drives the compact ChessEditor settings panel — a
- * short, grouped list rather than the full catalogue. Empty families are
- * omitted so the panel never renders a dangling header.
- */
-export const MOST_USED_THEME_GROUPS: CuratedThemeGroup[] = (() => {
-  const families: { family: ThemeFamily; label: string }[] = [
-    { family: '2D', label: '2D Boards' },
-    { family: '3D', label: '3D Boards' }
-  ];
-
-  const popular: CuratedThemePreset[] = Object.entries(BOARD_THEMES)
-    .filter(([, theme]) => theme.popular)
-    .map(([key, theme]) => ({
-      key,
-      name: theme.name,
-      light: theme.light,
-      dark: theme.dark,
-      family: theme.family ?? '2D'
-    }));
-
-  return families
-    .map(({ family, label }) => ({
-      family,
-      label,
-      presets: popular.filter((preset) => preset.family === family)
-    }))
-    .filter((group) => group.presets.length > 0);
-})();
 
 export const QUALITY_PRESETS: QualityPreset[] = [
   {

@@ -1,8 +1,9 @@
 import { memo, useCallback, useEffect, useId, useRef, useState } from 'react';
 
+import { AnimatePresence, motion } from 'framer-motion';
 import { Check, ChevronDown } from 'lucide-react';
 
-import { useListboxKeyboard } from '@hooks';
+import { useEffectiveReducedMotion, useListboxKeyboard } from '@hooks';
 
 /**
  * @param {Object} props
@@ -30,6 +31,7 @@ const CustomSelectComponent = <T extends string | number>({
   const listRef = useRef<HTMLDivElement>(null);
   const baseId = useId();
   const listboxId = `${baseId}-listbox`;
+  const reduceMotion = useEffectiveReducedMotion();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -85,6 +87,11 @@ const CustomSelectComponent = <T extends string | number>({
   const activeOptionId =
     isOpen && activeIndex >= 0 ? `${baseId}-option-${activeIndex}` : undefined;
 
+  // Trigger + panel read as one connected control: when open, the trigger drops
+  // its bottom radius and the panel drops its top radius + top border so they
+  // visually fuse into a single rounded card.
+  const triggerRadius = isOpen ? 'rounded-t-lg rounded-b-none' : 'rounded-lg';
+
   return (
     <div className="relative" ref={containerRef}>
       {label && (
@@ -106,7 +113,9 @@ const CustomSelectComponent = <T extends string | number>({
         aria-controls={listboxId}
         {...(activeOptionId ? { 'aria-activedescendant': activeOptionId } : {})}
         {...(label ? { 'aria-labelledby': `${baseId}-label` } : {})}
-        className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-sm text-text-primary focus:outline-none focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 flex items-center justify-between gap-2 hover:bg-surface-hover transition-colors"
+        className={`relative z-10 w-full px-3 py-2 bg-surface border border-border text-sm text-text-primary focus:outline-none focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 flex items-center justify-between gap-2 transition-colors ${triggerRadius} ${
+          isOpen ? 'bg-surface-hover' : 'hover:bg-surface-hover'
+        }`}
       >
         <div className="flex items-center gap-2">
           {displayIcon && <span className="shrink-0">{displayIcon}</span>}
@@ -116,54 +125,77 @@ const CustomSelectComponent = <T extends string | number>({
         </div>
         <ChevronDown
           aria-hidden="true"
-          className={`w-4 h-4 text-text-muted transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 text-text-muted transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
 
-      {isOpen && (
-        <div className="absolute z-50 mt-2 w-full bg-surface-elevated border border-border rounded-lg shadow-2xl overflow-hidden animate-scaleIn origin-top">
-          <div
-            ref={listRef}
-            id={listboxId}
-            role="listbox"
-            {...(label ? { 'aria-labelledby': `${baseId}-label` } : {})}
-            className="py-1 max-h-64 overflow-y-auto"
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={
+              reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0, y: -4 }
+            }
+            animate={
+              reduceMotion
+                ? { opacity: 1 }
+                : { opacity: 1, height: 'auto', y: 0 }
+            }
+            exit={
+              reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0, y: -4 }
+            }
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : { duration: 0.2, ease: [0.4, 0, 0.2, 1] }
+            }
+            className="absolute z-50 w-full overflow-hidden rounded-b-lg border border-t-0 border-border bg-surface-elevated shadow-2xl"
           >
-            {options.map((option, index) => {
-              const isSelected = index === selectedIndex;
-              const isActive = index === activeIndex;
-              return (
-                <button
-                  key={option.value}
-                  id={`${baseId}-option-${index}`}
-                  data-option-index={index}
-                  type="button"
-                  role="option"
-                  aria-selected={isSelected}
-                  tabIndex={-1}
-                  onClick={() => handleSelectByIndex(index)}
-                  onMouseEnter={() => setActiveIndex(index)}
-                  className={`
-                    w-full px-3 py-2 text-sm flex items-center justify-between gap-2 transition-colors
-                    ${isSelected ? 'bg-accent/10 text-accent' : 'text-text-primary'}
-                    ${isActive ? 'bg-surface-hover' : ''}
-                  `}
-                >
-                  <div className="flex items-center gap-2">
-                    {option.icon && (
-                      <span className="shrink-0">{option.icon}</span>
+            <div
+              ref={listRef}
+              id={listboxId}
+              role="listbox"
+              {...(label ? { 'aria-labelledby': `${baseId}-label` } : {})}
+              className="py-1 max-h-64 overflow-y-auto"
+            >
+              {options.map((option, index) => {
+                const isSelected = index === selectedIndex;
+                const isActive = index === activeIndex;
+                return (
+                  <button
+                    key={option.value}
+                    id={`${baseId}-option-${index}`}
+                    data-option-index={index}
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    tabIndex={-1}
+                    onClick={() => handleSelectByIndex(index)}
+                    onMouseEnter={() => setActiveIndex(index)}
+                    className={`
+                      w-full px-3 py-2 text-sm flex items-center justify-between gap-2 transition-colors
+                      ${isSelected ? 'bg-accent/10 text-accent' : 'text-text-primary'}
+                      ${isActive ? 'bg-surface-hover' : ''}
+                    `}
+                  >
+                    <div className="flex items-center gap-2">
+                      {option.icon && (
+                        <span className="shrink-0">{option.icon}</span>
+                      )}
+                      <span>{option.label}</span>
+                    </div>
+                    {isSelected && (
+                      <Check
+                        aria-hidden="true"
+                        className="w-4 h-4 text-accent"
+                      />
                     )}
-                    <span>{option.label}</span>
-                  </div>
-                  {isSelected && (
-                    <Check aria-hidden="true" className="w-4 h-4 text-accent" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

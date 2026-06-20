@@ -25,7 +25,6 @@ export const classNames = {
 
 export type ButtonVariant = keyof typeof classNames.button;
 export type ButtonSize = keyof typeof classNames.button.size;
-export type InputState = 'normal' | 'error';
 
 /**
  * Joins truthy class name strings into a single space-separated string.
@@ -58,22 +57,4 @@ export function getButtonClasses(
     classNames.button.size[size],
     className
   );
-}
-
-/**
- * Returns combined Tailwind classes for an input element.
- *
- * @param state - The validation state of the input
- * @param className - Additional class names
- * @returns Combined class string
- */
-export function getInputClasses(
-  state: InputState = 'normal',
-  className = ''
-): string {
-  let stateClass = '';
-  if (state === 'error') {
-    stateClass = classNames.input.error;
-  }
-  return cn(classNames.input.base, stateClass, className);
 }

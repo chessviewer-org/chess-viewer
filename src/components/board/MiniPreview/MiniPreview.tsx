@@ -29,7 +29,12 @@ const MiniPreview = memo(
   }: MiniPreviewProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [hasError, setHasError] = useState(false);
-    const isLoading = piecesLoading;
+    // Only show the loading state (hidden board + spinner) on the FIRST load,
+    // when there are no piece images to draw yet. When the user switches piece
+    // sets, the previously rendered board stays on screen until the new images
+    // are ready and the canvas redraws — no flicker / blank gap.
+    const hasImages = Object.keys(pieceImages).length > 0;
+    const isLoading = piecesLoading && !hasImages;
 
     useEffect(() => {
       if (!canvasRef.current || !fen || Object.keys(pieceImages).length === 0) {
@@ -70,10 +75,12 @@ const MiniPreview = memo(
       canvas.style.width = '100%';
       canvas.style.height = '100%';
       ctx.scale(dpr, dpr);
-      // SVGs are vectors; disabling smoothing gives crisp piece edges at the
-      // integer-snapped device-pixel sizes computed below, instead of the blur
-      // from upscaling the rasterised image.
-      ctx.imageSmoothingEnabled = false;
+      // Piece SVGs are rasterised at a high intrinsic size (256px, see
+      // pieceImageCache) and drawn DOWN to cell size here, so high-quality
+      // smoothing gives the crispest result; disabling it aliased the
+      // downscale into jagged, low-quality pieces.
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
       try {
         const board = parseFEN(fen);
         if (!board || !Array.isArray(board) || board.length !== 8) {

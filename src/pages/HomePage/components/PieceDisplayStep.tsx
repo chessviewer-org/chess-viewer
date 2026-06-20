@@ -51,9 +51,6 @@ export default function PieceDisplayStep({
           setShowCoords={homeState.setShowCoords}
           showCoordinateBorder={homeState.showCoordinateBorder}
           setShowCoordinateBorder={homeState.setShowCoordinateBorder}
-          showThinFrame={homeState.showThinFrame}
-          setShowThinFrame={homeState.setShowThinFrame}
-          exportQuality={homeState.exportQuality}
           hideLabel={hideHeaders}
         />
       )}

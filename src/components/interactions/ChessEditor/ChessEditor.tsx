@@ -8,12 +8,13 @@ import {
   useState
 } from 'react';
 
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Redo2, Repeat2, Undo2 } from 'lucide-react';
 
 import {
   useDatabaseSearch,
   useEditorKeyboard,
+  useEffectiveReducedMotion,
   useInteractiveBoard,
   usePieceImages
 } from '@hooks';
@@ -96,7 +97,7 @@ export const ChessEditor = memo(function ChessEditor({
   const { boardSize, gutterSize, containerRef } =
     useEditorBoardSize(showCoords);
   const cellSize = useMemo(() => boardSize / 8, [boardSize]);
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useEffectiveReducedMotion();
 
   const pieceImagesRef = useRef(pieceImages);
   useEffect(() => {
@@ -244,7 +245,7 @@ export const ChessEditor = memo(function ChessEditor({
       <CustomDragLayer pieceImages={pieceImages} boardSize={boardSize} />
 
       {/* Board (left, fixed px) + command-center panel (right, flex-1). The
-          single→two-column switch is a CONTAINER query (`@5xl`, ~1024px of the
+          single→two-column switch is a CONTAINER query (`@3xl`, ~768px of the
           workspace card), not a viewport breakpoint, so the columns split based
           on the card's real width — they stay side-by-side on ultra-wide and
           never collapse into each other. `items-stretch` so the panel matches
@@ -254,8 +255,8 @@ export const ChessEditor = memo(function ChessEditor({
           navbar width), so the right edge of the panel lines up with the navbar
           / account menu — no width cap, no centering. The board keeps its px
           width on the left; the panel (`flex-1`) takes the rest. */}
-      <div className="flex flex-col @5xl:flex-row gap-fluid-sm items-center @5xl:items-stretch w-full min-h-0">
-        <div className="shrink-0 flex justify-center w-full @5xl:w-auto max-w-full min-w-0">
+      <div className="flex flex-col @3xl:flex-row gap-fluid-sm items-center @3xl:items-stretch w-full min-h-0">
+        <div className="shrink-0 flex justify-center w-full @3xl:w-auto max-w-full min-w-0">
           <div
             className="relative flex flex-col items-center justify-start min-w-0"
             style={{
@@ -345,7 +346,7 @@ export const ChessEditor = memo(function ChessEditor({
             is fluid and grows to fill the pinned height. Stacked single-column
             height remains auto. */}
         <div
-          className="flex flex-col gap-fluid-xs flex-1 w-full @5xl:w-auto min-w-0 @5xl:h-(--board-h)"
+          className="flex flex-col gap-fluid-xs flex-1 w-full @3xl:w-auto min-w-0 @3xl:h-(--board-h)"
           style={
             {
               '--board-h': `${boardSize + (showCoords ? gutterSize : 0)}px`

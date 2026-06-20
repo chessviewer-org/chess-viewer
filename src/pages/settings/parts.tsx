@@ -39,23 +39,29 @@ export function SettingsHeading({
 export function SettingsBlock({
   title,
   description,
+  action,
   children
 }: {
   title: string;
   description?: ReactNode;
+  /** Optional control rendered on the right of the title row (e.g. a sort select). */
+  action?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <section className="space-y-4">
-      <div className="space-y-1 border-b border-border/60 pb-2">
-        <h3 className="text-lg font-bold text-text-primary">{title}</h3>
+      <div className="space-y-1 pb-2">
+        <div className="flex items-end justify-between gap-3">
+          <h3 className="text-lg font-bold text-text-primary">{title}</h3>
+          {action && <div className="shrink-0">{action}</div>}
+        </div>
         {description && (
           <p className="text-sm leading-relaxed text-text-secondary">
             {description}
           </p>
         )}
       </div>
-      {children}
+      <div className="space-y-4">{children}</div>
     </section>
   );
 }

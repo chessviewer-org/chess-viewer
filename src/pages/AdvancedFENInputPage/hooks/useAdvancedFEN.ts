@@ -4,7 +4,6 @@ import { useChessBoard, usePieceImages, useTheme } from '@hooks';
 import { ADVANCED_FEN_CONFIG } from '@constants';
 
 import { validateFEN } from '@utils';
-import { parseSmartNaming } from './useAdvancedFEN/parseSmartNaming';
 import { useAdvancedExportActions } from './useAdvancedFEN/useAdvancedExportActions';
 import type {
   AdvancedFENInitialProps,
@@ -20,7 +19,6 @@ import { useKeyboardNavigation } from './useAdvancedFEN/useKeyboardNavigation';
 import { usePositionSettingsSync } from './useAdvancedFEN/usePositionSettingsSync';
 
 export type { AdvancedFENInitialProps, ExportState, PositionSettings };
-export { parseSmartNaming };
 
 const { DEFAULT_FENS, DEFAULT_INTERVAL, TABS } = ADVANCED_FEN_CONFIG;
 

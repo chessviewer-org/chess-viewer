@@ -1,10 +1,10 @@
 import { memo } from 'react';
 
-import { Eye, Layers, Zap } from 'lucide-react';
+import { Eye, Layers, Monitor, Sparkles, Zap } from 'lucide-react';
 
-import { useColorVisionSetting, useContrastSetting } from '@hooks';
+import { useColorVisionSetting, useReducedMotionSetting } from '@hooks';
 
-import type { ColorVisionPreference, ContrastPreference } from '@utils';
+import type { ColorVisionPreference, ReducedMotionPreference } from '@utils';
 import { CustomSelect } from '@shared/ui';
 import { SettingsBlock, SettingsHeading } from './parts';
 
@@ -35,26 +35,31 @@ const COLOR_VISION_OPTIONS: Array<{
   }
 ];
 
-const CONTRAST_OPTIONS: Array<{
-  value: ContrastPreference;
+const REDUCED_MOTION_OPTIONS: Array<{
+  value: ReducedMotionPreference;
   label: string;
   icon: React.ReactNode;
 }> = [
   {
-    value: 'normal',
-    label: 'Default',
+    value: 'system',
+    label: 'Follow system setting',
+    icon: <Monitor className="h-4 w-4" />
+  },
+  {
+    value: 'reduce',
+    label: 'Reduce motion',
     icon: <Zap className="h-4 w-4" />
   },
   {
-    value: 'high',
-    label: 'High contrast',
-    icon: <Zap className="h-4 w-4" />
+    value: 'full',
+    label: 'Always full motion',
+    icon: <Sparkles className="h-4 w-4" />
   }
 ];
 
 const AccessibilitySection = memo(function AccessibilitySection() {
   const [colorVision, setColorVision] = useColorVisionSetting();
-  const [contrast, setContrast] = useContrastSetting();
+  const [reducedMotion, setReducedMotion] = useReducedMotionSetting();
 
   return (
     <div className="space-y-8 animate-pageEnter">
@@ -68,7 +73,7 @@ const AccessibilitySection = memo(function AccessibilitySection() {
         title="Color vision"
         description="Simulate how the interface appears with common color vision deficiencies. Use this to verify that diagrams and UI remain readable for your condition."
       >
-        <div className="max-w-sm space-y-3">
+        <div className="space-y-3">
           <div className="max-w-xs">
             <CustomSelect
               value={colorVision}
@@ -78,7 +83,7 @@ const AccessibilitySection = memo(function AccessibilitySection() {
             />
           </div>
           {colorVision !== 'none' && (
-            <p className="rounded-lg border border-accent/30 bg-accent/5 px-3 py-2.5 text-xs leading-relaxed text-text-secondary">
+            <p className="w-full rounded-lg border border-accent/30 bg-accent/5 px-4 py-3 text-xs leading-relaxed text-text-secondary">
               <span className="font-semibold text-accent">
                 Simulation active.
               </span>{' '}
@@ -94,67 +99,35 @@ const AccessibilitySection = memo(function AccessibilitySection() {
       </SettingsBlock>
 
       <SettingsBlock
-        title="Contrast"
-        description="Strengthen borders and text for improved readability. This mirrors the setting in Appearance and applies on top of your chosen theme."
-      >
-        <div className="max-w-xs">
-          <CustomSelect
-            value={contrast}
-            onChange={setContrast}
-            options={CONTRAST_OPTIONS}
-            label="Contrast level"
-          />
-        </div>
-      </SettingsBlock>
-
-      <SettingsBlock
         title="Reduced motion"
-        description="ChessVision automatically respects your operating-system preference. When reduced motion is on, all animations are replaced with instant transitions."
+        description="Replace animations and transitions with instant changes. ChessVision follows your operating-system preference by default — choose Reduce or Always full to override it just for this app."
       >
-        <div className="space-y-2.5">
-          <div className="rounded-xl border border-border bg-surface-elevated px-4 py-3.5">
-            <p className="text-xs font-bold uppercase tracking-wide text-text-muted mb-2">
-              Linux
-            </p>
-            <p className="text-sm leading-relaxed text-text-secondary">
-              Run in terminal:
-            </p>
-            <code className="mt-1.5 block rounded-lg bg-bg px-3 py-2 font-mono text-xs text-accent border border-border/60 select-all">
-              gsettings set org.gnome.desktop.interface enable-animations false
-            </code>
-            <p className="mt-2 text-xs text-text-muted">
-              Or: Settings → Accessibility → Seeing → Reduce Animation (GNOME)
-            </p>
+        <div className="space-y-3">
+          <div className="max-w-xs">
+            <CustomSelect
+              value={reducedMotion}
+              onChange={setReducedMotion}
+              options={REDUCED_MOTION_OPTIONS}
+              label="Motion"
+            />
           </div>
-
-          <div className="rounded-xl border border-border bg-surface-elevated px-4 py-3.5">
-            <p className="text-xs font-bold uppercase tracking-wide text-text-muted mb-2">
-              macOS
+          {reducedMotion === 'reduce' && (
+            <p className="w-full rounded-lg border border-accent/30 bg-accent/5 px-4 py-3 text-xs leading-relaxed text-text-secondary">
+              <span className="font-semibold text-accent">
+                Reduced motion on.
+              </span>{' '}
+              Animations across the app are replaced with instant transitions,
+              regardless of your system setting.
             </p>
-            <p className="text-sm leading-relaxed text-text-secondary">
-              System Settings → Accessibility → Display → Reduce Motion.
+          )}
+          {reducedMotion === 'system' && (
+            <p className="w-full rounded-lg border border-border bg-surface-elevated px-4 py-3 text-xs leading-relaxed text-text-muted">
+              To change the system preference: GNOME — Settings → Accessibility
+              → Seeing → Reduce Animation; macOS — System Settings →
+              Accessibility → Display → Reduce Motion; Windows — Settings →
+              Accessibility → Visual effects → Animation effects.
             </p>
-          </div>
-
-          <div className="rounded-xl border border-border bg-surface-elevated px-4 py-3.5">
-            <p className="text-xs font-bold uppercase tracking-wide text-text-muted mb-2">
-              Windows
-            </p>
-            <p className="text-sm leading-relaxed text-text-secondary">
-              Settings → Ease of Access → Display → turn off "Show animations in
-              Windows".
-            </p>
-          </div>
-
-          <div className="rounded-xl border border-border bg-surface-elevated px-4 py-3.5">
-            <p className="text-xs font-bold uppercase tracking-wide text-text-muted mb-2">
-              Android / iOS
-            </p>
-            <p className="text-sm leading-relaxed text-text-secondary">
-              Accessibility → Remove Animations (Android) or Reduce Motion
-              (iOS).
-            </p>
-          </div>
+          )}
         </div>
       </SettingsBlock>
     </div>

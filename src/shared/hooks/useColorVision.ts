@@ -58,7 +58,7 @@ export function useColorVision(): void {
 
 /**
  * Settings-page color vision control. Returns the current preference and a
- * setter that persists to localStorage + E2EE `syncStorage` and dispatches
+ * setter that persists to localStorage + cloud `syncStorage` and dispatches
  * `COLOR_VISION_CHANGE_EVENT` so `useColorVision` applies it immediately.
  */
 export function useColorVisionSetting(): [

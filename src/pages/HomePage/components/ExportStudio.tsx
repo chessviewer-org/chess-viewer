@@ -1,18 +1,17 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
+import { Download, LayoutGrid } from 'lucide-react';
+
+import { type PageTabGroup, PageTabs } from '@/components/layout';
 
 import { useExportWizard } from '../hooks/useExportWizard';
+import BoardStyleStep from './BoardStyleStep';
 import ExportSettingsStep from './ExportSettingsStep';
 import {
   type BatchExportOverrides,
-  type HomeStateForExport,
-  type ThemeCard
+  type HomeStateForExport
 } from './ExportStudio.types';
-import ExportStudioPreview from './ExportStudioPreview';
-import PieceDisplayStep from './PieceDisplayStep';
-import ThemeStudioStep from './ThemeStudioStep';
-import { useExportStudioThemes } from './useExportStudioThemes';
 
 /** Props for the full-screen export studio overlay. */
 interface ExportStudioProps {
@@ -20,39 +19,46 @@ interface ExportStudioProps {
   onClose: () => void;
 }
 
-/** Full-screen three-step export wizard with live board preview panel. */
+const TABS: PageTabGroup[] = [
+  {
+    items: [
+      { id: 'board-style', label: 'Board Style', icon: LayoutGrid },
+      { id: 'export-settings', label: 'Export Settings', icon: Download }
+    ]
+  }
+];
+
+/** Full-screen export studio with a Settings-style sidebar and content area. */
 const ExportStudio = ({ homeState, onClose }: ExportStudioProps) => {
   const wizard = useExportWizard();
-  const themes = useExportStudioThemes();
+  const [activeTab, setActiveTab] = useState<'board-style' | 'export-settings'>(
+    'board-style'
+  );
 
-  // Full-screen overlay: lock background scroll and close on Escape. Cleanup
-  // restores `overflow` to avoid a scroll leak (matches ShareDialog).
+  // Lock background scroll (including mobile Safari) and close on Escape.
   useEffect(() => {
+    const scrollY = window.scrollY;
     document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY.toString()}px`;
+    document.body.style.width = '100%';
+
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKey);
+
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      window.scrollTo(0, scrollY);
       window.removeEventListener('keydown', onKey);
     };
   }, [onClose]);
 
-  const handleThemeSelect = useCallback(
-    (theme: ThemeCard) => {
-      homeState.setLightSquare(theme.light);
-      homeState.setDarkSquare(theme.dark);
-    },
-    [homeState]
-  );
-
-  const handlePrimaryNavigation = useCallback(() => {
-    if (wizard.currentStep < 3) {
-      wizard.handleNext();
-      return;
-    }
-
+  const handleFinish = useCallback(() => {
     const selectedFormats = [...wizard.selectedFormats];
     const names = selectedFormats.map(
       (format) => wizard.resolvedFileNames[format]
@@ -61,7 +67,6 @@ const ExportStudio = ({ homeState, onClose }: ExportStudioProps) => {
       boardSize: wizard.activeBoardSize,
       exportQuality: wizard.resolution
     };
-
     homeState.setBoardSize(wizard.activeBoardSize);
     homeState.setExportQuality(wizard.resolution);
     void homeState.handleBatchExport(selectedFormats, names, overrides);
@@ -73,118 +78,80 @@ const ExportStudio = ({ homeState, onClose }: ExportStudioProps) => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="export-studio-title"
-      className="fixed inset-x-0 top-16 sm:top-20 lg:top-24 z-60 h-[calc(100dvh-4rem)] sm:h-[calc(100dvh-5rem)] lg:h-[calc(100dvh-6rem)] bg-bg border-t border-border/40 overflow-hidden"
+      className="fixed inset-x-0 z-49 bg-bg border-t border-border overflow-hidden"
+      style={{
+        top: 'calc(var(--navbar-height) + max(0px, env(safe-area-inset-top)))',
+        height:
+          'calc(100dvh - var(--navbar-height) - max(0px, env(safe-area-inset-top)))'
+      }}
     >
       <h2 id="export-studio-title" className="sr-only">
         Export Studio
       </h2>
-      <div className="h-full flex flex-col overflow-hidden">
-        <header className="h-14 shrink-0 border-b border-border/40 bg-surface px-4 sm:px-6 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-sm font-semibold text-text-secondary hover:text-text-primary transition-colors"
-          >
-            &lt; Back Editor
-          </button>
 
-          <div className="flex items-center gap-2 text-sm font-semibold text-text-secondary">
-            {wizard.currentStep > 1 && (
-              <>
-                <button
-                  type="button"
-                  onClick={wizard.handleBack}
-                  className="hover:text-text-primary transition-colors"
-                >
-                  &lt; Back
-                </button>
-                <span className="text-text-muted">|</span>
-              </>
-            )}
+      {/* Two-column layout: sticky sidebar left, content right — mirrors
+          Settings/About page structure (GitHub-settings pattern).
+          `page-container` aligns the inner edges with the navbar logo/menu. */}
+      <div className="page-container flex h-full overflow-hidden py-6 sm:py-8 gap-8 lg:gap-10">
+        {/* ── Sidebar ───────────────────────────────────────────────────────── */}
+        <div className="flex shrink-0 flex-col justify-between gap-6 border-r border-border pr-8 w-44 sm:w-48 lg:w-52">
+          <PageTabs
+            groups={TABS}
+            activeId={activeTab}
+            onSelect={(id) =>
+              setActiveTab(id as 'board-style' | 'export-settings')
+            }
+            ariaLabel="Export Studio sections"
+          />
 
+          {/* Bottom actions */}
+          <div className="flex flex-col gap-2">
             <button
               type="button"
-              onClick={handlePrimaryNavigation}
-              className="text-accent hover:text-text-primary-hover transition-colors"
+              onClick={handleFinish}
+              className="w-full rounded-lg bg-accent px-3 py-2 text-sm font-bold text-bg transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
-              {wizard.currentStep < 3
-                ? `${wizard.currentStep}/3 Next >`
-                : 'Finish'}
+              Download
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full rounded-lg border border-border/60 px-3 py-2 text-sm font-semibold text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              Cancel
             </button>
           </div>
-        </header>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_minmax(0,1fr)] h-full min-h-0 overflow-hidden">
-          <div className="min-h-0 border-r border-border/40 bg-surface overflow-y-auto overflow-x-hidden">
-            <AnimatePresence mode="wait">
-              {wizard.currentStep === 1 && (
-                <motion.section
-                  key="wizard-step-1"
-                  initial={{ opacity: 0, x: 16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -16 }}
-                  transition={{ duration: 0.2, ease: 'easeOut' }}
-                  className="h-full relative"
-                >
-                  <ThemeStudioStep
-                    themeTab={themes.themeTab}
-                    setThemeTab={themes.setThemeTab}
-                    isEditMode={themes.isEditMode}
-                    beginEditMode={themes.beginEditMode}
-                    cancelEditMode={themes.cancelEditMode}
-                    saveEditMode={themes.saveEditMode}
-                    isAddingTheme={themes.isAddingTheme}
-                    setIsAddingTheme={themes.setIsAddingTheme}
-                    paginatedThemes={themes.paginatedThemes}
-                    currentPage={themes.currentPage}
-                    setCurrentPage={themes.setCurrentPage}
-                    totalPages={themes.totalPages}
-                    canAddTheme={themes.canAddTheme}
-                    onThemeSelect={handleThemeSelect}
-                    selectedLight={homeState.lightSquare}
-                    selectedDark={homeState.darkSquare}
-                    onRenameDraft={themes.handleRenameDraft}
-                    onDeleteDraft={themes.handleDeleteDraft}
-                    onDragStart={themes.setDraggingThemeId}
-                    onDragEnd={() => themes.setDraggingThemeId(null)}
-                    onDropTheme={themes.handleDropTheme}
-                    onSaveNewTheme={themes.handleSaveNewTheme}
-                  />
-                </motion.section>
-              )}
+        {/* ── Content area ──────────────────────────────────────────────────── */}
+        <div className="min-h-0 min-w-0 flex-1 overflow-hidden">
+          <AnimatePresence mode="wait" initial={false}>
+            {activeTab === 'board-style' && (
+              <motion.div
+                key="board-style"
+                initial={{ opacity: 0, x: 12 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -12 }}
+                transition={{ duration: 0.18, ease: 'easeOut' }}
+                className="h-full"
+              >
+                <BoardStyleStep homeState={homeState} />
+              </motion.div>
+            )}
 
-              {wizard.currentStep === 2 && (
-                <motion.section
-                  key="wizard-step-2"
-                  initial={{ opacity: 0, x: 16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -16 }}
-                  transition={{ duration: 0.2, ease: 'easeOut' }}
-                  className="h-full"
-                >
-                  <PieceDisplayStep homeState={homeState} />
-                </motion.section>
-              )}
-
-              {wizard.currentStep === 3 && (
-                <motion.section
-                  key="wizard-step-3"
-                  initial={{ opacity: 0, x: 16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -16 }}
-                  transition={{ duration: 0.2, ease: 'easeOut' }}
-                  className="h-full"
-                >
-                  <ExportSettingsStep wizard={wizard} />
-                </motion.section>
-              )}
-            </AnimatePresence>
-          </div>
-
-          <ExportStudioPreview
-            homeState={homeState}
-            activeBoardSize={wizard.activeBoardSize}
-          />
+            {activeTab === 'export-settings' && (
+              <motion.div
+                key="export-settings"
+                initial={{ opacity: 0, x: 12 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -12 }}
+                transition={{ duration: 0.18, ease: 'easeOut' }}
+                className="h-full"
+              >
+                <ExportSettingsStep wizard={wizard} homeState={homeState} />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>

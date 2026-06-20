@@ -5,7 +5,7 @@ import { safeJSONParse } from './validation';
 
 /**
  * Shared best-effort cloud-hydrate body for a single settings key. Reads the
- * E2EE `syncStorage` value, JSON-parses it, and hands the raw decoded value to
+ * cloud `syncStorage` value, JSON-parses it, and hands the raw decoded value to
  * `apply`, which decides whether/how to adopt it locally. Local storage stays
  * the synchronous source of truth; this only fills in a freshly signed-in
  * device's cloud preference. Never throws — failures are logged.

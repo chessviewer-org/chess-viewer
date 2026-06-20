@@ -52,7 +52,7 @@ export function useThemePresets(): UseThemePresetsResult {
     }
   }, []);
 
-  // Hydrate from cloud once (best-effort, E2EE). Local storage stays the
+  // Hydrate from cloud once (best-effort). Local storage stays the
   // synchronous source of truth; this only fills in a freshly signed-in device.
   const didHydrate = useRef(false);
   useEffect(() => {

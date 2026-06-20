@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { supabase } from '@/features/auth/services/supabaseClient';
 
 import type { SignUpProps } from '../types';
+import { getAuthErrorMessage } from './authErrors';
 
 export function SignUp({ onSuccess }: SignUpProps) {
   const [email, setEmail] = useState<string>('');
@@ -20,7 +21,7 @@ export function SignUp({ onSuccess }: SignUpProps) {
     });
 
     if (signUpError) {
-      setError(signUpError.message);
+      setError(getAuthErrorMessage(signUpError));
     } else {
       setSuccess(true);
       if (onSuccess) onSuccess();

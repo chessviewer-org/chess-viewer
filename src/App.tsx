@@ -17,16 +17,18 @@ import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useSecurityCheck } from '@/features/auth/hooks/useSecurityCheck';
 import Routes from '@/routes/Router';
 import {
-  useAccentTheme,
   useColorVision,
   useContrast,
   usePageScrollKeys,
+  useReducedMotionPreference,
   useThemeModeSync
 } from '@hooks';
 
 import {
   isFollowingSystem,
+  readReducedMotionPreference,
   readThemeModePreference,
+  resolveReducedMotion,
   resolveThemeMode,
   systemThemeMode,
   THEME_MODE_CHANGE_EVENT,
@@ -81,7 +83,7 @@ function canAnimateThemeReveal(): boolean {
   return (
     typeof document !== 'undefined' &&
     'startViewTransition' in document &&
-    !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    !resolveReducedMotion(readReducedMotionPreference())
   );
 }
 
@@ -129,7 +131,7 @@ function App() {
 
   // App is the single owner of `data-theme`. The Appearance settings expose a
   // Light / Dark / System control (see `useThemeMode`). Every choice is
-  // persisted (`cv_theme_mode`) + E2EE-synced as an EXPLICIT value; the default
+  // persisted (`cv_theme_mode`) + cloud-synced as an EXPLICIT value; the default
   // for a fresh user (nothing stored) is DARK, not the OS. 'System' is stored
   // literally and makes the `prefers-color-scheme` listener below track the OS.
   // We re-resolve on `THEME_MODE_CHANGE_EVENT` (same-tab live change) and
@@ -199,17 +201,16 @@ function App() {
     return () => mediaQuery.removeEventListener('change', handleMediaChange);
   }, [applyTheme]);
 
-  // Apply the saved site accent theme to `--val-accent*` and re-apply the
-  // correct (dark vs light) triple whenever `data-theme` flips, since App owns
-  // the theme. Lives here so App stays the single theme owner (see the hook).
-  useAccentTheme(theme);
-
   // Apply the saved contrast preference (`data-contrast`) and hydrate it from
-  // E2EE sync for a freshly signed-in device.
+  // cloud sync for a freshly signed-in device.
   useContrast();
 
   // Apply the saved color vision (CVD) simulation filter and hydrate from sync.
   useColorVision();
+
+  // Apply the reduced-motion override (`data-reduced-motion`) and hydrate from
+  // sync. `system` defers to the OS `prefers-reduced-motion` setting.
+  useReducedMotionPreference();
 
   const {
     openAuthModal,

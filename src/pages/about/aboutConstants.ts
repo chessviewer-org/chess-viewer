@@ -1,7 +1,6 @@
 /** Shared, factual constants for the About section. Keep these accurate. */
 
 export const CONTACT_EMAIL = 'contact@chessvision.org';
-export const SITE_URL = 'https://chessvision.org';
 export const REPO_URL = 'https://github.com/chessvision-org/chess-vision';
 export const REPO_ISSUES_URL = `${REPO_URL}/issues`;
 export const REPO_DISCUSSIONS_URL = `${REPO_URL}/discussions`;

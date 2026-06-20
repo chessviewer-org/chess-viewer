@@ -1,6 +1,8 @@
 import React, { memo, useId } from 'react';
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
+
+import { useEffectiveReducedMotion } from '@hooks';
 
 export interface SwitchProps {
   /** Whether the switch is on. */
@@ -38,7 +40,7 @@ const Switch = memo(function Switch({
   const switchId = providedId || generatedId;
   const labelId = label ? `${switchId}-label` : undefined;
   const descId = description ? `${switchId}-desc` : undefined;
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useEffectiveReducedMotion();
 
   return (
     <div

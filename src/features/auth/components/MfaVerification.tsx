@@ -104,7 +104,7 @@ export function MfaVerification({ onSuccess, onBack }: MfaVerificationProps) {
         <p className="text-text-secondary text-sm px-4">
           {mode === 'totp'
             ? 'Enter the 6-digit code from your authenticator app.'
-            : 'Enter one of your 8-character recovery codes.'}
+            : 'Enter one of your 16-character recovery codes.'}
         </p>
       </div>
 
@@ -124,11 +124,11 @@ export function MfaVerification({ onSuccess, onBack }: MfaVerificationProps) {
         <input
           id="mfa-code"
           type="text"
-          placeholder={mode === 'totp' ? '000000' : 'ABC12345'}
+          placeholder={mode === 'totp' ? '000000' : 'A1B2C3D4E5F6A7B8'}
           className="w-full text-center text-lg tracking-[0.2em] font-mono rounded-xl border border-border bg-surface-elevated px-4 py-3 text-text-primary focus:border-accent focus:ring-2 focus:ring-accent/35 outline-none transition-colors duration-200"
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          maxLength={mode === 'totp' ? 6 : 8}
+          maxLength={mode === 'totp' ? 6 : 16}
           required
           autoFocus
         />

@@ -93,7 +93,9 @@ const PageTabs = memo(function PageTabs({
   );
 
   return (
-    <nav aria-label={ariaLabel} className="lg:sticky lg:top-4 lg:self-start">
+    <nav aria-label={ariaLabel} className="md:sticky md:top-4 md:self-start">
+      {/* Always a vertical, stacked rail (GitHub-settings pattern): full width
+          on phones, a fixed-width sticky left column on tablet + desktop. */}
       <div
         role="tablist"
         aria-label={ariaLabel}

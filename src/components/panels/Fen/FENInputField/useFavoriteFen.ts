@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { validateFEN } from '@utils';
-import { logger } from '@utils/logger';
 import { isRecord, safeJSONParse } from '@utils/validation';
 import type { NotificationType } from './FENInputField';
 
@@ -90,39 +89,4 @@ export function useFavoriteFen({ fen, onNotification }: UseFavoriteFenOptions) {
   );
 
   return { isFavorite, toggleFavorite };
-}
-
-/**
- * Appends a validated FEN to the clipboard history stored in `localStorage`.
- *
- * Deduplicates by FEN string and caps the list at 50 entries.
- *
- * @param currentFen - The FEN string to record.
- */
-export function recordClipboardHistory(currentFen: string): void {
-  const trimmed = currentFen.trim();
-  if (!trimmed || !validateFEN(trimmed)) return;
-  try {
-    const rawHistory = safeJSONParse<unknown[]>(
-      localStorage.getItem('fenClipboardHistory'),
-      []
-    );
-    const history: FENHistoryEntry[] = Array.isArray(rawHistory)
-      ? rawHistory.filter(
-          (item: unknown): item is FENHistoryEntry =>
-            isRecord(item) &&
-            typeof item['fen'] === 'string' &&
-            typeof item['timestamp'] === 'number'
-        )
-      : [];
-
-    const updated = [
-      { fen: trimmed, timestamp: Date.now() },
-      ...history.filter((item) => item.fen !== trimmed)
-    ].slice(0, 50);
-
-    localStorage.setItem('fenClipboardHistory', JSON.stringify(updated));
-  } catch (err) {
-    logger.error('Failed to save to clipboard history:', err);
-  }
 }

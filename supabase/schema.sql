@@ -279,7 +279,7 @@ CREATE POLICY "Users can view own security events"
 REVOKE INSERT, UPDATE, DELETE ON public.security_events FROM anon, authenticated;
 
 -- ===========================================================================
--- TABLE: user_data  (E2EE KV store; full user-scoped CRUD)
+-- TABLE: user_data  (KV store; owner-scoped CRUD via RLS)
 -- ===========================================================================
 CREATE TABLE IF NOT EXISTS public.user_data (
     id         UUID        PRIMARY KEY DEFAULT gen_random_uuid(),

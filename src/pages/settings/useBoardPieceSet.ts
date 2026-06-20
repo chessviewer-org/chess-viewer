@@ -15,7 +15,7 @@ import { hydrateFromSync, logger } from '@utils';
  * everywhere, this hook writes to that exact key/format — it is NOT a separate
  * `cv_board_piece_set` store, which would silently diverge from the board.
  *
- * On top of that local source of truth it layers best-effort E2EE cloud sync
+ * On top of that local source of truth it layers best-effort cloud sync
  * (mirroring `useThemePersistence`): on mount it hydrates the choice from
  * `syncStorage` for a freshly signed-in device, and on change it pushes the new
  * value up. Local storage stays authoritative; cloud is convenience only.
@@ -32,7 +32,7 @@ function normalizePieceId(value: unknown): string {
     : DEFAULT_PIECE_STYLE;
 }
 
-/** Returns the current piece-set id and a setter that persists locally + E2EE. */
+/** Returns the current piece-set id and a setter that persists locally + cloud. */
 export function useBoardPieceSet(): [string, (id: string) => void] {
   const [pieceStyle, setPieceStyle] = useLocalStorage<string>(
     PIECE_STYLE_KEY,
