@@ -60,9 +60,13 @@ const DroppableSquare = memo(
       ? `${pieceToName(piece)}, ${squareName}`
       : `${squareName}, empty`;
 
-    const handleSelect = useCallback(() => {
-      onSelect?.(row, col);
-    }, [onSelect, row, col]);
+    const handleSelect = useCallback(
+      (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onSelect?.(row, col);
+      },
+      [onSelect, row, col]
+    );
 
     const { setNodeRef, isOver } = useDroppable({
       id: `sq-${row}-${col}`,
