@@ -1,150 +1,132 @@
 # ChessVision — Roadmap
 
-Potential future features and known technical debt. No timeline commitments.
+What is built, what is next, and what is not planned. No timeline commitments.
 
 ---
 
-## Implemented (v5.0.0)
+## Implemented (v6.0.0)
 
-### Core
+### Core Editor
 
-- FEN notation parsing and validation
-- Canvas-based board renderer (ChessBoard)
-- Interactive drag-and-drop board editor (ChessEditor, React DnD)
-- Board flip and coordinate toggle
-- 23+ piece sets
-- 20+ board theme presets
-- Custom board color picker (HSV/RGB/HEX)
-- Multiple color picker views (main, advanced, settings)
+- FEN notation parsing and validation (93-character cap, real-time feedback)
+- Drag-and-drop board editor powered by `@dnd-kit` (pointer and touch sensors)
+- Board flip and coordinate label toggle
+- Undo/redo for interactive board edits
+- 23 piece sets (Lichess CDN, rasterized to 256px blob URLs for crisp rendering)
+- 20 preset board themes
+- Custom colour picker (HSV/RGB/HEX)
+- Piece palette for off-board placement
+- Trash zone for piece removal by drag
 
 ### Export
 
-- PNG and JPEG export
-- SVG export (Advanced FEN page: single and batch)
-- 4 quality levels: 8× (Print), 16× (Print), 24× (Social), 32× (Social)
-- Board size selection (4 cm, 6 cm, 8 cm) for print mode
-- Physical dimension accuracy (DPI-correct output)
-- Pause / resume / cancel export
-- Batch FEN export (Advanced FEN Input page with `FENBatchContext`)
-- Copy board to clipboard
+- PNG and JPEG raster export with DPI metadata (pHYs chunk / JFIF fields)
+- SVG vector export with piece images embedded as base64
+- 4 quality presets: 1× (300 DPI), 2× (600 DPI), 3× (900 DPI), 4× (1200 DPI)
+- Board size selection in centimetres (4, 6, 8 cm) for physical print accuracy
+- Export pause, resume, and cancel
+- Full-screen Export Studio (board style + export settings in one view)
+- Batch export (Advanced FEN Input) — multiple positions → ZIP download
+- Copy board to clipboard (PNG)
 
-### Pages & Routing
+### Pages
 
-- Home page (`/`) — main board + controls
-- About page (`/about`)
-- Download / PWA install guide (`/download`)
-- Support page (`/support`)
-- Settings page (`/settings`) — export and theme customisation tabs
-- FEN History page (`/fen-history`)
-- Advanced FEN Input page (`/advanced-fen`) — batch editor
-- 404 Not Found page
-- All pages lazy-loaded with code splitting
+- Home page (`/`) — main board editor + controls
+- Export page (`/export`) — full-screen export studio
+- About page (`/about`) — FAQ, privacy, contribute, donate sections
+- Settings page (`/settings`) — appearance, board, account, security, data
+- FEN History page (`/fen-history`) — browsable history with filters and search
+- Advanced FEN Input page (`/advanced-fen`) — batch position editor
+- 404 page
+- All pages lazy-loaded with code splitting and hover-prefetch
 
-### State & Persistence
+### State and Persistence
 
-- FEN history with localStorage persistence (300 ms debounced)
-- FEN history archive with auto-archival
-- History filtering and sorting
-- Favorites
-- Recent colors list (up to 12)
+- FEN history with localStorage persistence (debounced 300ms)
+- History freshness badges (Fresh / Aging / Stale) with timestamps
+- History filtering, sorting, favouriting, and pinning
+- Recent colours list (up to 12)
 - Theme and settings persistence across sessions
 - FEN batch list persistence
 
-### App & UI
+### Account and Cloud Sync (Optional)
 
-- Light / dark color-scheme toggle with `prefers-color-scheme` fallback
-- Theme customization (preset themes + custom light/dark square colors)
-- Skip-to-main-content link (keyboard accessibility)
-- Navbar hidden on tool pages for distraction-free experience
-- ErrorBoundary wrapping the full app
-- Toast notification system
-- PWA manifest (`manifest.json`)
+- Email/password authentication via Supabase
+- TOTP-based two-factor authentication
+- Cloud sync of settings and history (row-level security, owner-scoped)
+- 90-day re-verification gate for privileged operations
+- Data migration from localStorage on first sign-in
+- Supporter/membership tiers via GitHub Sponsors
 
 ### Performance
 
-- React.lazy code splitting for all pages
-- `useMemo` / `useCallback` throughout hooks
-- Piece image caching (`pieceImageCache.js`)
-- Virtualised lists with `react-window`
-- History debounced persistence
-- `rafThrottle` for drag handlers
-- Export pause/resume/cancel
+- Code splitting for all pages (React.lazy + Suspense)
+- Hover-prefetch for likely next routes
+- Piece image caching (`pieceImageCache.ts`, max 36 images)
+- Memoized board components (`DroppableSquare`, `DraggablePiece` — render ×64)
+- SVG → raster export through Web Worker (OffscreenCanvas) when pieces are CDN URLs
+- Virtualised FEN history grid with `react-window`
+- Debounced localStorage writes
+- Deferred cloud hydration for accessibility preferences (requestIdleCallback)
+- Service Worker (Workbox) for offline use and hard-refresh performance
 
-### Accessibility
+### App
 
-- Skip navigation link
-- ARIA roles on modals (role="dialog", aria-modal, aria-labelledby)
-- FEN input: aria-describedby, aria-invalid
-- Export progress: role="dialog", aria-valuenow
-- Keyboard navigation in Navbar (Escape, Enter, Space)
-- Focus trap in modals
-- scroll-lock on mobile menu open
+- Light/dark theme with `prefers-color-scheme` fallback and animated transition
+- Neutral focus ring on inputs (1px, not accent-coloured)
+- Toast notification system
+- Global modal system (alert / confirm)
+- Skip-to-main-content link
+- PWA manifest and installability
+- Position database search (Lichess, PDB, YACPDB) on demand
+- Share board via URL or image
 
 ### Code Quality
 
-- JSDoc comments across the codebase
-- Centralised `logger.js` (dev-only output)
-- Centralised `errorHandler.js`
-- Conventional commits enforced via commitlint + husky
-- ESLint with react-hooks plugin, zero max-warnings in CI
-- Prettier formatting with pre-commit hook
+- TypeScript 6 strict mode (no `any`, no `!`, no `@ts-ignore`)
+- ESLint zero-warnings in CI
+- Conventional Commits enforced via commitlint + Husky
+- Atomic commit validator (one logical domain per commit)
+- Prettier formatting with pre-commit hook via lint-staged
+- FEN parser unit tests (node:test, co-located)
 
 ---
 
 ## Not Yet Implemented
 
-## Priority Roadmap Items
+### Priority Items
 
-1. **SVG export parity:** add SVG action to Home page export controls (Advanced FEN already supports SVG).
-2. **Site theme change improvements:** extend theme system with clearer global presets/workflows and reduce split behaviour between Home and Settings.
-3. **Direct game import from external sources:** support pasting/reading Lichess or Chess.com game URLs (or PGN text) and converting to position list/FEN.
+1. **Full keyboard control of the board** — arrow keys to move pieces, no mouse required
+2. **Annotations** — arrow and highlight overlays on squares and pieces
+3. **PGN import** — paste a PGN and step through positions
+4. **Direct game import** — paste a Lichess or Chess.com URL and extract positions
 
----
-
-### Low Effort
+### Lower Priority
 
 - [ ] URL-based position sharing (`?fen=...`)
-- [ ] Keyboard shortcuts for board actions
-
-### Medium Effort
-
-- [ ] Undo/redo for interactive board edits
-- [ ] Arrow and highlight annotations on squares
-- [ ] PGN import
-- [ ] Direct game import from Lichess/Chess.com URL or PGN text
 - [ ] Custom piece set upload
-- [ ] Export to ZIP archive (batch download as single file)
-
-### High Effort
-
-- [ ] Full WCAG 2.1 AA accessibility compliance (canvas alternative text, screen reader)
-- [ ] Web Worker for off-thread export rendering
-- [ ] Position database / famous games browser
 - [ ] i18n / multi-language support
+- [ ] Full WCAG 2.1 AA compliance — canvas still has no DOM alternative for screen readers
+- [ ] Lichess/Chess.com browser extension (Phase 3 on the roadmap)
+- [ ] npm package release (`@chessvision-org/core`) for headless board rendering
 
 ---
 
 ## Known Technical Debt
 
-- Canvas is not accessible to screen readers — no DOM alternative for board position
-- Automated test coverage is limited and current Node test import path is broken
-- Export at 24×/32× Social may crash on iOS/Safari (canvas memory limit)
-- No Lighthouse CI in build pipeline
-- No bundle size tracking (vite-bundle-visualizer only on demand)
-- `export/` and `Export/` directories are duplicated in `features/` (case-insensitive filesystem artefact)
-- Same duplication exists for `fen/` / `Fen/`, `history/` / `History/`, `theme/` / `Theme/`
+- Canvas board is not accessible to screen readers — no DOM alternative for the 64-square position
+- Automated test coverage is limited to the FEN parser — no component tests or E2E suite
+- No Lighthouse CI or bundle-size tracking in the pipeline (vite-bundle-visualizer available on demand via `pnpm build:analyze`)
 
 ---
 
 ## Not Planned
 
-- Move animation or game playback
 - Chess engine integration or position analysis
-- User accounts or cloud sync
+- Move animation or game playback
 - Native mobile apps
-- Backend or database
+- Multi-player or real-time features
 
 ---
 
-**Last Updated:** May 6, 2026  
-**Version:** 5.0.0
+**Last updated:** June 2026 — v6.0.0

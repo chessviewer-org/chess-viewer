@@ -16,12 +16,12 @@
 
 ## Overview
 
-ChessVision is a React single-page application. It parses FEN notation, renders chess positions on an HTML5 Canvas, and exports high-resolution raster or vector images. Optional user authentication enables end-to-end encrypted cloud sync via Supabase.
+ChessVision is a React single-page application. It parses FEN notation, renders chess positions on an HTML5 Canvas, and exports high-resolution raster or vector images. Optional user authentication enables cloud sync via Supabase with row-level security.
 
 **Core principles:**
 
 - Feature-based component grouping under `src/components/features/`
-- Functional components and React hooks only
+- Functional components and React hooks only — no class components
 - Canvas-based board rendering and image export
 - All local state persisted to localStorage; cloud sync is opt-in
 - All pages lazy-loaded with code splitting
@@ -38,7 +38,7 @@ ChessVision is a React single-page application. It parses FEN notation, renders 
 | Build tool      | Vite             | 8.x     |
 | Styling         | Tailwind CSS     | 4.x     |
 | Routing         | React Router DOM | 7.x     |
-| Drag and drop   | React DnD        | 16.x    |
+| Drag and drop   | @dnd-kit         | 6.x     |
 | Animations      | Framer Motion    | 12.x    |
 | Virtual lists   | react-window     | 2.x     |
 | Icons           | Lucide React     | latest  |
@@ -51,97 +51,96 @@ ChessVision is a React single-page application. It parses FEN notation, renders 
 
 ```
 src/
-├── App.tsx                        # Root component — theme state, context providers
-├── index.tsx                      # Application entry point
-├── index.css                      # Global styles, Tailwind CSS variables
+├── App.tsx                        # Root component — theme bootstrap, context providers
+├── index.tsx                      # Application entry point, SW registration
+├── index.css                      # Global styles, Tailwind CSS variables, focus ring system
 │
 ├── shared/
 │   ├── types/                     # Canonical TS models — import via @app-types
-│   │   ├── chess.ts
-│   │   ├── history.ts
-│   │   └── index.ts
-│   ├── constants/                 # Static data
-│   │   ├── chessConstants.ts      # Piece sets, FEN defaults, board constants
-│   │   ├── themeCustomization.ts  # Default theme presets
-│   │   └── dragDropConstants.ts   # DnD item type strings
+│   │   ├── chess.ts               # PieceSymbol, ChessBoard, BoardMatrix
+│   │   ├── history.ts             # FENHistoryEntry
+│   │   └── index.ts               # QualityPreset, BoardThemes, ValidationResult
+│   ├── constants/
+│   │   ├── chessConstants.ts      # PIECE_SETS, BOARD_THEMES, QUALITY_PRESETS
+│   │   ├── dragDropConstants.ts   # ChessDragData, PALETTE_PIECES, getPieceImageKey
+│   │   └── seoConstants.ts        # getRouteSeo, structured data schemas
 │   ├── hooks/                     # Cross-page reusable hooks
 │   │   ├── useChessBoard.ts       # FEN → 8×8 board array (memoized)
 │   │   ├── useDebouncedFENValidation.ts
-│   │   ├── useFENHistory.ts
-│   │   ├── useInteractiveBoard.ts # DnD board state + FEN generation
-│   │   ├── useLocalStorage.ts
-│   │   ├── useNotifications.ts
+│   │   ├── useFENHistory.ts       # History CRUD + localStorage persistence
+│   │   ├── useInteractiveBoard.ts # DnD board state + undo/redo + FEN generation
+│   │   ├── useLocalStorage.ts     # Debounced localStorage read/write
+│   │   ├── useNotifications.ts    # Toast notification system
 │   │   ├── usePieceImages.ts      # Piece SVG → HTMLImageElement loading
-│   │   ├── useTheme.ts
-│   │   └── useThemePresets.ts
-│   ├── utils/                     # Pure utilities — the export pipeline lives here
-│   │   ├── fenParser.ts           # FEN validation + 8×8 BoardMatrix. MAX_FEN_LENGTH=93
-│   │   ├── fenParser.test.ts      # node:test unit tests
+│   │   ├── useTheme.ts            # Active light/dark square colours
+│   │   ├── useThemePresets.ts     # Saved theme preset management
+│   │   ├── useColorVision.ts      # CVD filter preference (deferred cloud hydration)
+│   │   ├── useContrast.ts         # High-contrast preference (deferred cloud hydration)
+│   │   └── useReducedMotionPreference.ts
+│   ├── utils/
+│   │   ├── fenParser.ts           # validateFEN, parseFENToMatrix — MAX_FEN_LENGTH=93
+│   │   ├── fenParser.test.ts      # node:test unit tests (co-located)
 │   │   ├── canvasRenderer.ts      # createUltraQualityCanvas() — off-screen draw
-│   │   ├── canvasExporter.ts      # Async export lifecycle orchestrator
-│   │   ├── exportState.ts         # Cancel/pause/resume state machine
-│   │   ├── imageOptimizer.ts      # getMaxCanvasSize() — Safari 16384px cap
-│   │   ├── workerRasterExport.ts  # Delegates SVG→raster to Web Worker
-│   │   ├── svgExporter.ts         # generateBoardSVG() — vector export path
-│   │   ├── dpiEncoder.ts          # changeDPI() — injects DPI into PNG/JPEG
+│   │   ├── canvasExporter.ts      # downloadPNG/JPEG, copyToClipboard — export orchestrator
+│   │   ├── exportRaster.ts        # createRasterBlob() — worker-first, canvas fallback
+│   │   ├── exportState.ts         # Cancel/pause/resume state machine + validateExportConfig
+│   │   ├── imageOptimizer.ts      # calculateRenderSurfaceSize, getMaxCanvasSize (Safari cap)
+│   │   ├── workerRasterExport.ts  # startSvgRasterWorkerTask() — queues SVG→raster to Worker
+│   │   ├── svgExporter.ts         # generateBoardSVG(), downloadSVG()
+│   │   ├── svgPieceLoader.ts      # imageToEmbeddableDataURL() — blob → base64 for SVG embed
+│   │   ├── dpiEncoder.ts          # changeDPI() — injects DPI metadata into PNG/JPEG
 │   │   ├── archiveManager.ts      # ZIP batch compilation
-│   │   ├── boardUtils.ts          # boardToFEN(), helper functions
-│   │   ├── colorConversions.ts    # HEX↔RGB↔HSL
-│   │   ├── coordinateCalculations.ts
-│   │   ├── crypto.ts              # encrypt()/decrypt() for E2EE cloud sync
-│   │   ├── historyUtils.ts        # FEN history filter/sort
+│   │   ├── boardUtils.ts          # boardToFEN(), coordinate helpers
+│   │   ├── colorConversions.ts    # HEX↔RGB↔HSV — single source for all colour math
+│   │   ├── coordinateCalculations.ts # Square bounds, coordinate label drawing
+│   │   ├── historyUtils.ts        # FEN history filter/sort utilities
 │   │   ├── logger.ts              # Structured logger (logger.warn/error/info)
-│   │   ├── pieceImageCache.ts     # Piece SVG → HTMLImageElement cache (keyed by URL)
+│   │   ├── pieceImageCache.ts     # SVG → 256px HTMLImageElement cache (blob URL, max 36)
 │   │   ├── themeCustomization.ts  # Theme preset helpers
-│   │   ├── validation.ts          # safeJSONParse, sanitize*, MAX_FEN_LENGTH
-│   │   └── index.ts               # Barrel re-exports
+│   │   ├── validation.ts          # safeJSONParse, sanitizeInput/HexColor/FileName
+│   │   └── index.ts               # Barrel re-exports (@utils alias)
 │   ├── ui/                        # Reusable UI primitives
-│   │   ├── Button/
-│   │   ├── Modal/
-│   │   ├── Input/
 │   │   ├── Checkbox/
-│   │   ├── CustomSelect/
+│   │   ├── CustomSelect/          # Accessible listbox with keyboard navigation
 │   │   ├── DatePicker/
-│   │   ├── SearchableSelect/
+│   │   ├── ErrorBoundary/
+│   │   ├── Modal/ ModalShell/
 │   │   ├── NotificationContainer/
-│   │   └── ErrorBoundary/
+│   │   ├── Seo/
+│   │   └── Switch/
 │   └── workers/
-│       └── svgRasterWorker.ts     # Web Worker: SVG → PNG/JPEG via OffscreenCanvas
+│       └── svgRasterWorker.ts     # Web Worker: SVG Blob → PNG/JPEG via OffscreenCanvas
 │
 ├── components/
 │   ├── board/
-│   │   ├── BoardGrid/             # 8×8 grid layout
-│   │   ├── BoardSquare/           # Single square (memo'd — renders ×64)
-│   │   ├── ChessBoard/            # Canvas-based board with coordinates
 │   │   └── MiniPreview/           # Thumbnail board for history cards
 │   ├── features/
-│   │   ├── ActionButtons/         # Export/Clear/Flip action bar
 │   │   ├── ClipboardHistory/
-│   │   ├── ColorPicker/           # HSL/HEX picker with views/ and parts/
-│   │   ├── ControlPanel/          # FEN input + board settings
-│   │   ├── DisplayOptions/        # Coordinate visibility, flip, thin frame
-│   │   ├── Export/                # ExportOptionsDialog, ExportProgress, BoardSizeControl
-│   │   ├── Fen/                   # FENInputField, PieceSelector
-│   │   ├── HelpCenter/
+│   │   ├── ColorPicker/           # HSV/HEX picker — views/ and parts/
+│   │   ├── ControlPanel/          # FEN input + board action buttons
+│   │   ├── DisplayOptions/        # Coordinate visibility, flip, thin frame toggles
+│   │   ├── Export/ExportProgress/ # Export progress overlay
+│   │   ├── Fen/FENInputField/     # FEN text input with validation feedback
 │   │   └── History/               # HistoryFilters, StatusBadge, ConfirmationModal
 │   ├── interactions/
-│   │   ├── ChessEditor/           # Master editor wrapper
-│   │   ├── CustomDragLayer/       # Custom drag preview (no CSS)
-│   │   ├── DndProvider/           # react-dnd HTML5 + Touch backend switch
-│   │   ├── DraggablePiece/        # Draggable piece (memo'd)
-│   │   ├── DroppableSquare/       # Drop target per square (memo'd)
-│   │   ├── InteractiveBoard/      # Composes all DnD children
+│   │   ├── ChessEditor/           # Master DnD editor — DndContext, sensors, DragOverlay
+│   │   │   ├── CommandBar.tsx     # Icon toolbar (undo/redo/flip/copy/share/download)
+│   │   │   ├── DatabaseSearchPanel.tsx
+│   │   │   └── ShareDialog.tsx
+│   │   ├── DraggablePiece/        # Draggable piece wrapper (memo'd)
+│   │   ├── DroppableSquare/       # Drop target per square (memo'd, custom comparator)
+│   │   ├── InteractiveBoard/      # 8×8 grid of DroppableSquares
 │   │   ├── PiecePalette/          # Off-board piece picker
 │   │   └── TrashZone/             # Drop-to-delete zone
 │   └── layout/
-│       └── Navbar/
+│       └── Navbar/                # App shell nav (desktop dropdown, mobile menu)
 │
 ├── contexts/
 │   ├── FENBatchContext.tsx        # FEN batch list (add/remove/clear, localStorage)
-│   ├── FENBatchStore.ts           # Context object + type declaration
+│   ├── FENBatchStore.ts
 │   ├── useFENBatch.ts
-│   ├── ModalContext.tsx
-│   ├── ThemeSettingsContext.tsx   # Theme preferences + recentColors + playSound()
+│   ├── ModalContext.tsx           # Global alert/confirm modal
+│   ├── ThemeSettingsContext.tsx   # recentColors, playSound()
 │   └── index.ts
 │
 ├── features/
@@ -151,27 +150,30 @@ src/
 │       ├── hooks/
 │       │   ├── useAuth.tsx        # Session state, signIn/signUp/signOut
 │       │   ├── useSecurityCheck.ts # Fail-closed 90-day re-verification gate
-│       │   └── useSupabaseSync.ts # Bidirectional cloud sync orchestrator
+│       │   ├── useSupabaseSync.ts # Cloud sync orchestrator
+│       │   └── ProfileContext.tsx # Display name, supporter tier
 │       ├── services/
 │       │   ├── supabaseClient.ts  # Singleton Supabase client
-│       │   ├── syncStorage.ts     # KV interface + E2EE encrypt/decrypt
-│       │   └── dataMigration.ts   # localStorage → Supabase migration on first login
+│       │   ├── syncStorage.ts     # KV interface to user_data (RLS owner-scoped)
+│       │   ├── dataMigration.ts   # localStorage → Supabase migration on first login
+│       │   └── membership.ts      # Supporter tier logic
 │       └── types/index.ts
 │
 ├── pages/
-│   ├── HomePage/                  # Primary board playground
-│   ├── AdvancedFENInputPage/      # Batch FEN studio
-│   ├── FENHistoryPage/            # FEN history browser
-│   ├── settings/
-│   │   ├── ThemeCustomization/    # Preset cards, color picker panel, board preview
-│   │   ├── ExportCustomization.tsx
-│   │   └── DataManagement.tsx
+│   ├── HomePage/                  # Primary board workspace
+│   ├── ExportPage/                # Full-screen export studio (board style + settings)
+│   ├── AdvancedFENInputPage/      # Batch FEN studio — up to 10 positions
+│   ├── FENHistoryPage/            # FEN history browser with filters
+│   ├── settings/                  # Settings tabs (appearance, board, account, security)
+│   ├── about/                     # About sections (FAQ, Privacy, Contribute, Donate)
 │   ├── AboutPage.tsx
 │   ├── SettingsPage.tsx
 │   └── NotFoundPage.tsx
 │
 └── routes/
-    └── Router.tsx                 # All pages lazy() + Suspense; AnimatePresence transitions
+    ├── Router.tsx                 # All pages lazy() + Suspense, AnimatePresence transitions
+    ├── lazyPages.ts               # Lazy import factories (reused for hover prefetch)
+    └── prefetchRegistry.ts        # Route → import factory map for usePrefetchRoute
 ```
 
 ---
@@ -181,78 +183,73 @@ src/
 Defined in `tsconfig.json` and `vite.config.js`:
 
 ```
-@/*           → src/*
+@/*           → src/*                (app structure — slash form)
 @shared/*     → src/shared/*
 @components/* → src/components/*
 @pages/*      → src/pages/*
-@hooks        → src/shared/hooks (barrel)
+@hooks        → src/shared/hooks     (bare barrel form — shared layer)
 @hooks/*      → src/shared/hooks/*
-@utils        → src/shared/utils (barrel)
+@utils        → src/shared/utils
 @utils/*      → src/shared/utils/*
 @contexts/*   → src/contexts/*
-@constants    → src/shared/constants (barrel)
+@constants    → src/shared/constants
 @constants/*  → src/shared/constants/*
-@app-types    → src/shared/types (barrel)
+@app-types    → src/shared/types
 @app-types/*  → src/shared/types/*
 ```
+
+Convention: use `@/x` for app-structure paths (`@/components`, `@/features`). Use bare form `@x` for shared-layer barrels (`@utils`, `@hooks`, `@constants`, `@app-types`).
 
 ---
 
 ## Routing
 
-All routes are in `src/routes/Router.tsx`. Every page component is `lazy()`-loaded and wrapped in a `<Suspense>` boundary. Page transitions use `AnimatePresence` from Framer Motion.
+All routes in `src/routes/Router.tsx`. Every page is `lazy()`-loaded in a `<Suspense>` boundary. Page transitions use `AnimatePresence` from Framer Motion.
 
 | Path            | Component              |
 | --------------- | ---------------------- |
 | `/`             | `HomePage`             |
+| `/export`       | `ExportPage`           |
 | `/about`        | `AboutPage`            |
-| `/download`     | `DownloadPage`         |
-| `/support`      | `SupportPage`          |
 | `/settings`     | `SettingsPage`         |
 | `/fen-history`  | `FENHistoryPage`       |
 | `/advanced-fen` | `AdvancedFENInputPage` |
 | `*`             | `NotFoundPage`         |
 
-The Navbar is hidden on tool pages (`/settings`, `/fen-history`, `/advanced-fen`) for a distraction-free experience.
+`usePrefetchRoute` prefetches a page chunk on link hover/focus, so click-time navigation is instant.
 
 ---
 
 ## State Management
 
-| Layer            | Tool         | Examples                          |
-| ---------------- | ------------ | --------------------------------- |
-| Component state  | `useState`   | Modal open/close, form values     |
-| Derived state    | `useMemo`    | Parsed FEN → board array          |
-| Cross-tree state | Context API  | Theme settings, FEN batch list    |
-| Persistence      | localStorage | FEN history, theme, settings      |
-| Drag state       | React DnD    | Piece being dragged               |
-| Cloud sync       | Supabase     | Encrypted KV via `syncStorage.ts` |
+| Layer            | Tool         | Examples                                    |
+| ---------------- | ------------ | ------------------------------------------- |
+| Component state  | `useState`   | Modal open/close, form values               |
+| Derived state    | `useMemo`    | Parsed FEN → board array                    |
+| Cross-tree state | Context API  | Theme settings, FEN batch list, modal state |
+| Persistence      | localStorage | FEN history, theme preferences, settings    |
+| Drag state       | @dnd-kit     | Active piece, drag origin, drag overlay     |
+| Cloud sync       | Supabase     | KV via `syncStorage.ts` (RLS owner-scoped)  |
 
 Context providers persist to localStorage via `useEffect`. All hydration uses `safeJSONParse`.
 
-DnD state lives exclusively in `useInteractiveBoard.ts` and `react-dnd` monitors. It must not be mirrored into React state — doing so causes 64-square cascade re-renders.
+Drag state lives exclusively in `useInteractiveBoard.ts` and `@dnd-kit` monitors (`useDraggable`, `useDroppable`). It must not be mirrored into React state — doing so causes 64-square cascade re-renders through the memoized `DroppableSquare` grid.
 
 ---
 
 ## Canvas Rendering
 
-### Display Rendering (`ChessBoard`)
+### Display Board
 
-- Canvas size determined by the `size` prop (pixels)
-- Squares drawn with `ctx.fillRect` per square (64 total)
-- Piece images drawn with `ctx.drawImage` from cached `HTMLImageElement` instances
-- Coordinate labels drawn with `ctx.fillText`
-- Coordinate border sizing: `borderSize = clamp(boardPixels × 0.05, 18px, 800px)`
+The interactive board is rendered as a `@dnd-kit` grid of `DroppableSquare` components, each containing a `DraggablePiece`. The squares are filled with Tailwind colour utilities backed by CSS custom properties. Piece images are loaded from Lichess CDN, rasterized to 256 px blob URLs by `pieceImageCache.ts`, and passed down as a stable `Record<string, HTMLImageElement>`.
 
-### Export Rendering
+### Export Canvas
 
-For export dimensions, see [EXPORT_PIPELINE.md](../reference/EXPORT_PIPELINE.md).
+For export, `createUltraQualityCanvas()` in `canvasRenderer.ts` renders an off-screen `HTMLCanvasElement`:
 
-Key rules:
-
-- Safari caps canvas at 16,384 px per dimension — `getMaxCanvasSize()` enforces this
-- After every `canvas.toBlob()` call: `canvas.width = 0; canvas.height = 0` (Safari GPU memory release)
-- Exports above 4,000 px on any axis must route through `svgRasterWorker.ts` (OffscreenCanvas in Web Worker)
+- Square sizes computed from physical board size in cm: `pixels = round((cm / 2.54) × 300 × multiplier)`
+- `getMaxCanvasSize()` caps at 16,384 px on Safari, 32,767 px on Chrome
+- After every `canvas.toBlob()`: `canvas.width = 0; canvas.height = 0` — mandatory for Safari GPU memory release
 
 ---
 
@@ -262,26 +259,28 @@ See [EXPORT_PIPELINE.md](../reference/EXPORT_PIPELINE.md) for the full technical
 
 **Flow:**
 
-1. User configures quality, format, and board size in `ExportSettings`
-2. `ActionButtons` triggers `canvasExporter.ts`
-3. `ExportProgress` displays real-time progress via `onProgress(0–100)` callback
-4. On completion, image downloads via `<a download>` or copies to clipboard
-5. Batch export (`AdvancedFENInputPage`) iterates the FEN list from `FENBatchContext`, calls the single-export pipeline per item, and packages outputs via `archiveManager.ts`
+1. User opens ExportPage (full-screen studio) from the CommandBar download button
+2. Configures format (PNG/JPEG/SVG), quality preset (1×–4×), board size (4/6/8 cm), and filename
+3. `handleBatchExport` in `useHomeExport` triggers `canvasExporter.ts`
+4. For PNG/JPEG: `createRasterBlob()` attempts the SVG→Worker path first; falls back to main-thread canvas if pieces are blob URLs
+5. For SVG: `downloadSVG()` in `svgExporter.ts` embeds piece images as base64 data URLs via `svgPieceLoader.ts`
+6. DPI metadata injected by `dpiEncoder.ts`; file downloaded via `<a download>`
+7. Batch export iterates the FEN list and packages outputs via `archiveManager.ts`
 
 ---
 
 ## Authentication and Cloud Sync
 
-Authentication is optional. The app is fully functional without an account.
+Authentication is entirely optional. The app is fully functional without an account.
 
-**Services:** All Supabase access goes through the singleton at `src/features/auth/services/supabaseClient.ts`. Never instantiate a second client.
+**Services:** All Supabase access goes through the singleton at `src/features/auth/services/supabaseClient.ts`. `syncStorage.ts` is the only approved KV interface for `user_data`.
 
-**Security gate:** `useSecurityCheck` is fail-closed — `isLocked` defaults to `true` and only unlocks on positive server confirmation via the `refresh_security_session` RPC. Do not bypass.
+**Security gate:** `useSecurityCheck` is fail-closed — `isLocked` defaults to `true` and only unlocks on positive server confirmation via the `refresh_security_session` RPC.
 
-**Cloud sync:** `syncStorage.ts` is the only approved interface for user KV data. It encrypts values with the user key (`cv_privacy_key` from localStorage) before every Supabase upsert. Stored as `enc:<ciphertext>`. Direct `supabase.from('user_data')` calls outside `syncStorage.ts` are forbidden.
+**Cloud sync:** `syncStorage.set(key, value)` upserts into `user_data`. Each row is owner-scoped by Supabase RLS: `auth.uid() = user_id`. No user can read another user's rows. The local localStorage copy is the source of truth; cloud is best-effort sync on top.
 
-**Row-Level Security:** RLS is active on all tables (`user_data`, `user_security`). Default-deny: no policy = no access.
+**Accessibility preferences** (`useColorVision`, `useContrast`, `useReducedMotionPreference`) hydrate from cloud on an idle callback after first paint — they do not block initial render.
 
 ---
 
-_Last updated: May 2026 — v6.0.0_
+_Last updated: June 2026 — v6.0.0_

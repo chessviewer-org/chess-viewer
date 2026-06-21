@@ -16,27 +16,26 @@ Always use the latest version available at [chessvision.org](https://chessvision
 
 ### Client-Side Processing
 
-All board rendering and image export runs in the browser. No chess position data is transmitted to any server during normal use.
+All board rendering and image export runs in the browser. No position data is sent to any server during normal use.
 
 - No analytics, cookies, or telemetry
 - FEN input is length-capped at 93 characters before any parsing attempt
 - All localStorage and Supabase response parsing uses `safeJSONParse` to prevent prototype pollution
-- FEN strings and hex colors are sanitized at input boundaries (`sanitizeInput`, `sanitizeHexColor`)
+- FEN strings and hex colours are sanitized at input boundaries (`sanitizeInput`, `sanitizeHexColor`)
 
 ### Optional Cloud Sync
 
 Users may sign in to enable cross-device sync. When cloud sync is active:
 
-- All values are end-to-end encrypted before transmission using a key stored locally in `localStorage` under `cv_privacy_key`
-- The server stores only ciphertext (`enc:<ciphertext>` format) — the plaintext is never sent
-- Row-Level Security (RLS) is enforced on all Supabase tables; rows are scoped to the authenticated user
-- Privileged operations (e.g., security session reset) use an RPC function rather than direct table writes
+- Data is stored in Supabase with row-level security (RLS) enforced on every table — rows are scoped to the authenticated user; one account cannot read another's data
+- Privileged operations (e.g., security session reset) use an RPC function rather than direct table writes, so the application cannot bypass the server-side policy
+- The local localStorage copy is the source of truth; cloud is best-effort sync on top
 
 ### Authentication
 
-- Email/password with optional TOTP-based multi-factor authentication
-- A 90-day re-verification gate is enforced for sensitive operations (`useSecurityCheck` — fail-closed by default)
-- MFA uses Supabase TOTP; no custom TOTP logic is implemented
+- Email/password with optional TOTP-based multi-factor authentication via Supabase
+- A 90-day re-verification gate is enforced for sensitive operations (`useSecurityCheck`) — it defaults to locked and only unlocks on positive server confirmation
+- No custom TOTP logic; the standard Supabase MFA flow is used throughout
 
 ### Browser Security
 
@@ -83,4 +82,4 @@ Dependencies are monitored via Dependabot. Run `pnpm audit` locally to check for
 
 ---
 
-_Last updated: May 2026_
+_Last updated: June 2026_
