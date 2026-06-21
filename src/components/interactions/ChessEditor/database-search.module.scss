@@ -1,0 +1,98 @@
+@use '../../../styles/variables' as v;
+@use '../../../styles/mixins' as m;
+
+// =============================================================================
+// DatabaseSearchPanel — CSS Module
+//
+// Grid layout:
+//   < 394px  1-column, 4 rows  — each provider gets its own row
+//   >= 394px 2-column, 2 rows  — always 2×2, never 4 in one row
+// =============================================================================
+
+.panel {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(var(--val-border) / 0.4);
+  background-color: var(--color-surface-elevated);
+  padding: 0.375rem 0.5rem;
+}
+
+.title {
+  display: block;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.075em;
+  color: var(--color-text-secondary);
+  padding-inline: 0.25rem;
+  margin-bottom: 0.375rem;
+}
+
+// Provider grid
+.grid {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  grid-template-columns: 1fr; // < 394px: single column
+  grid-auto-rows: 1fr;
+  gap: 0.375rem;
+
+  @include m.editor-desktop {
+    grid-template-columns: 1fr 1fr; // >= 1024px: two columns
+  }
+}
+
+// -- Provider cell ------------------------------------------------------------
+
+.providerRow {
+  display: flex;
+  flex-direction: column; // < 394px: label above, button below
+  gap: 0.25rem;
+  min-width: 0;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(var(--val-border) / 0.4);
+  background-color: var(--color-surface);
+
+  @include m.editor-desktop {
+    flex-direction: row; // >= 1024px: label left, button right
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.providerMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.providerLabel {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.3s ease;
+  color: var(--color-text-primary);
+
+  &.found {
+    color: var(--color-accent);
+  }
+}
+
+.providerIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+  transition: color 0.3s ease;
+  color: var(--color-text-muted);
+
+  &.found {
+    color: var(--color-accent);
+  }
+}

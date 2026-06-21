@@ -79,7 +79,7 @@ export default defineConfig({
       '@pages': path.resolve(__dirname, 'src/pages'),
       '@hooks': path.resolve(__dirname, 'src/shared/hooks'),
       '@utils': path.resolve(__dirname, 'src/shared/utils'),
-      '@contexts': path.resolve(__dirname, 'src/contexts'),
+      '@contexts': path.resolve(__dirname, 'src/shared/contexts'),
       '@constants': path.resolve(__dirname, 'src/shared/constants'),
       '@app-types': path.resolve(__dirname, 'src/shared/types')
     },

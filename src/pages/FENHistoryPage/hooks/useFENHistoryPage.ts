@@ -3,12 +3,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import type { HistoryFilterState } from '@/components/features/History';
-import { useModal } from '@/contexts';
+import { useModal } from '@contexts';
 import { useFENHistory } from '@hooks';
-import { ActiveHistoryEntry, HistoryFilters } from '@app-types/history';
+import { ActiveHistoryEntry, HistoryFilters } from '@app-types';
 
-import { logger } from '@utils/logger';
-import { safeJSONParse } from '@utils/validation';
+import { logger } from '@utils';
+import { safeJSONParse } from '@utils';
 
 /** Union of available history tab identifiers. */
 export type TabType = 'active' | 'favorites' | 'archive';
@@ -110,7 +110,7 @@ export const useFENHistoryPage = () => {
         } else {
           await archiveHistoryEntries([id]);
         }
-      } catch (err) {
+      } catch (err: unknown) {
         logger.error('Failed to delete:', err);
       }
     },
@@ -124,7 +124,7 @@ export const useFENHistoryPage = () => {
       await deleteFromArchive(deleteTargetId);
       setDeleteTargetId(null);
       setShowDeleteModal(false);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Failed to delete from archive:', err);
     }
   }, [deleteTargetId, deleteFromArchive]);
@@ -138,7 +138,7 @@ export const useFENHistoryPage = () => {
     async (id: number) => {
       try {
         await toggleFavorite(id);
-      } catch (err) {
+      } catch (err: unknown) {
         logger.error('Failed to toggle favorite:', err);
       }
     },
@@ -155,7 +155,7 @@ export const useFENHistoryPage = () => {
     if (confirmed) {
       try {
         await clearHistory();
-      } catch (err) {
+      } catch (err: unknown) {
         logger.error('Failed to clear history:', err);
       }
     }
@@ -166,7 +166,7 @@ export const useFENHistoryPage = () => {
       try {
         await reactivateArchivedEntry(id);
         setActiveTab('active');
-      } catch (err) {
+      } catch (err: unknown) {
         logger.error('Failed to reactivate:', err);
       }
     },

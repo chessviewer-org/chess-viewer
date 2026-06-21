@@ -1,10 +1,10 @@
 import { memo, useCallback } from 'react';
 
 import { getPieceImageKey, PALETTE_PIECES } from '@constants';
-import type { PieceSymbol } from '@app-types/chess';
+import type { PieceSymbol } from '@app-types';
 
-import styles from '../../../scss/piece-palette.module.scss';
-import DraggablePiece from '../DraggablePiece/DraggablePiece';
+import { DraggablePiece } from '../DraggablePiece';
+import styles from './piece-palette.module.scss';
 
 export interface PiecePaletteProps {
   pieceImages: Record<string, HTMLImageElement | null>;
@@ -40,11 +40,18 @@ export const PiecePalette = memo(function PiecePalette({
       const pieceImage = imageKey ? (pieceImages[imageKey] ?? null) : null;
       const disabled = isLoading || !pieceImage;
       return (
-        <button
+        <div
           key={p.id}
-          type="button"
-          disabled={disabled}
-          onClick={() => onKeyboardPick?.(p.piece)}
+          role="button"
+          tabIndex={disabled ? -1 : 0}
+          aria-disabled={disabled || undefined}
+          onKeyDown={(e) => {
+            if (disabled) return;
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onKeyboardPick?.(p.piece);
+            }
+          }}
           aria-label={`Place ${p.name}`}
           title={p.name}
           className={`${styles.stackedPieceBtn} ${isLoading ? 'opacity-50' : ''}`}
@@ -55,8 +62,9 @@ export const PiecePalette = memo(function PiecePalette({
             isFromPalette
             size="100%"
             disabled={disabled}
+            dragIdPrefix="stk-"
           />
-        </button>
+        </div>
       );
     },
     [pieceImages, isLoading, onKeyboardPick]
@@ -69,11 +77,18 @@ export const PiecePalette = memo(function PiecePalette({
       const pieceImage = imageKey ? (pieceImages[imageKey] ?? null) : null;
       const disabled = isLoading || !pieceImage;
       return (
-        <button
+        <div
           key={p.id}
-          type="button"
-          disabled={disabled}
-          onClick={() => onKeyboardPick?.(p.piece)}
+          role="button"
+          tabIndex={disabled ? -1 : 0}
+          aria-disabled={disabled || undefined}
+          onKeyDown={(e) => {
+            if (disabled) return;
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onKeyboardPick?.(p.piece);
+            }
+          }}
           aria-label={`Place ${p.name}`}
           title={p.name}
           className={`${styles.flatPieceBtn} ${isLoading ? 'opacity-50' : ''}`}
@@ -84,8 +99,9 @@ export const PiecePalette = memo(function PiecePalette({
             isFromPalette
             size="100%"
             disabled={disabled}
+            dragIdPrefix="flt-"
           />
-        </button>
+        </div>
       );
     },
     [pieceImages, isLoading, onKeyboardPick]

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-import type { HistorySource } from '@app-types/history';
+import type { HistorySource } from '@app-types';
 
 const DRAG_INACTIVITY_TIMEOUT = 60000;
 

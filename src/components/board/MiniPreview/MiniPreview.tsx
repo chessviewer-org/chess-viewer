@@ -132,7 +132,7 @@ const MiniPreview = memo(
             }
           }
         }
-      } catch (err) {
+      } catch (err: unknown) {
         logger.error('Preview render error:', err);
         setHasError(true);
       }

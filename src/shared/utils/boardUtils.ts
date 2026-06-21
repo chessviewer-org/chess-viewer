@@ -1,4 +1,4 @@
-import { BoardMatrix } from '../types/index';
+import { BoardMatrix } from '@app-types';
 
 /**
  * Returns an 8x8 matrix representing an empty chess board.

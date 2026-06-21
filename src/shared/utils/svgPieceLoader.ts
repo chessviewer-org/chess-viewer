@@ -45,7 +45,7 @@ function imageToDataURL(img: HTMLImageElement): Promise<string> {
       }
       ctx.drawImage(img, 0, 0, size, size);
       resolve(canvas.toDataURL('image/png'));
-    } catch (err) {
+    } catch (err: unknown) {
       logger.warn('SVG export: failed to convert piece image to base64:', err);
       resolve(FALLBACK_PIECE_DATA_URL);
     } finally {
@@ -151,7 +151,7 @@ export async function imageToEmbeddableDataURL(
           const svgText = await response.text();
           dataUrl = `data:image/svg+xml;base64,${toBase64Utf8(svgText)}`;
         }
-      } catch (err) {
+      } catch (err: unknown) {
         logger.warn('SVG export: failed to inline vector piece source:', err);
       } finally {
         clearTimeout(timer);

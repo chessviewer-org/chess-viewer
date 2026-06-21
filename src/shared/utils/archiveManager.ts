@@ -1,5 +1,5 @@
 import { syncStorage } from '@/features/auth/services/syncStorage';
-import { ActiveHistoryEntry, ArchivedHistoryEntry } from '@app-types/history';
+import { ActiveHistoryEntry, ArchivedHistoryEntry } from '@app-types';
 
 import {
   convertToArchivedEntry,
@@ -36,7 +36,7 @@ export async function loadArchive(): Promise<ArchivedHistoryEntry[]> {
     // full archive, so union both rather than letting the trimmed cloud copy
     // shadow device-local older entries. Cloud wins id collisions.
     return sortArchivedByArchiveDate(mergeById(cloudData, localData));
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error('Failed to load archive:', error);
     return [];
   }
@@ -63,7 +63,7 @@ async function saveArchive(archive: ArchivedHistoryEntry[]): Promise<void> {
       if (result === 'too-large') emitSyncTruncation('archive', kept.length);
       else emitSyncTruncation('archive', dropped);
     }
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error('Failed to save archive:', error);
   }
 }

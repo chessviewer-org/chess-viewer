@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 
-import { ChessBoard, isChessBoard } from '@app-types/chess';
+import { ChessBoard, isChessBoard } from '@app-types';
 
 import { logger, parseFEN } from '@utils';
-import { createEmptyBoard } from '@utils/boardUtils';
-import { FENParseError } from '@utils/fenParser';
+import { createEmptyBoard } from '@utils';
+import { FENParseError } from '@utils';
 
 export interface UseChessBoardResult {
   board: ChessBoard;
@@ -32,7 +32,7 @@ export function useChessBoard(fen: string): UseChessBoardResult {
         };
       }
       return { board: parsed, error: null };
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof FENParseError) {
         return { board: createEmptyBoard(), error: error.message };
       }

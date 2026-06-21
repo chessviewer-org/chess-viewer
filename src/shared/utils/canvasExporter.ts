@@ -103,7 +103,7 @@ async function downloadRaster(
 
     triggerDownload(finalBlob, safeFileName, extension);
     setProgress(onProgress, 100, 'Done');
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof Error && error.message === 'Export cancelled') {
       throw new Error('Export cancelled', { cause: error });
     }
@@ -183,7 +183,7 @@ export async function copyToClipboard(config: ExportConfig): Promise<boolean> {
     checkCancellation();
     await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
     return true;
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof Error && error.message === 'Export cancelled') {
       throw new Error('Export cancelled', { cause: error });
     }

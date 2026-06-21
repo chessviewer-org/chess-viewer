@@ -1,4 +1,4 @@
-import type { PieceSymbol } from '@app-types/chess';
+import type { PieceSymbol } from '@app-types';
 
 /**
  * Typed payload attached to every @dnd-kit drag item via `useDraggable({ data })`.

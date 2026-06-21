@@ -1,12 +1,8 @@
 import { syncStorage } from '@/features/auth/services/syncStorage';
-import type { ActiveHistoryEntry } from '@app-types/history';
+import type { ActiveHistoryEntry } from '@app-types';
 
-import {
-  emitSyncTruncation,
-  sortByMostRecent,
-  trimToSyncBudget
-} from '@utils/historyUtils';
-import { logger } from '@utils/logger';
+import { emitSyncTruncation, sortByMostRecent, trimToSyncBudget } from '@utils';
+import { logger } from '@utils';
 
 /**
  * Writes the active FEN history to `localStorage` and asynchronously syncs it
@@ -40,7 +36,7 @@ export const persistHistory = (
         })
         .catch((err: Error) => logger.error('Cloud save failed:', err));
     }
-  } catch (err) {
+  } catch (err: unknown) {
     logger.error('Failed to save history:', err);
   }
 };

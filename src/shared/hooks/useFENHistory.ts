@@ -7,21 +7,21 @@ import {
   FreshnessStatus,
   HistoryFilters,
   HistorySource
-} from '@app-types/history';
+} from '@app-types';
 
 import { validateFEN } from '@utils';
 import {
   archiveEntries as archiveEntriesUtil,
   performAutoArchival
-} from '@utils/archiveManager';
+} from '@utils';
 import {
   applyFilters,
   calculateStatus,
   createHistoryEntry,
   sortByMostRecent,
   touchEntry
-} from '@utils/historyUtils';
-import { logger } from '@utils/logger';
+} from '@utils';
+import { logger } from '@utils';
 import { useArchiveManager } from './fenHistory/useArchiveManager';
 import { useHistoryDragDebounce } from './fenHistory/useHistoryDragDebounce';
 import { useHistoryHydration } from './fenHistory/useHistoryHydration';
@@ -149,7 +149,7 @@ export function useFENHistory(
         if (result.archivedCount > 0 && isMountedRef.current) {
           setFenHistory(result.updatedHistory);
         }
-      } catch (err) {
+      } catch (err: unknown) {
         logger.error('Auto-archival failed:', err);
       }
     };
@@ -226,7 +226,7 @@ export function useFENHistory(
     try {
       await archiveEntriesUtil(toArchive);
       setFenHistory(remaining);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Manual archive failed:', err);
     }
   }, []);

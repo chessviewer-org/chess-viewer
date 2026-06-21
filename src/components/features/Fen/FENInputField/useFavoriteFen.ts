@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { validateFEN } from '@utils';
-import { isRecord, safeJSONParse } from '@utils/validation';
+import { isRecord, safeJSONParse } from '@utils';
 import type { NotificationType } from './FENInputField';
 
 /** Options for `useFavoriteFen`. */

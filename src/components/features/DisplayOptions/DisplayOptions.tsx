@@ -10,6 +10,9 @@ interface DisplayOptionsProps {
   setShowThinFrame: (show: boolean) => void;
   /** Hide the "Display Options" section label (compact contexts). */
   hideLabel?: boolean;
+  /** Optional 3rd parameter to apply settings to all items. */
+  applyToAll?: boolean;
+  setApplyToAll?: (apply: boolean) => void;
 }
 
 /**
@@ -23,7 +26,9 @@ function DisplayOptions({
   setShowCoords,
   showThinFrame,
   setShowThinFrame,
-  hideLabel = false
+  hideLabel = false,
+  applyToAll,
+  setApplyToAll
 }: DisplayOptionsProps) {
   return (
     <div className="space-y-3">
@@ -48,6 +53,16 @@ function DisplayOptions({
         }
         label="Board Frame"
       />
+
+      {applyToAll !== undefined && setApplyToAll !== undefined && (
+        <Checkbox
+          checked={applyToAll}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setApplyToAll(e.target.checked)
+          }
+          label="Apply to All Positions"
+        />
+      )}
     </div>
   );
 }

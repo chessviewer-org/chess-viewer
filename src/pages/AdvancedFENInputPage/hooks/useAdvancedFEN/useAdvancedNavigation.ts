@@ -5,11 +5,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { ADVANCED_FEN_CONFIG } from '@constants';
 
 import { logger } from '@utils';
+import type { PositionSettings } from './useAdvancedFEN.types';
 
 /** Options for the useAdvancedNavigation hook. */
 interface UseAdvancedNavigationOptions {
-  favorites: unknown;
-  positionSettings: unknown;
+  favorites: Record<string, boolean>;
+  positionSettings: PositionSettings;
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }
@@ -43,7 +44,7 @@ export function useAdvancedNavigation({
         'advanced-fen-position-settings',
         JSON.stringify(positionSettings)
       );
-    } catch (err) {
+    } catch (err: unknown) {
       logger.warn('Failed to save settings:', err);
     }
     navigate(-1);

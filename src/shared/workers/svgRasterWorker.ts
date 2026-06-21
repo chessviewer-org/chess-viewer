@@ -5,13 +5,13 @@ export {};
  */
 /// <reference lib="webworker" />
 
-// Custom interface for the worker global scope to avoid missing DedicatedWorkerGlobalScope
-interface WorkerGlobalScope {
-  onmessage: ((this: WorkerGlobalScope, ev: MessageEvent) => unknown) | null;
+/** Minimal worker global scope interface — avoids requiring `lib: webworker` in tsconfig. */
+interface WorkerScope {
+  onmessage: ((ev: MessageEvent) => unknown) | null;
   postMessage(message: unknown): void;
 }
 
-const workerContext = self as unknown as WorkerGlobalScope;
+const workerContext = self as unknown as WorkerScope;
 
 workerContext.onmessage = async (event: MessageEvent) => {
   const data = event.data || {};
@@ -83,7 +83,7 @@ workerContext.onmessage = async (event: MessageEvent) => {
       taskId,
       payload: { blob }
     });
-  } catch (error) {
+  } catch (error: unknown) {
     workerContext.postMessage({
       type: 'error',
       taskId,

@@ -97,7 +97,7 @@ export function useColorVisionSetting(): [
       window.localStorage.setItem(COLOR_VISION_STORAGE_KEY, value);
       if (syncStorage) void syncStorage.set(COLOR_VISION_STORAGE_KEY, value);
       window.dispatchEvent(new Event(COLOR_VISION_CHANGE_EVENT));
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Failed to persist color vision preference:', err);
     }
   }, []);

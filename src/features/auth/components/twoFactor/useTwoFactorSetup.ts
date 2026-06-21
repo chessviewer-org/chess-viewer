@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { supabase } from '@/features/auth/services/supabaseClient';
 
-import { logger } from '@utils/logger';
+import { logger } from '@utils';
 import { getMfaErrorMessage, isMfa422Error } from './mfaErrors';
 
 /** Lifecycle of the on-mount MFA status probe. */

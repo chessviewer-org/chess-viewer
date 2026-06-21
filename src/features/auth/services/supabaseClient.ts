@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
-import { logger } from '@utils/logger';
+import { logger } from '@utils';
 
 let supabaseUrl: string = import.meta.env['VITE_SUPABASE_URL'] || '';
 const supabaseAnonKey: string =

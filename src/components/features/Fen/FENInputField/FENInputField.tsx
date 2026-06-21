@@ -9,12 +9,12 @@ import {
 
 import { AlertCircle } from 'lucide-react';
 
-import { useFENBatch } from '@/contexts';
-import { useDebouncedFENValidation } from '@hooks/useDebouncedFENValidation';
+import { useFENBatch } from '@contexts';
+import { useDebouncedFENValidation } from '@hooks';
 import { EMPTY_FEN, STARTING_FEN } from '@constants';
 
 import { validateFEN } from '@utils';
-import { MAX_FEN_LENGTH } from '@utils/validation';
+import { MAX_FEN_LENGTH } from '@utils';
 import FENInputToolbar from './FENInputToolbar';
 import { useFavoriteFen } from './useFavoriteFen';
 
@@ -82,11 +82,16 @@ const FENInputField = memo(
         onNotification?.('Invalid FEN - cannot add to batch', 'error');
         return;
       }
-      const success = addToBatch(currentFen);
-      onNotification?.(
-        success ? 'Added to batch' : 'FEN already in batch',
-        success ? 'success' : 'warning'
-      );
+      const result = addToBatch(currentFen);
+      if (result === 'added') {
+        onNotification?.('Added to batch', 'success');
+      } else if (result === 'duplicate') {
+        onNotification?.('FEN already in batch', 'warning');
+      } else if (result === 'limit') {
+        onNotification?.('Maximum limit of 10 FENs reached', 'error');
+      } else {
+        onNotification?.('Invalid FEN - cannot add to batch', 'error');
+      }
     }, [localFen, addToBatch, onNotification]);
 
     const handleToggleFavorite = useCallback(
@@ -167,7 +172,7 @@ const FENInputField = memo(
                 aria-describedby={visibleError ? 'fen-error' : undefined}
                 aria-invalid={visibleError ? 'true' : 'false'}
                 className={`
-                  w-full min-w-0 px-1 py-1 pb-[14px] sm:pb-1
+                  w-full min-w-0 px-1 py-1 pb-3.5 sm:pb-1
                   bg-surface/50 text-text-primary
                   font-mono text-sm sm:text-[14px] leading-tight resize-none
                   whitespace-pre overflow-x-auto overflow-y-hidden

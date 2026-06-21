@@ -96,20 +96,9 @@ const HomePage: React.FC = () => {
         initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="w-full h-auto lg:h-full lg:overflow-hidden min-h-0 bg-bg py-2 overflow-x-hidden"
+        className="w-full bg-bg py-2 overflow-x-hidden min-h-screen flex flex-col"
       >
-        {/* Same width formula as the navbar inner container (Navbar.tsx) so the
-            page edges line up pixel-exact with the ChessVision logo on the left
-            and the account menu on the right. No extra outer px-* padding — that
-            would shrink the page narrower than the navbar.
-
-            Layout skeleton is a CSS Grid (NOT a flex column): a `auto`-sized
-            row for the FEN/control toolbar and a `minmax(0,1fr)` row for the
-            board card. The grid resolves the board card's height deterministically
-            from the remaining track instead of relying on `flex-1` reflow, and
-            `min-h-0` on the rows lets the card's own scroll/overflow take over
-            cleanly. Vertical rhythm via the fluid `gap-fluid-xs` token. */}
-        <div className="grid grid-rows-[auto_minmax(0,1fr)] lg:grid-rows-[auto_auto] lg:content-center gap-fluid-xs lg:gap-[12px] page-container h-auto lg:h-full min-h-0 pt-[5px] lg:pt-0">
+        <div className="flex flex-col gap-fluid-xs lg:gap-3 page-container pt-1.25 lg:pt-0 flex-1">
           <div className="min-w-0">
             <FenToolbar
               fen={fen}
@@ -122,8 +111,8 @@ const HomePage: React.FC = () => {
               onNotification={handleNotification}
             />
           </div>
-          <div className="min-w-0 min-h-0 self-start w-full">
-            <div className="workspace-container lg:overscroll-trap bg-surface border border-border/40 rounded-xl p-fluid-xs sm:p-fluid-sm h-auto lg:max-h-full overflow-visible lg:overflow-hidden">
+          <div className="w-full">
+            <div className="workspace-container bg-surface border border-border/40 rounded-xl p-fluid-xs sm:p-fluid-sm overflow-visible lg:overflow-hidden">
               <ChessEditor
                 fen={fen}
                 onFenChange={handleEditorFenChange}

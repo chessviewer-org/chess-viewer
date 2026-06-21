@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
 
-import { hsvToRgb, rgbToHex } from '@utils/colorConversions';
+import { hsvToRgb, rgbToHex } from '@utils';
 
 /**
  * Classic 2D colour field: horizontal = saturation, vertical = value. The

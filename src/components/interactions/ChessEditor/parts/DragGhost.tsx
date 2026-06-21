@@ -1,4 +1,6 @@
-export function DragGhost({
+import { memo } from 'react';
+
+export const DragGhost = memo(function DragGhost({
   pieceKey,
   pieceImages,
   cellSize
@@ -33,4 +35,6 @@ export function DragGhost({
       />
     </div>
   );
-}
+});
+
+DragGhost.displayName = 'DragGhost';

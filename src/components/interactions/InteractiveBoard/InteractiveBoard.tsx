@@ -1,9 +1,9 @@
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 
-import type { PieceSymbol } from '@app-types/chess';
+import type { PieceSymbol } from '@app-types';
 
 import { describeBoardPosition } from '@utils';
-import DroppableSquare from '../DroppableSquare/DroppableSquare';
+import { DroppableSquare } from '../DroppableSquare';
 import { useBoardKeyboard } from './useBoardKeyboard';
 
 /** Imperative keyboard handle the board exposes to its host (palette wiring). */

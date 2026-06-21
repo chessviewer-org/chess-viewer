@@ -10,7 +10,7 @@ import { useEffect, useRef } from 'react';
  */
 export function useOutsideClick(
   ref: React.RefObject<HTMLElement | null>,
-  handler: (event: MouseEvent | KeyboardEvent) => void,
+  handler: (event: MouseEvent | TouchEvent | KeyboardEvent) => void,
   enabled: boolean = true
 ): void {
   const handlerRef = useRef(handler);
@@ -24,7 +24,7 @@ export function useOutsideClick(
 
     const handleClickOutside = (event: MouseEvent | TouchEvent): void => {
       if (ref.current && !ref.current.contains(event.target as Node)) {
-        handlerRef.current(event as unknown as MouseEvent);
+        handlerRef.current(event);
       }
     };
 

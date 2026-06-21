@@ -8,25 +8,30 @@ import {
   useState
 } from 'react';
 
+import { DndContext, DragOverlay } from '@dnd-kit/core';
+import { snapCenterToCursor } from '@dnd-kit/modifiers';
+
+import { FileCoordinates, RankCoordinates } from '@/components/board';
 import {
   useDatabaseSearch,
   useEditorKeyboard,
   useInteractiveBoard,
   usePieceImages
 } from '@hooks';
-import type { PieceSymbol } from '@app-types/chess';
+import type { PieceSymbol } from '@app-types';
 
 import type { ExportConfig } from '@utils';
 import { Checkbox } from '@shared/ui';
-import styles from '../../../scss/chess-editor.module.scss';
-import type { BoardKeyboardApi } from '../InteractiveBoard/InteractiveBoard';
-import InteractiveBoard from '../InteractiveBoard/InteractiveBoard';
-import PiecePalette from '../PiecePalette/PiecePalette';
-import TrashZone from '../TrashZone/TrashZone';
-import CommandBar from './CommandBar';
-import DatabaseSearchPanel from './DatabaseSearchPanel';
-import { FileCoordinates, RankCoordinates } from './EditorCoordinates';
-import ShareDialog from './ShareDialog';
+import type { BoardKeyboardApi } from '../InteractiveBoard';
+import { InteractiveBoard } from '../InteractiveBoard';
+import { PiecePalette } from '../PiecePalette';
+import { TrashZone } from '../TrashZone';
+import styles from './chess-editor.module.scss';
+import CommandBar from './parts/CommandBar';
+import DatabaseSearchPanel from './parts/DatabaseSearchPanel';
+import { DragGhost } from './parts/DragGhost';
+import ShareDialog from './parts/ShareDialog';
+import { useDragState } from './useDragState';
 import { useEditorBoardSize } from './useEditorBoardSize';
 import { useShareBoard } from './useShareBoard';
 
@@ -98,6 +103,14 @@ export const ChessEditor = memo(function ChessEditor({
     canRedo
   } = useInteractiveBoard(fen, onFenChange);
 
+  const {
+    sensors,
+    activeDragData,
+    handleDragStart,
+    handleDragEnd,
+    handleDragCancel
+  } = useDragState({ handlePieceDrop, handlePieceRemove });
+
   const [selectedSquare, setSelectedSquare] = useState<
     readonly [number, number] | null
   >(null);
@@ -143,7 +156,6 @@ export const ChessEditor = memo(function ChessEditor({
     }),
     [onFlip, undo, redo, handleDeleteSelected, clearSelection]
   );
-
   useEditorKeyboard(keyboardActions);
 
   useEffect(() => {
@@ -162,6 +174,8 @@ export const ChessEditor = memo(function ChessEditor({
   }, [fen]);
 
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const handleShare = useCallback(() => setIsShareOpen(true), []);
+  const closeShare = useCallback(() => setIsShareOpen(false), []);
 
   const buildExportConfig = useCallback(
     (): ExportConfig => ({
@@ -196,187 +210,171 @@ export const ChessEditor = memo(function ChessEditor({
       ...(onNotify ? { onNotify } : {})
     });
 
-  const handleShare = useCallback(() => setIsShareOpen(true), []);
-  const closeShare = useCallback(() => setIsShareOpen(false), []);
-
   const boardTotalH = boardSize + (showCoords ? gutterSize : 0);
 
+  const commandBarProps = {
+    onUndo: undo,
+    onRedo: redo,
+    canUndo,
+    canRedo,
+    onFlip: onFlip ?? (() => {}),
+    onCopyImage: handleCopyFen,
+    onShare: handleShare,
+    onDownload
+  };
+
   return (
-    <div ref={containerRef} className={`${styles.editorRoot} ${className}`}>
-      {/* CommandBar — tek sütunda yuxarıda fullwidth göstərilir */}
-      <div className={styles.editorCommandbarTop}>
-        <div className="flex items-center justify-end w-full">
-          <CommandBar
-            onUndo={undo}
-            onRedo={redo}
-            canUndo={canUndo}
-            canRedo={canRedo}
-            onFlip={onFlip ?? (() => {})}
-            onCopyImage={handleCopyFen}
-            onShare={handleShare}
-            onDownload={onDownload}
-          />
-        </div>
-        <div className={styles.editorCommandbarSeparator} />
-      </div>
-
-      {/* Əsas sıra: board (sol) + panel (sağ) */}
-      <div className={styles.editorMainRow}>
-        {/* ── Board ── */}
-        <div className={styles.editorBoardCol}>
-          <div
-            className={styles.editorBoardWrap}
-            style={{ width: showCoords ? boardSize + gutterSize : boardSize }}
-          >
-            <div className={styles.editorBoardInner}>
-              {showCoords && (
-                <RankCoordinates
-                  flipped={flipped}
-                  cellSize={cellSize}
-                  gutterSize={gutterSize}
-                />
-              )}
-              <div
-                className={showThinFrame ? 'box-border border-2' : undefined}
-                style={{
-                  width: boardSize,
-                  height: boardSize,
-                  flexShrink: 0,
-                  maxWidth: '100%',
-                  position: 'relative',
-                  ...(showThinFrame ? { borderColor: darkSquare } : {})
-                }}
-              >
-                <InteractiveBoard
-                  board={board}
-                  lightSquare={lightSquare}
-                  darkSquare={darkSquare}
-                  pieceImages={pieceImages}
-                  isLoading={isLoading}
-                  flipped={flipped}
-                  onPieceDrop={handlePieceDrop}
-                  onSquareSelect={handleSquareSelect}
-                  selectedSquare={selectedSquare}
-                  onPieceRemove={handlePieceRemove}
-                  onKeyboardApi={handleKeyboardApi}
-                />
+    <DndContext
+      sensors={sensors}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
+    >
+      <div
+        ref={containerRef}
+        className={`${styles.editorRoot} ${className}`}
+        onClick={clearSelection}
+      >
+        <div className={styles.editorMainRow}>
+          {/* ── Board column ── */}
+          <div className={styles.editorBoardCol}>
+            <div className={styles.editorBoardWrap}>
+              <div className={styles.editorCommandbarTop}>
+                <div className="flex items-center justify-end w-full">
+                  <CommandBar {...commandBarProps} />
+                </div>
+                <div className={styles.editorCommandbarSeparator} />
               </div>
-            </div>
 
-            {showCoords && (
-              <FileCoordinates
-                flipped={flipped}
-                cellSize={cellSize}
-                gutterSize={gutterSize}
-              />
-            )}
-
-            {isLoading && (
-              <div
-                className="absolute flex flex-col items-center justify-center bg-surface z-30"
-                style={{
-                  top: 0,
-                  left: showCoords ? gutterSize : 0,
-                  width: boardSize,
-                  height: boardSize
-                }}
-              >
-                <div className="flex flex-col items-center gap-4">
-                  <div className="relative w-12 h-12">
-                    <div className="absolute inset-0 rounded-full border-4 border-border" />
-                    <div className="absolute inset-0 rounded-full border-4 border-accent border-t-transparent animate-spin" />
-                  </div>
-                  <div className="text-text-primary text-sm font-semibold animate-pulse text-center px-4 wrap-break-word">
-                    Loading pieces...
-                  </div>
+              <div className={styles.editorBoardInner}>
+                {showCoords && <RankCoordinates flipped={flipped} />}
+                <div
+                  className={`${styles.editorBoardContainer} ${showThinFrame ? 'box-border border-2' : ''}`}
+                  style={showThinFrame ? { borderColor: darkSquare } : {}}
+                >
+                  <InteractiveBoard
+                    board={board}
+                    lightSquare={lightSquare}
+                    darkSquare={darkSquare}
+                    pieceImages={pieceImages}
+                    isLoading={isLoading}
+                    flipped={flipped}
+                    onPieceDrop={handlePieceDrop}
+                    onSquareSelect={handleSquareSelect}
+                    selectedSquare={selectedSquare}
+                    onPieceRemove={handlePieceRemove}
+                    onKeyboardApi={handleKeyboardApi}
+                  />
                 </div>
               </div>
-            )}
-          </div>
-        </div>
 
-        {/* ── Sağ panel ── */}
-        <div
-          className={styles.editorPanel}
-          style={{ '--board-h': `${boardTotalH}px` } as CSSProperties}
-        >
-          {/* CommandBar — yan-yana layoutda panel içində */}
-          <div className={styles.editorCommandbarPanel}>
-            <div className="flex items-center justify-end w-full">
-              <CommandBar
-                onUndo={undo}
-                onRedo={redo}
-                canUndo={canUndo}
-                canRedo={canRedo}
-                onFlip={onFlip ?? (() => {})}
-                onCopyImage={handleCopyFen}
-                onShare={handleShare}
-                onDownload={onDownload}
-              />
-            </div>
-            <div className={styles.editorCommandbarSeparator} />
-          </div>
+              {showCoords && <FileCoordinates flipped={flipped} />}
 
-          {/* Piece palette */}
-          <div className={styles.editorPaletteCard}>
-            <PiecePalette
-              pieceImages={pieceImages}
-              isLoading={isLoading}
-              onKeyboardPick={handlePalettePick}
-            />
-          </div>
-
-          {/* Display options */}
-          <div className={styles.editorDisplayOpts}>
-            <span className={styles.editorDisplayOptsLabel}>
-              Display Options
-            </span>
-            <div className={styles.editorDisplayOptsChecks}>
-              <Checkbox
-                checked={showCoords}
-                onChange={(e) => setShowCoords?.(e.target.checked)}
-                label="Show Coordinates"
-                className="p-1!"
-              />
-              <Checkbox
-                checked={showThinFrame}
-                onChange={(e) => setShowThinFrame?.(e.target.checked)}
-                label="Show Board Frame"
-                className="p-1!"
-              />
+              {isLoading && (
+                <div
+                  className="absolute flex flex-col items-center justify-center bg-surface z-30"
+                  style={{
+                    top: 0,
+                    bottom: 0,
+                    left: showCoords ? 'var(--gutter-size)' : 0,
+                    right: 0
+                  }}
+                >
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="relative w-12 h-12">
+                      <div className="absolute inset-0 rounded-full border-4 border-border" />
+                      <div className="absolute inset-0 rounded-full border-4 border-accent border-t-transparent animate-spin" />
+                    </div>
+                    <div className="text-text-primary text-sm font-semibold animate-pulse text-center px-4 wrap-break-word">
+                      Loading pieces...
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Trash zone */}
-          <div className={styles.editorTrash}>
-            <TrashZone className="h-full w-full rounded-lg" />
-          </div>
+          {/* ── Right panel ── */}
+          <div
+            className={styles.editorPanel}
+            style={{ '--board-h': `${boardTotalH}px` } as CSSProperties}
+          >
+            <div className={styles.editorCommandbarPanel}>
+              <div className="flex items-center justify-end w-full">
+                <CommandBar {...commandBarProps} />
+              </div>
+              <div className={styles.editorCommandbarSeparator} />
+            </div>
 
-          {/* Database search — həmişə görünür */}
-          <div className={styles.editorDbSearch}>
-            <DatabaseSearchPanel
-              lichess={lichessState}
-              chessdb={chessdbState}
-              pdb={pdbState}
-              yacpdb={yacpdbState}
-              className="flex-1 min-h-0"
-            />
+            <div className={styles.editorPaletteCard}>
+              <PiecePalette
+                pieceImages={pieceImages}
+                isLoading={isLoading}
+                onKeyboardPick={handlePalettePick}
+              />
+            </div>
+
+            <div className={styles.editorDisplayOpts}>
+              <span className={styles.editorDisplayOptsLabel}>
+                Display Options
+              </span>
+              <div className={styles.editorDisplayOptsChecks}>
+                <Checkbox
+                  checked={showCoords}
+                  onChange={(e) => setShowCoords?.(e.target.checked)}
+                  label="Show Coordinates"
+                  className="p-1!"
+                />
+                <Checkbox
+                  checked={showThinFrame}
+                  onChange={(e) => setShowThinFrame?.(e.target.checked)}
+                  label="Show Board Frame"
+                  className="p-1!"
+                />
+              </div>
+            </div>
+
+            <div className={styles.editorTrash}>
+              <TrashZone className="h-full w-full rounded-lg" />
+            </div>
+
+            <div className={styles.editorDbSearch}>
+              <DatabaseSearchPanel
+                lichess={lichessState}
+                chessdb={chessdbState}
+                pdb={pdbState}
+                yacpdb={yacpdbState}
+                className="flex-1 min-h-0"
+              />
+            </div>
           </div>
         </div>
+
+        <ShareDialog
+          isOpen={isShareOpen}
+          onClose={closeShare}
+          fen={fen}
+          positionUrl={payload.positionUrl}
+          targets={targets}
+          onOpenTarget={openTarget}
+          onCopyLink={() => void copyLink()}
+          onShareImage={() => void shareImage()}
+          isBusy={isBusy}
+        />
       </div>
 
-      <ShareDialog
-        isOpen={isShareOpen}
-        onClose={closeShare}
-        fen={fen}
-        positionUrl={payload.positionUrl}
-        targets={targets}
-        onOpenTarget={openTarget}
-        onCopyLink={() => void copyLink()}
-        onShareImage={() => void shareImage()}
-        isBusy={isBusy}
-      />
-    </div>
+      <DragOverlay dropAnimation={null} modifiers={[snapCenterToCursor]}>
+        {activeDragData ? (
+          <DragGhost
+            {...(activeDragData.pieceKey != null
+              ? { pieceKey: activeDragData.pieceKey }
+              : {})}
+            pieceImages={pieceImages}
+            cellSize={cellSize}
+          />
+        ) : null}
+      </DragOverlay>
+    </DndContext>
   );
 });
 

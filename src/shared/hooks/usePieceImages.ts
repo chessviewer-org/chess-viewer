@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 
 import { PIECE_MAP } from '@constants';
 
-import { logger } from '@utils/logger';
-import { preloadPieceStyle, setCachedPieces } from '@utils/pieceImageCache';
+import { logger } from '@utils';
+import { preloadPieceStyle, setCachedPieces } from '@utils';
 
 /**
  * Loads and caches all piece images for the given piece style.
@@ -84,7 +84,7 @@ export function usePieceImages(pieceStyle: string): {
           setIsLoading(false);
           setLoadProgress(100);
         }
-      } catch (err) {
+      } catch (err: unknown) {
         if (!cancelled && currentStyleRef.current === styleToLoad) {
           logger.error('Critical piece loading error:', err);
           setError('Failed to load pieces');

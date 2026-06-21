@@ -2,11 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useLocation } from 'react-router-dom';
 
-import { useFENBatch } from '@/contexts/useFENBatch';
+import { useFENBatch } from '@contexts';
 import { ADVANCED_FEN_CONFIG } from '@constants';
 
 import { getFENValidationError, logger, validateFEN } from '@utils';
-import { MAX_FEN_LENGTH, safeJSONParse } from '@utils/validation';
+import { MAX_FEN_LENGTH, safeJSONParse } from '@utils';
 
 const { MAX_FENS, STORAGE_KEYS } = ADVANCED_FEN_CONFIG;
 
@@ -131,7 +131,7 @@ export function useFENBatchSync() {
       const trimmedValue = clampedValue.trim();
       if (
         trimmedValue &&
-        batchList.some((f, i) => i !== index && f === trimmedValue)
+        batchList.some((f, i) => i !== index && f.trim() === trimmedValue)
       ) {
         setDuplicateWarning(index);
         if (duplicateTimeoutRef.current)
@@ -164,7 +164,7 @@ export function useFENBatchSync() {
             2000
           );
         }
-      } catch (err) {
+      } catch (err: unknown) {
         logger.error('Failed to paste:', err);
       }
     },

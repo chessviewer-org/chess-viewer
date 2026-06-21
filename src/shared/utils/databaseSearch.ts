@@ -211,7 +211,7 @@ export async function searchPositionDatabases(
       return notFound(fen);
     }
     data = res.data;
-  } catch (err) {
+  } catch (err: unknown) {
     if (err instanceof DOMException && err.name === 'AbortError') throw err;
     logger.warn('Database search invoke failed', err);
     return notFound(fen);

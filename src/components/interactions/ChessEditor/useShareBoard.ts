@@ -189,7 +189,7 @@ export function useShareBoard({
       }
 
       onNotify?.('Image sharing is not supported on this device', 'error');
-    } catch (error) {
+    } catch (error: unknown) {
       // The user dismissing the native share sheet rejects with AbortError.
       if (error instanceof DOMException && error.name === 'AbortError') return;
       onNotify?.('Could not share image', 'error');

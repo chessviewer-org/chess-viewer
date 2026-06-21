@@ -7,7 +7,7 @@ import {
   searchPositionDatabases,
   validateFEN
 } from '@utils';
-import { logger } from '@utils/logger';
+import { logger } from '@utils';
 
 /**
  * Per-provider search lifecycle. Search is now STRICTLY MANUAL — nothing fires

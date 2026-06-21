@@ -6,9 +6,9 @@ import { Navigate, useLocation } from 'react-router-dom';
 
 import { type PageTabGroup, PageTabs } from '@/components/layout';
 import { useNotifications } from '@hooks';
+import { useHomeExport } from '@hooks';
 
 import { Seo } from '@shared/ui';
-import { useHomeExport } from '../HomePage/hooks/useHomeExport';
 import BoardStyleStep from './components/BoardStyleStep';
 import ExportSettingsStep from './components/ExportSettingsStep';
 import {

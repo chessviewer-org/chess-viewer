@@ -42,7 +42,7 @@ function canvasToBlob(
         mimeType,
         quality
       );
-    } catch (err) {
+    } catch (err: unknown) {
       reject(err);
     }
   });
@@ -190,7 +190,7 @@ export async function createRasterBlob(
   try {
     const workerBlob = await createWorkerRasterBlob(config, format, onProgress);
     if (workerBlob) return workerBlob;
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof Error && error.message === 'Export cancelled') {
       throw error;
     }

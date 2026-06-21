@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { logger } from '@utils/logger';
-import { safeJSONParse } from '@utils/validation';
+import { logger } from '@utils';
+import { safeJSONParse } from '@utils';
 import { getMembershipTier } from '../services/membership';
 import {
   GUEST_PROFILE_KEY,
@@ -38,7 +38,7 @@ function readGuestProfile(): Profile {
           ? parsed.supporterMonthlyUsd
           : 0
     };
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error('readGuestProfile error:', error);
     return DEFAULT_PROFILE;
   }
@@ -47,7 +47,7 @@ function readGuestProfile(): Profile {
 function writeGuestProfile(profile: Profile): void {
   try {
     localStorage.setItem(GUEST_PROFILE_KEY, JSON.stringify(profile));
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error('writeGuestProfile error:', error);
   }
 }

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Home, RefreshCw } from 'lucide-react';
 
-import { Logo } from '@/components/layout/Logo';
+import { Logo } from '@/components/layout';
 
 import { logger } from '@utils';
 

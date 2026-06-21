@@ -4,7 +4,7 @@ import { useDraggable } from '@dnd-kit/core';
 
 import type { ChessDragData } from '@constants';
 import { getPieceImageKey } from '@constants';
-import type { PieceSymbol } from '@app-types/chess';
+import type { PieceSymbol } from '@app-types';
 
 /** Props for the `DraggablePiece` drag source. */
 interface DraggablePieceProps {
@@ -15,6 +15,9 @@ interface DraggablePieceProps {
   isFromPalette?: boolean;
   size?: string;
   disabled?: boolean;
+  /** Optional prefix to disambiguate drag IDs when multiple instances of the
+   *  same palette piece exist in the DOM (e.g. stacked vs flat views). */
+  dragIdPrefix?: string;
 }
 
 /**
@@ -40,14 +43,16 @@ const DraggablePiece = memo(function DraggablePiece({
   col,
   isFromPalette = false,
   size = '85%',
-  disabled = false
+  disabled = false,
+  dragIdPrefix = ''
 }: DraggablePieceProps) {
   const pieceKey = piece ? getPieceImageKey(piece as PieceSymbol) : null;
 
   // Build a stable, unique drag ID. Palette pieces share the same position
   // (no row/col) so they use the piece char; board pieces use grid coords.
+  // dragIdPrefix disambiguates when multiple DOM copies exist (stacked/flat).
   const id: string = isFromPalette
-    ? `palette-${piece}`
+    ? `${dragIdPrefix}palette-${piece}`
     : `board-${row ?? 0}-${col ?? 0}`;
 
   const dragData = useMemo<ChessDragData>(

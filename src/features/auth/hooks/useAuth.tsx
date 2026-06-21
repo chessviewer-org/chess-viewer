@@ -13,7 +13,7 @@ import type { Session, User } from '@supabase/supabase-js';
 import { dataMigration } from '@/features/auth/services/dataMigration';
 import { supabase } from '@/features/auth/services/supabaseClient';
 
-import { logger } from '@utils/logger';
+import { logger } from '@utils';
 
 /** Shape of the value provided by `AuthContext`. */
 export interface AuthContextValue {
@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setSession(currentSession);
           if (currentSession?.user) runMigration(currentSession.user.id);
         }
-      } catch (error) {
+      } catch (error: unknown) {
         logger.warn('Failed to get initial session:', error);
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await supabase.auth.signOut();
       setSession(null);
-    } catch (error) {
+    } catch (error: unknown) {
       logger.warn('Sign out failed:', error);
     }
   }, []);

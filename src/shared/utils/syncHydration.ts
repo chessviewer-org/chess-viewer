@@ -29,7 +29,7 @@ export async function hydrateFromSync(
     const result = await syncStorage.get(key);
     if (isCancelled() || !result || typeof result.value !== 'string') return;
     apply(safeJSONParse<unknown>(result.value, result.value));
-  } catch (err) {
+  } catch (err: unknown) {
     logger.error(`Failed to hydrate ${label} from sync:`, err);
   }
 }
