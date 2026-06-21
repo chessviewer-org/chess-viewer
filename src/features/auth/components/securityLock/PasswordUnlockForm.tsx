@@ -23,7 +23,7 @@ export function PasswordUnlockForm({
           type="password"
           autoComplete="current-password"
           placeholder="Enter your password"
-          className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:border-accent focus:ring-2 focus:ring-accent/35 outline-none transition-colors duration-200"
+          className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors duration-200"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required

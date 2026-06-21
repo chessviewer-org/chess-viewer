@@ -97,13 +97,21 @@ export async function createUltraQualityCanvas(
     }
 
     return new Promise((resolve) => {
-      const timeout = setTimeout(resolve, 10000);
+      const timeout = setTimeout(() => {
+        img.onload = null;
+        img.onerror = null;
+        resolve();
+      }, 10000);
       img.onload = () => {
         clearTimeout(timeout);
+        img.onload = null;
+        img.onerror = null;
         resolve();
       };
       img.onerror = () => {
         clearTimeout(timeout);
+        img.onload = null;
+        img.onerror = null;
         resolve();
       };
     });
@@ -148,6 +156,8 @@ export async function createUltraQualityCanvas(
   });
 
   if (!ctx) {
+    canvas.width = 0;
+    canvas.height = 0;
     throw new Error('Failed to get canvas context');
   }
 

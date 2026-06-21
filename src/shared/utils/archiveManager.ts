@@ -47,9 +47,7 @@ export async function loadArchive(): Promise<ArchivedHistoryEntry[]> {
  *
  * @param archive - List of archived entries
  */
-export async function saveArchive(
-  archive: ArchivedHistoryEntry[]
-): Promise<void> {
+async function saveArchive(archive: ArchivedHistoryEntry[]): Promise<void> {
   try {
     // localStorage holds the complete archive; the cloud copy is trimmed to the
     // newest entries that fit the per-value cap so sync never silently stalls.

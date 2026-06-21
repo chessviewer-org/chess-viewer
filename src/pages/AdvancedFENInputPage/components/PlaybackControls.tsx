@@ -3,7 +3,7 @@ import React, { memo } from 'react';
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 
 /** Props for the batch position playback control bar. */
-export interface PlaybackControlsProps {
+interface PlaybackControlsProps {
   isPlaying: boolean;
   interval: number;
   showIntervalMenu: boolean;

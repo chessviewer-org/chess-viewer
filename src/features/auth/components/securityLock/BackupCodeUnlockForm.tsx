@@ -22,7 +22,7 @@ export function BackupCodeUnlockForm({
         <input
           type="text"
           placeholder="Enter an unused backup code"
-          className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:border-accent focus:ring-2 focus:ring-accent/35 outline-none transition-colors duration-200 font-mono"
+          className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors duration-200 font-mono"
           value={backupCode}
           onChange={(e) => setBackupCode(e.target.value)}
           required

@@ -12,7 +12,8 @@ import {
   Settings,
   Star,
   UserCircle,
-  UserPlus
+  UserPlus,
+  X
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -92,17 +93,31 @@ export const NavbarDesktopDropdown = memo(function NavbarDesktopDropdown({
         aria-haspopup="menu"
         aria-expanded={isDropdownOpen}
       >
-        <UserCircle className="w-5 h-5" aria-hidden="true" />
+        {isDropdownOpen ? (
+          <X className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
+        ) : (
+          <UserCircle className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
+        )}
       </button>
 
       <AnimatePresence>
         {isDropdownOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+            initial={{ opacity: 0, y: -16, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.98 }}
-            transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute right-0 mt-2 w-68 rounded-2xl border border-border/60 bg-surface p-3 shadow-2xl z-50 origin-top-right flex flex-col"
+            exit={{
+              opacity: 0,
+              y: -12,
+              scale: 0.95,
+              transition: { duration: 0.15, ease: 'easeIn' }
+            }}
+            transition={{
+              type: 'spring',
+              damping: 22,
+              stiffness: 260,
+              mass: 0.8
+            }}
+            className="absolute top-full right-0 mt-3 w-68 rounded-none border-x border-b border-border/60 border-t-0 bg-surface-elevated p-3 shadow-2xl z-50 origin-top-right flex flex-col"
           >
             {/* Profile header */}
             <div className="flex items-center gap-3 px-2 pb-1">
@@ -180,12 +195,9 @@ export const NavbarDesktopDropdown = memo(function NavbarDesktopDropdown({
                     setIsDropdownOpen(false);
                     handleSignOut();
                   }}
-                  className={itemClass}
+                  className="w-full rounded-lg px-2 py-2 text-sm font-medium text-error hover:bg-error/10 active:bg-error/20 transition-colors flex items-center gap-2"
                 >
-                  <LogOut
-                    className="w-4 h-4 text-text-secondary"
-                    aria-hidden="true"
-                  />
+                  <LogOut className="w-4 h-4 text-error" aria-hidden="true" />
                   <span>Sign Out</span>
                 </button>
               ) : (

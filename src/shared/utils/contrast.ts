@@ -15,7 +15,7 @@ import { safeJSONParse } from './validation';
 export type ContrastPreference = 'normal' | 'high';
 
 /** Effective preference when nothing is stored. */
-export const DEFAULT_CONTRAST: ContrastPreference = 'normal';
+const DEFAULT_CONTRAST: ContrastPreference = 'normal';
 
 /** localStorage key for the contrast preference (synced-key convention). */
 export const CONTRAST_STORAGE_KEY = 'cv_contrast';

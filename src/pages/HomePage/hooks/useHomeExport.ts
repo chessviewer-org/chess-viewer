@@ -14,7 +14,7 @@ import type { ExportConfig } from '@utils/canvasExporter';
 import { logger } from '@utils/logger';
 
 /** Tracks the lifecycle of an in-progress export operation. */
-export interface ExportState {
+interface ExportState {
   isExporting: boolean;
   exportProgress: number;
   currentFormat: string | null;
@@ -28,7 +28,7 @@ interface BatchExportOverrides {
   exportQuality?: number;
 }
 
-export type ExportAction =
+type ExportAction =
   | { type: 'START_EXPORT'; format: string }
   | { type: 'UPDATE_PROGRESS'; progress: number }
   | { type: 'PAUSE' }

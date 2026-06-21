@@ -5,7 +5,7 @@ export interface CoordinateParams {
   offset: number;
 }
 
-export interface TextMetricsExt {
+interface TextMetricsExt {
   ascent: number;
   descent: number;
   height: number;

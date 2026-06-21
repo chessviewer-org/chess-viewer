@@ -5,7 +5,7 @@ import { LucideIcon, X } from 'lucide-react';
 
 import { useFocusTrap } from '@hooks';
 
-export interface ModalShellProps {
+interface ModalShellProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;

@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 
 /** Props for the lightweight canvas-free board renderer used in the batch preview player. */
-export interface BoardDisplayProps {
+interface BoardDisplayProps {
   boardState: string[][];
   isFlipped: boolean;
   showCoordinates: boolean;

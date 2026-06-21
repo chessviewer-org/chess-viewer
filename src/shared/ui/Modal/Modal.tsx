@@ -9,7 +9,7 @@ import { useFocusTrap } from '@hooks';
 export type ModalType = 'warning' | 'info' | 'danger';
 
 /** Props for the `Modal` component. */
-export interface ModalProps {
+interface ModalProps {
   isOpen: boolean;
   title: string;
   message?: string;

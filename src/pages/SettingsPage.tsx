@@ -114,13 +114,15 @@ const SettingsPage = memo(function SettingsPage() {
           visible, never collapses) and a scrolling content column on the right
           (GitHub-settings pattern). */}
       <div className="page-container flex flex-col gap-6 py-6 sm:py-8 md:flex-row md:gap-8 lg:gap-10">
-        <div className="shrink-0 border-r border-border pr-8 md:w-52 lg:w-56">
-          <PageTabs
-            groups={groups}
-            activeId={activeTab}
-            onSelect={handleSelect}
-            ariaLabel="Settings sections"
-          />
+        <div className="shrink-0 mb-6 md:mb-0 md:border-r md:border-border md:pr-8 md:w-52 lg:w-56">
+          <div className="md:sticky md:top-8">
+            <PageTabs
+              groups={groups}
+              activeId={activeTab}
+              onSelect={handleSelect}
+              ariaLabel="Settings sections"
+            />
+          </div>
         </div>
 
         {/* Scroll region, NOT a landmark: the app shell already owns the single

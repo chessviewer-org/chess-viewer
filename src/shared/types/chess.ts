@@ -36,8 +36,7 @@ const PIECE_SYMBOL_SET = new Set<string>([
   ''
 ]);
 
-/** Type guard for `PieceSymbol`. */
-export function isPieceSymbol(val: unknown): val is PieceSymbol {
+function isPieceSymbol(val: unknown): val is PieceSymbol {
   return typeof val === 'string' && PIECE_SYMBOL_SET.has(val);
 }
 

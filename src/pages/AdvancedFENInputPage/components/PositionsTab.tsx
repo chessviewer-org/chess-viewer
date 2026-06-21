@@ -7,7 +7,7 @@ import { validateFEN } from '@utils';
 import { MAX_FEN_LENGTH } from '@utils/validation';
 
 /** Props for the animated FEN input grid on the Positions tab. */
-export interface PositionsTabProps {
+interface PositionsTabProps {
   fens: string[];
   displayFensCount?: number;
   fenErrors: Record<number, string>;
@@ -158,7 +158,7 @@ const PositionsTab = memo(function PositionsTab({
                         onChange={(e) => onUpdateFen(idx, e.target.value)}
                         placeholder="Paste FEN notation here…"
                         maxLength={MAX_FEN_LENGTH}
-                        className={`w-full px-3 py-2.5 bg-surface text-text-primary border rounded-lg font-mono text-xs transition-all placeholder:text-text-muted/50 ${hasError ? 'border-error/60 focus:border-error focus:ring-1 focus:ring-error/30' : hasDuplicate ? 'border-warning/60 focus:border-warning focus:ring-1 focus:ring-warning/30' : 'border-border focus:border-accent focus:ring-1 focus:ring-accent/20'} focus:outline-none`}
+                        className={`w-full px-3 py-2.5 bg-surface text-text-primary border rounded-lg font-mono text-xs transition-all placeholder:text-text-muted/50 ${hasError ? 'border-error/60 focus:border-error focus:ring-1 focus:ring-error/30' : hasDuplicate ? 'border-warning/60 focus:border-warning focus:ring-1 focus:ring-warning/30' : 'border-border'} focus:outline-none`}
                       />
                       {hasError && (
                         <div className="flex items-center gap-1.5 text-error text-xs">

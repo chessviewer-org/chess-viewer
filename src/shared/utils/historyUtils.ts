@@ -74,7 +74,7 @@ export function calculateStatus(lastActiveAt: number): FreshnessStatus {
  * @param lastActiveAt - Timestamp of last activity
  * @returns True if old enough
  */
-export function shouldArchive(lastActiveAt: number): boolean {
+function shouldArchive(lastActiveAt: number): boolean {
   return Date.now() - lastActiveAt >= NINETY_DAYS_MS;
 }
 
@@ -85,7 +85,7 @@ export function shouldArchive(lastActiveAt: number): boolean {
  * @param filters - Filter criteria
  * @returns True if entry matches all filters
  */
-export function matchesFilters(
+function matchesFilters(
   entry: ActiveHistoryEntry | ArchivedHistoryEntry,
   filters: HistoryFilters
 ): boolean {

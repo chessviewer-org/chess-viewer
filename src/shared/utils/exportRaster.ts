@@ -59,52 +59,50 @@ async function createCanvasRasterBlob(
     throw new Error('Canvas creation returned null');
   }
 
-  setProgress(onProgress, 45, 'Canvas ready');
-  await waitWhilePaused();
-  checkCancellation();
-
-  if (format === 'png') {
-    try {
-      return await canvasToBlob(canvas, 'image/png', 1.0);
-    } finally {
-      canvas.width = 0;
-      canvas.height = 0;
-    }
-  }
-
-  const jpegCanvas = document.createElement('canvas');
-  jpegCanvas.width = canvas.width;
-  jpegCanvas.height = canvas.height;
-  canvas.width = 0;
-  canvas.height = 0;
-
-  const ctx = jpegCanvas.getContext('2d', {
-    alpha: false,
-    desynchronized: false,
-    willReadFrequently: false
-  });
-
-  if (!ctx) {
-    jpegCanvas.width = 0;
-    jpegCanvas.height = 0;
-    throw new Error('Failed to get 2D context for JPEG conversion');
-  }
-
   try {
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, jpegCanvas.width, jpegCanvas.height);
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(canvas, 0, 0);
-
-    setProgress(onProgress, 60, 'JPEG background ready');
+    setProgress(onProgress, 45, 'Canvas ready');
     await waitWhilePaused();
     checkCancellation();
-    return await canvasToBlob(jpegCanvas, 'image/jpeg', 0.92);
+
+    if (format === 'png') {
+      return await canvasToBlob(canvas, 'image/png', 1.0);
+    }
+
+    const jpegCanvas = document.createElement('canvas');
+    jpegCanvas.width = canvas.width;
+    jpegCanvas.height = canvas.height;
+
+    const ctx = jpegCanvas.getContext('2d', {
+      alpha: false,
+      desynchronized: false,
+      willReadFrequently: false
+    });
+
+    if (!ctx) {
+      jpegCanvas.width = 0;
+      jpegCanvas.height = 0;
+      throw new Error('Failed to get 2D context for JPEG conversion');
+    }
+
+    try {
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, jpegCanvas.width, jpegCanvas.height);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(canvas, 0, 0);
+
+      setProgress(onProgress, 60, 'JPEG background ready');
+      await waitWhilePaused();
+      checkCancellation();
+      return await canvasToBlob(jpegCanvas, 'image/jpeg', 0.92);
+    } finally {
+      // Release on every exit — draw/pause/cancel can throw before the blob call.
+      jpegCanvas.width = 0;
+      jpegCanvas.height = 0;
+    }
   } finally {
-    // Release on every exit — draw/pause/cancel can throw before the blob call.
-    jpegCanvas.width = 0;
-    jpegCanvas.height = 0;
+    canvas.width = 0;
+    canvas.height = 0;
   }
 }
 
@@ -114,6 +112,17 @@ async function createWorkerRasterBlob(
   onProgress?: ProgressCallback
 ): Promise<Blob | null> {
   if (!isSvgRasterWorkerSupported()) return null;
+
+  // When piece images are stored as blob: URLs (the hi-res rasterisation path
+  // in pieceImageCache), the SVG they get embedded into as data:image/png will
+  // contain large base64 chunks that Chromium's worker-side createImageBitmap
+  // cannot decode. Detect this and fall through to the canvas path instead.
+  const pieceValues = Object.values(config.pieceImages);
+  const hasBlobPieces = pieceValues.some((img) => {
+    const src = img?.currentSrc || img?.src || '';
+    return src.startsWith('blob:');
+  });
+  if (hasBlobPieces) return null;
 
   const {
     boardSize,
@@ -192,5 +201,3 @@ export async function createRasterBlob(
   }
   return createCanvasRasterBlob(config, format, onProgress);
 }
-
-export { canvasToBlob };

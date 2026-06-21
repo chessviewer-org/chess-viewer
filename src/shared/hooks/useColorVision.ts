@@ -36,22 +36,33 @@ export function useColorVision(): void {
 
   useEffect(() => {
     let cancelled = false;
-    void hydrateFromSync(
-      COLOR_VISION_STORAGE_KEY,
-      (decoded) => {
-        if (!isColorVisionPreference(decoded)) return;
-        const current = window.localStorage.getItem(COLOR_VISION_STORAGE_KEY);
-        const next = JSON.stringify(decoded satisfies ColorVisionPreference);
-        if (current !== next) {
-          window.localStorage.setItem(COLOR_VISION_STORAGE_KEY, next);
-          window.dispatchEvent(new Event(COLOR_VISION_CHANGE_EVENT));
-        }
-      },
-      () => cancelled,
-      'color vision'
-    );
+    const run = () =>
+      void hydrateFromSync(
+        COLOR_VISION_STORAGE_KEY,
+        (decoded) => {
+          if (!isColorVisionPreference(decoded)) return;
+          const current = window.localStorage.getItem(COLOR_VISION_STORAGE_KEY);
+          const next = JSON.stringify(decoded satisfies ColorVisionPreference);
+          if (current !== next) {
+            window.localStorage.setItem(COLOR_VISION_STORAGE_KEY, next);
+            window.dispatchEvent(new Event(COLOR_VISION_CHANGE_EVENT));
+          }
+        },
+        () => cancelled,
+        'color vision'
+      );
+
+    const id =
+      typeof requestIdleCallback !== 'undefined'
+        ? requestIdleCallback(run)
+        : setTimeout(run, 100);
     return () => {
       cancelled = true;
+      if (typeof requestIdleCallback !== 'undefined') {
+        cancelIdleCallback(id as number);
+      } else {
+        clearTimeout(id as ReturnType<typeof setTimeout>);
+      }
     };
   }, []);
 }

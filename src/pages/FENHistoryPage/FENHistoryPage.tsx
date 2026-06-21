@@ -1,6 +1,9 @@
 import React, { memo } from 'react';
 
-import { ConfirmationModal, HistoryFilters } from '@/components/panels/History';
+import {
+  ConfirmationModal,
+  HistoryFilters
+} from '@/components/features/History';
 import { getRouteSeo, SOFTWARE_APP_SCHEMA } from '@constants';
 
 import { Seo } from '@shared/ui';

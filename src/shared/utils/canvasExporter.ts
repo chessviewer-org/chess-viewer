@@ -59,13 +59,7 @@ export interface ExportInfo {
   renderEngine: string;
 }
 
-export {
-  cancelExport,
-  getExportInfo,
-  pauseExport,
-  resetExportState,
-  resumeExport
-};
+export { cancelExport, getExportInfo, pauseExport, resumeExport };
 
 function triggerDownload(
   blob: Blob,

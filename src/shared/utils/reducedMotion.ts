@@ -23,7 +23,7 @@ import { safeJSONParse } from './validation';
 export type ReducedMotionPreference = 'system' | 'reduce' | 'full';
 
 /** Effective preference when nothing is stored. */
-export const DEFAULT_REDUCED_MOTION: ReducedMotionPreference = 'system';
+const DEFAULT_REDUCED_MOTION: ReducedMotionPreference = 'system';
 
 /** localStorage key for the reduced-motion preference (synced-key convention). */
 export const REDUCED_MOTION_STORAGE_KEY = 'cv_reduced_motion';
@@ -54,7 +54,7 @@ export function readReducedMotionPreference(): ReducedMotionPreference {
 }
 
 /** Whether the OS currently requests reduced motion. */
-export function prefersReducedMotionOS(): boolean {
+function prefersReducedMotionOS(): boolean {
   try {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   } catch {

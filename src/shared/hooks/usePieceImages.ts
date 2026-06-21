@@ -132,11 +132,13 @@ function createPlaceholderImage(pieceName: string): HTMLImageElement {
     ctx.fillText(pieceName, 50, 50);
   }
 
-  const img = new Image();
-  img.src = canvas.toDataURL();
-
-  // Release the backing canvas memory after encoding (Safari does not GC it).
-  canvas.width = 0;
-  canvas.height = 0;
-  return img;
+  try {
+    const img = new Image();
+    img.src = canvas.toDataURL();
+    return img;
+  } finally {
+    // Release the backing canvas memory after encoding (Safari does not GC it).
+    canvas.width = 0;
+    canvas.height = 0;
+  }
 }

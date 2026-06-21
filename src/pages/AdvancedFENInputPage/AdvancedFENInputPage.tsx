@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 import { ChevronRight, Eye, Globe, List, Sliders } from 'lucide-react';
 
-import { ExportProgress } from '@/components/panels';
+import { ExportProgress } from '@/components/features';
 import {
   ADVANCED_FEN_CONFIG,
   getRouteSeo,

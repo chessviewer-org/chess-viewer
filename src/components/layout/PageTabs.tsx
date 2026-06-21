@@ -3,7 +3,7 @@ import { memo, useCallback, useRef } from 'react';
 import type { LucideIcon } from 'lucide-react';
 
 /** A single navigable tab within a group. */
-export interface PageTab {
+interface PageTab {
   id: string;
   label: string;
   icon: LucideIcon;
@@ -93,7 +93,7 @@ const PageTabs = memo(function PageTabs({
   );
 
   return (
-    <nav aria-label={ariaLabel} className="md:sticky md:top-4 md:self-start">
+    <nav aria-label={ariaLabel}>
       {/* Always a vertical, stacked rail (GitHub-settings pattern): full width
           on phones, a fixed-width sticky left column on tablet + desktop. */}
       <div

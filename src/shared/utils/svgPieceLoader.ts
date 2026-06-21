@@ -115,6 +115,10 @@ export async function imageToEmbeddableDataURL(
   let dataUrl = '';
   if (src.startsWith('data:')) {
     dataUrl = src;
+  } else if (src.startsWith('blob:')) {
+    // blob: URLs cannot be fetched cross-context or embedded in SVG — rasterize
+    // the already-loaded image element directly via canvas instead.
+    dataUrl = await imageToDataURL(img);
   } else {
     let parsedUrl: URL;
     try {

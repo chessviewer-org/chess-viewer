@@ -7,9 +7,9 @@ import { useEffectiveReducedMotion } from '@hooks';
 
 const MAX_NOTIFICATION_DURATION = 5000;
 
-export type NotificationType = 'success' | 'error' | 'warning' | 'info';
+type NotificationType = 'success' | 'error' | 'warning' | 'info';
 
-export interface Notification {
+interface Notification {
   id: number;
   type: NotificationType;
   message: string;
@@ -75,7 +75,7 @@ const NOTIFICATION_STYLES: Record<
   }
 };
 
-export interface NotificationContainerProps {
+interface NotificationContainerProps {
   notifications: Notification[];
   onRemove: (id: number) => void;
 }

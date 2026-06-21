@@ -28,7 +28,7 @@ export function MfaUnlockForm({
           inputMode="numeric"
           placeholder="000000"
           maxLength={6}
-          className="w-full text-center text-lg tracking-[0.2em] font-mono rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-text-primary focus:border-accent focus:ring-2 focus:ring-accent/35 outline-none transition-colors duration-200"
+          className="w-full text-center text-lg tracking-[0.2em] font-mono rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-text-primary outline-none transition-colors duration-200"
           value={totpCode}
           onChange={(e) => setTotpCode(e.target.value.replace(/\\D/g, ''))}
           required

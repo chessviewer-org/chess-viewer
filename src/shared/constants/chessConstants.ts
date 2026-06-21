@@ -2,8 +2,7 @@ import {
   AdvancedFenConfig,
   BoardThemes,
   PieceSet,
-  QualityPreset,
-  ThemeFamily
+  QualityPreset
 } from '@app-types';
 
 /** Canonical full-game starting position. */
@@ -87,96 +86,28 @@ export const PIECE_SET_POPULARITY: readonly string[] = [
   'riohacha'
 ];
 
-// `family` groups presets by board style: the flat colour boards read as the
-// classic flat ('2D') look, while the wood / stone / high-contrast boards read
-// with more depth and are grouped as '3D'. `popular` flags the curated short
-// list surfaced in the compact ChessEditor settings panel (see
-// MOST_USED_THEMES below). Both fields are optional on ThemeConfig, so the rest
-// of the catalogue is unaffected.
 export const BOARD_THEMES: BoardThemes = {
-  classic: {
-    name: 'Classic',
-    light: '#f0d9b5',
-    dark: '#b58863',
-    family: '2D',
-    popular: true
-  },
-  brown: { name: 'Brown', light: '#f0d9b5', dark: '#946f51', family: '2D' },
-  wood: {
-    name: 'Wood',
-    light: '#d4af7a',
-    dark: '#8b4513',
-    family: '3D',
-    popular: true
-  },
-  sand: { name: 'Sand', light: '#f5deb3', dark: '#d2b48c', family: '3D' },
-  slate: {
-    name: 'Slate',
-    light: '#d0d0d0',
-    dark: '#4a4a4a',
-    family: '3D',
-    popular: true
-  },
-  marble: { name: 'Marble', light: '#e3e6e8', dark: '#6e7a8a', family: '3D' },
-  blue: {
-    name: 'Blue',
-    light: '#dee3e6',
-    dark: '#8ca2ad',
-    family: '2D',
-    popular: true
-  },
-  ocean: { name: 'Ocean', light: '#c9e4f5', dark: '#4a90a4', family: '2D' },
-  green: {
-    name: 'Green',
-    light: '#ffffdd',
-    dark: '#86a666',
-    family: '2D',
-    popular: true
-  },
-  forest: { name: 'Forest', light: '#d4e8d4', dark: '#2d6930', family: '3D' },
-  mint: { name: 'Mint', light: '#e0f5e9', dark: '#6fb98f', family: '2D' },
-  purple: { name: 'Purple', light: '#e8d5c7', dark: '#9f7ab9', family: '2D' },
-  lavender: {
-    name: 'Lavender',
-    light: '#e6e6fa',
-    dark: '#9370db',
-    family: '2D'
-  },
-  red: { name: 'Red', light: '#ffe0c5', dark: '#c97866', family: '2D' },
-  coral: { name: 'Coral', light: '#ffebcd', dark: '#ff7f50', family: '2D' },
-  sunset: { name: 'Sunset', light: '#ffe4b5', dark: '#ff8c42', family: '3D' },
-  pink: { name: 'Pink', light: '#ffd7e0', dark: '#d87093', family: '2D' },
-  burgundy: {
-    name: 'Burgundy',
-    light: '#e8d0d0',
-    dark: '#8b3a3a',
-    family: '3D'
-  },
-  navy: {
-    name: 'Navy',
-    light: '#d9e3f0',
-    dark: '#405d7f',
-    family: '2D',
-    popular: true
-  },
-  ice: { name: 'Ice', light: '#e8f4f8', dark: '#7eb8da', family: '2D' }
+  classic: { name: 'Classic', light: '#f0d9b5', dark: '#b58863' },
+  brown: { name: 'Brown', light: '#f0d9b5', dark: '#946f51' },
+  wood: { name: 'Wood', light: '#d4af7a', dark: '#8b4513' },
+  sand: { name: 'Sand', light: '#f5deb3', dark: '#d2b48c' },
+  slate: { name: 'Slate', light: '#d0d0d0', dark: '#4a4a4a' },
+  marble: { name: 'Marble', light: '#e3e6e8', dark: '#6e7a8a' },
+  blue: { name: 'Blue', light: '#dee3e6', dark: '#8ca2ad' },
+  ocean: { name: 'Ocean', light: '#c9e4f5', dark: '#4a90a4' },
+  green: { name: 'Green', light: '#ffffdd', dark: '#86a666' },
+  forest: { name: 'Forest', light: '#d4e8d4', dark: '#2d6930' },
+  mint: { name: 'Mint', light: '#e0f5e9', dark: '#6fb98f' },
+  purple: { name: 'Purple', light: '#e8d5c7', dark: '#9f7ab9' },
+  lavender: { name: 'Lavender', light: '#e6e6fa', dark: '#9370db' },
+  red: { name: 'Red', light: '#ffe0c5', dark: '#c97866' },
+  coral: { name: 'Coral', light: '#ffebcd', dark: '#ff7f50' },
+  sunset: { name: 'Sunset', light: '#ffe4b5', dark: '#ff8c42' },
+  pink: { name: 'Pink', light: '#ffd7e0', dark: '#d87093' },
+  burgundy: { name: 'Burgundy', light: '#e8d0d0', dark: '#8b3a3a' },
+  navy: { name: 'Navy', light: '#d9e3f0', dark: '#405d7f' },
+  ice: { name: 'Ice', light: '#e8f4f8', dark: '#7eb8da' }
 };
-
-/** A curated preset entry carrying its catalogue key for selection/keys. */
-export interface CuratedThemePreset {
-  key: string;
-  name: string;
-  light: string;
-  dark: string;
-  family: ThemeFamily;
-}
-
-/** A family group of curated presets for the compact editor settings panel. */
-export interface CuratedThemeGroup {
-  family: ThemeFamily;
-  label: string;
-  presets: CuratedThemePreset[];
-}
 
 export const QUALITY_PRESETS: QualityPreset[] = [
   {

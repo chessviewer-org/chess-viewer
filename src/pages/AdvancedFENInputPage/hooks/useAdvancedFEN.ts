@@ -5,11 +5,7 @@ import { ADVANCED_FEN_CONFIG } from '@constants';
 
 import { validateFEN } from '@utils';
 import { useAdvancedExportActions } from './useAdvancedFEN/useAdvancedExportActions';
-import type {
-  AdvancedFENInitialProps,
-  ExportState,
-  PositionSettings
-} from './useAdvancedFEN/useAdvancedFEN.types';
+import type { AdvancedFENInitialProps } from './useAdvancedFEN/useAdvancedFEN.types';
 import { useAdvancedNavigation } from './useAdvancedFEN/useAdvancedNavigation';
 import { useAdvancedSettingsState } from './useAdvancedFEN/useAdvancedSettingsState';
 import { useAdvancedUIHandlers } from './useAdvancedFEN/useAdvancedUIHandlers';
@@ -18,7 +14,7 @@ import { useFENBatchSync } from './useAdvancedFEN/useFENBatchSync';
 import { useKeyboardNavigation } from './useAdvancedFEN/useKeyboardNavigation';
 import { usePositionSettingsSync } from './useAdvancedFEN/usePositionSettingsSync';
 
-export type { AdvancedFENInitialProps, ExportState, PositionSettings };
+export type { AdvancedFENInitialProps };
 
 const { DEFAULT_FENS, DEFAULT_INTERVAL, TABS } = ADVANCED_FEN_CONFIG;
 

@@ -9,7 +9,7 @@ import { safeJSONParse } from '@utils/validation';
 const CUSTOM_THEME_PRESETS_KEY = 'custom-theme-presets';
 
 /** A user-created custom board theme preset. */
-export interface ThemePreset {
+interface ThemePreset {
   id: number;
   name: string;
   light: string;

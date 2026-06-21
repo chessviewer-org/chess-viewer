@@ -24,7 +24,7 @@ export type ColorVisionPreference =
   | 'tritanopia';
 
 /** Effective default: no simulation active. */
-export const DEFAULT_COLOR_VISION: ColorVisionPreference = 'none';
+const DEFAULT_COLOR_VISION: ColorVisionPreference = 'none';
 
 /** localStorage key (synced-key convention). */
 export const COLOR_VISION_STORAGE_KEY = 'cv_color_vision';

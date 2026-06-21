@@ -7,7 +7,7 @@ import {
   PieceGridShared as PieceGrid,
   type PieceSort,
   sortPieceSets
-} from '@/components/board-style';
+} from '@/components/features/ColorPicker';
 import { usePieceImages } from '@hooks';
 import { useLocalStorage } from '@hooks';
 

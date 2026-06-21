@@ -39,7 +39,6 @@ const STORAGE_CATEGORIES = [
       'fen-history',
       'fen-history-archive',
       'favoriteFens',
-      'fenClipboardHistory',
       'fenBatchList',
       'advancedFENFavorites',
       'advanced-fen-position-settings'

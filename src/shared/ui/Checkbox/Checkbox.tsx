@@ -1,6 +1,6 @@
 import React, { memo, useId } from 'react';
 
-export interface CheckboxProps {
+interface CheckboxProps {
   checked: boolean;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   label: React.ReactNode;

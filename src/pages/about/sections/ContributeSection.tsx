@@ -27,18 +27,25 @@ export default function ContributeSection() {
       <div className="space-y-3">
         <SectionHeading icon={Code2} title="Contribute" />
         <Lead>
-          ChessVision is open source and built in public. Whether you write
-          code, report bugs, improve documentation, or help with translations,
-          there is a way to contribute.
+          ChessVision is open source and built in public. The code is on GitHub
+          and anyone can read it, run it, and improve it. If you have ever
+          wanted to contribute to a real, working tool that people actually use
+          — this is a good place to start.
         </Lead>
       </div>
 
       <InfoCard title="The source code">
         <p>
-          The entire application is public on GitHub. It is a React 19 and
-          TypeScript app built with Vite and Tailwind CSS, with a Supabase
-          backend. You can read it, clone it, run it locally, and open pull
-          requests.
+          The full application is public on GitHub. It is a React 19 and
+          TypeScript app, built with Vite and Tailwind CSS, with a Supabase
+          backend for auth and optional sync. The codebase is reasonably well
+          documented and has a CLAUDE.md that explains how everything fits
+          together.
+        </p>
+        <p>
+          You can clone it, run it locally with a single command, and poke
+          around. No secrets needed for the core features — only the cloud sync
+          and auth require Supabase credentials, and those are optional.
         </p>
         <div className="flex flex-wrap items-center gap-3 pt-1">
           <ExternalLinkButton href={REPO_URL} icon={Code2} variant="primary">
@@ -73,10 +80,11 @@ export default function ContributeSection() {
               aria-hidden="true"
             />
             <span>
-              <strong className="text-text-primary">Write code.</strong> Pick up
-              an open issue, fix a bug, or build a feature, then open a pull
-              request. Start with the contributing guide for setup and
-              conventions.
+              <strong className="text-text-primary">Write code.</strong> Browse
+              the open issues, pick something that interests you, and open a
+              pull request. The contributing guide covers how to set up the
+              project locally and the conventions the codebase follows. First
+              contributions are welcome — there are issues labeled accordingly.
             </span>
           </li>
           <li className="flex gap-3">
@@ -85,9 +93,10 @@ export default function ContributeSection() {
               aria-hidden="true"
             />
             <span>
-              <strong className="text-text-primary">Report bugs.</strong> Clear,
-              reproducible bug reports are genuinely valuable. Include your
-              browser and the steps to reproduce.
+              <strong className="text-text-primary">Report bugs.</strong> A
+              clear, reproducible bug report is genuinely one of the most useful
+              things you can do. Include your browser, what you were doing, and
+              what happened versus what you expected. Screenshots help.
             </span>
           </li>
           <li className="flex gap-3">
@@ -96,11 +105,10 @@ export default function ContributeSection() {
               aria-hidden="true"
             />
             <span>
-              <strong className="text-text-primary">
-                Improve documentation.
-              </strong>{' '}
-              Fixing unclear wording, gaps, or typos in the docs helps everyone
-              who comes after you.
+              <strong className="text-text-primary">Improve the docs.</strong>{' '}
+              If something in the documentation is unclear, missing, or just
+              wrong — fix it. Small improvements add up and help everyone who
+              comes after you.
             </span>
           </li>
           <li className="flex gap-3">
@@ -109,9 +117,12 @@ export default function ContributeSection() {
               aria-hidden="true"
             />
             <span>
-              <strong className="text-text-primary">Spread the word.</strong>{' '}
-              Telling other chess players, coaches, and authors about the tool
-              helps the project grow.
+              <strong className="text-text-primary">
+                Tell people about it.
+              </strong>{' '}
+              If ChessVision has saved you time, mention it. Share it with a
+              coach, a chess blogger, a teacher who makes worksheets. Word of
+              mouth is how small open-source tools grow.
             </span>
           </li>
         </ul>

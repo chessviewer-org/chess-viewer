@@ -17,7 +17,10 @@ export const FileCoordinates = memo(function FileCoordinates({
     : ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
   return (
-    <div className="flex mt-1" style={{ paddingLeft: `${gutterSize}px` }}>
+    <div
+      className="flex mt-1 shrink-0"
+      style={{ paddingLeft: `${gutterSize}px` }}
+    >
       {files.map((file) => (
         <div
           key={file}
