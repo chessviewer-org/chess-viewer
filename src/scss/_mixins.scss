@@ -1,0 +1,110 @@
+@use 'variables' as v;
+
+// =============================================================================
+// ChessVision SCSS Mixins
+// =============================================================================
+
+// -- Viewport media queries ---------------------------------------------------
+
+@mixin viewport-up($bp) {
+  @media (min-width: $bp) {
+    @content;
+  }
+}
+
+@mixin viewport-down($bp) {
+  @media (max-width: #{$bp - 1px}) {
+    @content;
+  }
+}
+
+@mixin viewport-between($min, $max) {
+  @media (min-width: $min) and (max-width: #{$max - 1px}) {
+    @content;
+  }
+}
+
+// -- Container queries (requires container-type: inline-size on ancestor) -----
+
+@mixin container-up($width) {
+  @container (min-width: #{$width}) {
+    @content;
+  }
+}
+
+@mixin container-down($width) {
+  @container (max-width: #{$width - 1px}) {
+    @content;
+  }
+}
+
+// -- Pointer / input device ---------------------------------------------------
+
+@mixin touch {
+  @media (pointer: coarse) {
+    @content;
+  }
+}
+
+@mixin mouse {
+  @media (pointer: fine) {
+    @content;
+  }
+}
+
+@mixin hover-capable {
+  @media (hover: hover) {
+    @content;
+  }
+}
+
+// -- Motion -------------------------------------------------------------------
+
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
+
+// -- Editor layout shortcuts --------------------------------------------------
+
+@mixin editor-single-col {
+  @include container-down(v.$editor-breakpoint-side) {
+    @content;
+  }
+}
+
+@mixin editor-side-by-side {
+  @include container-up(v.$editor-breakpoint-side) {
+    @content;
+  }
+}
+
+@mixin editor-desktop {
+  @include container-up(v.$editor-breakpoint-desk) {
+    @content;
+  }
+}
+
+// -- Database search layout shortcuts -----------------------------------------
+
+@mixin db-single-col {
+  @include container-down(v.$db-breakpoint-2col) {
+    @content;
+  }
+}
+
+@mixin db-two-col {
+  @include container-up(v.$db-breakpoint-2col) {
+    @content;
+  }
+}
+
+// -- Focus ring (matches app-wide focus style) --------------------------------
+
+@mixin focus-ring {
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-accent);
+  }
+}

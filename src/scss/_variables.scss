@@ -1,0 +1,45 @@
+// =============================================================================
+// ChessVision SCSS Variables
+// Mirrors CSS custom properties from index.css. All px values are precise
+// so media/container queries fire at exactly the intended widths.
+// =============================================================================
+
+// -- Viewport breakpoints -----------------------------------------------------
+// Based on window (viewport) width. page-container adds 3% padding on mobile,
+// 6% on lg+, so container_width ≈ viewport × 0.94 / 0.88 respectively.
+
+$bp-xs: 480px;
+$bp-sm: 640px;
+$bp-md: 768px;
+$bp-lg: 1024px;
+$bp-xl: 1280px;
+$bp-2xl: 1536px;
+
+// -- Editor layout thresholds (container width inside .workspace-container) ---
+//
+//   < 564px  single-column : board full-width above, panel stacked below
+//   ≥ 564px  side-by-side  : board left, panel right (flex-row)
+//   ≥ 1024px desktop       : panel height pinned to board height
+
+$editor-breakpoint-side: 564px; // single-col → side-by-side
+$editor-breakpoint-desk: 1024px; // side-by-side → desktop pin
+
+// -- Database search thresholds -----------------------------------------------
+//   < 394px  1-column grid : each provider on its own row (4 rows)
+//   ≥ 394px  2-column grid : 2×2 layout, never all 4 in one row
+
+$db-breakpoint-2col: 394px;
+
+// -- Navbar heights (kept in sync with index.css --navbar-height ladder) ------
+$navbar-h-base: 4.5rem; // < 640px
+$navbar-h-sm: 5rem; // ≥ 640px
+$navbar-h-lg: 5.5rem; // ≥ 1024px
+
+// -- Spacing (mirrors --spacing-fluid-* tokens) -------------------------------
+$gap-xs: clamp(0.5rem, 1vw, 0.75rem);
+$gap-sm: clamp(0.75rem, 1.5vw, 1rem);
+$gap-md: clamp(1rem, 2.5vw, 1.5rem);
+
+// -- Z-index scale ------------------------------------------------------------
+$z-board: 1;
+$z-overlay: 30;

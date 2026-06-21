@@ -52,6 +52,7 @@
   --color-error: rgb(var(--val-error));
   --color-warning: rgb(var(--val-warning));
   --color-info: rgb(var(--val-info));
+  --color-focus-ring: rgb(var(--val-focus-ring));
 
   --font-ui: var(--font-ui);
   --font-data: var(--font-data);
@@ -194,6 +195,9 @@
   --val-accent-hover: 218 176 68;
   --val-accent-muted: 158 126 38;
 
+  /* Focus ring for inputs — neutral, border-toned, not accent */
+  --val-focus-ring: 100 105 120;
+
   /* Secondary Accent - Muted Teal */
   --val-secondary: 60 165 145;
   --val-secondary-hover: 75 180 160;
@@ -324,6 +328,9 @@ html[data-reduced-motion='reduce'] ::view-transition-new(root) {
   --val-accent: 160 120 25;
   --val-accent-hover: 140 100 15;
   --val-accent-muted: 180 145 55;
+
+  /* Focus ring for inputs — neutral, border-toned, not accent */
+  --val-focus-ring: 130 135 150;
 
   /* Secondary Accent - Teal (darker for contrast) */
   --val-secondary: 30 130 115;
@@ -492,47 +499,6 @@ html[data-reduced-motion='reduce'] ::view-transition-new(root) {
     );
     color: var(--color-text-primary);
   }
-
-  /* ===== CUSTOM SCROLLBAR - GLOBAL ===== */
-  /* WebKit browsers (Chrome, Safari, Edge) */
-  ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-
-  /* Strip the up/down (and left/right) arrow buttons off every native
-     scrollbar. `display: none` alone can leave a reserved 0-or-default-sized
-     slot in some WebKit builds, so width/height: 0 collapses it fully. */
-  ::-webkit-scrollbar-button {
-    display: none;
-    width: 0;
-    height: 0;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: var(--color-surface-elevated);
-    border-radius: 0; /* Square corners */
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: var(--color-accent);
-    border-radius: 0; /* Square corners */
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-accent-hover);
-  }
-
-  ::-webkit-scrollbar-corner {
-    background: var(--color-surface-elevated);
-    border-radius: 0; /* Square corners */
-  }
-
-  /* Firefox */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-accent) var(--color-surface-elevated);
-  }
 }
 
 /* ===== COMPONENTS LAYER ===== */
@@ -556,13 +522,7 @@ html[data-reduced-motion='reduce'] ::view-transition-new(root) {
      future depth treatment is a single token edit. Verified light + dark. */
   .navbar-shell {
     position: fixed;
-    background-color: var(--color-bg);
-    background-image: linear-gradient(
-      135deg,
-      var(--color-bg-gradient-start),
-      var(--color-bg-gradient-end)
-    );
-    background-attachment: fixed;
+    background-color: var(--color-surface);
     box-shadow: var(--navbar-shadow);
     /* Owns the TOP safe-area inset for the whole shell (see .shell-safe-area):
        the bar's gradient fills the notch region while its inner content is
@@ -600,7 +560,7 @@ html[data-reduced-motion='reduce'] ::view-transition-new(root) {
     padding-inline: 3%;
     box-sizing: border-box;
   }
-  @media (min-width: 640px) {
+  @media (min-width: 1024px) {
     .page-container {
       padding-inline: 6%;
     }
@@ -754,13 +714,8 @@ html[data-reduced-motion='reduce'] ::view-transition-new(root) {
   }
 
   .input-field:focus {
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px
-      color-mix(
-        in srgb,
-        var(--color-accent),
-        transparent calc(100% - 0.1 * 100%)
-      );
+    border-color: var(--color-focus-ring);
+    box-shadow: 0 0 0 1px var(--color-focus-ring);
     background: var(--color-surface-elevated);
   }
 
@@ -773,68 +728,6 @@ html[data-reduced-motion='reduce'] ::view-transition-new(root) {
       transparent
     );
     margin: 2rem 0;
-  }
-
-  /* Custom scrollbar with style */
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-button {
-    display: none;
-    width: 0;
-    height: 0;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: var(--color-surface);
-    border-radius: 0;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: linear-gradient(
-      180deg,
-      var(--color-accent),
-      var(--color-accent-muted)
-    );
-    border-radius: 0;
-    transition: background 0.3s ease;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(
-      180deg,
-      var(--color-accent-hover),
-      var(--color-accent)
-    );
-  }
-
-  /* Sleek, thin, rectangular scrollbar for the inline Clipboard History list:
-     transparent track, subtle gray thumb, rounded — matches the requested
-     scrollbar-thin / scrollbar-thumb-gray-600 / scrollbar-track-transparent. */
-  .history-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: rgb(82 82 91) transparent; /* gray-600 thumb */
-  }
-  .history-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  .history-scrollbar::-webkit-scrollbar-button {
-    display: none;
-    width: 0;
-    height: 0;
-  }
-  .history-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .history-scrollbar::-webkit-scrollbar-thumb {
-    background: rgb(82 82 91); /* gray-600 */
-    border-radius: 0;
-  }
-  .history-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgb(113 113 122); /* gray-500 */
   }
 }
 
@@ -1374,7 +1267,7 @@ html[data-reduced-motion='reduce'] .marching-ants {
    not the viewport — correct on ultra-wide where the card is wide but a single
    viewport breakpoint would over/under-react. */
 .workspace-container {
-  container: workspace / inline-size;
+  container-type: inline-size;
 }
 
 /* Palette section: justify-between and minHeight only apply on very wide screens */
@@ -1642,13 +1535,33 @@ html[data-reduced-motion='reduce'] *::after {
 }
 
 /* ===== GLOBAL FOCUS STYLE =====
-   Remove all focus rings and outlines app-wide. Tailwind ring utilities use
-   box-shadow; outline utilities use outline. Both are reset here so no yellow
-   or accent colour appears on focus anywhere in the app. */
+   Remove browser default outlines app-wide. Tailwind ring utilities (box-shadow)
+   are preserved where explicitly set in JSX. Input/textarea/select get their own
+   1px neutral ring below — not accent, not yellow. */
 *:focus,
 *:focus-visible {
   outline: none !important;
+}
+
+/* Suppress box-shadow reset only for non-input interactive elements so Tailwind
+   ring utilities on buttons/links still work, while inputs get the rule below. */
+*:not(input):not(textarea):not(select):not([role='combobox']):not(
+    [role='listbox']
+  ):focus,
+*:not(input):not(textarea):not(select):not([role='combobox']):not(
+    [role='listbox']
+  ):focus-visible {
   box-shadow: none !important;
+}
+
+/* ── Input focus ring ──
+   1px neutral ring that reads as "active field" without accent colour.
+   Applied to every text input, textarea, and select in the app. */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  box-shadow: 0 0 0 1px var(--color-focus-ring);
+  border-color: var(--color-focus-ring) !important;
 }
 
 /* ===== PRINT STYLES ===== */
@@ -1708,4 +1621,128 @@ html[data-reduced-motion='reduce'] *::after {
     margin: 1cm;
     size: auto;
   }
+}
+
+/* ===== CUSTOM SCROLLBAR - GLOBAL (UNLAYERED FOR MAXIMUM SPECIFICITY) ===== */
+/* WebKit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  width: 4px !important;
+  height: 4px !important;
+  border-radius: 0 !important; /* Enforce square globally */
+}
+
+/* Strip the up/down (and left/right) arrow buttons off every native scrollbar */
+::-webkit-scrollbar-button,
+*::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track {
+  background: var(--color-surface-elevated) !important;
+  border-radius: 0 !important; /* Square corners */
+}
+
+::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb {
+  background: var(--color-accent) !important;
+  border-radius: 0 !important; /* Square corners */
+}
+
+::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-hover) !important;
+  border-radius: 0 !important;
+}
+
+::-webkit-scrollbar-corner,
+*::-webkit-scrollbar-corner {
+  background: var(--color-surface-elevated) !important;
+  border-radius: 0 !important; /* Square corners */
+}
+
+/* Custom scrollbar with style */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px !important;
+  height: 4px !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-surface) !important;
+  border-radius: 0 !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    var(--color-accent),
+    var(--color-accent-muted)
+  ) !important;
+  border-radius: 0 !important;
+  transition: background 0.3s ease !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    var(--color-accent-hover),
+    var(--color-accent)
+  ) !important;
+  border-radius: 0 !important;
+}
+
+/* Sleek, thin, rectangular scrollbar for the inline Clipboard History list */
+.history-scrollbar {
+}
+.history-scrollbar::-webkit-scrollbar {
+  width: 4px !important;
+  height: 4px !important;
+}
+.history-scrollbar::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.history-scrollbar::-webkit-scrollbar-track {
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+.history-scrollbar::-webkit-scrollbar-thumb {
+  background: rgb(82 82 91) !important;
+  border-radius: 0 !important;
+}
+.history-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgb(113 113 122) !important;
+  border-radius: 0 !important;
+}
+
+/* Firefox Global - Only apply if webkit scrollbars are NOT supported */
+@supports not selector(::-webkit-scrollbar) {
+  html,
+  body,
+  * {
+    scrollbar-width: thin !important;
+    scrollbar-color: var(--color-accent) var(--color-surface-elevated) !important;
+  }
+
+  .history-scrollbar {
+    scrollbar-width: thin !important;
+    scrollbar-color: rgb(82 82 91) transparent !important;
+  }
+}
+
+/* Thin scrollbar specifically for FEN notation inputs */
+.fen-scrollbar::-webkit-scrollbar {
+  width: 4px !important;
+  height: 4px !important;
 }
