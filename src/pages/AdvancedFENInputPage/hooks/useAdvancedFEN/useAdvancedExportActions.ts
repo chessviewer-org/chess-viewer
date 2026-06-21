@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 
 import { downloadJPEG, downloadPNG, downloadSVG, logger } from '@utils';
-import { checkCancellation, waitWhilePaused } from '@utils/exportState';
+import { checkCancellation, waitWhilePaused } from '@utils';
 import { parseSmartNaming } from './parseSmartNaming';
 import type { ExportFormat, PositionSettings } from './useAdvancedFEN.types';
 
@@ -119,7 +119,7 @@ export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
           handleExportProgress(progress, format, label ?? undefined);
         });
       }
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Active export failed:', err);
     } finally {
       handleExportFinish();
@@ -208,7 +208,7 @@ export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
           await downloadSVG(config, numberedName, reportProgress);
         }
       }
-    } catch (err) {
+    } catch (err: unknown) {
       // A cancellation propagates as "Export cancelled" — that is expected user
       // intent, not a failure, so it stops the batch quietly.
       if (err instanceof Error && err.message === 'Export cancelled') {

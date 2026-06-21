@@ -3,8 +3,7 @@ import React, { memo } from 'react';
 import { AnimatePresence, motion, Transition } from 'framer-motion';
 import { AlertCircle, Check, Clipboard, Heart, Trash2 } from 'lucide-react';
 
-import { validateFEN } from '@utils';
-import { MAX_FEN_LENGTH } from '@utils/validation';
+import { MAX_FEN_LENGTH, validateFEN } from '@utils';
 
 /** Props for the animated FEN input grid on the Positions tab. */
 interface PositionsTabProps {
@@ -53,7 +52,7 @@ const PositionsTab = memo(function PositionsTab({
   };
 
   return (
-    <div className="flex flex-col gap-4 3xl:gap-6 page-container">
+    <div className="flex flex-col gap-4 3xl:gap-6">
       <AnimatePresence mode="popLayout">
         {rows.map((row) => {
           const isSingle = row.items.length === 1;
