@@ -29,7 +29,7 @@ export const PROVIDER_LABEL: Record<DatabaseProvider, string> = {
 };
 
 /** Result for a single database provider. */
-export interface DatabaseHit {
+interface DatabaseHit {
   /** True only when the position is confirmed present in this database. */
   found: boolean;
   /** Human-facing search URL for the position (used for open-in-new-tab). */

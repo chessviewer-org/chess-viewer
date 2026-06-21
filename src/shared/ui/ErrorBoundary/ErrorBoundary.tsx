@@ -149,4 +149,4 @@ class ErrorBoundary extends React.Component<
     return this.props.children;
   }
 }
-export { ErrorBoundary, ErrorFallback };
+export { ErrorBoundary };

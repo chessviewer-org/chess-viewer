@@ -3,8 +3,8 @@ import { QUALITY_PRESETS } from '@constants';
 import { getCoordinateParams } from './coordinateCalculations';
 import { logger } from './logger';
 
-export const CM_PER_INCH = 2.54;
-export const PRINT_DPI = 300;
+const CM_PER_INCH = 2.54;
+const PRINT_DPI = 300;
 
 /**
  * Converts physical board size + quality multiplier into board pixels.
@@ -16,7 +16,7 @@ export const PRINT_DPI = 300;
  * @param baseDpi - The base dots per inch (default 300)
  * @returns Calculated board pixels
  */
-export function calculateBoardPixels(
+function calculateBoardPixels(
   boardSizeCm: number,
   qualityMultiplier: number,
   baseDpi = PRINT_DPI
@@ -103,7 +103,7 @@ function formatFileSize(bytes: number): string {
  * @param exportQuality - Quality multiplier
  * @returns Export size details including width, height, scaleFactor, etc.
  */
-export function calculateExportSize(
+function calculateExportSize(
   boardSizeCm: number,
   showCoords: boolean,
   exportQuality: number

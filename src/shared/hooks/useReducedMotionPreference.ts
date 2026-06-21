@@ -46,22 +46,37 @@ export function useReducedMotionPreference(): void {
   // Hydrate the cloud preference once for a freshly signed-in device.
   useEffect(() => {
     let cancelled = false;
-    void hydrateFromSync(
-      REDUCED_MOTION_STORAGE_KEY,
-      (decoded) => {
-        if (!isReducedMotionPreference(decoded)) return;
-        const current = window.localStorage.getItem(REDUCED_MOTION_STORAGE_KEY);
-        const next = JSON.stringify(decoded satisfies ReducedMotionPreference);
-        if (current !== next) {
-          window.localStorage.setItem(REDUCED_MOTION_STORAGE_KEY, next);
-          window.dispatchEvent(new Event(REDUCED_MOTION_CHANGE_EVENT));
-        }
-      },
-      () => cancelled,
-      'reduced motion'
-    );
+    const run = () =>
+      void hydrateFromSync(
+        REDUCED_MOTION_STORAGE_KEY,
+        (decoded) => {
+          if (!isReducedMotionPreference(decoded)) return;
+          const current = window.localStorage.getItem(
+            REDUCED_MOTION_STORAGE_KEY
+          );
+          const next = JSON.stringify(
+            decoded satisfies ReducedMotionPreference
+          );
+          if (current !== next) {
+            window.localStorage.setItem(REDUCED_MOTION_STORAGE_KEY, next);
+            window.dispatchEvent(new Event(REDUCED_MOTION_CHANGE_EVENT));
+          }
+        },
+        () => cancelled,
+        'reduced motion'
+      );
+
+    const id =
+      typeof requestIdleCallback !== 'undefined'
+        ? requestIdleCallback(run)
+        : setTimeout(run, 100);
     return () => {
       cancelled = true;
+      if (typeof requestIdleCallback !== 'undefined') {
+        cancelIdleCallback(id as number);
+      } else {
+        clearTimeout(id as ReturnType<typeof setTimeout>);
+      }
     };
   }, []);
 }

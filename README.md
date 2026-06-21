@@ -1,6 +1,6 @@
 # ChessVision
 
-Chess position visualizer with high-resolution export capabilities.
+Chess position editor with high-resolution export.
 
 [![React](https://img.shields.io/badge/React-19.x-61DAFB?style=flat-square&logo=react&logoColor=white)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.x-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
@@ -12,27 +12,11 @@ Chess position visualizer with high-resolution export capabilities.
 
 ---
 
-## Table of Contents
+## What is it?
 
-- [Overview](#overview)
-- [Features](#features)
-- [Quick Start](#quick-start)
-- [Docker](#docker)
-- [Project Structure](#project-structure)
-- [Technology Stack](#technology-stack)
-- [Export System](#export-system)
-- [Browser Support](#browser-support)
-- [Security and Privacy](#security-and-privacy)
-- [Contributing](#contributing)
-- [License](#license)
+ChessVision is a browser-based diagram editor. You set up a position, choose how the board and pieces look, and export a sharp image at the size and quality you need — for print, a blog post, a video thumbnail, or wherever. No installation, no account required.
 
----
-
-## Overview
-
-ChessVision parses FEN notation and renders chess positions as high-resolution raster or vector images. Designed for chess players, coaches, authors, and developers who need precise, customizable board diagrams.
-
-All board rendering and export runs in the browser. Optional cloud sync is available for signed-in users and uses end-to-end encryption before any data leaves the device.
+It does one thing: turn a chess position into a clean, high-quality image. There is no engine, no opponent, no analysis.
 
 ---
 
@@ -40,81 +24,72 @@ All board rendering and export runs in the browser. Optional cloud sync is avail
 
 ### Core
 
-- Full FEN notation support with real-time validation (max length: 93 characters)
-- Multi-position input — up to 10 positions simultaneously
-- PNG and JPEG export with resolutions up to 30,208 × 30,208 px
-- SVG vector export
-- Batch export across multiple positions and formats
+- Drag-and-drop board editor powered by `@dnd-kit`
+- FEN input with real-time validation (93-character cap)
+- Multi-position batch input — up to 10 positions simultaneously
+- Board flip and coordinate label toggle
+- Position database search (Lichess, PDB, YACPDB) on demand
 - Clipboard copy
 
-### Board and Themes
+### Export
 
-- 23 piece sets
-- Color picker with HSL, RGB, and HEX input modes
-- 20+ preset board themes; up to 48 total presets including user-created ones
-- Board flip and coordinate label toggle
-- Adjustable physical board dimensions (cm-based) for print-accurate output
+- PNG, JPEG, SVG export
+- 4 quality presets: 1× (300 DPI), 2× (600 DPI), 3× (900 DPI), 4× (1200 DPI)
+- Board size in centimetres (4 cm, 6 cm, 8 cm) for print-accurate output
+- Batch export across multiple positions — downloaded as a ZIP
+- Export pause, resume, and cancel
+- DPI metadata embedded in PNG and JPEG
+
+### Board Customisation
+
+- 23 piece sets (Lichess CDN)
+- 20 preset board themes
+- Custom colour picker (HSV/RGB/HEX)
+- Up to 48 total theme presets including user-created ones
 
 ### Position Management
 
-- FEN history with favorites, pinning, and text search
+- FEN history with favourites, pinning, and text search
 - Freshness indicators (Fresh / Aging / Stale) with timestamps
-- Auto-archival of older entries
 - Batch FEN list with localStorage persistence
+- Clipboard history panel
 
 ### Account and Sync (Optional)
 
-- Email/password authentication with TOTP-based multi-factor authentication
-- End-to-end encrypted cloud sync via Supabase
-- 90-day re-verification gate for privileged operations
+- Email/password authentication with TOTP-based two-factor authentication
+- Cloud sync via Supabase — your data, owner-scoped by row-level security
+- 90-day re-verification gate for sensitive operations
 - Data migration from localStorage on first sign-in
 
 ---
 
 ## Quick Start
 
-### Prerequisites
-
-- Node.js >= 20
-- pnpm >= 9
-
-### Installation
+**Requirements:** Node.js ≥ 22, pnpm ≥ 10
 
 ```bash
 git clone https://github.com/chessvision-org/chess-vision.git
 cd chess-vision
 pnpm install
-pnpm dev
+pnpm dev          # http://localhost:3000
 ```
 
-Dev server starts at `http://localhost:3000`.
-
-### Production Build
-
 ```bash
-pnpm build    # outputs to dist/
-pnpm preview  # serves dist/ locally
+pnpm build        # production build → dist/
+pnpm preview      # serve dist/ locally
 ```
 
 ---
 
 ## Docker
 
-### Production (Nginx + static build)
-
 ```bash
-docker compose up --build -d web
+# Production (nginx + static build)
+docker compose up --build -d web    # http://localhost:3000
+
+# Development (Vite HMR)
+docker compose --profile dev up --build dev   # http://localhost:5173
 ```
-
-Served at `http://localhost:3000`.
-
-### Development (Vite with hot reload)
-
-```bash
-docker compose --profile dev up --build dev
-```
-
-Dev server at `http://localhost:5173`.
 
 ---
 
@@ -124,21 +99,20 @@ Dev server at `http://localhost:5173`.
 src/
 ├── shared/
 │   ├── types/          # Canonical TypeScript types (@app-types alias)
-│   ├── constants/      # Static data: piece sets, theme defaults, DnD constants
+│   ├── constants/      # Piece sets, theme data, drag-drop constants
 │   ├── hooks/          # Cross-page reusable hooks
 │   ├── utils/          # Canvas pipeline, FEN parser, export utilities
-│   ├── ui/             # Reusable UI primitives (Button, Modal, Input, etc.)
-│   └── workers/        # Web Workers for off-thread SVG rasterization
+│   ├── ui/             # UI primitives (Modal, CustomSelect, Checkbox, etc.)
+│   └── workers/        # Web Worker for SVG → raster off-thread
 ├── components/
-│   ├── board/          # Board rendering (BoardGrid, BoardSquare, ChessBoard, MiniPreview)
+│   ├── board/          # Board display (MiniPreview, BoardSquare)
 │   ├── features/       # Domain modules (export, theme, FEN, color picker, history)
-│   ├── interactions/   # DnD editor (ChessEditor, DraggablePiece, DroppableSquare)
-│   └── layout/         # App shell (Navbar)
-├── contexts/           # ThemeSettingsContext, FENBatchContext
-├── features/auth/      # Supabase auth, MFA, E2EE cloud sync, security gate
+│   ├── interactions/   # Drag-and-drop editor (ChessEditor, DroppableSquare, etc.)
+│   └── layout/         # Navbar
+├── contexts/           # FENBatchContext, ModalContext, ThemeSettingsContext
+├── features/auth/      # Supabase auth, MFA, cloud sync, security gate
 ├── pages/              # Route-level page components
-└── routes/             # React Router configuration
-docs/                   # Extended technical documentation
+└── routes/             # React Router config — all pages lazy-loaded
 ```
 
 ---
@@ -152,12 +126,11 @@ docs/                   # Extended technical documentation
 | Build tool      | Vite             | 8.x     |
 | Styling         | Tailwind CSS     | 4.x     |
 | Routing         | React Router DOM | 7.x     |
-| Drag and drop   | React DnD        | 16.x    |
+| Drag and drop   | @dnd-kit         | 6.x     |
 | Animations      | Framer Motion    | 12.x    |
 | Virtual lists   | react-window     | 2.x     |
 | Icons           | Lucide React     | latest  |
 | Backend / Auth  | Supabase         | 2.x     |
-| Rendering       | HTML5 Canvas     | —       |
 | Package manager | pnpm             | 10.x    |
 
 ---
@@ -167,36 +140,19 @@ docs/                   # Extended technical documentation
 Board pixel dimensions are computed from a physical size (cm) and a quality multiplier:
 
 ```
-pixelDimension = round((boardSizeCm / 2.54) × 300 × qualityMultiplier)
+pixels = round((boardSizeCm / 2.54) × 300 × multiplier)
 ```
 
-### Print Mode (8× and 16×)
+| Preset | DPI   | 4 cm board       | 6 cm board       | 8 cm board       |
+| ------ | ----- | ---------------- | ---------------- | ---------------- |
+| 1×     | 300   | 472 × 472 px     | 708 × 708 px     | 944 × 944 px     |
+| 2×     | 600   | 944 × 944 px     | 1,417 × 1,417 px | 1,890 × 1,890 px |
+| 3×     | 900   | 1,417 × 1,417 px | 2,126 × 2,126 px | 2,835 × 2,835 px |
+| 4×     | 1,200 | 1,890 × 1,890 px | 2,835 × 2,835 px | 3,780 × 3,780 px |
 
-Board size selection (4 cm, 6 cm, 8 cm) sets the physical print dimension. Quality multiplier increases pixel density without changing the printed size.
+PNG exports embed DPI via the `pHYs` chunk. JPEG exports embed DPI via JFIF density fields.
 
-| Quality | Board size | Dimensions         | DPI   |
-| ------- | ---------- | ------------------ | ----- |
-| 8×      | 4 cm       | 3,776 × 3,776 px   | 2,400 |
-| 8×      | 6 cm       | 5,664 × 5,664 px   | 2,400 |
-| 8×      | 8 cm       | 7,552 × 7,552 px   | 2,400 |
-| 16×     | 4 cm       | 7,552 × 7,552 px   | 4,800 |
-| 16×     | 6 cm       | 11,328 × 11,328 px | 4,800 |
-| 16×     | 8 cm       | 15,104 × 15,104 px | 4,800 |
-
-### Social Mode (24× and 32×)
-
-Fixed pixel output regardless of board size selection.
-
-| Quality | Board size | Dimensions         | DPI   |
-| ------- | ---------- | ------------------ | ----- |
-| 24×     | 4 cm       | 11,328 × 11,328 px | 7,200 |
-| 24×     | 6 cm       | 16,992 × 16,992 px | 7,200 |
-| 24×     | 8 cm       | 22,656 × 22,656 px | 7,200 |
-| 32×     | 4 cm       | 15,104 × 15,104 px | 9,600 |
-| 32×     | 6 cm       | 22,656 × 22,656 px | 9,600 |
-| 32×     | 8 cm       | 30,208 × 30,208 px | 9,600 |
-
-PNG exports embed DPI metadata via the `pHYs` chunk. JPEG exports embed DPI via JFIF density fields.
+Safari caps canvas at 16,384 px per dimension. All four quality presets are well within this limit.
 
 ---
 
@@ -209,19 +165,17 @@ PNG exports embed DPI metadata via the `pHYs` chunk. JPEG exports embed DPI via 
 | Safari  | 14+             |
 | Edge    | 90+             |
 
-Required APIs: Canvas API, Web Workers, localStorage, ES2020+. Clipboard API is optional.
-
-Safari caps canvas dimensions at 16,384 px. The 24× and 32× Social export modes may fail on Safari/iOS.
+Required APIs: Canvas API, Web Workers, localStorage, ES2020+. Clipboard API is optional (copy-to-clipboard falls back gracefully).
 
 ---
 
 ## Security and Privacy
 
-- Board rendering and export run entirely client-side.
-- Optional cloud sync encrypts all data end-to-end before transmission. The encryption key is stored locally in `localStorage` under `cv_privacy_key` and never sent to the server.
-- No analytics, tracking, or cookies.
-- FEN input is capped at 93 characters before parsing begins.
+- Board rendering and export run entirely client-side — positions never leave your device.
+- No analytics, tracking, or advertising cookies.
+- FEN input is capped at 93 characters before any parsing begins.
 - All localStorage and external response parsing uses `safeJSONParse` to prevent prototype pollution.
+- Optional cloud sync stores data in Supabase with row-level security: each user can only read and write their own rows. No other user, and not us, can access your data.
 
 See [SECURITY.md](SECURITY.md) for vulnerability reporting.
 
@@ -232,12 +186,12 @@ See [SECURITY.md](SECURITY.md) for vulnerability reporting.
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
 
 ```bash
-git checkout -b feature/your-feature
+git checkout -b fix/your-fix develop
 # make changes
-pnpm test && npx tsc --noEmit && pnpm lint
-git commit -m "feat: brief description"
-git push origin feature/your-feature
-# open a pull request
+pnpm validate        # typecheck + lint + format + tests
+git commit -m "fix: brief description"
+git push origin fix/your-fix
+# open a pull request against develop
 ```
 
 ---

@@ -31,7 +31,7 @@ export type ThemeModePreference = ThemeMode | 'system';
  * The effective preference when nothing is stored. A fresh user (no
  * `cv_theme_mode` key, no legacy value) gets DARK — NOT the OS setting.
  */
-export const DEFAULT_THEME_MODE: ThemeModePreference = 'dark';
+const DEFAULT_THEME_MODE: ThemeModePreference = 'dark';
 
 /**
  * localStorage key for the mode preference (synced-key convention).
@@ -66,7 +66,7 @@ export function isThemeModePreference(
  *
  * @returns The stored preference, or `null` when nothing is stored
  */
-export function readStoredThemeMode(): ThemeModePreference | null {
+function readStoredThemeMode(): ThemeModePreference | null {
   try {
     const raw = window.localStorage.getItem(THEME_MODE_STORAGE_KEY);
     if (raw) {

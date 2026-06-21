@@ -23,7 +23,7 @@ const isTableMissingError = (err: unknown): boolean =>
   (err as { code: string }).code === '42P01';
 
 /** Hard cap mirroring the `user_data.value` CHECK constraint (schema.sql). */
-export const MAX_USER_DATA_VALUE_LENGTH = 10_000;
+const MAX_USER_DATA_VALUE_LENGTH = 10_000;
 
 /**
  * Conservative budget callers trim unbounded payloads (history, archive) to so
@@ -51,6 +51,13 @@ subscribeToAuth();
 
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
+    authSubscription?.unsubscribe();
+    authSubscription = null;
+  });
+} else if (typeof window !== 'undefined') {
+  // Production has no HMR dispose hook: release the auth subscription on page
+  // teardown so it doesn't outlive the document during navigation/unload.
+  window.addEventListener('pagehide', () => {
     authSubscription?.unsubscribe();
     authSubscription = null;
   });

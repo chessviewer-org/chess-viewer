@@ -91,7 +91,7 @@ export const SOFTWARE_APP_SCHEMA = {
  * mirrored by the prerender + sitemap config. `/settings` is intentionally
  * `noindex` (private, user-specific) and excluded from the sitemap.
  */
-export const ROUTE_SEO: Record<string, SeoMeta> = {
+const ROUTE_SEO: Record<string, SeoMeta> = {
   '/': {
     path: '/',
     description: DEFAULT_DESCRIPTION
@@ -135,14 +135,3 @@ export const ROUTE_SEO: Record<string, SeoMeta> = {
  */
 export const getRouteSeo = (path: string): SeoMeta =>
   ROUTE_SEO[path] ?? { path, description: DEFAULT_DESCRIPTION };
-
-/**
- * Routes that should be prerendered to static HTML at build time and listed in
- * the sitemap. Excludes `/settings` (private/noindex) and the 404 catch-all.
- */
-export const INDEXABLE_ROUTES = [
-  '/',
-  '/advanced-fen',
-  '/about',
-  '/fen-history'
-] as const;

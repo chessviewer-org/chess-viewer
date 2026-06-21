@@ -3,21 +3,16 @@ import { memo, useCallback } from 'react';
 import { getPieceImageKey, PALETTE_PIECES } from '@constants';
 import type { PieceSymbol } from '@app-types/chess';
 
+import styles from '../../../scss/piece-palette.module.scss';
 import DraggablePiece from '../DraggablePiece/DraggablePiece';
 
-/** Props for the `PiecePalette` drag source sidebar. */
 export interface PiecePaletteProps {
   pieceImages: Record<string, HTMLImageElement | null>;
   isLoading: boolean;
   className?: string;
-  /**
-   * Keyboard alternative to dragging a palette piece: activating a piece hands
-   * it to the board's roving cursor for placement (no mouse required).
-   */
   onKeyboardPick?: ((piece: PieceSymbol) => void) | undefined;
 }
 
-/** Internal structure of a palette piece entry. */
 interface PalettePiece {
   id: string;
   piece: PieceSymbol;
@@ -25,7 +20,6 @@ interface PalettePiece {
   name: string;
 }
 
-/** Sidebar grid of all 12 draggable chess pieces (6 white, 6 black). */
 const WHITE_PIECES = PALETTE_PIECES.filter(
   (p: PalettePiece) => p.color === 'w'
 );
@@ -39,15 +33,12 @@ export const PiecePalette = memo(function PiecePalette({
   className = '',
   onKeyboardPick
 }: PiecePaletteProps) {
-  const renderPiece = useCallback(
+  // Stacked view (yan-yana layout, ≥564px) — bordered piece buttons
+  const renderStackedPiece = useCallback(
     (p: PalettePiece) => {
       const imageKey = getPieceImageKey(p.piece);
-      const pieceImage = imageKey ? pieceImages[imageKey] || null : null;
+      const pieceImage = imageKey ? (pieceImages[imageKey] ?? null) : null;
       const disabled = isLoading || !pieceImage;
-
-      // A real <button> wraps the drag source so the cell is keyboard- and
-      // screen-reader-operable: activating it hands the piece to the board's
-      // roving cursor for placement (the DnD path is unchanged for mouse/touch).
       return (
         <button
           key={p.id}
@@ -55,22 +46,13 @@ export const PiecePalette = memo(function PiecePalette({
           disabled={disabled}
           onClick={() => onKeyboardPick?.(p.piece)}
           aria-label={`Place ${p.name}`}
-          className={`
-            aspect-square flex-1 min-w-11 rounded-md overflow-hidden
-            bg-surface-elevated hover:bg-surface-hover
-            border border-border/50 hover:border-border
-            grid place-items-center p-0.5
-            transition-colors duration-200
-            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-bg
-            disabled:cursor-not-allowed
-            ${isLoading ? 'opacity-50' : ''}
-          `}
           title={p.name}
+          className={`${styles.stackedPieceBtn} ${isLoading ? 'opacity-50' : ''}`}
         >
           <DraggablePiece
             piece={p.piece}
             pieceImage={pieceImage}
-            isFromPalette={true}
+            isFromPalette
             size="100%"
             disabled={disabled}
           />
@@ -80,32 +62,62 @@ export const PiecePalette = memo(function PiecePalette({
     [pieceImages, isLoading, onKeyboardPick]
   );
 
-  const renderGroup = useCallback(
-    (pieces: PalettePiece[], label: string) => (
-      <div className="flex-1 min-w-0 flex flex-col">
-        {/* Section label — neutral tone; accent is reserved for active/CTA states. */}
-        <span className="block w-full text-fluid-xs font-semibold uppercase tracking-wider text-text-secondary text-center pb-1.5">
-          {label}
-        </span>
-        {/* Tray: `items-stretch` lets each square cell drive the row height so
-            no piece cell is clipped at the bottom. Gutter/padding are fluid
-            (gap-fluid-xs) so the tray tightens on phones and opens up on wide. */}
-        <div className="flex items-stretch gap-fluid-xs p-fluid-xs rounded-lg border border-white/10 bg-black/20">
-          {pieces.map(renderPiece)}
-        </div>
-      </div>
-    ),
-    [renderPiece]
+  // Flat view (tək sütun, <564px) — borderless, geniş touch target
+  const renderFlatPiece = useCallback(
+    (p: PalettePiece) => {
+      const imageKey = getPieceImageKey(p.piece);
+      const pieceImage = imageKey ? (pieceImages[imageKey] ?? null) : null;
+      const disabled = isLoading || !pieceImage;
+      return (
+        <button
+          key={p.id}
+          type="button"
+          disabled={disabled}
+          onClick={() => onKeyboardPick?.(p.piece)}
+          aria-label={`Place ${p.name}`}
+          title={p.name}
+          className={`${styles.flatPieceBtn} ${isLoading ? 'opacity-50' : ''}`}
+        >
+          <DraggablePiece
+            piece={p.piece}
+            pieceImage={pieceImage}
+            isFromPalette
+            size="100%"
+            disabled={disabled}
+          />
+        </button>
+      );
+    },
+    [pieceImages, isLoading, onKeyboardPick]
   );
 
   return (
-    <div className={`flex items-stretch ${className}`}>
-      {/* Two labelled trays. They stack on the narrowest phones so each tray
-          gets the full content width (keeping every piece cell ≥44px), and sit
-          side by side from xs up. No divider line. */}
-      <div className="flex flex-col xs:flex-row items-stretch gap-3 xs:gap-2 sm:gap-4 w-full">
-        {renderGroup(WHITE_PIECES, 'White')}
-        {renderGroup(BLACK_PIECES, 'Black')}
+    <div className={`${styles.root} ${className}`}>
+      {/* Yan-yana layout (≥564px): White sıra + Black sıra */}
+      <div className={styles.stacked}>
+        <div className={styles.stackedGroup}>
+          <span className={styles.stackedGroupLabel}>White</span>
+          <div className={styles.stackedPieceRow}>
+            {WHITE_PIECES.map(renderStackedPiece)}
+          </div>
+        </div>
+        <div className={styles.stackedGroup}>
+          <span className={styles.stackedGroupLabel}>Black</span>
+          <div className={styles.stackedPieceRow}>
+            {BLACK_PIECES.map(renderStackedPiece)}
+          </div>
+        </div>
+      </div>
+
+      {/* Tək sütun (<564px): board altında iki horizontal sıra */}
+      <div className={styles.flat}>
+        <div className={styles.flatGroup}>
+          {WHITE_PIECES.map(renderFlatPiece)}
+        </div>
+        <div className={styles.flatSep} />
+        <div className={styles.flatGroup}>
+          {BLACK_PIECES.map(renderFlatPiece)}
+        </div>
       </div>
     </div>
   );

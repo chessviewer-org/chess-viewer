@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 import { useEffectiveReducedMotion } from '@hooks';
 
-export interface SwitchProps {
+interface SwitchProps {
   /** Whether the switch is on. */
   checked: boolean;
   /** Fired with the next checked state when the user toggles. */

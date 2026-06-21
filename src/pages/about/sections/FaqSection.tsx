@@ -9,43 +9,47 @@ import { FAQItem, Lead, SectionHeading } from '../parts';
 const FAQS: Array<{ q: string; a: ReactNode }> = [
   {
     q: 'What is ChessVision for?',
-    a: 'It is a tool for building chess positions and exporting them as high-quality images (PNG, JPEG, or SVG). It is a diagram and position editor — not a place to play games or analyse moves with an engine.'
+    a: 'It is a diagram editor. You build a chess position, make it look the way you want, and export it as a high-quality image. That is it — no engine, no opponent, no analysis. Just a clean way to turn a position into a picture you can use anywhere.'
   },
   {
     q: 'Do I need an account?',
-    a: 'No. Every core feature works without signing in, and your data stays in your browser. An account is only needed if you want optional, end-to-end-encrypted cloud sync of your settings and history across devices.'
+    a: 'No. Every feature works without one. Your positions, history, and settings are saved in your browser on this device. An account is only useful if you want to sync that data across multiple devices — and even then it is completely optional.'
   },
   {
     q: 'Is it really free?',
-    a: 'Yes. ChessVision is open source and core features are not paywalled. You can also run it yourself from the public source code.'
+    a: 'Yes, genuinely. Not "free with limits", not a trial, not ad-supported. Every feature is available to everyone at no cost. ChessVision is open source and the code is public on GitHub — you can run your own instance if you want.'
   },
   {
-    q: 'What export formats and quality are available?',
-    a: 'You can export PNG, JPEG, and SVG. Raster exports use print-oriented quality presets ranging from 300 DPI up to 1200 DPI at your chosen physical size, so diagrams stay sharp in print. You can also copy a diagram to the clipboard.'
+    q: 'What export formats and sizes are available?',
+    a: 'PNG, JPEG, and SVG. For PNG and JPEG you set the physical size in centimetres and pick a quality preset — from 300 DPI up to 1200 DPI — so you can produce a diagram that is sharp in print, not just on screen. You can also copy directly to clipboard.'
   },
   {
     q: 'How do I enter a position?',
-    a: 'You can drag and drop pieces onto the board, or paste a FEN string. The starting position is loaded by default, and FEN input is validated in real time so you get immediate feedback on mistakes.'
+    a: 'Two ways: drag pieces from the palette onto the board, or paste a FEN string into the input field. FEN is the standard text format chess players use to describe positions — most chess sites and databases can give you one. ChessVision validates it as you type.'
   },
   {
     q: 'Can I export several positions at once?',
-    a: 'Yes. The advanced FEN page lets you enter multiple positions and batch-export them together, downloaded as a single ZIP archive.'
+    a: 'Yes. The Advanced FEN page lets you paste in multiple FEN strings and export them all together. You get a single ZIP file with every diagram inside, named and ready to use.'
   },
   {
-    q: 'Can I use the diagrams commercially?',
-    a: 'Yes. Images you generate are yours to use, including in books, articles, lessons, and commercial work.'
+    q: 'Can I use the diagrams in commercial work?',
+    a: 'Yes. The images you generate are yours. Use them in books, articles, courses, videos, client work — whatever you need. There are no licensing restrictions on the output.'
   },
   {
-    q: 'Why is a very high-resolution export slow?',
-    a: 'Large exports require significant browser memory and processing. ChessVision moves heavy export work to a background worker to keep the interface responsive, but very large images still take time. If your device struggles, choose a smaller physical size or a lower-quality preset.'
+    q: 'Why is a very large export slow?',
+    a: 'High-resolution exports — especially at large physical sizes — require a lot of memory and processing. ChessVision offloads the heavy work to a background thread to keep the page responsive, but there is no way around the fact that a 1200 DPI image at A4 size is a large computation. If it is struggling, try a lower DPI preset or a smaller size.'
   },
   {
-    q: 'Which browsers are supported?',
-    a: 'A current version of Chrome, Edge, Firefox, or Safari is recommended. Some very large export sizes are capped lower on Safari due to platform canvas limits.'
+    q: 'Which browsers work?',
+    a: 'Chrome, Edge, Firefox, and Safari — current versions. Everything works in all four. The one exception is very large canvas sizes, which Safari caps lower than other browsers due to a platform limit. If you are exporting for print, Chrome or Edge will give you the most headroom.'
   },
   {
     q: 'Can I install it like an app?',
-    a: 'Yes. ChessVision is a Progressive Web App, so most browsers let you add it to your home screen or desktop and launch it in its own window.'
+    a: 'Yes. ChessVision is a Progressive Web App. Most browsers will offer an "Install" or "Add to home screen" option, which lets you launch it in its own window without going through a browser tab. It also works offline once installed.'
+  },
+  {
+    q: 'What is a FEN string?',
+    a: 'FEN stands for Forsyth-Edwards Notation. It is a compact text format that describes a chess position — where every piece is, whose turn it is, and a few other details. It looks something like "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1". Every major chess site and database can export positions as FEN, and ChessVision can read them directly.'
   }
 ];
 

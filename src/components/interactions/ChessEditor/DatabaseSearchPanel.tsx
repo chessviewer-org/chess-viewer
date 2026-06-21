@@ -4,29 +4,16 @@ import { ArrowUpRight, Database, Loader2, Search } from 'lucide-react';
 
 import type { ProviderState } from '@hooks/useDatabaseSearch';
 
-/**
- * Dedicated Database Search panel (manual search only).
- *
- * Layout — four provider cells in a 2×2 grid, each independently triggered:
- *   ┌───────────────────────┬───────────────────────┐
- *   │ ◆ Lichess  [ Search ]  │ ◆ ChessDB  [ Search ]  │
- *   ├───────────────────────┼───────────────────────┤
- *   │ ◆ PDB      [ Search ]  │ ◆ YACPDB   [ Search ]  │
- *   └───────────────────────┴───────────────────────┘
- *
- * A provider that matched turns its icon + label GOLD and its action button
- * becomes an "Open ↗" external link. Colours use existing CSS-variable tokens.
- */
-export interface DatabaseSearchPanelProps {
+import styles from '../../../scss/database-search.module.scss';
+
+interface DatabaseSearchPanelProps {
   lichess: ProviderState;
   chessdb: ProviderState;
   pdb: ProviderState;
   yacpdb: ProviderState;
-  /** Extra classes for the outer card (e.g. `flex-1` to fill column height). */
   className?: string;
 }
 
-/** Per-row action button: Search → Searching… (disabled) → Open ↗ (link). */
 const SearchActionButton = memo(function SearchActionButton({
   state
 }: {
@@ -83,7 +70,6 @@ const SearchActionButton = memo(function SearchActionButton({
   );
 });
 
-/** A PDB/YACPDB row: icon + label (left, gold when found) · action (right). */
 const ProviderRow = memo(function ProviderRow({
   state
 }: {
@@ -91,19 +77,15 @@ const ProviderRow = memo(function ProviderRow({
 }) {
   const found = state.status === 'found';
   return (
-    <div className="flex h-full items-center justify-between gap-1 min-w-0 px-2 py-2 rounded-lg border border-border/40 bg-surface">
-      <div className="flex items-center gap-1.5 min-w-0">
+    <div className={styles.providerRow}>
+      <div className={styles.providerMeta}>
         <Database
-          className={`w-3.5 h-3.5 shrink-0 transition-colors duration-300 ${
-            found ? 'text-accent' : 'text-text-muted'
-          }`}
+          className={`${styles.providerIcon} ${found ? styles.found : ''}`}
           strokeWidth={found ? 2.5 : 2}
           aria-hidden="true"
         />
         <span
-          className={`text-[13px] font-semibold truncate transition-colors duration-300 ${
-            found ? 'text-accent' : 'text-text-primary'
-          }`}
+          className={`${styles.providerLabel} ${found ? styles.found : ''}`}
         >
           {state.label}
         </span>
@@ -121,17 +103,9 @@ const DatabaseSearchPanel = memo(function DatabaseSearchPanel({
   className = ''
 }: DatabaseSearchPanelProps) {
   return (
-    <div
-      className={`flex w-full flex-col rounded-xl border border-border/40 bg-surface-elevated px-2 py-1.5 ${className}`}
-    >
-      <span className="block shrink-0 text-xs font-bold uppercase tracking-wider text-text-secondary px-1 mb-1.5">
-        Database Search
-      </span>
-
-      {/* 2×2 grid restored. `auto-rows-fr` ensures that when the editor height
-          increases (via DESKTOP_BOARD_VH), these cells stretch vertically,
-          preventing the buttons from feeling cramped. */}
-      <div className="grid flex-1 min-h-0 grid-cols-2 auto-rows-fr gap-1.5">
+    <div className={`${styles.panel} ${className}`}>
+      <span className={styles.title}>Database Search</span>
+      <div className={styles.grid}>
         <ProviderRow state={lichess} />
         <ProviderRow state={chessdb} />
         <ProviderRow state={pdb} />

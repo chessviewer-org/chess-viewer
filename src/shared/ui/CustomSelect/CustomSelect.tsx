@@ -9,7 +9,7 @@ import { useEffectiveReducedMotion, useListboxKeyboard } from '@hooks';
  * @param {Object} props
  * @returns {JSX.Element}
  */
-export interface CustomSelectProps<T extends string | number> {
+interface CustomSelectProps<T extends string | number> {
   value: T;
   onChange: (value: T) => void;
   options: Array<{ value: T; label: string; icon?: React.ReactNode }>;

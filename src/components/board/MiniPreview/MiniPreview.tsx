@@ -5,7 +5,7 @@ import { BOARD_THEMES } from '@constants';
 import { logger, parseFEN } from '@utils';
 
 /** Props for the `MiniPreview` canvas thumbnail component. */
-export interface MiniPreviewProps {
+interface MiniPreviewProps {
   fen: string;
   lightSquare?: string;
   darkSquare?: string;

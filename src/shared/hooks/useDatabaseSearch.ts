@@ -18,7 +18,7 @@ import { logger } from '@utils/logger';
  * - `notfound`  the lookup completed with no match here
  * - `error`     the lookup failed unexpectedly
  */
-export type ProviderSearchStatus =
+type ProviderSearchStatus =
   | 'idle'
   | 'searching'
   | 'found'

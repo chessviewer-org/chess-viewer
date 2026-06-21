@@ -38,22 +38,33 @@ export function useContrast(): void {
   // Hydrate the cloud preference once for a freshly signed-in device.
   useEffect(() => {
     let cancelled = false;
-    void hydrateFromSync(
-      CONTRAST_STORAGE_KEY,
-      (decoded) => {
-        if (!isContrastPreference(decoded)) return;
-        const current = window.localStorage.getItem(CONTRAST_STORAGE_KEY);
-        const next = JSON.stringify(decoded satisfies ContrastPreference);
-        if (current !== next) {
-          window.localStorage.setItem(CONTRAST_STORAGE_KEY, next);
-          window.dispatchEvent(new Event(CONTRAST_CHANGE_EVENT));
-        }
-      },
-      () => cancelled,
-      'contrast'
-    );
+    const run = () =>
+      void hydrateFromSync(
+        CONTRAST_STORAGE_KEY,
+        (decoded) => {
+          if (!isContrastPreference(decoded)) return;
+          const current = window.localStorage.getItem(CONTRAST_STORAGE_KEY);
+          const next = JSON.stringify(decoded satisfies ContrastPreference);
+          if (current !== next) {
+            window.localStorage.setItem(CONTRAST_STORAGE_KEY, next);
+            window.dispatchEvent(new Event(CONTRAST_CHANGE_EVENT));
+          }
+        },
+        () => cancelled,
+        'contrast'
+      );
+
+    const id =
+      typeof requestIdleCallback !== 'undefined'
+        ? requestIdleCallback(run)
+        : setTimeout(run, 100);
     return () => {
       cancelled = true;
+      if (typeof requestIdleCallback !== 'undefined') {
+        cancelIdleCallback(id as number);
+      } else {
+        clearTimeout(id as ReturnType<typeof setTimeout>);
+      }
     };
   }, []);
 }

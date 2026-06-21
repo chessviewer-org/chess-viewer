@@ -23,17 +23,18 @@ export default function ContactSection() {
       <div className="space-y-3">
         <SectionHeading icon={Mail} title="Contact" />
         <Lead>
-          The best channel depends on what you need. For most questions, the
-          public GitHub project is the fastest way to get a useful answer; for
-          private or account matters, email works best.
+          Use whichever channel makes sense for what you need. GitHub is best
+          for bugs, ideas, and questions that others might benefit from seeing.
+          Email is for private matters.
         </Lead>
       </div>
 
-      <InfoCard title="Report a bug or request a feature">
+      <InfoCard title="Found a bug or have a feature idea?">
         <p>
-          If something is broken or you have an idea, open a GitHub issue. When
-          reporting a bug, include your browser type and version, and the steps
-          to reproduce it — that makes a fix much faster.
+          Open a GitHub issue. That is where bugs get tracked and fixed, and
+          where feature requests get discussed. If it is a bug, include your
+          browser, what you were doing, and what went wrong — the more specific,
+          the faster it gets fixed.
         </p>
         <div className="pt-1">
           <ExternalLinkButton
@@ -46,24 +47,25 @@ export default function ContactSection() {
         </div>
       </InfoCard>
 
-      <InfoCard title="Ask a question or share feedback">
+      <InfoCard title="Have a question or want to share feedback?">
         <p>
-          For general questions, ideas, and discussion, use GitHub Discussions.
-          This is the place for &quot;how do I…&quot; and &quot;what
-          about…&quot; questions that are not necessarily bugs.
+          GitHub Discussions is the right place for questions that are not
+          strictly bugs — &quot;how do I do X&quot;, &quot;would it make sense
+          to add Y&quot;, or just general feedback. It is a public thread, so
+          the answer helps anyone who searches for the same thing later.
         </p>
         <div className="pt-1">
           <ExternalLinkButton href={REPO_DISCUSSIONS_URL} icon={MessageSquare}>
-            Join the discussion
+            Start a discussion
           </ExternalLinkButton>
         </div>
       </InfoCard>
 
       <InfoCard title="Email">
         <p>
-          For private matters, account help, account deletion, or anything that
-          does not belong in public, email us directly. We aim to reply within a
-          few days.
+          For anything private — account help, deletion requests, or something
+          you would rather not post publicly — email us directly. We aim to
+          reply within a few days.
         </p>
         <div className="flex flex-wrap items-center gap-3 pt-1">
           <MailButton email={CONTACT_EMAIL} icon={Mail}>
@@ -72,11 +74,12 @@ export default function ContactSection() {
         </div>
       </InfoCard>
 
-      <InfoCard title="Reporting a security issue">
+      <InfoCard title="Found a security vulnerability?">
         <p>
-          If you believe you have found a security vulnerability, please do not
-          post it publicly. Please report it to us by opening a &quot;Security
-          report&quot; on GitHub or contacting us via email.
+          Please do not post it publicly. Security issues should be reported
+          privately so they can be fixed before anyone is exposed. Email us with
+          the details — we take security reports seriously and will respond
+          quickly.
         </p>
         <div className="flex flex-wrap items-center gap-3 pt-1">
           <MailButton
@@ -84,7 +87,7 @@ export default function ContactSection() {
             subject="Security report"
             icon={ShieldAlert}
           >
-            Report a security issue
+            Report privately by email
           </MailButton>
         </div>
       </InfoCard>

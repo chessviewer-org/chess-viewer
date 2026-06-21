@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 
 import { MiniPreview } from '@/components/board';
-import { StatusBadge } from '@/components/panels/History';
+import { StatusBadge } from '@/components/features/History';
 
 import { TabType } from '../hooks/useFENHistoryPage';
 

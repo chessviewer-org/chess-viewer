@@ -41,20 +41,33 @@ export default function DonateSection() {
       <div className="space-y-3">
         <SectionHeading icon={Heart} title="Donate" />
         <Lead>
-          ChessVision is free and will stay free. A donation is voluntary, not
-          payment for work — it helps fund ongoing maintenance, security and
-          dependency updates, and infrastructure and hosting. Nothing is locked
-          behind it, and contributing never requires payment. Currently, GitHub
-          Sponsors and cryptocurrency payments are available.
+          ChessVision is free and will stay free — no ads, no premium tier, no
+          paywalled features. If it has saved you time and you want to chip in,
+          that is genuinely appreciated. But it is never expected, and it
+          changes nothing about what you can do with the tool.
         </Lead>
       </div>
 
+      <InfoCard title="Why donate?">
+        <p>
+          Running ChessVision costs money — hosting, the database, the domain,
+          dependency and security updates over time. Right now that comes out of
+          pocket. A donation helps cover those costs and makes it easier to keep
+          the project maintained and up to date.
+        </p>
+        <p>
+          There are no perks attached. No supporter badge, no early access, no
+          extra features. Every feature is free for everyone. If you donate, it
+          is because you find the tool useful and want to see it stick around —
+          not because you are buying something.
+        </p>
+      </InfoCard>
+
       <InfoCard title="GitHub Sponsors">
         <p>
-          You can also support the project through GitHub Sponsors. Either way,
-          there are no special perks, premium tiers, or paywalls attached —
-          every feature stays available to everyone regardless of whether you
-          donate.
+          The easiest way to donate is through GitHub Sponsors. You can do a
+          one-time contribution or set up a small monthly amount — whatever
+          feels right.
         </p>
         <div className="pt-1">
           <ExternalLinkButton

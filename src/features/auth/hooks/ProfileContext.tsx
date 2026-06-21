@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { logger } from '@utils/logger';
 import { safeJSONParse } from '@utils/validation';
@@ -130,16 +130,21 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     [isAuthenticated, userId]
   );
 
-  const value: ProfileContextValue = {
-    displayName: profile.displayName,
-    isSupporter: isActiveSupporter(profile.supporterUntil),
-    supporterMonthlyUsd: profile.supporterMonthlyUsd,
-    membershipTier: getMembershipTier(profile.supporterMonthlyUsd),
-    loading,
-    setDisplayName,
-    setSupporter,
-    refresh: () => void load()
-  };
+  const refresh = useCallback(() => void load(), [load]);
+
+  const value: ProfileContextValue = useMemo(
+    () => ({
+      displayName: profile.displayName,
+      isSupporter: isActiveSupporter(profile.supporterUntil),
+      supporterMonthlyUsd: profile.supporterMonthlyUsd,
+      membershipTier: getMembershipTier(profile.supporterMonthlyUsd),
+      loading,
+      setDisplayName,
+      setSupporter,
+      refresh
+    }),
+    [profile, loading, setDisplayName, setSupporter, refresh]
+  );
 
   return (
     <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>

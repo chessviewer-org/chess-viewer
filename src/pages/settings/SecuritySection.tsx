@@ -169,7 +169,7 @@ const SecuritySection = memo(function SecuritySection() {
                   disabled={changingPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="New password"
-                  className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors duration-200 focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/50 disabled:opacity-60"
+                  className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors duration-200 disabled:opacity-60"
                 />
                 <label htmlFor="security-confirm-password" className="sr-only">
                   Confirm new password
@@ -190,7 +190,7 @@ const SecuritySection = memo(function SecuritySection() {
                     confirmPassword.length > 0 &&
                     confirmPassword !== newPassword
                   }
-                  className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors duration-200 focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/50 disabled:opacity-60"
+                  className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors duration-200 disabled:opacity-60"
                 />
                 {confirmPassword.length > 0 &&
                   confirmPassword !== newPassword && (

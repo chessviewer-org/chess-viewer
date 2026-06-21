@@ -9,8 +9,6 @@ import {
 import type { ThemeHistoryItem } from './theme/types';
 import { useThemePersistence } from './theme/useThemePersistence';
 
-export type { ThemeHistoryItem };
-
 /** Return type of `useTheme` — exposes the current colors, history, and all theme manipulation actions. */
 export interface UseThemeResult {
   lightSquare: string;

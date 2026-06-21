@@ -28,10 +28,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const DIST = join(__dirname, '..', 'dist');
 const PORT = 4178;
 
-// Routes to snapshot. Mirrors INDEXABLE_ROUTES in
-// src/shared/constants/seoConstants.ts. `/settings` is intentionally excluded
-// (private/noindex); `/` already has the static fallbacks but we re-snapshot it
-// so its JSON-LD-adjacent helmet tags match the others.
+// Routes to snapshot for static HTML / sitemap. `/settings` is intentionally
+// excluded (private/noindex); `/` already has the static fallbacks but we
+// re-snapshot it so its JSON-LD-adjacent helmet tags match the others.
 const ROUTES = ['/', '/advanced-fen', '/about', '/fen-history'];
 
 const MIME = {

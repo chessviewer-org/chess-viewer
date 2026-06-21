@@ -14,7 +14,7 @@ import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
  * @param {Object} props
  * @returns {JSX.Element}
  */
-export interface DatePickerProps {
+interface DatePickerProps {
   value: Date | string | number | null | undefined;
   onChange: (value: number | undefined) => void;
   placeholder?: string;

@@ -1,13 +1,13 @@
-import { memo, useEffect, useLayoutEffect, useRef } from 'react';
+import { memo, useMemo } from 'react';
 
-import { useDrag } from 'react-dnd';
-import { getEmptyImage } from 'react-dnd-html5-backend';
+import { useDraggable } from '@dnd-kit/core';
 
-import { getPieceImageKey, ItemTypes } from '@constants';
+import type { ChessDragData } from '@constants';
+import { getPieceImageKey } from '@constants';
 import type { PieceSymbol } from '@app-types/chess';
 
-/** Props for the `DraggablePiece` memo'd drag source. */
-export interface DraggablePieceProps {
+/** Props for the `DraggablePiece` drag source. */
+interface DraggablePieceProps {
   piece: PieceSymbol | '';
   pieceImage: HTMLImageElement | null;
   row?: number;
@@ -18,11 +18,22 @@ export interface DraggablePieceProps {
 }
 
 /**
- * A single draggable chess piece rendered as an `<img>` wrapped in a react-dnd
- * drag source. Uses an empty drag preview so `CustomDragLayer` renders the
- * custom overlay instead of the browser's native ghost image.
+ * A single draggable chess piece rendered as an `<img>` wrapped in an
+ * @dnd-kit drag source.
+ *
+ * When dragging, the original element becomes invisible (opacity 0 /
+ * visibility hidden) and `ChessEditor`'s `<DragOverlay>` renders the ghost
+ * following the pointer. This avoids the browser's native drag preview and
+ * the react-dnd CustomDragLayer overhead.
+ *
+ * Drag IDs:
+ *   Board piece:   `board-{row}-{col}`
+ *   Palette piece: `palette-{piece}`
+ *
+ * The `data` payload (typed as `ChessDragData`) is read by
+ * `ChessEditor.handleDragEnd` to decide what move to commit.
  */
-export const DraggablePiece = memo(function DraggablePiece({
+const DraggablePiece = memo(function DraggablePiece({
   piece,
   pieceImage,
   row,
@@ -31,76 +42,63 @@ export const DraggablePiece = memo(function DraggablePiece({
   size = '85%',
   disabled = false
 }: DraggablePieceProps) {
-  const pieceRef = useRef<HTMLDivElement | null>(null);
-  const pieceKey = getPieceImageKey(piece);
-  const [{ isDragging }, drag, preview] = useDrag(
+  const pieceKey = piece ? getPieceImageKey(piece as PieceSymbol) : null;
+
+  // Build a stable, unique drag ID. Palette pieces share the same position
+  // (no row/col) so they use the piece char; board pieces use grid coords.
+  const id: string = isFromPalette
+    ? `palette-${piece}`
+    : `board-${row ?? 0}-${col ?? 0}`;
+
+  const dragData = useMemo<ChessDragData>(
     () => ({
-      type: ItemTypes.PIECE,
-      item: () => ({
-        piece,
-        pieceKey,
-        fromRow: row,
-        fromCol: col,
-        isFromPalette
-      }),
-      canDrag: () => !disabled && !!piece,
-      collect: (monitor) => ({
-        isDragging: monitor.isDragging()
-      })
+      piece: piece as PieceSymbol,
+      pieceKey,
+      fromRow: row,
+      fromCol: col,
+      isFromPalette
     }),
-    [piece, pieceKey, row, col, isFromPalette, disabled]
+    [piece, pieceKey, row, col, isFromPalette]
   );
-  useEffect(() => {
-    preview(getEmptyImage(), {
-      captureDraggingState: true
-    });
-  }, [preview]);
-  useLayoutEffect(() => {
-    if (pieceRef.current) {
-      if (isDragging) {
-        pieceRef.current.style.willChange = 'opacity, transform';
-      } else {
-        pieceRef.current.style.willChange = 'auto';
-      }
-    }
-  }, [isDragging]);
+
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id,
+    disabled: disabled || !piece,
+    data: dragData
+  });
+
   if (!piece || !pieceImage) return null;
+
   return (
     <div
-      ref={(node) => {
-        drag(node);
-        pieceRef.current = node;
-        // Detach the react-dnd connector and drop our own node ref on unmount.
-        // Otherwise the backend's node-bound listener keeps this piece <img>
-        // detached-but-alive, leaking ~12 nodes per board unmount (route change).
-        return () => {
-          drag(null);
-          pieceRef.current = null;
-        };
-      }}
+      ref={setNodeRef}
+      // @dnd-kit spreads pointer/touch/keyboard event handlers via listeners
+      // and ARIA attributes (role, tabIndex, aria-roledescription) via attributes.
+      {...listeners}
+      {...attributes}
       className={`
-          flex items-center justify-center
-          select-none
-          ${disabled ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'}
-        `}
+        flex items-center justify-center
+        select-none
+        ${disabled ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'}
+      `}
       style={{
         width: size,
         height: size,
+        // Hide the origin piece while dragging — DragOverlay shows the ghost.
         opacity: isDragging ? 0 : disabled ? 0.5 : 1,
+        visibility: isDragging ? 'hidden' : 'visible',
         transition: isDragging
           ? 'none'
           : 'opacity 200ms cubic-bezier(0.4, 0, 0.2, 1)',
-        visibility: isDragging ? 'hidden' : 'visible',
         contain: 'layout style',
-        // Only suppress native touch gestures (pan/scroll) ON this draggable so
-        // the TouchBackend owns the gesture; the rest of the page scrolls
-        // normally. Set inline (not the global `touch-none` class) so a finger
-        // that starts on a piece can still trigger a scroll via the backend's
-        // `scrollAngleRanges`, while a horizontal/diagonal drag starts a move.
+        // `touch-action: none` is required for @dnd-kit's TouchSensor to
+        // capture touch events before the browser claims them for scrolling.
+        // Set inline (not a global class) so only pieces suppress native scroll
+        // — the rest of the page still scrolls normally via untouched elements.
         touchAction: disabled ? 'auto' : 'none'
       }}
       // Decorative for assistive tech: the wrapping control (palette button or
-      // board gridcell) names the piece, so this inner drag source is silent to
+      // board gridcell) names the piece. This inner drag handle is silent to
       // avoid double announcement and is not a separate tab stop.
       aria-hidden="true"
     >
@@ -112,11 +110,9 @@ export const DraggablePiece = memo(function DraggablePiece({
           pointerEvents: 'none',
           userSelect: 'none',
           WebkitUserSelect: 'none',
-          // SVG pieces are vector data — let the browser rasterize them at the
-          // real device-pixel size for maximum crispness. (A `translateZ`/GPU
-          // layer here is COUNTER-productive: it bakes the SVG into a texture at
-          // the element's fractional CSS box and then resamples it, which is
-          // exactly what softened the pieces. No transform = no resample.)
+          // SVG pieces are vector data — browser rasterises them at device-pixel
+          // size. No GPU layer / translateZ: that would bake the SVG into a texture
+          // at the fractional CSS box, resampling and softening the image.
           imageRendering: 'auto'
         }}
         draggable={false}
@@ -124,5 +120,6 @@ export const DraggablePiece = memo(function DraggablePiece({
     </div>
   );
 });
+
 DraggablePiece.displayName = 'DraggablePiece';
 export default DraggablePiece;

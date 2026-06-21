@@ -21,7 +21,7 @@ export let exportState: ExportState = {
 };
 
 /** Cancel function for the currently active worker raster task, if any. */
-export let activeRasterTaskCancel: (() => void) | null = null;
+let activeRasterTaskCancel: (() => void) | null = null;
 
 /** Registers the cancel handle of the in-flight worker raster task so that
  *  cancelExport() can actually stop it. */
@@ -103,7 +103,7 @@ export function setProgress(
  * @param height - Canvas height in pixels
  * @returns Estimated memory in megabytes (4 bytes per pixel)
  */
-export function estimateMemoryMB(width: number, height: number): number {
+function estimateMemoryMB(width: number, height: number): number {
   return Math.round((width * height * 4) / 1024 / 1024);
 }
 

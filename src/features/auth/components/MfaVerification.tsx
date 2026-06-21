@@ -125,7 +125,7 @@ export function MfaVerification({ onSuccess, onBack }: MfaVerificationProps) {
           id="mfa-code"
           type="text"
           placeholder={mode === 'totp' ? '000000' : 'A1B2C3D4E5F6A7B8'}
-          className="w-full text-center text-lg tracking-[0.2em] font-mono rounded-xl border border-border bg-surface-elevated px-4 py-3 text-text-primary focus:border-accent focus:ring-2 focus:ring-accent/35 outline-none transition-colors duration-200"
+          className="w-full text-center text-lg tracking-[0.2em] font-mono rounded-xl border border-border bg-surface-elevated px-4 py-3 text-text-primary outline-none transition-colors duration-200"
           value={code}
           onChange={(e) => setCode(e.target.value)}
           maxLength={mode === 'totp' ? 6 : 16}

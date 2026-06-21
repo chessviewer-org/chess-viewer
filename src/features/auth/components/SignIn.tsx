@@ -63,7 +63,7 @@ export function SignIn({ onSuccess, onMfaRequired }: SignInProps) {
             id="signin-email"
             type="email"
             autoComplete="email"
-            className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/50 outline-none transition-colors duration-200"
+            className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors duration-200"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -80,7 +80,7 @@ export function SignIn({ onSuccess, onMfaRequired }: SignInProps) {
             id="signin-password"
             type="password"
             autoComplete="current-password"
-            className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/50 outline-none transition-colors duration-200"
+            className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors duration-200"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required

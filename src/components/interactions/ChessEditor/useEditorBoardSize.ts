@@ -10,26 +10,16 @@ const BOARD_SHRINK_PX = 24;
 // drive a height-aware size well above this, so the floor never forces overflow.
 const MIN_BOARD_PX = 200;
 
-// Fraction of the *post-chrome* viewport height the board may consume. On
-// mobile the board sits ABOVE the palette + tab bar + active panel, so it takes
-// the lion's share of what's left after the FEN toolbar; the remainder feeds
-// the tool strip so NOTHING is clipped and the page never scrolls horizontally.
-const MOBILE_BOARD_VH = 0.74;
-
-// On desktop the WHOLE workspace must fit inside one viewport (no page scroll):
-// navbar gap + FEN control panel + board, all within 100vh. Height is therefore
-// the practical limit, not width — the board shrinks to fill exactly the space
-// left after the chrome, and the right panel reflows beside it. ~0.88 leaves
-// headroom for the card padding and gaps so nothing overflows 100vh.
+// fraction of the post-chrome height so the right panel reflows beside it.
+// ~0.88 leaves headroom for the card padding and gaps so nothing overflows 100vh.
 const DESKTOP_BOARD_VH = 0.88;
 
 // Reserved vertical space inside the viewport that is NOT the board. Subtracted
 // from the viewport height before applying the VH fraction so the height budget
 // reflects the real space the board column gets.
 //   Mobile: navbar gap + FEN toolbar (board is ABOVE the tool strip).
-//   Desktop: navbar (64) + FEN toolbar (56) + card padding (28×2) +
-//   gap (8×2) + page py (16) ≈ 300px.
-const MOBILE_VERTICAL_CHROME = 160;
+//   Tablet: navbar + FEN toolbar + DB search (now moved below board) + padding.
+//   Desktop: navbar (64) + FEN toolbar (56) + card padding (28×2) + gap (8×2) + page py (16).
 const DESKTOP_VERTICAL_CHROME = 300;
 
 /** Pixel-align a raw board size down to a multiple of 8 (one full cell). */
@@ -44,53 +34,40 @@ function getViewportHeight(): number {
 /**
  * Derive a board size that fits BOTH the measured container width and the
  * available viewport height.
- *
- * - The coordinate gutter (board/16) sits to the LEFT of the board, so the live
- *   board + gutter wrapper consumes `boardSize * widthFactor`. Dividing the
- *   available width by this factor guarantees the wrapper never overflows the
- *   measured container, even on the narrowest phones.
- * - The height budget is the dominant constraint on phones: the board is capped
- *   so the palette + tabs + active panel always remain visible beneath it.
  */
 function calculateBoardSize(
   containerWidth: number,
-  viewportHeight: number,
-  showCoords: boolean
+  viewportHeight: number
 ): number {
   if (containerWidth <= 0) return MIN_BOARD_PX;
 
-  const widthFactor = showCoords ? 1.0625 : 1;
-  // The layout splits into two columns (board left, panel right) at the `@3xl`
-  // container query (~768px). Below that it is the single stacked column. Keep
-  // this threshold in sync with ChessEditor's `@3xl` classes so the width
-  // budget matches the actual layout: stacked → fill width; two-column → share.
-  const isSingleColumn = containerWidth < 768;
+  const widthFactor = 1.0625; // Always reserve coordinate gutter space so toggling doesn't resize the board
+  // Breakpoints MUST track the container-query variants the editor renders with:
+  //   < 576  → single column  (`@xl` not yet active: board stacks above right panel)
+  //   < 1024 → side-by-side  (`@xl` active; DB search is IN the right panel always)
+  //   ≥ 1024 → desktop        (`@5xl` — right column height is pinned to board)
+  const isSingleColumn = containerWidth < 576;
+  const isTablet = !isSingleColumn && containerWidth < 1024;
 
   // ── Width budget ──────────────────────────────────────────────────────
   let widthRaw: number;
   if (isSingleColumn) {
-    // Stacked column (phone / small tablet portrait): let the board grow close
-    // to the container width so it no longer floats small with wide empty
-    // margins, keeping just a little symmetric breathing room — not full-bleed.
     widthRaw = Math.min(containerWidth / widthFactor, 440);
   } else {
-    // Two-column (tablet landscape + desktop): the board takes the left share
-    // and the command panel reflows beside it. Same formula across the range so
-    // a tablet behaves like a small desktop, not a blown-up phone.
-    const shrunk = containerWidth * 0.8 - BOARD_SHRINK_PX;
-    widthRaw = Math.min(shrunk / widthFactor, 480);
+    // Tablet shares the row with the palette/options/trash column. The board
+    // takes ~55% so the right panel (~45%) has enough room for the palette
+    // without wrapping. Desktop keeps the wider 0.8 share. Cap raised to 520
+    // so boards on wider tablets don't appear undersized.
+    const shrunk = containerWidth * (isTablet ? 0.55 : 0.8) - BOARD_SHRINK_PX;
+    widthRaw = Math.min(shrunk / widthFactor, 520);
   }
 
   // ── Height budget ─────────────────────────────────────────────────────
-  // The gutter adds height below the board too (the file row), so the wrapper
-  // height is also `boardSize * widthFactor` when coords show — divide by the
-  // same factor to get the board edge that fits the available height.
   let heightRaw = Infinity;
-  if (viewportHeight > 0) {
-    const chrome = isSingleColumn
-      ? MOBILE_VERTICAL_CHROME
-      : DESKTOP_VERTICAL_CHROME;
-    const vhFraction = isSingleColumn ? MOBILE_BOARD_VH : DESKTOP_BOARD_VH;
+  if (viewportHeight > 0 && !isSingleColumn && !isTablet) {
+    // Only lock to viewport height on DESKTOP
+    const chrome = DESKTOP_VERTICAL_CHROME;
+    const vhFraction = DESKTOP_BOARD_VH;
     const available = Math.max(viewportHeight - chrome, 0);
     heightRaw = (available * vhFraction) / widthFactor;
   }
@@ -99,7 +76,7 @@ function calculateBoardSize(
   return Math.max(MIN_BOARD_PX, align8(raw));
 }
 
-export const getGutterSize = (boardSize: number) => Math.round(boardSize / 16);
+const getGutterSize = (boardSize: number) => Math.round(boardSize / 16);
 
 /**
  * Observes the editor container width AND the viewport height, then derives a
@@ -130,11 +107,7 @@ export function useEditorBoardSize(showCoords: boolean) {
 
     const recompute = () => {
       if (lastWidth <= 0) return;
-      const next = calculateBoardSize(
-        lastWidth,
-        getViewportHeight(),
-        showCoords
-      );
+      const next = calculateBoardSize(lastWidth, getViewportHeight());
       setBoardSize(next);
       setGutterSize(getGutterSize(next));
     };

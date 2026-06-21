@@ -17,7 +17,7 @@ import {
 import type { ShareMode, ShareTarget } from './useShareBoard';
 
 /** Props for the {@link ShareDialog} board-sharing modal. */
-export interface ShareDialogProps {
+interface ShareDialogProps {
   isOpen: boolean;
   onClose: () => void;
   fen: string;

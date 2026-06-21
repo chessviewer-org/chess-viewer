@@ -1,19 +1,29 @@
 import { memo } from 'react';
 
-import { Copy, Download, FolderOpen, Share2 } from 'lucide-react';
+import {
+  Copy,
+  Download,
+  FolderOpen,
+  Redo2,
+  Repeat2,
+  Share2,
+  Undo2
+} from 'lucide-react';
 
 /**
  * ChessVision Command Bar.
  *
- * A compact header row for the board's primary actions: Copy · Share |
- * Open · Export. Database search now lives in its own dedicated
- * DatabaseSearchPanel, so this bar no longer carries search status or DB icons.
- *
- * Every colour resolves through the existing Tailwind CSS-variable tokens
- * (`text-accent`, `text-text-secondary`, …) — no hard-coded hex.
+ * A compact header row for the board's primary actions.
+ * Left: Undo · Redo · Flip
+ * Right: Copy · Share | Open · Export
  */
-export interface CommandBarProps {
-  onCopyFen: () => void;
+interface CommandBarProps {
+  onUndo: () => void;
+  onRedo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
+  onFlip?: () => void;
+  onCopyImage: () => void;
   onShare: () => void;
   onDownload?: (() => void) | undefined;
 }
@@ -27,54 +37,97 @@ const Divider = () => (
 );
 
 const CommandBar = memo(function CommandBar({
-  onCopyFen,
+  onUndo,
+  onRedo,
+  canUndo,
+  canRedo,
+  onFlip,
+  onCopyImage,
   onShare,
   onDownload
 }: CommandBarProps) {
   return (
-    <div className="flex items-center gap-1">
-      <button
-        type="button"
-        onClick={onCopyFen}
-        className={`${iconButton} text-text-secondary hover:text-text-primary hover:bg-surface-hover`}
-        title="Copy FEN"
-        aria-label="Copy FEN to clipboard"
-      >
-        <Copy className="w-5 h-5" />
-      </button>
-      <button
-        type="button"
-        onClick={onShare}
-        className={`${iconButton} text-text-secondary hover:text-text-primary hover:bg-surface-hover`}
-        title="Share"
-        aria-label="Share board"
-      >
-        <Share2 className="w-5 h-5" />
-      </button>
+    <div className="flex items-center justify-between w-full">
+      {/* Left side: History & View */}
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={onUndo}
+          disabled={!canUndo}
+          className={`${iconButton} text-text-secondary hover:text-text-primary hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed`}
+          title="Undo (Ctrl+Z)"
+          aria-label="Undo last change"
+        >
+          <Undo2 className="w-5 h-5" />
+        </button>
+        <button
+          type="button"
+          onClick={onRedo}
+          disabled={!canRedo}
+          className={`${iconButton} text-text-secondary hover:text-text-primary hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed`}
+          title="Redo (Ctrl+Y)"
+          aria-label="Redo last change"
+        >
+          <Redo2 className="w-5 h-5" />
+        </button>
 
-      <Divider />
+        <Divider />
 
-      {/* Placeholder for a future "open / import" flow — wired up later, so it
-          is disabled and excluded from the tab order for now. */}
-      <button
-        type="button"
-        disabled
-        className={`${iconButton} text-text-muted opacity-50 cursor-not-allowed`}
-        title="Open (coming soon)"
-        aria-label="Open a board (coming soon)"
-        tabIndex={-1}
-      >
-        <FolderOpen className="w-5 h-5" />
-      </button>
-      <button
-        type="button"
-        onClick={onDownload}
-        className={`${iconButton} text-accent hover:text-text-primary-hover hover:bg-accent/10`}
-        title="Download / Export"
-        aria-label="Download or export board"
-      >
-        <Download className="w-5 h-5" />
-      </button>
+        <button
+          type="button"
+          onClick={onFlip}
+          className={`${iconButton} text-text-secondary hover:text-text-primary hover:bg-surface-hover`}
+          title="Flip board (F)"
+          aria-label="Flip board orientation"
+        >
+          <Repeat2 className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Right side: Export & Share */}
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={onCopyImage}
+          className={`${iconButton} text-text-secondary hover:text-text-primary hover:bg-surface-hover`}
+          title="Copy image"
+          aria-label="Copy board image to clipboard"
+        >
+          <Copy className="w-5 h-5" />
+        </button>
+        <button
+          type="button"
+          onClick={onShare}
+          className={`${iconButton} text-text-secondary hover:text-text-primary hover:bg-surface-hover`}
+          title="Share"
+          aria-label="Share board"
+        >
+          <Share2 className="w-5 h-5" />
+        </button>
+
+        <Divider />
+
+        {/* Placeholder for a future "open / import" flow */}
+        <button
+          type="button"
+          disabled
+          className={`${iconButton} text-text-muted opacity-50 cursor-not-allowed`}
+          title="Open (coming soon)"
+          aria-label="Open a board (coming soon)"
+          tabIndex={-1}
+        >
+          <FolderOpen className="w-5 h-5" />
+        </button>
+        <button
+          type="button"
+          onClick={onDownload}
+          className={`${iconButton} text-accent hover:text-text-primary-hover hover:bg-accent/10`}
+          title="Download / Export"
+          aria-label="Download or export board"
+        >
+          <Download className="w-5 h-5" />
+        </button>
+      </div>
     </div>
   );
 });

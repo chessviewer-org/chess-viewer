@@ -92,7 +92,7 @@ export const NavbarMobileMenu = memo(function NavbarMobileMenu({
     <>
       {/* Backdrop */}
       <div
-        className={`sm:hidden fixed inset-0 top-0 z-40 bg-black/50 backdrop-blur-[1px] transition-opacity duration-300 ${
+        className={`lg:hidden fixed inset-0 top-0 z-40 bg-black/50 backdrop-blur-[1px] transition-opacity duration-300 ${
           isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
         onClick={() => setIsMobileMenuOpen(false)}
@@ -108,10 +108,10 @@ export const NavbarMobileMenu = memo(function NavbarMobileMenu({
         // 4.1.2). React 19 forwards `inert` as a boolean attribute.
         inert={!isOpen}
         aria-hidden={!isOpen}
-        className={`sm:hidden relative z-50 overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`lg:hidden relative z-50 overflow-hidden transition-all duration-400 ease-out bg-surface ${
           isOpen
-            ? 'max-h-[40rem] border-b border-border/50 bg-surface'
-            : 'max-h-0'
+            ? 'max-h-[40rem] border-b border-border/50'
+            : 'max-h-0 border-b border-transparent'
         }`}
       >
         <div className="px-4 py-3">

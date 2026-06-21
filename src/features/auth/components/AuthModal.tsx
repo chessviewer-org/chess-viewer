@@ -157,5 +157,3 @@ export function AuthModal({
     document.body
   );
 }
-
-export default AuthModal;

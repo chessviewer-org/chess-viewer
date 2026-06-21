@@ -106,7 +106,7 @@ const WizardVisualSetup = memo(function WizardVisualSetup({
             type="checkbox"
             checked={state.showCoordsLocal}
             onChange={(e) => handlers.setShowCoordsLocal(e.target.checked)}
-            className="w-4 h-4 rounded border-border text-accent focus:ring-accent bg-surface"
+            className="w-4 h-4 rounded border-border text-accent bg-surface"
           />
           <span className="text-xs font-medium text-text-secondary">
             Show Coordinates
@@ -117,7 +117,7 @@ const WizardVisualSetup = memo(function WizardVisualSetup({
             type="checkbox"
             checked={state.showCoordinateBorder}
             onChange={(e) => handlers.setShowCoordinateBorder(e.target.checked)}
-            className="w-4 h-4 rounded border-border text-accent focus:ring-accent bg-surface"
+            className="w-4 h-4 rounded border-border text-accent bg-surface"
           />
           <span className="text-xs font-medium text-text-secondary">
             Coordinate Border
@@ -128,7 +128,7 @@ const WizardVisualSetup = memo(function WizardVisualSetup({
             type="checkbox"
             checked={state.showThinFrame}
             onChange={(e) => handlers.setShowThinFrame(e.target.checked)}
-            className="w-4 h-4 rounded border-border text-accent focus:ring-accent bg-surface"
+            className="w-4 h-4 rounded border-border text-accent bg-surface"
           />
           <span className="text-xs font-medium text-text-secondary">
             Thin Outer Frame

@@ -96,7 +96,7 @@ async function renderImageBlob(config: ExportConfig): Promise<Blob> {
 }
 
 /** Reports the outcome of a share action back to the host UI. */
-export type ShareNotify = (
+type ShareNotify = (
   message: string,
   type: 'success' | 'error' | 'info'
 ) => void;

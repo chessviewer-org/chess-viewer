@@ -114,6 +114,8 @@ export async function preloadPieceStyle(
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => {
+        img.onload = null;
+        img.onerror = null;
         if (hiResUrl) blobUrls.set(img, hiResUrl);
         pieceCache.set(key, img);
         enforceCacheCap();
@@ -121,6 +123,8 @@ export async function preloadPieceStyle(
         resolve();
       };
       img.onerror = () => {
+        img.onload = null;
+        img.onerror = null;
         if (hiResUrl) URL.revokeObjectURL(hiResUrl);
         logger.error(`Failed to load piece image: ${piece} for style ${style}`);
         finishOne();

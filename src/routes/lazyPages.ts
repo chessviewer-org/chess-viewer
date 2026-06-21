@@ -13,6 +13,7 @@ import { prefetchByPath } from './prefetchRegistry';
 
 const homeImport = () => import('@/pages/HomePage/HomePage');
 const aboutImport = () => import('@/pages/AboutPage');
+const exportImport = () => import('@/pages/ExportPage/ExportPage');
 const settingsImport = () => import('@/pages/SettingsPage');
 const fenHistoryImport = () => import('@/pages/FENHistoryPage/FENHistoryPage');
 const advancedFenImport = () =>
@@ -21,6 +22,7 @@ const notFoundImport = () => import('@/pages/NotFoundPage');
 
 export const HomePage = lazy(homeImport);
 export const AboutPage = lazy(aboutImport);
+export const ExportPage = lazy(exportImport);
 export const SettingsPage = lazy(settingsImport);
 export const FENHistoryPage = lazy(fenHistoryImport);
 export const AdvancedFENInputPage = lazy(advancedFenImport);
@@ -33,6 +35,7 @@ export const NotFoundPage = lazy(notFoundImport);
 Object.assign(prefetchByPath, {
   '/': homeImport,
   '/about': aboutImport,
+  '/export': exportImport,
   '/settings': settingsImport,
   '/fen-history': fenHistoryImport,
   '/advanced-fen': advancedFenImport

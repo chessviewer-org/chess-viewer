@@ -7,6 +7,7 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 import {
   AboutPage,
   AdvancedFENInputPage,
+  ExportPage,
   FENHistoryPage,
   HomePage,
   NotFoundPage,
@@ -175,6 +176,14 @@ function AppRoutes() {
             element={
               <AnimatedPage reduced={reduced}>
                 <HomePage />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="/export"
+            element={
+              <AnimatedPage reduced={reduced}>
+                <ExportPage />
               </AnimatedPage>
             }
           />

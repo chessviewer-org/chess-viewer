@@ -7,7 +7,7 @@ import { pieceToName } from '@utils';
 const FILES = 'abcdefgh';
 
 /** A board coordinate in matrix space (`row` 0 = rank 8, `col` 0 = file a). */
-export interface Cell {
+interface Cell {
   row: number;
   col: number;
 }
@@ -61,6 +61,8 @@ export interface UseBoardKeyboardResult {
   onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
   /** Show the cursor ring once the grid gains focus. */
   onFocus: () => void;
+  /** Suppress cursor ring when focus arrives via a pointer device. */
+  onPointerDown: () => void;
   /** Reset cursor/held state and hide the cursor when focus leaves the board. */
   onBlur: () => void;
   /**
@@ -222,7 +224,21 @@ export function useBoardKeyboard({
     [moveCursor, activate, cancel, removeAtCursor]
   );
 
+  // Track whether the most recent focus on the grid came from a pointer device.
+  // We use a module-local flag set on mousedown/touchstart (which fires before
+  // focus) so that onFocus can distinguish "tab key → show cursor" from "click
+  // → grid focused by mouse → don't show stray a8 cursor ring".
+  const pointerFocusRef = useRef(false);
+
+  const onPointerDown = useCallback(() => {
+    pointerFocusRef.current = true;
+  }, []);
+
   const onFocus = useCallback(() => {
+    if (pointerFocusRef.current) {
+      pointerFocusRef.current = false;
+      return;
+    }
     setIsFocused(true);
   }, []);
 
@@ -259,6 +275,7 @@ export function useBoardKeyboard({
       onKeyDown,
       onFocus,
       onBlur,
+      onPointerDown,
       pickUpFromPalette
     }),
     [
@@ -270,6 +287,7 @@ export function useBoardKeyboard({
       onKeyDown,
       onFocus,
       onBlur,
+      onPointerDown,
       pickUpFromPalette
     ]
   );
