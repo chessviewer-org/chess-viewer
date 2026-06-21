@@ -1,8 +1,7 @@
 import { memo, useCallback } from 'react';
 
-import { useDrop } from 'react-dnd';
+import { useDroppable } from '@dnd-kit/core';
 
-import { ItemTypes } from '@constants';
 import type { PieceSymbol } from '@app-types/chess';
 
 import { pieceToName } from '@utils';
@@ -10,17 +9,8 @@ import DraggablePiece from '../DraggablePiece/DraggablePiece';
 
 const FILES = 'abcdefgh';
 
-/** The drag item payload passed between react-dnd sources and targets. */
-export interface DragItem {
-  piece: PieceSymbol;
-  pieceKey?: string;
-  fromRow: number;
-  fromCol: number;
-  isFromPalette: boolean;
-}
-
 /** Props for the `DroppableSquare` memo'd drop target cell. */
-export interface DroppableSquareProps {
+interface DroppableSquareProps {
   row: number;
   col: number;
   piece: PieceSymbol | '';
@@ -28,14 +18,6 @@ export interface DroppableSquareProps {
   lightColor: string;
   darkColor: string;
   pieceImage: HTMLImageElement | null;
-  onDrop?: (
-    piece: PieceSymbol,
-    fromRow: number | undefined,
-    fromCol: number | undefined,
-    toRow: number,
-    toCol: number,
-    isFromPalette: boolean
-  ) => void;
   /** Select this square (click). Enables keyboard delete of its piece. */
   onSelect?: ((row: number, col: number) => void) | undefined;
   /** Whether this square is the active selection (keyboard target). */
@@ -47,7 +29,16 @@ export interface DroppableSquareProps {
   isLoading: boolean;
 }
 
-export const DroppableSquare = memo(
+/**
+ * A single board square that accepts drops via @dnd-kit's `useDroppable`.
+ *
+ * Drop ID: `sq-{row}-{col}`  — parsed by `ChessEditor.handleDragEnd`.
+ * Drop data: `{ row, col }` — passed as `over.data.current` in `handleDragEnd`.
+ *
+ * All drop logic (piece placement, trash removal) is centralised in
+ * `ChessEditor.handleDragEnd`; this component only signals hover state.
+ */
+const DroppableSquare = memo(
   function DroppableSquare({
     row,
     col,
@@ -56,7 +47,6 @@ export const DroppableSquare = memo(
     lightColor,
     darkColor,
     pieceImage,
-    onDrop,
     onSelect,
     isSelected = false,
     isCursor = false,
@@ -74,49 +64,16 @@ export const DroppableSquare = memo(
       onSelect?.(row, col);
     }, [onSelect, row, col]);
 
-    const handleDrop = useCallback(
-      (item: DragItem) => {
-        if (onDrop) {
-          onDrop(
-            item.piece,
-            item.fromRow,
-            item.fromCol,
-            row,
-            col,
-            item.isFromPalette
-          );
-        }
-      },
-      [onDrop, row, col]
-    );
-
-    const [{ isOver }, drop] = useDrop<DragItem, void, { isOver: boolean }>(
-      () => ({
-        accept: ItemTypes.PIECE,
-        drop: handleDrop,
-        canDrop: () => true,
-        collect: (monitor) => ({
-          isOver: monitor.isOver({
-            shallow: true
-          })
-        })
-      }),
-      [handleDrop]
-    );
+    const { setNodeRef, isOver } = useDroppable({
+      id: `sq-${row}-${col}`,
+      // `data` carries grid coordinates so ChessEditor.handleDragEnd knows
+      // which square was targeted without parsing the id string.
+      data: { row, col }
+    });
 
     return (
       <div
-        ref={(node) => {
-          drop(node);
-          // Detach the react-dnd connector on unmount so the backend removes its
-          // node-bound listeners; without this the cell (and its piece <img>)
-          // stays detached-but-referenced via the listener, leaking every time
-          // the board unmounts on route change. Connector returns a value; the
-          // cleanup must return void, so we don't forward it.
-          return () => {
-            drop(null);
-          };
-        }}
+        ref={setNodeRef}
         id={`sq-${row}-${col}`}
         onClick={handleSelect}
         role="gridcell"
@@ -127,10 +84,7 @@ export const DroppableSquare = memo(
           backgroundColor: bgColor,
           zIndex: isCursor || isSelected || isHeldSource ? 2 : 0,
           // Ring precedence: pointer drag-over → keyboard cursor → keyboard
-          // selection. Click-selection uses a thin neutral (text-primary) ring
-          // so it reads as a default highlight rather than the accent yellow.
-          // The held-source square keeps a faint accent ring so the user can
-          // see where the carried piece came from.
+          // selection → held source → none.
           boxShadow: isOver
             ? 'inset 0 0 0 3px rgba(255, 255, 255, 0.5)'
             : isCursor
@@ -149,8 +103,7 @@ export const DroppableSquare = memo(
       >
         {piece && pieceImage && !isLoading && (
           // `key` on the piece char remounts this wrapper when the piece on the
-          // square changes, re-firing the `animate-piece-in` keyframe — the CSS
-          // replacement for the former per-square framer-motion AnimatePresence.
+          // square changes, re-firing the `animate-piece-in` keyframe.
           <div
             key={piece}
             className="w-full h-full flex items-center justify-center animate-piece-in"
@@ -166,9 +119,8 @@ export const DroppableSquare = memo(
               col={col}
               isFromPalette={false}
               // Fill the (integer-pixel) square edge-to-edge. The Lichess SVGs
-              // carry their own internal margin, so 100% looks right AND keeps
-              // the image box pixel-aligned — a fractional inset (e.g. 92%)
-              // centred the SVG on a sub-pixel offset, which softened it.
+              // carry their own internal margin so 100% looks right AND keeps
+              // the image box pixel-aligned.
               size="100%"
             />
           </div>
@@ -176,6 +128,9 @@ export const DroppableSquare = memo(
       </div>
     );
   },
+  // Manual comparator: re-render only when visible or interactive state changes.
+  // `onDrop` is intentionally omitted — drops are handled by ChessEditor,
+  // not by this component, so callback identity changes don't trigger repaints.
   (prevProps, nextProps) => {
     return (
       prevProps.piece === nextProps.piece &&
@@ -185,7 +140,6 @@ export const DroppableSquare = memo(
       prevProps.isLoading === nextProps.isLoading &&
       prevProps.row === nextProps.row &&
       prevProps.col === nextProps.col &&
-      prevProps.onDrop === nextProps.onDrop &&
       prevProps.onSelect === nextProps.onSelect &&
       prevProps.isSelected === nextProps.isSelected &&
       prevProps.isCursor === nextProps.isCursor &&

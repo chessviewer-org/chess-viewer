@@ -1,8 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 
-import { useDrop } from 'react-dnd';
-
-import { ItemTypes } from '@constants';
 import type { PieceSymbol } from '@app-types/chess';
 
 import { describeBoardPosition } from '@utils';
@@ -16,13 +13,17 @@ export interface BoardKeyboardApi {
 }
 
 /** Props for the `InteractiveBoard` DnD board grid. */
-export interface InteractiveBoardProps {
+interface InteractiveBoardProps {
   board: (PieceSymbol | '')[][];
   lightSquare: string;
   darkSquare: string;
   pieceImages: Record<string, HTMLImageElement | null>;
   isLoading: boolean;
   flipped: boolean;
+  /**
+   * Called by the keyboard layer (`useBoardKeyboard`) when a piece is placed via
+   * keyboard navigation. DnD drops are handled centrally in `ChessEditor`.
+   */
   onPieceDrop?: (
     piece: PieceSymbol,
     fromRow: number | undefined,
@@ -41,7 +42,7 @@ export interface InteractiveBoardProps {
   onKeyboardApi?: ((api: BoardKeyboardApi) => void) | undefined;
 }
 
-export const InteractiveBoard = memo(function InteractiveBoard({
+const InteractiveBoard = memo(function InteractiveBoard({
   board,
   lightSquare,
   darkSquare,
@@ -64,6 +65,7 @@ export const InteractiveBoard = memo(function InteractiveBoard({
     onKeyDown,
     onFocus,
     onBlur,
+    onPointerDown,
     pickUpFromPalette
   } = useBoardKeyboard({
     board,
@@ -83,34 +85,7 @@ export const InteractiveBoard = memo(function InteractiveBoard({
       }
     });
   }, [onKeyboardApi, pickUpFromPalette]);
-  const handleDrop = useCallback(
-    (
-      piece: PieceSymbol,
-      fromRow: number | undefined,
-      fromCol: number | undefined,
-      toRow: number,
-      toCol: number,
-      isFromPalette: boolean
-    ) => {
-      if (onPieceDrop) {
-        onPieceDrop(piece, fromRow, fromCol, toRow, toCol, isFromPalette);
-      }
-    },
-    [onPieceDrop]
-  );
-  const [, boardDropRef] = useDrop(
-    () => ({
-      accept: ItemTypes.PIECE
-    }),
-    []
-  );
-  const setRefs = useCallback(
-    (node: HTMLDivElement | null) => {
-      boardRef.current = node;
-      boardDropRef(node);
-    },
-    [boardDropRef]
-  );
+
   const squares = useMemo(() => {
     const result = [];
     for (let displayRow = 0; displayRow < 8; displayRow++) {
@@ -127,8 +102,7 @@ export const InteractiveBoard = memo(function InteractiveBoard({
         const isSelected =
           selectedSquare?.[0] === actualRow &&
           selectedSquare?.[1] === actualCol;
-        // Only paint the cursor ring while the grid is focused — otherwise the
-        // board would carry a stray highlight on a8 at rest.
+        // Only paint the cursor ring while the grid is focused.
         const isCursor =
           isFocused && cursor.row === actualRow && cursor.col === actualCol;
         const isHeldSource =
@@ -143,7 +117,6 @@ export const InteractiveBoard = memo(function InteractiveBoard({
             lightColor={lightSquare}
             darkColor={darkSquare}
             pieceImage={pieceImage}
-            onDrop={handleDrop}
             onSelect={onSquareSelect}
             isSelected={isSelected}
             isCursor={isCursor}
@@ -160,7 +133,6 @@ export const InteractiveBoard = memo(function InteractiveBoard({
     darkSquare,
     isLoading,
     flipped,
-    handleDrop,
     pieceImages,
     onSquareSelect,
     selectedSquare,
@@ -168,10 +140,18 @@ export const InteractiveBoard = memo(function InteractiveBoard({
     isFocused,
     heldFrom
   ]);
+
   const boardDescription = useMemo(
     () => describeBoardPosition(board, flipped),
     [board, flipped]
   );
+
+  // Stable callback ref — just stores the node in boardRef (no DnD connector
+  // to merge; @dnd-kit's DroppableSquare children register themselves).
+  const setRef = useCallback((node: HTMLDivElement | null) => {
+    boardRef.current = node;
+  }, []);
+
   return (
     <div
       className="w-full max-w-full"
@@ -186,7 +166,7 @@ export const InteractiveBoard = memo(function InteractiveBoard({
         {announcement}
       </div>
       <div
-        ref={setRefs}
+        ref={setRef}
         role="grid"
         // Single tab stop with a roving cursor (aria-activedescendant) instead
         // of 64 tab stops — keyboard users land here once, then arrow around.
@@ -199,6 +179,7 @@ export const InteractiveBoard = memo(function InteractiveBoard({
         onKeyDown={onKeyDown}
         onFocus={onFocus}
         onBlur={onBlur}
+        onPointerDown={onPointerDown}
         className="grid grid-cols-8 grid-rows-8 overflow-hidden w-full h-full outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
         style={{
           gap: 0,
@@ -214,5 +195,6 @@ export const InteractiveBoard = memo(function InteractiveBoard({
     </div>
   );
 });
+
 InteractiveBoard.displayName = 'InteractiveBoard';
 export default InteractiveBoard;
