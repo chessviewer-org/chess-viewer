@@ -1,10 +1,10 @@
 import { memo, useCallback } from 'react';
 
 import { getPieceImageKey, PALETTE_PIECES } from '@constants';
-import type { PieceSymbol } from '@app-types/chess';
+import type { PieceSymbol } from '@app-types';
 
-import styles from '../../../scss/piece-palette.module.scss';
-import DraggablePiece from '../DraggablePiece/DraggablePiece';
+import { DraggablePiece } from '../DraggablePiece';
+import styles from './piece-palette.module.scss';
 
 export interface PiecePaletteProps {
   pieceImages: Record<string, HTMLImageElement | null>;

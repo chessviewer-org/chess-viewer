@@ -8,38 +8,30 @@ import {
   useState
 } from 'react';
 
-import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
-import {
-  DndContext,
-  DragOverlay,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors
-} from '@dnd-kit/core';
+import { DndContext, DragOverlay } from '@dnd-kit/core';
 import { snapCenterToCursor } from '@dnd-kit/modifiers';
 
+import { FileCoordinates, RankCoordinates } from '@/components/board';
 import {
   useDatabaseSearch,
   useEditorKeyboard,
   useInteractiveBoard,
   usePieceImages
 } from '@hooks';
-import type { ChessDragData } from '@constants';
-import type { PieceSymbol } from '@app-types/chess';
+import type { PieceSymbol } from '@app-types';
 
 import type { ExportConfig } from '@utils';
 import { Checkbox } from '@shared/ui';
-import styles from '../../../scss/chess-editor.module.scss';
-import type { BoardKeyboardApi } from '../InteractiveBoard/InteractiveBoard';
-import InteractiveBoard from '../InteractiveBoard/InteractiveBoard';
-import PiecePalette from '../PiecePalette/PiecePalette';
-import TrashZone from '../TrashZone/TrashZone';
-import CommandBar from './CommandBar';
-import DatabaseSearchPanel from './DatabaseSearchPanel';
-import { FileCoordinates, RankCoordinates } from './EditorCoordinates';
+import type { BoardKeyboardApi } from '../InteractiveBoard';
+import { InteractiveBoard } from '../InteractiveBoard';
+import { PiecePalette } from '../PiecePalette';
+import { TrashZone } from '../TrashZone';
+import styles from './chess-editor.module.scss';
+import CommandBar from './parts/CommandBar';
+import DatabaseSearchPanel from './parts/DatabaseSearchPanel';
 import { DragGhost } from './parts/DragGhost';
-import ShareDialog from './ShareDialog';
+import ShareDialog from './parts/ShareDialog';
+import { useDragState } from './useDragState';
 import { useEditorBoardSize } from './useEditorBoardSize';
 import { useShareBoard } from './useShareBoard';
 
@@ -111,72 +103,13 @@ export const ChessEditor = memo(function ChessEditor({
     canRedo
   } = useInteractiveBoard(fen, onFenChange);
 
-  // ── @dnd-kit sensors ──────────────────────────────────────────────────
-  // distance: 3 lets click-to-select still work — drag only activates after
-  // 3px of pointer movement. Touch uses delay: 150 so taps register instantly.
-  const mouseSensor = useSensor(MouseSensor, {
-    activationConstraint: { distance: 3 }
-  });
-  const touchSensor = useSensor(TouchSensor, {
-    activationConstraint: { delay: 150, tolerance: 5 }
-  });
-  const sensors = useSensors(mouseSensor, touchSensor);
-
-  // ── Drag overlay state ────────────────────────────────────────────────
-  const [activeDragData, setActiveDragData] = useState<ChessDragData | null>(
-    null
-  );
-
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    const data = event.active.data.current as ChessDragData | undefined;
-    if (data) setActiveDragData(data);
-  }, []);
-
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      setActiveDragData(null);
-
-      const { active, over } = event;
-      if (!over) return;
-
-      const dragData = active.data.current as ChessDragData | undefined;
-      if (!dragData) return;
-
-      const overId = String(over.id);
-
-      // Drop on trash — remove piece from the board (skip palette pieces)
-      if (overId === 'trash') {
-        if (
-          !dragData.isFromPalette &&
-          dragData.fromRow !== undefined &&
-          dragData.fromCol !== undefined
-        ) {
-          handlePieceRemove(dragData.fromRow, dragData.fromCol);
-        }
-        return;
-      }
-
-      // Drop on a board square — parse the over.data for coordinates
-      const overData = over.data.current as
-        | { row: number; col: number }
-        | undefined;
-      if (overData && typeof overData.row === 'number') {
-        handlePieceDrop(
-          dragData.piece,
-          dragData.fromRow,
-          dragData.fromCol,
-          overData.row,
-          overData.col,
-          dragData.isFromPalette
-        );
-      }
-    },
-    [handlePieceDrop, handlePieceRemove]
-  );
-
-  const handleDragCancel = useCallback(() => {
-    setActiveDragData(null);
-  }, []);
+  const {
+    sensors,
+    activeDragData,
+    handleDragStart,
+    handleDragEnd,
+    handleDragCancel
+  } = useDragState({ handlePieceDrop, handlePieceRemove });
 
   const [selectedSquare, setSelectedSquare] = useState<
     readonly [number, number] | null
@@ -223,7 +156,6 @@ export const ChessEditor = memo(function ChessEditor({
     }),
     [onFlip, undo, redo, handleDeleteSelected, clearSelection]
   );
-
   useEditorKeyboard(keyboardActions);
 
   useEffect(() => {
@@ -242,6 +174,8 @@ export const ChessEditor = memo(function ChessEditor({
   }, [fen]);
 
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const handleShare = useCallback(() => setIsShareOpen(true), []);
+  const closeShare = useCallback(() => setIsShareOpen(false), []);
 
   const buildExportConfig = useCallback(
     (): ExportConfig => ({
@@ -276,10 +210,18 @@ export const ChessEditor = memo(function ChessEditor({
       ...(onNotify ? { onNotify } : {})
     });
 
-  const handleShare = useCallback(() => setIsShareOpen(true), []);
-  const closeShare = useCallback(() => setIsShareOpen(false), []);
-
   const boardTotalH = boardSize + (showCoords ? gutterSize : 0);
+
+  const commandBarProps = {
+    onUndo: undo,
+    onRedo: redo,
+    canUndo,
+    canRedo,
+    onFlip: onFlip ?? (() => {}),
+    onCopyImage: handleCopyFen,
+    onShare: handleShare,
+    onDownload
+  };
 
   return (
     <DndContext
@@ -293,49 +235,22 @@ export const ChessEditor = memo(function ChessEditor({
         className={`${styles.editorRoot} ${className}`}
         onClick={clearSelection}
       >
-        {/* CommandBar — tek sütunda yuxarıda fullwidth göstərilir */}
-        <div className={styles.editorCommandbarTop}>
-          <div className="flex items-center justify-end w-full">
-            <CommandBar
-              onUndo={undo}
-              onRedo={redo}
-              canUndo={canUndo}
-              canRedo={canRedo}
-              onFlip={onFlip ?? (() => {})}
-              onCopyImage={handleCopyFen}
-              onShare={handleShare}
-              onDownload={onDownload}
-            />
-          </div>
-          <div className={styles.editorCommandbarSeparator} />
-        </div>
-
-        {/* Əsas sıra: board (sol) + panel (sağ) */}
         <div className={styles.editorMainRow}>
-          {/* ── Board ── */}
+          {/* ── Board column ── */}
           <div className={styles.editorBoardCol}>
-            <div
-              className={styles.editorBoardWrap}
-              style={{ width: showCoords ? boardSize + gutterSize : boardSize }}
-            >
+            <div className={styles.editorBoardWrap}>
+              <div className={styles.editorCommandbarTop}>
+                <div className="flex items-center justify-end w-full">
+                  <CommandBar {...commandBarProps} />
+                </div>
+                <div className={styles.editorCommandbarSeparator} />
+              </div>
+
               <div className={styles.editorBoardInner}>
-                {showCoords && (
-                  <RankCoordinates
-                    flipped={flipped}
-                    cellSize={cellSize}
-                    gutterSize={gutterSize}
-                  />
-                )}
+                {showCoords && <RankCoordinates flipped={flipped} />}
                 <div
-                  className={showThinFrame ? 'box-border border-2' : undefined}
-                  style={{
-                    width: boardSize,
-                    height: boardSize,
-                    flexShrink: 0,
-                    maxWidth: '100%',
-                    position: 'relative',
-                    ...(showThinFrame ? { borderColor: darkSquare } : {})
-                  }}
+                  className={`${styles.editorBoardContainer} ${showThinFrame ? 'box-border border-2' : ''}`}
+                  style={showThinFrame ? { borderColor: darkSquare } : {}}
                 >
                   <InteractiveBoard
                     board={board}
@@ -353,22 +268,16 @@ export const ChessEditor = memo(function ChessEditor({
                 </div>
               </div>
 
-              {showCoords && (
-                <FileCoordinates
-                  flipped={flipped}
-                  cellSize={cellSize}
-                  gutterSize={gutterSize}
-                />
-              )}
+              {showCoords && <FileCoordinates flipped={flipped} />}
 
               {isLoading && (
                 <div
                   className="absolute flex flex-col items-center justify-center bg-surface z-30"
                   style={{
                     top: 0,
-                    left: showCoords ? gutterSize : 0,
-                    width: boardSize,
-                    height: boardSize
+                    bottom: 0,
+                    left: showCoords ? 'var(--gutter-size)' : 0,
+                    right: 0
                   }}
                 >
                   <div className="flex flex-col items-center gap-4">
@@ -385,29 +294,18 @@ export const ChessEditor = memo(function ChessEditor({
             </div>
           </div>
 
-          {/* ── Sağ panel ── */}
+          {/* ── Right panel ── */}
           <div
             className={styles.editorPanel}
             style={{ '--board-h': `${boardTotalH}px` } as CSSProperties}
           >
-            {/* CommandBar — yan-yana layoutda panel içində */}
             <div className={styles.editorCommandbarPanel}>
               <div className="flex items-center justify-end w-full">
-                <CommandBar
-                  onUndo={undo}
-                  onRedo={redo}
-                  canUndo={canUndo}
-                  canRedo={canRedo}
-                  onFlip={onFlip ?? (() => {})}
-                  onCopyImage={handleCopyFen}
-                  onShare={handleShare}
-                  onDownload={onDownload}
-                />
+                <CommandBar {...commandBarProps} />
               </div>
               <div className={styles.editorCommandbarSeparator} />
             </div>
 
-            {/* Piece palette */}
             <div className={styles.editorPaletteCard}>
               <PiecePalette
                 pieceImages={pieceImages}
@@ -416,7 +314,6 @@ export const ChessEditor = memo(function ChessEditor({
               />
             </div>
 
-            {/* Display options */}
             <div className={styles.editorDisplayOpts}>
               <span className={styles.editorDisplayOptsLabel}>
                 Display Options
@@ -437,12 +334,10 @@ export const ChessEditor = memo(function ChessEditor({
               </div>
             </div>
 
-            {/* Trash zone */}
             <div className={styles.editorTrash}>
               <TrashZone className="h-full w-full rounded-lg" />
             </div>
 
-            {/* Database search — həmişə görünür */}
             <div className={styles.editorDbSearch}>
               <DatabaseSearchPanel
                 lichess={lichessState}
@@ -468,7 +363,6 @@ export const ChessEditor = memo(function ChessEditor({
         />
       </div>
 
-      {/* DragOverlay renders a ghost piece following the pointer during drag */}
       <DragOverlay dropAnimation={null} modifiers={[snapCenterToCursor]}>
         {activeDragData ? (
           <DragGhost

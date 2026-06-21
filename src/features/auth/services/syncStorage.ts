@@ -1,6 +1,6 @@
 import type { User } from '@supabase/supabase-js';
 
-import { logger } from '@utils/logger';
+import { logger } from '@utils';
 import { supabase } from './supabaseClient';
 
 interface UserDataValueRow {

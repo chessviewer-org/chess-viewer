@@ -1,4 +1,4 @@
-import { logger } from '@utils/logger';
+import { logger } from '@utils';
 
 /**
  * Maps a Supabase auth error to a neutral, user-facing message. Raw backend

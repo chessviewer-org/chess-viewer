@@ -7,10 +7,12 @@ import { ShieldAlert, ShieldCheck } from 'lucide-react';
 import { useFocusTrap } from '@hooks';
 
 import type { SecurityLockModalProps } from '../types';
-import { BackupCodeUnlockForm } from './securityLock/BackupCodeUnlockForm';
-import { MfaUnlockForm } from './securityLock/MfaUnlockForm';
-import { PasswordUnlockForm } from './securityLock/PasswordUnlockForm';
-import { useSecurityUnlock } from './securityLock/useSecurityUnlock';
+import {
+  BackupCodeUnlockForm,
+  MfaUnlockForm,
+  PasswordUnlockForm,
+  useSecurityUnlock
+} from './securityLock';
 
 /**
  * Full-screen lock overlay requiring re-authentication after 90 days of inactivity.

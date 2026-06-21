@@ -1,12 +1,14 @@
 import { Loader2 } from 'lucide-react';
 
-import { useModal } from '@/contexts';
+import { useModal } from '@contexts';
 
-import { TwoFactorBackupCodes } from './twoFactor/TwoFactorBackupCodes';
-import { TwoFactorEnabled } from './twoFactor/TwoFactorEnabled';
-import { TwoFactorStart } from './twoFactor/TwoFactorStart';
-import { TwoFactorVerify } from './twoFactor/TwoFactorVerify';
-import { useTwoFactorSetup } from './twoFactor/useTwoFactorSetup';
+import {
+  TwoFactorBackupCodes,
+  TwoFactorEnabled,
+  TwoFactorStart,
+  TwoFactorVerify,
+  useTwoFactorSetup
+} from './twoFactor';
 
 export function TwoFactorSetup() {
   const { showConfirm } = useModal();

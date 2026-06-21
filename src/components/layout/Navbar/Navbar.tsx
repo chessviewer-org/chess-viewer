@@ -3,7 +3,7 @@ import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { UserCircle, X } from 'lucide-react';
 
-import { Logo } from '@/components/layout/Logo';
+import { Logo } from '@/components/layout';
 
 import { NavbarDesktopDropdown } from './parts/NavbarDesktopDropdown';
 import { NavbarMobileMenu } from './parts/NavbarMobileMenu';

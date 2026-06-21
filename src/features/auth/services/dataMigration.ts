@@ -1,5 +1,5 @@
-import { logger } from '@utils/logger';
-import { safeJSONParse } from '@utils/validation';
+import { logger } from '@utils';
+import { safeJSONParse } from '@utils';
 import { GUEST_PROFILE_KEY, PROFILE_REFRESH_EVENT } from './profileConstants';
 import {
   isActiveSupporter,
@@ -90,7 +90,7 @@ export const dataMigration = {
 
       localStorage.setItem(`${MIGRATION_LOCK_KEY}_${userId}`, 'true');
       logger.log('Data migration completed successfully.');
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error('Data migration failed:', error);
     }
   }

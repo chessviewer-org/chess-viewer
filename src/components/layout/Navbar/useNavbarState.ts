@@ -3,7 +3,7 @@ import { useCallback, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import { useOutsideClick } from '@hooks/useOutsideClick';
+import { useOutsideClick } from '@hooks';
 
 /**
  * Manages all internal navbar state: mobile menu, auth modal, dropdown,

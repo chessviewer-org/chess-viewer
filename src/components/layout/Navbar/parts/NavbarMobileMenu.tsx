@@ -110,7 +110,7 @@ export const NavbarMobileMenu = memo(function NavbarMobileMenu({
         aria-hidden={!isOpen}
         className={`lg:hidden relative z-50 overflow-hidden transition-all duration-400 ease-out bg-surface ${
           isOpen
-            ? 'max-h-[40rem] border-b border-border/50'
+            ? 'max-h-160 border-b border-border/50'
             : 'max-h-0 border-b border-transparent'
         }`}
       >

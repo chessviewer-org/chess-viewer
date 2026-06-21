@@ -2,10 +2,10 @@ import { memo, useCallback } from 'react';
 
 import { useDroppable } from '@dnd-kit/core';
 
-import type { PieceSymbol } from '@app-types/chess';
+import type { PieceSymbol } from '@app-types';
 
 import { pieceToName } from '@utils';
-import DraggablePiece from '../DraggablePiece/DraggablePiece';
+import { DraggablePiece } from '../DraggablePiece';
 
 const FILES = 'abcdefgh';
 

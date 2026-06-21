@@ -4,7 +4,7 @@ import type { User } from '@supabase/supabase-js';
 
 import { supabase } from '@/features/auth/services/supabaseClient';
 
-import { logger } from '@utils/logger';
+import { logger } from '@utils';
 
 /** Shape of a `user_security` row (only the field we query). */
 interface SecurityRow {
@@ -107,7 +107,7 @@ export function useSecurityCheck() {
         return;
       }
       setIsLocked(false);
-    } catch (err) {
+    } catch (err: unknown) {
       // getUser/rpc reject on network failure — stay fail-closed (locked).
       logger.warn('useSecurityCheck: unlock failed', err);
     }

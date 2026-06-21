@@ -4,7 +4,7 @@ import { useDraggable } from '@dnd-kit/core';
 
 import type { ChessDragData } from '@constants';
 import { getPieceImageKey } from '@constants';
-import type { PieceSymbol } from '@app-types/chess';
+import type { PieceSymbol } from '@app-types';
 
 /** Props for the `DraggablePiece` drag source. */
 interface DraggablePieceProps {

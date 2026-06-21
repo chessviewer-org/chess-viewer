@@ -1,5 +1,5 @@
-import { logger } from '@utils/logger';
-import { isRecord } from '@utils/validation';
+import { logger } from '@utils';
+import { isRecord } from '@utils';
 import { supabase } from './supabaseClient';
 
 /**
