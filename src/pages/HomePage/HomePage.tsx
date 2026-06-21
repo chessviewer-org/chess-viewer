@@ -1,14 +1,13 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
-import { ChessEditor, DndProvider } from '@/components/interactions';
-import { ControlPanel, ExportProgress } from '@/components/panels';
+import { ExportProgress, FenToolbar } from '@/components/features';
+import { ChessEditor } from '@/components/interactions';
 import { getRouteSeo, SOFTWARE_APP_SCHEMA, WEBSITE_SCHEMA } from '@constants';
 
 import { NotificationContainer, Seo } from '@shared/ui';
-import ExportStudio from './components/ExportStudio';
 import { useHome } from './hooks/useHome';
 
 const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
@@ -19,34 +18,27 @@ const HomePage: React.FC = () => {
     fen,
     setFen,
     pieceStyle,
-    setPieceStyle,
     showCoords,
     setShowCoords,
     showCoordinateBorder,
-    setShowCoordinateBorder,
     showThinFrame,
     setShowThinFrame,
     lightSquare,
-    setLightSquare,
     darkSquare,
-    setDarkSquare,
     boardSize,
-    setBoardSize,
     exportQuality,
-    setExportQuality,
     flipped,
     setIsFavorite,
     addToFavoritesRef,
     exportState,
     notifications,
     removeNotification,
-
+    fileName,
     saveManualFen,
     saveExportFen,
     addCurrentToFavorites,
 
     handlePieceImagesChange,
-    handleBatchExport,
     handleCancelExport,
     handlePause,
     handleResume,
@@ -57,48 +49,23 @@ const HomePage: React.FC = () => {
     getExportConfig
   } = useHome();
 
-  const [isExportStudioOpen, setIsExportStudioOpen] = useState(false);
-
-  // Which view occupies the right-side panel: the normal control tools, or the
-  // inline Clipboard History (lifted here as it is toggled from the FEN toolbar
-  // but rendered inside ChessEditor's right column).
-  const [activeRightPanel, setActiveRightPanel] = useState<
-    'controls' | 'history'
-  >('controls');
-  const toggleHistoryPanel = () =>
-    setActiveRightPanel((p) => (p === 'history' ? 'controls' : 'history'));
-  const closeHistoryPanel = () => setActiveRightPanel('controls');
-
-  // Send a history FEN to the Advanced FEN editor. The page reads `addFen` from
-  // navigation state and drops it into the batch (see useFENBatchSync).
   const navigate = useNavigate();
-  const handleSendToAdvanced = useCallback(
-    (advFen: string) => {
-      navigate('/advanced-fen', { state: { addFen: advFen } });
-    },
-    [navigate]
-  );
-
-  const homeState = {
-    fen,
-    pieceStyle,
-    setPieceStyle,
-    showCoords,
-    setShowCoords,
-    showCoordinateBorder,
-    setShowCoordinateBorder,
-    showThinFrame,
-    setShowThinFrame,
-    lightSquare,
-    setLightSquare,
-    darkSquare,
-    setDarkSquare,
-    boardSize,
-    setBoardSize,
-    exportQuality,
-    setExportQuality,
-    flipped,
-    handleBatchExport
+  const handleDownloadClick = () => {
+    navigate('/export', {
+      state: {
+        fen,
+        pieceStyle,
+        showCoords,
+        showCoordinateBorder,
+        showThinFrame,
+        lightSquare,
+        darkSquare,
+        exportQuality,
+        boardSize,
+        flipped,
+        fileName
+      }
+    });
   };
 
   const isCustomFen = fen && fen !== STARTING_FEN;
@@ -118,7 +85,7 @@ const HomePage: React.FC = () => {
     : undefined;
 
   return (
-    <DndProvider>
+    <>
       <Seo
         {...getRouteSeo('/')}
         dynamicParams={dynamicParams}
@@ -142,10 +109,9 @@ const HomePage: React.FC = () => {
             from the remaining track instead of relying on `flex-1` reflow, and
             `min-h-0` on the rows lets the card's own scroll/overflow take over
             cleanly. Vertical rhythm via the fluid `gap-fluid-xs` token. */}
-        <div className="grid grid-rows-[auto_minmax(0,1fr)] gap-fluid-xs page-container h-auto lg:h-full min-h-0">
-          {/* Top Bar — full-width FEN / Control Panel above the board. */}
+        <div className="grid grid-rows-[auto_minmax(0,1fr)] lg:grid-rows-[auto_auto] lg:content-center gap-fluid-xs lg:gap-[12px] page-container h-auto lg:h-full min-h-0 pt-[5px] lg:pt-0">
           <div className="min-w-0">
-            <ControlPanel
+            <FenToolbar
               fen={fen}
               setFen={setFen}
               addToFavoritesRef={addToFavoritesRef}
@@ -154,19 +120,8 @@ const HomePage: React.FC = () => {
               saveExportFen={saveExportFen}
               addCurrentToFavorites={addCurrentToFavorites}
               onNotification={handleNotification}
-              isHistoryActive={activeRightPanel === 'history'}
-              onToggleHistory={toggleHistoryPanel}
             />
           </div>
-
-          {/* Main content — board (left) + command-center panel (right).
-              Export actions now live as icons in the panel's top toolbar.
-
-              `workspace-container` makes this card a container-query context so
-              ChessEditor adapts to the CARD's inline width (`@3xl:flex-row`),
-              not the viewport — board+panel go side-by-side when the CARD is
-              wide enough, which is the right signal on ultra-wide. `overscroll-trap`
-              keeps a scroll bounce inside the card on touch. */}
           <div className="min-w-0 min-h-0 self-start w-full">
             <div className="workspace-container lg:overscroll-trap bg-surface border border-border/40 rounded-xl p-fluid-xs sm:p-fluid-sm h-auto lg:max-h-full overflow-visible lg:overflow-hidden">
               <ChessEditor
@@ -184,12 +139,8 @@ const HomePage: React.FC = () => {
                 flipped={flipped}
                 onFlip={handleFlip}
                 onNotify={handleNotification}
-                onDownload={() => setIsExportStudioOpen(true)}
+                onDownload={handleDownloadClick}
                 onPieceImagesChange={handlePieceImagesChange}
-                activeRightPanel={activeRightPanel}
-                onSelectHistoryFen={handleEditorFenChange}
-                onSendToAdvanced={handleSendToAdvanced}
-                onCloseHistory={closeHistoryPanel}
               />
             </div>
           </div>
@@ -199,13 +150,6 @@ const HomePage: React.FC = () => {
           notifications={notifications}
           onRemove={removeNotification}
         />
-
-        {isExportStudioOpen && (
-          <ExportStudio
-            homeState={homeState}
-            onClose={() => setIsExportStudioOpen(false)}
-          />
-        )}
 
         {exportState.showProgress && (
           <ExportProgress
@@ -221,7 +165,7 @@ const HomePage: React.FC = () => {
           />
         )}
       </motion.div>
-    </DndProvider>
+    </>
   );
 };
 
