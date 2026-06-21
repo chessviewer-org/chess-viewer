@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 
 import { syncStorage } from '@/features/auth/services/syncStorage';
 
-import { logger } from '@utils/logger';
-import { safeJSONParse, sanitizeHexColor } from '@utils/validation';
+import { logger } from '@utils';
+import { safeJSONParse, sanitizeHexColor } from '@utils';
 import type { ThemeHistoryItem } from './types';
 
 /** Options for `useThemePersistence`. */
@@ -83,7 +83,7 @@ export function useThemePersistence({
             setCurrentTheme('custom');
           }
         }
-      } catch (err) {
+      } catch (err: unknown) {
         logger.error('Failed to load theme:', err);
       }
     };
@@ -95,7 +95,7 @@ export function useThemePersistence({
           const parsed = safeJSONParse<ThemeHistoryItem[]>(historyData, []);
           if (Array.isArray(parsed)) setThemeHistory(parsed);
         }
-      } catch (err) {
+      } catch (err: unknown) {
         logger.error('Failed to load theme history:', err);
       }
     };
@@ -138,7 +138,7 @@ export function useThemePersistence({
       try {
         window.localStorage.setItem('chess-theme', jsonData);
         if (syncStorage) await syncStorage.set('chess-theme', jsonData);
-      } catch (err) {
+      } catch (err: unknown) {
         logger.error('Failed to save theme:', err);
       }
     };

@@ -4,12 +4,8 @@ import { useLocation } from 'react-router-dom';
 
 import { useLocalStorage } from '@hooks';
 
-import { validateFEN } from '@utils/fenParser';
-import {
-  MAX_FEN_LENGTH,
-  safeJSONParse,
-  sanitizeHexColor
-} from '@utils/validation';
+import { validateFEN } from '@utils';
+import { MAX_FEN_LENGTH, safeJSONParse, sanitizeHexColor } from '@utils';
 
 /** Persists all board display settings to localStorage and syncs square colors on cross-tab storage events. */
 export function useHomeBoardState() {

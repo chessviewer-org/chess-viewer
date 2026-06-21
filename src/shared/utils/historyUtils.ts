@@ -7,7 +7,7 @@ import {
   FreshnessStatus,
   HistoryFilters,
   HistorySource
-} from '@app-types/history';
+} from '@app-types';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const SEVEN_DAYS_MS = 7 * DAY_MS;

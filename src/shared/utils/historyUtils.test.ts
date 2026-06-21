@@ -4,10 +4,8 @@ import { dirname, join } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import {
-  SYNC_TRUNCATED_EVENT,
-  type SyncTruncatedDetail
-} from '../constants/syncConstants.ts';
+import { SYNC_TRUNCATED_EVENT, type SyncTruncatedDetail } from '@constants';
+
 import {
   emitSyncTruncation,
   mergeById,

@@ -9,13 +9,13 @@ import {
 } from 'react';
 
 import { Navbar } from '@/components/layout';
-import { useNavbarState } from '@/components/layout/Navbar/useNavbarState';
-import { FENBatchProvider } from '@/contexts/FENBatchContext';
-import { ModalProvider } from '@/contexts/ModalContext';
-import { AuthModal } from '@/features/auth/components/AuthModal';
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { useSecurityCheck } from '@/features/auth/hooks/useSecurityCheck';
+import { useNavbarState } from '@/components/layout/Navbar';
+import { AuthModal } from '@/features/auth';
+import { useAuth } from '@/features/auth';
+import { useSecurityCheck } from '@/features/auth';
 import Routes from '@/routes/Router';
+import { FENBatchProvider } from '@contexts';
+import { ModalProvider } from '@contexts';
 import {
   useColorVision,
   useContrast,
@@ -224,7 +224,7 @@ function App() {
     <ErrorBoundary>
       <FENBatchProvider>
         <ModalProvider openAuthModal={openAuthModal}>
-          <div className="isolate-root shell-safe-area min-h-dvh lg:h-screen lg:h-dvh lg:overflow-hidden flex flex-col bg-linear-to-br from-bg-gradient-start to-bg-gradient-end text-fluid-base transition-colors duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
+          <div className="isolate-root shell-safe-area min-h-dvh lg:h-screen lg:overflow-hidden flex flex-col bg-linear-to-br from-bg-gradient-start to-bg-gradient-end text-fluid-base transition-colors duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
             <a
               href="#main-content"
               className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-100 focus:px-6 focus:py-3 focus:bg-accent focus:text-bg focus:rounded-xl focus:shadow-lg focus:font-semibold"

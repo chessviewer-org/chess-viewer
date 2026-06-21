@@ -263,7 +263,7 @@ export async function createUltraQualityCanvas(
 
       try {
         ctx.drawImage(img, px, py, pieceSize, pieceSize);
-      } catch (err) {
+      } catch (err: unknown) {
         logger.error(`Failed to draw piece ${pieceKey}:`, err);
       }
     }

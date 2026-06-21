@@ -95,8 +95,8 @@ const CVD_MATRICES: Record<Exclude<ColorVisionPreference, 'none'>, string> = {
 
 /** Returns (creating if needed) the hidden SVG element that holds CVD defs. */
 function ensureSvgDefs(): SVGDefsElement {
-  const defsEl = document.getElementById(DEFS_ID);
-  if (defsEl) return defsEl as unknown as SVGDefsElement;
+  const defsEl = document.querySelector<SVGDefsElement>(`#${DEFS_ID}`);
+  if (defsEl) return defsEl;
 
   const svg = document.createElementNS(SVG_NS, 'svg');
   svg.setAttribute('aria-hidden', 'true');

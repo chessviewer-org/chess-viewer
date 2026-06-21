@@ -1,7 +1,7 @@
 import { memo, useEffect, useRef, useState } from 'react';
 
 import { usePieceImages } from '@hooks';
-import { BaseHistoryEntry } from '@app-types/history';
+import { BaseHistoryEntry } from '@app-types';
 
 import { TabType } from '../hooks/useFENHistoryPage';
 import { FENHistoryGridItem } from './FENHistoryGridItem';

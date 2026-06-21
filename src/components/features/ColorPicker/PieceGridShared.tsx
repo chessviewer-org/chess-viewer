@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useState } from 'react';
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-import { usePagedCarousel } from '@/pages/settings/usePagedCarousel';
+import { usePagedCarousel } from '@hooks';
 import type { PieceSet } from '@app-types';
 
 /** Default rows shown per page; columns come from the responsive breakpoint. */

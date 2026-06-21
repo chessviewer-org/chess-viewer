@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { logger } from '@utils/logger';
+import { logger } from '@utils';
 import {
   adjustBrightness,
   generateComplementary,
@@ -53,7 +53,7 @@ function pushHistory(
     ].slice(0, 10);
     try {
       window.localStorage.setItem('theme-history', JSON.stringify(updated));
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Failed to save theme history:', err);
     }
     return updated;
@@ -143,7 +143,7 @@ export function useTheme({
     setThemeHistory([]);
     try {
       window.localStorage.removeItem('theme-history');
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Failed to clear theme history:', err);
     }
   }, []);

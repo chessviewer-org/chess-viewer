@@ -3,11 +3,11 @@ import { memo, Ref, useCallback, useImperativeHandle } from 'react';
 import { History, ListPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import type { NotificationType } from '@/components/features/Fen';
 import { FENInputField } from '@/components/features/Fen';
-import type { NotificationType } from '@/components/features/Fen/FENInputField/FENInputField';
 import { useFENHistory, usePrefetchRoute } from '@hooks';
 
-import { MAX_FEN_LENGTH } from '@utils/validation';
+import { MAX_FEN_LENGTH } from '@utils';
 
 interface FenToolbarProps {
   fen: string;

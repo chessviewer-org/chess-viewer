@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { ChessBoard, isChessBoard, PieceSymbol } from '@app-types/chess';
+import { ChessBoard, isChessBoard, PieceSymbol } from '@app-types';
 
 import { logger, parseFEN, validateFEN } from '@utils';
-import { boardToFEN, createEmptyBoard, isBoardEmpty } from '@utils/boardUtils';
+import { boardToFEN, createEmptyBoard, isBoardEmpty } from '@utils';
 
 function cloneBoard(board: ChessBoard): ChessBoard {
   return board.map((row) => [...row] as PieceSymbol[]) as ChessBoard;
@@ -73,7 +73,7 @@ export function useInteractiveBoard(
         const parsed = parseFEN(initialFen);
         if (isChessBoard(parsed)) return parsed;
       }
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Failed to parse initial FEN:', err);
     }
     return createEmptyBoard();
@@ -152,7 +152,7 @@ export function useInteractiveBoard(
               : parsedBoard
           );
         }
-      } catch (err) {
+      } catch (err: unknown) {
         logger.error('Failed to sync from FEN:', err);
       }
     },

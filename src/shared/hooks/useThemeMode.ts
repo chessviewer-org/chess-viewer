@@ -52,7 +52,7 @@ export function useThemeMode(): [
       window.localStorage.setItem(THEME_MODE_STORAGE_KEY, value);
       if (syncStorage) void syncStorage.set(THEME_MODE_STORAGE_KEY, value);
       window.dispatchEvent(new Event(THEME_MODE_CHANGE_EVENT));
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Failed to persist theme mode:', err);
     }
   }, []);

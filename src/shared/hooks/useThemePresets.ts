@@ -3,8 +3,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { syncStorage } from '@/features/auth/services/syncStorage';
 
 import { hydrateFromSync } from '@utils';
-import { logger } from '@utils/logger';
-import { safeJSONParse } from '@utils/validation';
+import { logger } from '@utils';
+import { safeJSONParse } from '@utils';
 
 const CUSTOM_THEME_PRESETS_KEY = 'custom-theme-presets';
 
@@ -47,7 +47,7 @@ export function useThemePresets(): UseThemePresetsResult {
           setCustomPresets(parsed);
         }
       }
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Failed to load custom presets:', err);
     }
   }, []);
@@ -82,13 +82,13 @@ export function useThemePresets(): UseThemePresetsResult {
         CUSTOM_THEME_PRESETS_KEY,
         JSON.stringify(presets)
       );
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Failed to persist presets:', err);
     }
     try {
       if (syncStorage)
         void syncStorage.set(CUSTOM_THEME_PRESETS_KEY, JSON.stringify(presets));
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Failed to sync custom presets:', err);
     }
   }, []);
@@ -158,13 +158,13 @@ export function useThemePresets(): UseThemePresetsResult {
     setCustomPresets([]);
     try {
       window.localStorage.removeItem(CUSTOM_THEME_PRESETS_KEY);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Failed to clear presets:', err);
     }
     try {
       if (syncStorage)
         void syncStorage.set(CUSTOM_THEME_PRESETS_KEY, JSON.stringify([]));
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Failed to sync cleared presets:', err);
     }
   }, []);

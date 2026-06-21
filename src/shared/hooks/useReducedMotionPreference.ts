@@ -111,7 +111,7 @@ export function useReducedMotionSetting(): [
       window.localStorage.setItem(REDUCED_MOTION_STORAGE_KEY, value);
       if (syncStorage) void syncStorage.set(REDUCED_MOTION_STORAGE_KEY, value);
       window.dispatchEvent(new Event(REDUCED_MOTION_CHANGE_EVENT));
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Failed to persist reduced motion preference:', err);
     }
   }, []);

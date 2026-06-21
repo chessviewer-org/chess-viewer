@@ -99,7 +99,7 @@ export function useContrastSetting(): [
       window.localStorage.setItem(CONTRAST_STORAGE_KEY, value);
       if (syncStorage) void syncStorage.set(CONTRAST_STORAGE_KEY, value);
       window.dispatchEvent(new Event(CONTRAST_CHANGE_EVENT));
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Failed to persist contrast:', err);
     }
   }, []);

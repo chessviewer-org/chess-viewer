@@ -12,13 +12,13 @@ import { prefetchByPath } from './prefetchRegistry';
  */
 
 const homeImport = () => import('@/pages/HomePage/HomePage');
-const aboutImport = () => import('@/pages/AboutPage');
+const aboutImport = () => import('@/pages/AboutPage/AboutPage');
 const exportImport = () => import('@/pages/ExportPage/ExportPage');
-const settingsImport = () => import('@/pages/SettingsPage');
+const settingsImport = () => import('@/pages/SettingsPage/SettingsPage');
 const fenHistoryImport = () => import('@/pages/FENHistoryPage/FENHistoryPage');
 const advancedFenImport = () =>
   import('@/pages/AdvancedFENInputPage/AdvancedFENInputPage');
-const notFoundImport = () => import('@/pages/NotFoundPage');
+const notFoundImport = () => import('@/pages/NotFoundPage/NotFoundPage');
 
 export const HomePage = lazy(homeImport);
 export const AboutPage = lazy(aboutImport);

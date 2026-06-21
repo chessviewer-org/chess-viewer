@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { useFENHistory, useNotifications } from '@hooks';
+import { useHomeExport } from '@hooks';
 
 import { useHomeBoardState } from './useHomeBoardState';
-import { useHomeExport } from './useHomeExport';
 
 /** Aggregates board state, FEN history, export actions, and notifications for HomePage. */
 export const useHome = () => {

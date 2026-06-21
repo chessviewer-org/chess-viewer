@@ -1,4 +1,5 @@
-import { ChessBoard, isChessBoard } from '../types/index';
+import { ChessBoard, isChessBoard } from '@app-types';
+
 import { parseFEN } from './fenParser';
 import { getExportMode, shouldForceCoordinateBorder } from './imageOptimizer';
 import {
@@ -250,7 +251,7 @@ export async function downloadSVG(
       if (document.body.contains(link)) document.body.removeChild(link);
       URL.revokeObjectURL(url);
     }, 100);
-  } catch (err) {
+  } catch (err: unknown) {
     throw new Error(
       `SVG export failed: ${err instanceof Error ? err.message : String(err)}`,
       { cause: err }

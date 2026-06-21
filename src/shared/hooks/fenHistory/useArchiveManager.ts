@@ -1,18 +1,15 @@
 import { useCallback, useState } from 'react';
 
-import type {
-  ActiveHistoryEntry,
-  ArchivedHistoryEntry
-} from '@app-types/history';
+import type { ActiveHistoryEntry, ArchivedHistoryEntry } from '@app-types';
 
 import {
   clearArchive as clearArchiveUtil,
   deleteArchivedEntry as deleteArchivedEntryUtil,
   loadArchive,
   reactivateEntry as reactivateEntryUtil
-} from '@utils/archiveManager';
-import { sortByMostRecent } from '@utils/historyUtils';
-import { logger } from '@utils/logger';
+} from '@utils';
+import { sortByMostRecent } from '@utils';
+import { logger } from '@utils';
 
 /** Arguments for `useArchiveManager`. */
 interface UseArchiveManagerArgs {
@@ -57,7 +54,7 @@ export function useArchiveManager({ setFenHistory }: UseArchiveManagerArgs) {
             ...prev
           ])
         );
-      } catch (err) {
+      } catch (err: unknown) {
         logger.error('Failed to reactivate entry:', err);
         throw err;
       }
@@ -69,7 +66,7 @@ export function useArchiveManager({ setFenHistory }: UseArchiveManagerArgs) {
     try {
       const updatedArchive = await deleteArchivedEntryUtil(id);
       setArchive(updatedArchive);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Failed to delete from archive:', err);
       throw err;
     }
@@ -79,7 +76,7 @@ export function useArchiveManager({ setFenHistory }: UseArchiveManagerArgs) {
     try {
       await clearArchiveUtil();
       setArchive([]);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Failed to clear archive:', err);
       throw err;
     }

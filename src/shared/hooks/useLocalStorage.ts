@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { logger } from '@utils/logger';
-import { safeJSONParse } from '@utils/validation';
+import { logger } from '@utils';
+import { safeJSONParse } from '@utils';
 
 /**
  * Persists state to localStorage with debounced writes to improve performance
@@ -26,7 +26,7 @@ export function useLocalStorage<T>(
     try {
       const item = window.localStorage.getItem(key);
       return item ? safeJSONParse<T>(item, initialValue) : initialValue;
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error(`Error loading ${key} from localStorage:`, error);
       return initialValue;
     }
@@ -72,7 +72,7 @@ export function useLocalStorage<T>(
               key,
               JSON.stringify(pendingValueRef.current)
             );
-          } catch (error) {
+          } catch (error: unknown) {
             logger.error(`Error flushing ${key} on unmount:`, error);
           }
         }
@@ -88,7 +88,7 @@ export function useLocalStorage<T>(
           debouncedWrite(key, valueToStore);
           return valueToStore;
         });
-      } catch (error) {
+      } catch (error: unknown) {
         logger.error(`Error in setValue for ${key}:`, error);
       }
     },

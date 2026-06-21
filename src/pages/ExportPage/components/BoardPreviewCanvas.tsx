@@ -1,9 +1,6 @@
 import { memo, useEffect, useRef, useState } from 'react';
 
-import {
-  FileCoordinates,
-  RankCoordinates
-} from '@/components/interactions/ChessEditor/EditorCoordinates';
+import { FileCoordinates, RankCoordinates } from '@/components/board';
 import { BOARD_THEMES } from '@constants';
 
 import {
@@ -139,7 +136,7 @@ const BoardPreviewCanvas = memo(
             );
           }
         }
-      } catch (err) {
+      } catch (err: unknown) {
         logger.error('BoardPreviewCanvas render error:', err);
         setHasError(true);
       }
@@ -164,7 +161,14 @@ const BoardPreviewCanvas = memo(
       // changes the wrapper size, so nothing shifts.
       <div
         ref={wrapperRef}
-        style={{ width: '100%', aspectRatio: '1 / 1', position: 'relative' }}
+        style={
+          {
+            width: '100%',
+            aspectRatio: '1 / 1',
+            position: 'relative',
+            '--gutter-size': `${gutter}px`
+          } as React.CSSProperties
+        }
       >
         {/* Board canvas — offset right by gutter, offset up from bottom by gutter */}
         <div
@@ -209,11 +213,7 @@ const BoardPreviewCanvas = memo(
               paddingRight: showThinFrame ? '6px' : '2px'
             }}
           >
-            <RankCoordinates
-              flipped={flipped}
-              cellSize={cellSize}
-              gutterSize={gutter}
-            />
+            <RankCoordinates flipped={flipped} />
           </div>
         )}
 
@@ -230,11 +230,7 @@ const BoardPreviewCanvas = memo(
               paddingTop: showThinFrame ? '6px' : '2px'
             }}
           >
-            <FileCoordinates
-              flipped={flipped}
-              cellSize={cellSize}
-              gutterSize={gutter}
-            />
+            <FileCoordinates flipped={flipped} />
           </div>
         )}
       </div>

@@ -3,7 +3,8 @@ import type {
   FENString,
   PieceSymbol,
   ValidationResult
-} from '../types/index.ts';
+} from '@app-types';
+
 import { MAX_FEN_LENGTH } from './validation.ts';
 
 const VALID_PIECES = new Set([

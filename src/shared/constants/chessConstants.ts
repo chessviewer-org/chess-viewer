@@ -5,6 +5,25 @@ import {
   QualityPreset
 } from '@app-types';
 
+/** Default square colours (classic theme). */
+export const DEFAULT_LIGHT_SQUARE = '#f0d9b5';
+export const DEFAULT_DARK_SQUARE = '#b58863';
+
+/** localStorage keys for board square colours — shared across all surfaces. */
+export const BOARD_COLOR_KEYS = {
+  LIGHT: 'chess-light-square',
+  DARK: 'chess-dark-square'
+} as const;
+
+/** Debounce delay (ms) before a live colour drag is written to storage/sync. */
+export const PERSIST_DEBOUNCE_MS = 350;
+
+/** Piece-sort dropdown options — used by Board settings, Export Studio, Wizard. */
+export const PIECE_SORT_OPTIONS = [
+  { value: 'popular' as const, label: 'Most popular' },
+  { value: 'name' as const, label: 'Name (A–Z)' }
+];
+
 /** Canonical full-game starting position. */
 export const STARTING_FEN =
   'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
