@@ -8,10 +8,8 @@ import {
   useState
 } from 'react';
 
-import { DndContext, DragOverlay } from '@dnd-kit/core';
-import { snapCenterToCursor } from '@dnd-kit/modifiers';
+import { DndContext, DragOverlay, pointerWithin } from '@dnd-kit/core';
 
-import { FileCoordinates, RankCoordinates } from '@/components/board';
 import {
   useDatabaseSearch,
   useEditorKeyboard,
@@ -22,8 +20,7 @@ import type { PieceSymbol } from '@app-types';
 
 import type { ExportConfig } from '@utils';
 import { Checkbox } from '@shared/ui';
-import type { BoardKeyboardApi } from '../InteractiveBoard';
-import { InteractiveBoard } from '../InteractiveBoard';
+import { type BoardKeyboardApi, InteractiveBoard } from '../InteractiveBoard';
 import { PiecePalette } from '../PiecePalette';
 import { TrashZone } from '../TrashZone';
 import styles from './chess-editor.module.scss';
@@ -83,9 +80,11 @@ export const ChessEditor = memo(function ChessEditor({
   className = ''
 }: ChessEditorProps) {
   const { pieceImages, isLoading } = usePieceImages(pieceStyle);
-  const { boardSize, gutterSize, containerRef } =
-    useEditorBoardSize(showCoords);
-  const cellSize = useMemo(() => boardSize / 8, [boardSize]);
+  // `cellSize` is measured from the real board element (boardElementRef) so the
+  // drag ghost matches the on-board pieces even when CSS max-width clamps the
+  // board below the editor-container width on large screens.
+  const { boardSize, cellSize, containerRef, boardElementRef } =
+    useEditorBoardSize();
 
   const pieceImagesRef = useRef(pieceImages);
   useEffect(() => {
@@ -210,7 +209,18 @@ export const ChessEditor = memo(function ChessEditor({
       ...(onNotify ? { onNotify } : {})
     });
 
-  const boardTotalH = boardSize + (showCoords ? gutterSize : 0);
+  const boardTotalH = boardSize;
+
+  const ranks = flipped
+    ? ['1', '2', '3', '4', '5', '6', '7', '8']
+    : ['8', '7', '6', '5', '4', '3', '2', '1'];
+  const files = flipped
+    ? ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a']
+    : ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+
+  const handleOpenFolder = useCallback(() => {
+    onNotify?.('Coming soon — stay tuned!', 'info');
+  }, [onNotify]);
 
   const commandBarProps = {
     onUndo: undo,
@@ -220,12 +230,19 @@ export const ChessEditor = memo(function ChessEditor({
     onFlip: onFlip ?? (() => {}),
     onCopyImage: handleCopyFen,
     onShare: handleShare,
+    onOpenFolder: handleOpenFolder,
     onDownload
   };
 
   return (
     <DndContext
       sensors={sensors}
+      // `pointerWithin` targets the square the cursor is actually inside, not the
+      // one the ghost rect overlaps most. The default (`rectIntersection`) lets a
+      // ghost that is even slightly larger/offset than the cell claim a neighbour
+      // square — dropping on e4 would commit to f4. Chess needs cursor-accurate
+      // collision, so this strategy is mandatory.
+      collisionDetection={pointerWithin}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
@@ -245,59 +262,97 @@ export const ChessEditor = memo(function ChessEditor({
                 </div>
                 <div className={styles.editorCommandbarSeparator} />
               </div>
-
               <div className={styles.editorBoardInner}>
-                {showCoords && <RankCoordinates flipped={flipped} />}
-                <div
-                  className={`${styles.editorBoardContainer} ${showThinFrame ? 'box-border border-2' : ''}`}
-                  style={showThinFrame ? { borderColor: darkSquare } : {}}
-                >
-                  <InteractiveBoard
-                    board={board}
-                    lightSquare={lightSquare}
-                    darkSquare={darkSquare}
-                    pieceImages={pieceImages}
-                    isLoading={isLoading}
-                    flipped={flipped}
-                    onPieceDrop={handlePieceDrop}
-                    onSquareSelect={handleSquareSelect}
-                    selectedSquare={selectedSquare}
-                    onPieceRemove={handlePieceRemove}
-                    onKeyboardApi={handleKeyboardApi}
-                  />
+                <div className="relative w-full aspect-square">
+                  {/* Coordinates gutters always take up 5% space. Board always takes 95% space. */}
+                  <div
+                    ref={boardElementRef}
+                    className={styles.editorBoardContainer}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      width: '95%',
+                      height: '95%'
+                    }}
+                  >
+                    <InteractiveBoard
+                      board={board}
+                      lightSquare={lightSquare}
+                      darkSquare={darkSquare}
+                      pieceImages={pieceImages}
+                      isLoading={isLoading}
+                      flipped={flipped}
+                      onPieceDrop={handlePieceDrop}
+                      onSquareSelect={handleSquareSelect}
+                      selectedSquare={selectedSquare}
+                      onPieceRemove={handlePieceRemove}
+                      onKeyboardApi={handleKeyboardApi}
+                    />
+                    {showThinFrame && (
+                      <div
+                        className="absolute pointer-events-none box-border"
+                        style={{
+                          // Board frame drawn OUTWARD on all four edges INCLUDING
+                          // the top a8–h8 edge. The overlay is a real element
+                          // pushed 2.5px beyond every board edge, so the frame
+                          // owns its own space and never depends on a coordinate
+                          // gutter being present — that's why it now also shows
+                          // above the top rank, where there is no gutter. It
+                          // never eats playable square area. From the board
+                          // outward: 0.5px crisp black, then 2px default frame.
+                          inset: '-2.5px',
+                          border: `2px solid ${darkSquare}`,
+                          boxShadow: 'inset 0 0 0 0.5px rgba(0,0,0,0.9)',
+                          zIndex: 10
+                        }}
+                      />
+                    )}
+                  </div>
+                  {showCoords && (
+                    <>
+                      <div
+                        className="absolute top-0 left-0 flex flex-col pr-1"
+                        style={{ width: '5%', height: '95%' }}
+                      >
+                        {ranks.map((rank) => (
+                          <div
+                            key={rank}
+                            className="flex items-center justify-center text-[min(14px,3.5vw)] font-bold text-text-secondary h-[12.5%]"
+                          >
+                            {rank}
+                          </div>
+                        ))}
+                      </div>
+                      <div
+                        className="absolute bottom-0 right-0 flex pt-1"
+                        style={{ width: '95%', height: '5%' }}
+                      >
+                        {files.map((file) => (
+                          <div
+                            key={file}
+                            className="flex-1 flex items-center justify-center text-[min(14px,3.5vw)] font-bold text-text-secondary"
+                          >
+                            {file}
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
-
-              {showCoords && <FileCoordinates flipped={flipped} />}
-
-              {isLoading && (
-                <div
-                  className="absolute flex flex-col items-center justify-center bg-surface z-30"
-                  style={{
-                    top: 0,
-                    bottom: 0,
-                    left: showCoords ? 'var(--gutter-size)' : 0,
-                    right: 0
-                  }}
-                >
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="relative w-12 h-12">
-                      <div className="absolute inset-0 rounded-full border-4 border-border" />
-                      <div className="absolute inset-0 rounded-full border-4 border-accent border-t-transparent animate-spin" />
-                    </div>
-                    <div className="text-text-primary text-sm font-semibold animate-pulse text-center px-4 wrap-break-word">
-                      Loading pieces...
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 
           {/* ── Right panel ── */}
           <div
             className={styles.editorPanel}
-            style={{ '--board-h': `${boardTotalH}px` } as CSSProperties}
+            style={
+              {
+                '--board-h': `${boardTotalH}px`,
+                paddingBottom: showCoords ? `${(cellSize * 8) / 19}px` : '0'
+              } as CSSProperties
+            }
           >
             <div className={styles.editorCommandbarPanel}>
               <div className="flex items-center justify-end w-full">
@@ -313,7 +368,6 @@ export const ChessEditor = memo(function ChessEditor({
                 onKeyboardPick={handlePalettePick}
               />
             </div>
-
             <div className={styles.editorDisplayOpts}>
               <span className={styles.editorDisplayOptsLabel}>
                 Display Options
@@ -333,19 +387,16 @@ export const ChessEditor = memo(function ChessEditor({
                 />
               </div>
             </div>
-
-            <div className={styles.editorTrash}>
-              <TrashZone className="h-full w-full rounded-lg" />
-            </div>
-
             <div className={styles.editorDbSearch}>
               <DatabaseSearchPanel
                 lichess={lichessState}
                 chessdb={chessdbState}
                 pdb={pdbState}
                 yacpdb={yacpdbState}
-                className="flex-1 min-h-0"
               />
+            </div>
+            <div className={styles.editorTrash}>
+              <TrashZone className="h-full w-full rounded-lg" />
             </div>
           </div>
         </div>
@@ -363,7 +414,7 @@ export const ChessEditor = memo(function ChessEditor({
         />
       </div>
 
-      <DragOverlay dropAnimation={null} modifiers={[snapCenterToCursor]}>
+      <DragOverlay dropAnimation={null}>
         {activeDragData ? (
           <DragGhost
             {...(activeDragData.pieceKey != null

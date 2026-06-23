@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useRef } from 'react';
 
 import { useDroppable } from '@dnd-kit/core';
 
@@ -54,6 +54,12 @@ const DroppableSquare = memo(
     isLoading
   }: DroppableSquareProps) {
     const bgColor = isLight ? lightColor : darkColor;
+    // Stagger delay only on the initial piece reveal (isLoading→false).
+    // Once pieces are loaded the ref stays false so drag/drop remounts animate instantly.
+    const wasLoadingRef = useRef(isLoading);
+    const initialDelay =
+      wasLoadingRef.current && !isLoading ? `${(row * 8 + col) * 6}ms` : '0ms';
+    if (wasLoadingRef.current && !isLoading) wasLoadingRef.current = false;
 
     const squareName = `${FILES[col] ?? col}${8 - row}`;
     const ariaLabel = piece
@@ -75,6 +81,23 @@ const DroppableSquare = memo(
       data: { row, col }
     });
 
+    // Ring precedence: pointer drag-over → keyboard cursor → keyboard
+    // selection → held source → none. Rendered as a separate absolutely
+    // positioned `inset:0` overlay (below) rather than a box-shadow on the
+    // square itself: an `inset` box-shadow shares edge pixels with the
+    // gap-filling `outline`, which paints *over* the right/bottom edges and
+    // eats the ring asymmetrically. A dedicated overlay with `inset:0` is
+    // symmetric on all four sides and immune to the gap-fill.
+    const ringShadow = isOver
+      ? 'inset 0 0 0 3px rgba(255, 255, 255, 0.5)'
+      : isCursor
+        ? 'inset 0 0 0 3px var(--color-accent), inset 0 0 0 5px rgba(0,0,0,0.35)'
+        : isSelected
+          ? 'inset 0 0 0 2px var(--color-text-primary)'
+          : isHeldSource
+            ? 'inset 0 0 0 3px var(--color-accent)'
+            : null;
+
     return (
       <div
         ref={setNodeRef}
@@ -86,21 +109,14 @@ const DroppableSquare = memo(
         className="w-full h-full flex items-center justify-center relative cursor-pointer"
         style={{
           backgroundColor: bgColor,
-          zIndex: isCursor || isSelected || isHeldSource ? 2 : 0,
-          // Ring precedence: pointer drag-over → keyboard cursor → keyboard
-          // selection → held source → none.
-          boxShadow: isOver
-            ? 'inset 0 0 0 3px rgba(255, 255, 255, 0.5)'
-            : isCursor
-              ? 'inset 0 0 0 3px var(--color-accent), inset 0 0 0 5px rgba(0,0,0,0.35)'
-              : isSelected
-                ? 'inset 0 0 0 2px var(--color-text-primary)'
-                : isHeldSource
-                  ? 'inset 0 0 0 3px var(--color-accent)'
-                  : 'none',
+          zIndex: ringShadow ? 2 : 0,
           contain: 'layout style',
           minWidth: 0,
-          minHeight: 0
+          minHeight: 0,
+          // Fills subpixel rounding gaps in CSS Grid that appear as thin lines.
+          // Kept on the square (not over a ring) — the ring lives in its own
+          // overlay so this no longer corrupts it on the right/bottom edges.
+          outline: `0.5px solid ${bgColor}`
         }}
         data-row={row}
         data-col={col}
@@ -113,7 +129,8 @@ const DroppableSquare = memo(
             className="w-full h-full flex items-center justify-center animate-piece-in"
             style={{
               contain: 'layout style',
-              opacity: isHeldSource ? 0.45 : 1
+              opacity: isHeldSource ? 0.45 : 1,
+              animationDelay: initialDelay
             }}
           >
             <DraggablePiece
@@ -128,6 +145,22 @@ const DroppableSquare = memo(
               size="100%"
             />
           </div>
+        )}
+        {ringShadow && (
+          // Selection/cursor/drag-over ring as a symmetric `inset:0` overlay.
+          // Decoupled from the square's gap-fill `outline` so the right/bottom
+          // edges are never clipped or overpainted — the ring is equal on all
+          // four sides. Non-interactive so it never blocks clicks/drops.
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              boxShadow: ringShadow,
+              pointerEvents: 'none',
+              zIndex: 3
+            }}
+          />
         )}
       </div>
     );

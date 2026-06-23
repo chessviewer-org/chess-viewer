@@ -25,6 +25,7 @@ interface CommandBarProps {
   onFlip?: () => void;
   onCopyImage: () => void;
   onShare: () => void;
+  onOpenFolder?: () => void;
   onDownload?: (() => void) | undefined;
 }
 
@@ -44,6 +45,7 @@ const CommandBar = memo(function CommandBar({
   onFlip,
   onCopyImage,
   onShare,
+  onOpenFolder,
   onDownload
 }: CommandBarProps) {
   return (
@@ -107,14 +109,12 @@ const CommandBar = memo(function CommandBar({
 
         <Divider />
 
-        {/* Placeholder for a future "open / import" flow */}
         <button
           type="button"
-          disabled
-          className={`${iconButton} text-text-muted opacity-50 cursor-not-allowed`}
+          onClick={onOpenFolder}
+          className={`${iconButton} text-text-secondary hover:text-text-primary hover:bg-surface-hover`}
           title="Open (coming soon)"
           aria-label="Open a board (coming soon)"
-          tabIndex={-1}
         >
           <FolderOpen className="w-5 h-5" />
         </button>

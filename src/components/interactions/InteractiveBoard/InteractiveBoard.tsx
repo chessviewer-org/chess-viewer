@@ -58,14 +58,11 @@ const InteractiveBoard = memo(function InteractiveBoard({
   const boardRef = useRef<HTMLDivElement | null>(null);
   const {
     cursor,
-    isFocused,
     heldFrom,
     activeDescendantId,
     announcement,
     onKeyDown,
-    onFocus,
     onBlur,
-    onPointerDown,
     pickUpFromPalette
   } = useBoardKeyboard({
     board,
@@ -102,9 +99,12 @@ const InteractiveBoard = memo(function InteractiveBoard({
         const isSelected =
           selectedSquare?.[0] === actualRow &&
           selectedSquare?.[1] === actualCol;
-        // Only paint the cursor ring while the grid is focused.
+        // Paint the cursor ring only when a keyboard cursor exists (it is null
+        // at rest and through pointer/programmatic focus — see useBoardKeyboard).
         const isCursor =
-          isFocused && cursor.row === actualRow && cursor.col === actualCol;
+          cursor !== null &&
+          cursor.row === actualRow &&
+          cursor.col === actualCol;
         const isHeldSource =
           heldFrom?.row === actualRow && heldFrom?.col === actualCol;
         result.push(
@@ -137,7 +137,6 @@ const InteractiveBoard = memo(function InteractiveBoard({
     onSquareSelect,
     selectedSquare,
     cursor,
-    isFocused,
     heldFrom
   ]);
 
@@ -153,10 +152,7 @@ const InteractiveBoard = memo(function InteractiveBoard({
   }, []);
 
   return (
-    <div
-      className="w-full max-w-full"
-      style={{ aspectRatio: '1 / 1', contain: 'layout' }}
-    >
+    <div className="w-full h-full" style={{ contain: 'layout' }}>
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {boardDescription}
       </div>
@@ -172,18 +168,19 @@ const InteractiveBoard = memo(function InteractiveBoard({
         // of 64 tab stops — keyboard users land here once, then arrow around.
         tabIndex={0}
         aria-label="Chess board, edit mode. Use arrow keys to move, Enter or Space to pick up and place a piece, Delete to remove, Escape to cancel."
-        aria-activedescendant={activeDescendantId}
+        {...(activeDescendantId
+          ? { 'aria-activedescendant': activeDescendantId }
+          : {})}
         // Tell the app-wide page scroller to keep its hands off the arrow keys
         // while this grid owns focus (see usePageScrollKeys / ownsArrowKeys).
         data-arrow-keys="self"
         onKeyDown={onKeyDown}
-        onFocus={onFocus}
         onBlur={onBlur}
-        onPointerDown={onPointerDown}
         className="grid grid-cols-8 grid-rows-8 overflow-hidden w-full h-full outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
         style={{
           gap: 0,
           zIndex: 1,
+          borderRadius: 0,
           contain: 'layout style paint',
           fontSize: 0,
           lineHeight: 0,

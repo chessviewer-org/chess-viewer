@@ -142,15 +142,10 @@ const MiniPreview = memo(
       };
     }, [fen, lightSquare, darkSquare, pieceImages, size]);
     return (
-      <div
-        className="relative w-full h-full"
-        style={{
-          aspectRatio: '1 / 1'
-        }}
-      >
+      <div className="relative w-full" style={{ aspectRatio: '1 / 1' }}>
         <canvas
           ref={canvasRef}
-          className={`w-full h-full transition-opacity duration-200 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+          className={`absolute inset-0 w-full h-full transition-opacity duration-200 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
           style={{
             imageRendering: 'auto',
             display: 'block',

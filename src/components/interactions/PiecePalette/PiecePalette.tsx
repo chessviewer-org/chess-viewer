@@ -109,18 +109,20 @@ export const PiecePalette = memo(function PiecePalette({
 
   return (
     <div className={`${styles.root} ${className}`}>
-      {/* Yan-yana layout (≥564px): White sıra + Black sıra */}
+      {/* Yan-yana layout (≥564px): White + Black iki qrup bir sətirdə */}
       <div className={styles.stacked}>
-        <div className={styles.stackedGroup}>
-          <span className={styles.stackedGroupLabel}>White</span>
-          <div className={styles.stackedPieceRow}>
-            {WHITE_PIECES.map(renderStackedPiece)}
+        <div className={styles.stackedRow}>
+          <div className={styles.stackedGroup}>
+            <span className={styles.stackedGroupLabel}>White</span>
+            <div className={styles.stackedPieceRow}>
+              {WHITE_PIECES.map(renderStackedPiece)}
+            </div>
           </div>
-        </div>
-        <div className={styles.stackedGroup}>
-          <span className={styles.stackedGroupLabel}>Black</span>
-          <div className={styles.stackedPieceRow}>
-            {BLACK_PIECES.map(renderStackedPiece)}
+          <div className={styles.stackedGroup}>
+            <span className={styles.stackedGroupLabel}>Black</span>
+            <div className={styles.stackedPieceRow}>
+              {BLACK_PIECES.map(renderStackedPiece)}
+            </div>
           </div>
         </div>
       </div>

@@ -8,11 +8,13 @@ declare const styles: {
   readonly editorBoardWrap: string;
   readonly editorBoardInner: string;
   readonly editorBoardContainer: string;
+  readonly editorCoordsOverlay: string;
   readonly editorPanel: string;
   readonly editorPaletteCard: string;
   readonly editorDisplayOpts: string;
   readonly editorDisplayOptsLabel: string;
   readonly editorDisplayOptsChecks: string;
+  readonly editorBottomGroup: string;
   readonly editorTrash: string;
   readonly editorDbSearch: string;
 };

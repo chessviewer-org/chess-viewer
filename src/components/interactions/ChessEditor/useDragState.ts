@@ -1,7 +1,13 @@
 import { useCallback, useState } from 'react';
 
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
-import { MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
+import {
+  MouseSensor,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors
+} from '@dnd-kit/core';
 
 import type { ChessDragData } from '@constants';
 import type { PieceSymbol } from '@app-types';
@@ -22,13 +28,20 @@ export function useDragState({
   handlePieceDrop,
   handlePieceRemove
 }: UseDragStateParams) {
+  // PointerSensor handles both mouse and stylus; MouseSensor is the fine-pointer
+  // fallback. TouchSensor handles touch-only devices with a short delay so a tap
+  // doesn't accidentally start a drag (tolerance lets the finger settle 8px).
+  // All three sensors are registered so @dnd-kit picks the right one per event.
+  const pointerSensor = useSensor(PointerSensor, {
+    activationConstraint: { distance: 4 }
+  });
   const mouseSensor = useSensor(MouseSensor, {
-    activationConstraint: { distance: 3 }
+    activationConstraint: { distance: 4 }
   });
   const touchSensor = useSensor(TouchSensor, {
-    activationConstraint: { delay: 150, tolerance: 5 }
+    activationConstraint: { delay: 200, tolerance: 8 }
   });
-  const sensors = useSensors(mouseSensor, touchSensor);
+  const sensors = useSensors(pointerSensor, mouseSensor, touchSensor);
 
   const [activeDragData, setActiveDragData] = useState<ChessDragData | null>(
     null
@@ -36,7 +49,9 @@ export function useDragState({
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
     const data = event.active.data.current as ChessDragData | undefined;
-    if (data) setActiveDragData(data);
+    if (data) {
+      setActiveDragData(data);
+    }
   }, []);
 
   const handleDragEnd = useCallback(
@@ -78,7 +93,9 @@ export function useDragState({
     [handlePieceDrop, handlePieceRemove]
   );
 
-  const handleDragCancel = useCallback(() => setActiveDragData(null), []);
+  const handleDragCancel = useCallback(() => {
+    setActiveDragData(null);
+  }, []);
 
   return {
     sensors,

@@ -44,25 +44,21 @@ export interface UseBoardKeyboardParams {
 
 /** What the board renders from the keyboard layer. */
 export interface UseBoardKeyboardResult {
-  /** Matrix cell under the roving focus cursor. */
-  cursor: Cell;
   /**
-   * Whether the grid currently holds keyboard focus. The cursor ring is only
-   * shown while this is true, so the board has no stray highlight at rest.
+   * Matrix cell under the roving focus cursor, or `null` when no keyboard
+   * navigation has happened yet. Stays `null` through pointer/programmatic
+   * focus so no stray a8 ring is painted — it only becomes a real cell once
+   * the user presses an arrow/Enter/Delete key.
    */
-  isFocused: boolean;
+  cursor: Cell | null;
   /** Origin square of the carried piece, or `null` when nothing is held. */
   heldFrom: Cell | null;
-  /** DOM id of the focused gridcell, for `aria-activedescendant`. */
-  activeDescendantId: string;
+  /** DOM id of the focused gridcell, or `undefined` when the cursor is hidden. */
+  activeDescendantId: string | undefined;
   /** Latest action sentence for the polite live region. */
   announcement: string;
   /** Attach to the grid container's `onKeyDown`. */
   onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
-  /** Show the cursor ring once the grid gains focus. */
-  onFocus: () => void;
-  /** Suppress cursor ring when focus arrives via a pointer device. */
-  onPointerDown: () => void;
   /** Reset cursor/held state and hide the cursor when focus leaves the board. */
   onBlur: () => void;
   /**
@@ -92,16 +88,15 @@ export function useBoardKeyboard({
   onPieceDrop,
   onPieceRemove
 }: UseBoardKeyboardParams): UseBoardKeyboardResult {
-  const [cursor, setCursor] = useState<Cell>({ row: 0, col: 0 });
+  const [cursor, setCursor] = useState<Cell | null>(null);
   const [held, setHeld] = useState<HeldPiece | null>(null);
   const [announcement, setAnnouncement] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
 
   // Held piece is read inside the keydown handler without making the callback
   // depend on it (keeps the grid's onKeyDown reference stable across pickups).
   const heldRef = useRef<HeldPiece | null>(null);
   heldRef.current = held;
-  const cursorRef = useRef<Cell>(cursor);
+  const cursorRef = useRef<Cell | null>(cursor);
   cursorRef.current = cursor;
 
   const announce = useCallback((msg: string) => {
@@ -117,6 +112,16 @@ export function useBoardKeyboard({
   const moveCursor = useCallback(
     (dRow: number, dCol: number) => {
       setCursor((cur) => {
+        // First arrow press just reveals the cursor at the display-top-left
+        // square of the current orientation — no movement, no a8 default.
+        if (cur === null) {
+          const row = flipped ? 7 : 0;
+          const col = flipped ? 7 : 0;
+          const piece = board[row]?.[col] || '';
+          const name = piece ? `${pieceToName(piece)}, ` : '';
+          announce(`${name}${squareName(row, col)}`);
+          return { row, col };
+        }
         const dispRow = flipped ? 7 - cur.row : cur.row;
         const dispCol = flipped ? 7 - cur.col : cur.col;
         const nextDispRow = Math.min(7, Math.max(0, dispRow + dRow));
@@ -135,6 +140,7 @@ export function useBoardKeyboard({
 
   const activate = useCallback(() => {
     const cur = cursorRef.current;
+    if (cur === null) return;
     const carried = heldRef.current;
     if (carried) {
       // Drop the carried piece onto the cursor square.
@@ -172,6 +178,7 @@ export function useBoardKeyboard({
 
   const removeAtCursor = useCallback(() => {
     const cur = cursorRef.current;
+    if (cur === null) return;
     const piece = board[cur.row]?.[cur.col] || '';
     if (!piece) return;
     onPieceRemove?.(cur.row, cur.col);
@@ -224,26 +231,12 @@ export function useBoardKeyboard({
     [moveCursor, activate, cancel, removeAtCursor]
   );
 
-  // Track whether the most recent focus on the grid came from a pointer device.
-  // We use a module-local flag set on mousedown/touchstart (which fires before
-  // focus) so that onFocus can distinguish "tab key → show cursor" from "click
-  // → grid focused by mouse → don't show stray a8 cursor ring".
-  const pointerFocusRef = useRef(false);
-
-  const onPointerDown = useCallback(() => {
-    pointerFocusRef.current = true;
-  }, []);
-
-  const onFocus = useCallback(() => {
-    if (pointerFocusRef.current) {
-      pointerFocusRef.current = false;
-      return;
-    }
-    setIsFocused(true);
-  }, []);
-
   const onBlur = useCallback(() => {
-    setIsFocused(false);
+    // Hide the cursor ring when focus leaves the grid — the cursor only exists
+    // during active keyboard interaction, never at rest. This is what keeps a
+    // stray a8 (or post-flip) ring from being painted after a click or a
+    // programmatic focus.
+    setCursor(null);
     // Drop a board-sourced pickup when focus leaves the grid so the source
     // square's dimmed highlight doesn't linger. A palette-sourced pickup
     // (`from === null`) is preserved across the palette→board focus hop so the
@@ -255,39 +248,38 @@ export function useBoardKeyboard({
   const pickUpFromPalette = useCallback(
     (piece: PieceSymbol) => {
       setHeld({ piece, from: null });
+      // Reveal the cursor at the display-top-left square so the carried palette
+      // piece has a visible landing target the moment the grid gains focus.
+      setCursor((cur) => cur ?? { row: flipped ? 7 : 0, col: flipped ? 7 : 0 });
       announce(
         `${pieceToName(piece)} selected. Move to a square with arrow keys, press Enter to place, Escape to cancel.`
       );
     },
-    [announce]
+    [announce, flipped]
   );
 
-  const activeDescendantId = `sq-${cursor.row}-${cursor.col}`;
+  const activeDescendantId = cursor
+    ? `sq-${cursor.row}-${cursor.col}`
+    : undefined;
   const heldFrom = held?.from ?? null;
 
   return useMemo(
     () => ({
       cursor,
-      isFocused,
       heldFrom,
       activeDescendantId,
       announcement,
       onKeyDown,
-      onFocus,
       onBlur,
-      onPointerDown,
       pickUpFromPalette
     }),
     [
       cursor,
-      isFocused,
       heldFrom,
       activeDescendantId,
       announcement,
       onKeyDown,
-      onFocus,
       onBlur,
-      onPointerDown,
       pickUpFromPalette
     ]
   );

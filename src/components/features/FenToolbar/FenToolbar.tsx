@@ -3,8 +3,10 @@ import { memo, Ref, useCallback, useImperativeHandle } from 'react';
 import { History, ListPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-import type { NotificationType } from '@/components/features/Fen';
-import { FENInputField } from '@/components/features/Fen';
+import {
+  FENInputField,
+  type NotificationType
+} from '@/components/features/Fen';
 import { useFENHistory, usePrefetchRoute } from '@hooks';
 
 import { MAX_FEN_LENGTH } from '@utils';
@@ -93,32 +95,32 @@ const FenToolbar = memo(function FenToolbar({
   return (
     <div className="bg-surface border border-border/40 rounded-xl px-fluid-sm py-2.5 sm:py-3">
       <div className="space-y-2.5">
-        <div className="flex items-center justify-between gap-2">
-          <label className="text-fluid-sm font-semibold text-text-primary">
+        <div className="flex items-center justify-between gap-2 min-w-0">
+          <label className="text-fluid-sm font-semibold text-text-primary shrink-0">
             FEN Notation
           </label>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
               onClick={() => navigate('/advanced-fen')}
               {...prefetch('/advanced-fen')}
-              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 coarse:min-h-11 rounded-lg text-accent text-fluid-xs font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-3 py-1 min-h-8 coarse:min-h-11 rounded-lg text-accent text-fluid-xs font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               aria-label="Advanced FEN Input"
               title="Advanced FEN Input"
             >
-              <ListPlus className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
-              <span>Advanced</span>
+              <ListPlus className="w-4 h-4 shrink-0" aria-hidden="true" />
+              <span className="hidden xs:inline">Advanced</span>
             </button>
             <button
               type="button"
               onClick={() => navigate('/fen-history')}
               {...prefetch('/fen-history')}
-              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 coarse:min-h-11 rounded-lg text-accent text-fluid-xs font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-3 py-1 min-h-8 coarse:min-h-11 rounded-lg text-accent text-fluid-xs font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               aria-label="FEN History"
               title="FEN History"
             >
-              <History className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
-              <span>History</span>
+              <History className="w-4 h-4 shrink-0" aria-hidden="true" />
+              <span className="hidden xs:inline">History</span>
             </button>
           </div>
         </div>

@@ -7,17 +7,23 @@ const getGutterSize = (boardSize: number) => Math.round(boardSize / 16);
 
 /**
  * Observes the editor container width and derives a pixel-aligned board size.
- * The visual layout is driven entirely by SCSS (`aspect-ratio: 1/1`); this hook
- * merely tracks the rendered size so the Export pipeline knows what resolution
- * to target.
+ * Coordinates are now an overlay so the board never resizes on coord toggle.
  *
- * @param showCoords - Whether coordinate labels are rendered (kept for signature compat)
- * @returns `boardSize`, `gutterSize`, and a `containerRef` to attach to the wrapper element.
+ * `cellSize` is measured from the ACTUAL rendered board element
+ * (`boardElementRef` → `.editorBoardContainer`), not derived from the editor
+ * container width. The two diverge on large screens: the editor root can be
+ * ~900px wide while the board is clamped by `max-width` to ~520px. Deriving the
+ * cell size from the container made the drag ghost (sized in `cellSize`) far
+ * larger than the on-board pieces. Measuring the real square keeps the ghost
+ * pixel-identical to a placed piece at every viewport.
  */
-export function useEditorBoardSize(showCoords: boolean) {
+export function useEditorBoardSize() {
   const [boardSize, setBoardSize] = useState(400);
   const [gutterSize, setGutterSize] = useState(() => getGutterSize(400));
+  // Real on-screen size of one square, measured from the board element below.
+  const [cellSize, setCellSize] = useState(() => Math.floor((400 * 0.95) / 8));
   const containerRef = useRef<HTMLDivElement>(null);
+  const boardElementRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -27,7 +33,6 @@ export function useEditorBoardSize(showCoords: boolean) {
       for (const entry of entries) {
         const { width } = entry.contentRect;
         if (width > 0) {
-          // The board container width is dictated by SCSS. We just align it.
           const next = Math.max(200, align8(width));
           setBoardSize(next);
           setGutterSize(getGutterSize(next));
@@ -40,7 +45,33 @@ export function useEditorBoardSize(showCoords: boolean) {
     return () => {
       observer.disconnect();
     };
-  }, [showCoords]);
+    // showCoords removed from deps: board size no longer changes when coords
+    // toggle (coords are now an overlay inside the board container).
+  }, []);
 
-  return { boardSize, gutterSize, containerRef };
+  // Measure the real board square so the drag ghost matches the placed pieces
+  // regardless of any CSS max-width clamp on large screens.
+  useEffect(() => {
+    const boardEl = boardElementRef.current;
+    if (!boardEl) return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width } = entry.contentRect;
+        if (width > 0) {
+          // The board element is a perfect square holding the 8×8 grid, so a
+          // single square is exactly width / 8.
+          setCellSize(Math.floor(width / 8));
+        }
+      }
+    });
+
+    observer.observe(boardEl);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  return { boardSize, gutterSize, cellSize, containerRef, boardElementRef };
 }

@@ -2,8 +2,7 @@ import { memo, useMemo } from 'react';
 
 import { useDraggable } from '@dnd-kit/core';
 
-import type { ChessDragData } from '@constants';
-import { getPieceImageKey } from '@constants';
+import { type ChessDragData, getPieceImageKey } from '@constants';
 import type { PieceSymbol } from '@app-types';
 
 /** Props for the `DraggablePiece` drag source. */
@@ -94,13 +93,15 @@ const DraggablePiece = memo(function DraggablePiece({
         visibility: isDragging ? 'hidden' : 'visible',
         transition: isDragging
           ? 'none'
-          : 'opacity 200ms cubic-bezier(0.4, 0, 0.2, 1)',
-        contain: 'layout style',
-        // `touch-action: none` is required for @dnd-kit's TouchSensor to
-        // capture touch events before the browser claims them for scrolling.
-        // Set inline (not a global class) so only pieces suppress native scroll
-        // — the rest of the page still scrolls normally via untouched elements.
-        touchAction: disabled ? 'auto' : 'none'
+          : 'opacity 150ms cubic-bezier(0.4, 0, 0.2, 1)',
+        contain: 'strict',
+        // `touch-action: none` is required for @dnd-kit's PointerSensor /
+        // TouchSensor to capture pointer events before the browser claims them
+        // for scroll. Only applied when not disabled so the palette still
+        // allows scrolling past non-draggable pieces.
+        touchAction: disabled ? 'auto' : 'none',
+        WebkitUserSelect: 'none',
+        userSelect: 'none'
       }}
       // Decorative for assistive tech: the wrapping control (palette button or
       // board gridcell) names the piece. This inner drag handle is silent to

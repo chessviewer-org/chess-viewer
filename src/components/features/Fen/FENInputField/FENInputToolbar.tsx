@@ -15,7 +15,7 @@ interface FENInputToolbarProps {
 }
 
 const buttonBase =
-  'flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-md transition duration-150 ease-out active:scale-95 hover:bg-opacity-80 text-[11px] sm:text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent h-6 sm:h-7';
+  'flex items-center gap-1 px-1.5 sm:px-2 py-1 rounded-md transition duration-150 ease-out active:scale-95 text-[11px] sm:text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-[1.75rem] coarse:min-h-[2.75rem]';
 
 const neutralButton =
   'bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-text-primary';

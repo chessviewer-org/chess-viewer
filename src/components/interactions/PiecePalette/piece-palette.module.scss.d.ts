@@ -1,6 +1,7 @@
 declare const styles: {
   readonly root: string;
   readonly stacked: string;
+  readonly stackedRow: string;
   readonly stackedGroup: string;
   readonly stackedGroupLabel: string;
   readonly stackedPieceRow: string;

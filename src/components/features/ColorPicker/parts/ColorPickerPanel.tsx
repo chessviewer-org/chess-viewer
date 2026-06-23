@@ -2,8 +2,14 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { BOARD_THEMES } from '@constants';
 
-import { hexToRgb, hsvToRgb, rgbToHex, rgbToHsv } from '@utils';
-import { sanitizeHexColor, sanitizeInput } from '@utils';
+import {
+  hexToRgb,
+  hsvToRgb,
+  rgbToHex,
+  rgbToHsv,
+  sanitizeHexColor,
+  sanitizeInput
+} from '@utils';
 import { SaturationField } from './SaturationField';
 
 const MAX_NAME_LEN = 10;

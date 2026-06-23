@@ -13,8 +13,7 @@ import { useFENBatch } from '@contexts';
 import { useDebouncedFENValidation } from '@hooks';
 import { EMPTY_FEN, STARTING_FEN } from '@constants';
 
-import { validateFEN } from '@utils';
-import { MAX_FEN_LENGTH } from '@utils';
+import { MAX_FEN_LENGTH, validateFEN } from '@utils';
 import FENInputToolbar from './FENInputToolbar';
 import { useFavoriteFen } from './useFavoriteFen';
 
