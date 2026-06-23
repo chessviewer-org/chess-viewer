@@ -868,7 +868,7 @@ BEGIN
     -- display_name defaults to 'User' for every new signup (the app's unified
     -- profile model lets the user rename it later). email still stored as-is.
     INSERT INTO public.profiles (user_id, email, display_name)
-    VALUES (new.id, new.email, 'User')  -- new.email may be NULL — allowed.
+    VALUES (new.id, NULLIF(new.email, ''), 'User')  -- new.email may be NULL — allowed.
     ON CONFLICT (user_id) DO NOTHING;
 
     INSERT INTO public.user_security (user_id)
@@ -1054,9 +1054,23 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = auth, public;
 
--- ... (around line 1010)
 REVOKE EXECUTE ON FUNCTION public.delete_own_account()                          FROM PUBLIC, anon, authenticated;
 GRANT  EXECUTE ON FUNCTION public.delete_own_account()                          TO authenticated;
 
--- ... (rest of grants)
 GRANT  EXECUTE ON FUNCTION public.set_supporter_status(INT)                        TO authenticated;
+
+-- ===========================================================================
+-- BACKFILL: provision profile + security rows for any auth.users rows that
+-- were created before the on_auth_user_created trigger was installed (i.e.
+-- when schema had not yet been applied to the project).
+-- Safe to re-run: ON CONFLICT DO NOTHING makes it idempotent.
+-- Run once after applying this schema to an existing project.
+-- ===========================================================================
+INSERT INTO public.profiles (user_id, email, display_name)
+SELECT id, NULLIF(email, ''), 'User'
+FROM auth.users
+ON CONFLICT (user_id) DO NOTHING;
+
+INSERT INTO public.user_security (user_id)
+SELECT id FROM auth.users
+ON CONFLICT (user_id) DO NOTHING;
