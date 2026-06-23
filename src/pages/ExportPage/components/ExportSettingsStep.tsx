@@ -37,7 +37,7 @@ export default function ExportSettingsStep({
     }`;
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto p-4 lg:p-5 gap-6">
+    <div className="flex h-full flex-col overflow-y-auto p-4 @3xl:p-5 gap-6">
       {/* ── Settings ──────────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-6">
         {/* Format */}

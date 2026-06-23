@@ -4,6 +4,7 @@ import { DisplayOptions } from '@/components/features';
 import BoardPreviewCanvas from '@/pages/ExportPage/components/BoardPreviewCanvas';
 import { ADVANCED_FEN_CONFIG } from '@constants';
 
+import styles from '../advanced-fen-layout.module.scss';
 import type { useAdvancedFEN } from '../hooks/useAdvancedFEN';
 import type { ExportFormat } from '../hooks/useAdvancedFEN/useAdvancedFEN.types';
 import PlaybackControls from './PlaybackControls';
@@ -68,12 +69,13 @@ const InteractiveBoardColumn = memo(function InteractiveBoardColumn({
     state.safeCurrentIndex
   ]);
 
-  // The user requested a single, slightly larger size across all tabs (no jumping)
-  const widthClasses = 'max-w-[440px] lg:max-w-[500px]';
-
+  // The user requested a single, slightly larger size across all tabs (no
+  // jumping). Width tracks the CONTENT container via a px container query
+  // (`.boardWidth`), not the viewport, so the board grows only when the content
+  // column is genuinely wide (side-by-side).
   return (
     <div
-      className={`w-full flex flex-col gap-3 animate-fadeIn mx-auto transition-all duration-300 ${widthClasses}`}
+      className={`w-full flex flex-col gap-3 animate-fadeIn mx-auto transition-all duration-300 ${styles.boardWidth}`}
     >
       <BoardPreviewCanvas
         fen={state.currentFen}

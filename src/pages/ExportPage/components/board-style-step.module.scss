@@ -1,0 +1,106 @@
+@use '../../../styles/mixins' as m;
+
+// =============================================================================
+// BoardStyleStep layout — CSS Module
+//
+// Reacts to the CONTENT container width (the `@container` wrapper in
+// ExportPage), NOT the viewport. We use the px-based `container-up` mixin rather
+// than Tailwind's rem container variants on purpose: the app's root font-size is
+// fluid (15px→17.5px), so Tailwind's rem breakpoints (`@3xl` = 48rem) drift
+// ~6–9% wider on desktop and fire at the wrong pixel width. px container queries
+// are exact.
+//
+//   container < 720px : single column — board → display options → theme picker,
+//                       so themes sit directly under the board they style.
+//   container ≥ 720px : board (40%, sticky) left, theme picker (60%) right.
+//     720px = ~440px board + ~260px panel with breathing room.
+// =============================================================================
+
+$split: 720px;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
+  overflow-y: auto;
+  padding: 1rem;
+
+  @include m.container-up($split) {
+    flex-direction: row;
+    padding: 1.25rem;
+  }
+}
+
+// -- Board column (board preview + side-by-side display options) ---------------
+
+.boardCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  order: 1;
+
+  @include m.container-up($split) {
+    width: 40%;
+    position: sticky;
+    top: 0;
+  }
+}
+
+.boardWrap {
+  width: 100%;
+  max-width: 440px;
+
+  @include m.container-up($split) {
+    max-width: 500px;
+  }
+}
+
+// Display options that ride with the board ONLY when side-by-side. In the single
+// column they are hidden here and shown via `.displayStacked` below the board so
+// the theme picker can sit directly under the board.
+.displayBeside {
+  display: none;
+  width: 100%;
+  max-width: 440px;
+
+  @include m.container-up($split) {
+    display: block;
+    max-width: 500px;
+  }
+}
+
+// -- Single-column display options (directly under the board) ------------------
+
+.displayStacked {
+  order: 2;
+
+  @include m.container-up($split) {
+    display: none;
+  }
+}
+
+.divider {
+  border-top: 1px solid var(--color-border);
+  order: 2;
+
+  @include m.container-up($split) {
+    display: none;
+  }
+}
+
+// -- Theme picker column ------------------------------------------------------
+// order-3: in the single column this sits right below board + display controls,
+// so the user sees the theme swatches relative to the board.
+
+.themeCol {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  order: 3;
+
+  @include m.container-up($split) {
+    width: 60%;
+  }
+}

@@ -195,7 +195,12 @@ const ExportPageInner = ({ config }: { config: ExportPageConfig }) => {
         </div>
 
         {/* ── Content area ──────────────────────────────────────────────────── */}
-        <div className="min-w-0 flex-1">
+        {/* `@container` makes the steps below react to THIS wrapper's width, not
+            the viewport. The sidebar eats ~208–236px, so a viewport `lg:` would
+            fire while the content is still narrow. Container queries inside the
+            steps (`@3xl:` ≈ 768px content width) switch board↔panel at the point
+            the content can actually hold both side by side. */}
+        <div className="@container min-w-0 flex-1">
           <AnimatePresence mode="wait" initial={false}>
             {activeTab === 'board-style' && (
               <motion.div

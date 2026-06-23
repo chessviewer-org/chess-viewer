@@ -11,6 +11,7 @@ import {
 } from '@constants';
 
 import { Seo } from '@shared/ui';
+import styles from './advanced-fen-layout.module.scss';
 import InteractiveBoardColumn from './components/InteractiveBoardColumn';
 import NoValidPositions from './components/NoValidPositions';
 import PositionsTab from './components/PositionsTab';
@@ -24,8 +25,11 @@ import {
 const { TABS } = ADVANCED_FEN_CONFIG;
 
 /** Shared two-column layout for preview/export tabs.
- *  On desktop (lg+) board and panel sit side-by-side; on mobile/tablet they
- *  stack vertically (board first, then panel). */
+ *  Reacts to the CONTENT container width (the `@container` region wrapper), NOT
+ *  the viewport — the sidebar steals ~208–236px so a viewport `lg:` switches at
+ *  the wrong moment. When the content container reaches ~768px (`@3xl`) the
+ *  board (45%, sticky) and panel (55%) sit side-by-side; below that they stack
+ *  vertically (board first, then panel). */
 function PreviewExportLayout({
   left,
   right
@@ -34,13 +38,9 @@ function PreviewExportLayout({
   right: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-10 h-full">
-      <div className="w-full lg:w-[45%] shrink-0 order-1 lg:sticky lg:top-8">
-        {left}
-      </div>
-      <div className="w-full lg:w-[55%] order-2 min-h-0 lg:overflow-y-auto">
-        {right}
-      </div>
+    <div className={styles.previewLayout}>
+      <div className={styles.previewLeft}>{left}</div>
+      <div className={styles.previewRight}>{right}</div>
     </div>
   );
 }
@@ -91,10 +91,13 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
           </div>
         </div>
 
+        {/* `@container`: the preview/export layout below reads THIS wrapper's
+            width via `@3xl:` variants, so the board↔panel split tracks the
+            actual content width, not the viewport (the sidebar offsets them). */}
         <div
           role="region"
           aria-label="Editor content"
-          className="min-w-0 flex-1 h-full flex flex-col overflow-y-auto pr-2 pb-2"
+          className="@container min-w-0 flex-1 h-full flex flex-col overflow-y-auto pr-2 pb-2"
         >
           {state.activeTab === TABS.POSITIONS && (
             <PositionsTab

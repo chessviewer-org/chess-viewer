@@ -1,0 +1,80 @@
+@use '../../styles/mixins' as m;
+
+// =============================================================================
+// AdvancedFEN content layout — CSS Module
+//
+// Reacts to the CONTENT container width (the `@container` region wrapper in
+// AdvancedFENInputPage), NOT the viewport. px-based `container-up` is used
+// instead of Tailwind rem container variants because the app root font-size is
+// fluid (15px→17.5px), which drifts rem breakpoints ~6–9% wider on desktop.
+//
+//   container < 720px : stacked — board (preview + playback + options) first,
+//                       then the wizard panel below it.
+//   container ≥ 720px : board (45%, sticky) left, wizard panel (55%) right.
+// =============================================================================
+
+$split: 720px;
+
+// -- Preview / Export two-column layout ---------------------------------------
+
+.previewLayout {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5rem;
+  height: 100%;
+
+  @include m.container-up($split) {
+    flex-direction: row;
+    gap: 2.5rem;
+  }
+}
+
+.previewLeft {
+  width: 100%;
+  flex-shrink: 0;
+  order: 1;
+
+  @include m.container-up($split) {
+    width: 45%;
+    position: sticky;
+    top: 2rem;
+  }
+}
+
+.previewRight {
+  width: 100%;
+  order: 2;
+  min-height: 0;
+
+  @include m.container-up($split) {
+    width: 55%;
+    overflow-y: auto;
+  }
+}
+
+// -- Board preview column width -----------------------------------------------
+// Board grows to 500px only when the content column is genuinely wide
+// (side-by-side), not merely when the viewport is.
+
+.boardWidth {
+  max-width: 440px;
+
+  @include m.container-up($split) {
+    max-width: 500px;
+  }
+}
+
+// -- Positions tab: 2-up FEN slots --------------------------------------------
+// Two columns only when the content container is genuinely wide, so the slots
+// don't go side-by-side while the sidebar still squeezes the content narrow.
+
+.fenGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+
+  @include m.container-up($split) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
