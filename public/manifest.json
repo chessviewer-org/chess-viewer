@@ -1,6 +1,7 @@
 {
   "short_name": "ChessVision",
-  "name": "ChessVision",
+  "name": "ChessVision - FEN to Image Converter",
+  "description": "Free chess diagram generator. Convert FEN to PNG, JPEG, or SVG. Professional-quality output, no sign-up required.",
   "icons": [
     {
       "src": "favicon.ico",
@@ -18,8 +19,10 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
   "theme_color": "#3b82f6",
-  "background_color": "#f9fafb"
+  "background_color": "#f9fafb",
+  "categories": ["games", "productivity", "utilities"],
+  "lang": "en"
 }
