@@ -89,7 +89,12 @@ export function SignInPage() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+      <form
+        id="signin-form"
+        onSubmit={handleSubmit}
+        noValidate
+        className="flex flex-col gap-4"
+      >
         <div>
           <label
             htmlFor="signin-email"
@@ -99,6 +104,7 @@ export function SignInPage() {
           </label>
           <input
             id="signin-email"
+            name="email"
             type="email"
             autoComplete="email"
             className={fieldClass}
@@ -124,6 +130,7 @@ export function SignInPage() {
           <div className="relative">
             <input
               id="signin-password"
+              name="password"
               type={showPassword ? 'text' : 'password'}
               autoComplete="current-password"
               className={`${fieldClass} pr-10`}
