@@ -459,10 +459,9 @@ function lichessHasGames(text: string): boolean {
   return asCount(d.white) + asCount(d.draws) + asCount(d.black) > 0;
 }
 
-/** Human-facing link: opens the position on Lichess' analysis board, whose
- *  Opening Explorer panel then lists the games/continuations. */
-function lichessHumanUrl(fen: string): string {
-  return `https://lichess.org/analysis?fen=${encodeURIComponent(fen)}`;
+/** Human-facing link: opens the Lichess Opening Explorer directly at this position. */
+function _lichessExplorerUrl(fen: string, db: 'masters' | 'lichess'): string {
+  return `https://lichess.org/analysis#explorer?db=${db}&fen=${encodeURIComponent(fen)}`;
 }
 
 // ChessDB.cn (www.chessdb.cn) — an open, free, no-key cloud engine-evaluation
