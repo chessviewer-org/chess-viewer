@@ -10,7 +10,7 @@ const pieceCache = new Map<string, HTMLImageElement>();
 // rasterises them at ~45px — far smaller than a board square at devicePixelRatio
 // ≥ 2, which is why pieces looked blurry everywhere. We rewrite the SVG to a
 // large explicit size so the bitmap the canvas samples from is high-resolution.
-const PIECE_RASTER_PX = 256;
+const PIECE_RASTER_PX = 512;
 
 // Track which cached images were loaded from a blob: URL so eviction can revoke
 // the object URL (the high-res rasterisation path below). Plain CDN-URL images

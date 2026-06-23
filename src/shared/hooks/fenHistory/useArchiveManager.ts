@@ -6,10 +6,10 @@ import {
   clearArchive as clearArchiveUtil,
   deleteArchivedEntry as deleteArchivedEntryUtil,
   loadArchive,
-  reactivateEntry as reactivateEntryUtil
+  logger,
+  reactivateEntry as reactivateEntryUtil,
+  sortByMostRecent
 } from '@utils';
-import { sortByMostRecent } from '@utils';
-import { logger } from '@utils';
 
 /** Arguments for `useArchiveManager`. */
 interface UseArchiveManagerArgs {

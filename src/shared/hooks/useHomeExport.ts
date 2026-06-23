@@ -1,17 +1,17 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react';
 
-import type { ExportConfig } from '@utils';
 import {
   cancelExport,
   copyToClipboard,
   downloadJPEG,
   downloadPNG,
+  type ExportConfig,
+  logger,
   pauseExport,
   resumeExport,
   shouldForceCoordinateBorder,
   validateFEN
 } from '@utils';
-import { logger } from '@utils';
 
 /** Tracks the lifecycle of an in-progress export operation. */
 interface ExportState {

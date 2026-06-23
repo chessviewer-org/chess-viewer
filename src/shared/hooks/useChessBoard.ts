@@ -2,9 +2,7 @@ import { useMemo } from 'react';
 
 import { ChessBoard, isChessBoard } from '@app-types';
 
-import { logger, parseFEN } from '@utils';
-import { createEmptyBoard } from '@utils';
-import { FENParseError } from '@utils';
+import { createEmptyBoard, FENParseError, logger, parseFEN } from '@utils';
 
 export interface UseChessBoardResult {
   board: ChessBoard;

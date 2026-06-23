@@ -2,9 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { syncStorage } from '@/features/auth/services/syncStorage';
 
-import { hydrateFromSync } from '@utils';
-import { logger } from '@utils';
-import { safeJSONParse } from '@utils';
+import { hydrateFromSync, logger, safeJSONParse } from '@utils';
 
 const CUSTOM_THEME_PRESETS_KEY = 'custom-theme-presets';
 

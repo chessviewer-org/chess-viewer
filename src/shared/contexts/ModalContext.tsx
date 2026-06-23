@@ -6,8 +6,7 @@ import React, {
   useState
 } from 'react';
 
-import type { ModalType } from '@shared/ui';
-import { Modal } from '@shared/ui';
+import { Modal, type ModalType } from '@shared/ui';
 
 interface ModalState {
   isOpen: boolean;

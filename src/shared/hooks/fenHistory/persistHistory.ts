@@ -1,8 +1,12 @@
 import { syncStorage } from '@/features/auth/services/syncStorage';
 import type { ActiveHistoryEntry } from '@app-types';
 
-import { emitSyncTruncation, sortByMostRecent, trimToSyncBudget } from '@utils';
-import { logger } from '@utils';
+import {
+  emitSyncTruncation,
+  logger,
+  sortByMostRecent,
+  trimToSyncBudget
+} from '@utils';
 
 /**
  * Writes the active FEN history to `localStorage` and asynchronously syncs it

@@ -41,6 +41,7 @@ export interface UseDatabaseSearchResult {
   chessdb: ProviderState;
   pdb: ProviderState;
   yacpdb: ProviderState;
+  searchAll: () => void;
 }
 
 type StatusMap = Record<DatabaseProvider, ProviderSearchStatus>;
@@ -131,19 +132,19 @@ export function useDatabaseSearch(fen: string): UseDatabaseSearchResult {
     [fen]
   );
 
-  const searchLichess = useCallback(() => run(['lichess']), [run]);
-  const searchChessdb = useCallback(() => run(['chessdb']), [run]);
-  const searchPdb = useCallback(() => run(['pdb']), [run]);
-  const searchYacpdb = useCallback(() => run(['yacpdb']), [run]);
+  const searchAll = useCallback(
+    () => run(['lichess', 'chessdb', 'pdb', 'yacpdb']),
+    [run]
+  );
 
   const lichess = useMemo<ProviderState>(
     () => ({
       status: statuses.lichess,
       label: PROVIDER_LABEL.lichess,
       url: urls.lichess,
-      search: searchLichess
+      search: () => run(['lichess'])
     }),
-    [statuses.lichess, urls.lichess, searchLichess]
+    [statuses.lichess, urls.lichess, run]
   );
 
   const chessdb = useMemo<ProviderState>(
@@ -151,9 +152,9 @@ export function useDatabaseSearch(fen: string): UseDatabaseSearchResult {
       status: statuses.chessdb,
       label: PROVIDER_LABEL.chessdb,
       url: urls.chessdb,
-      search: searchChessdb
+      search: () => run(['chessdb'])
     }),
-    [statuses.chessdb, urls.chessdb, searchChessdb]
+    [statuses.chessdb, urls.chessdb, run]
   );
 
   const pdb = useMemo<ProviderState>(
@@ -161,9 +162,9 @@ export function useDatabaseSearch(fen: string): UseDatabaseSearchResult {
       status: statuses.pdb,
       label: PROVIDER_LABEL.pdb,
       url: urls.pdb,
-      search: searchPdb
+      search: () => run(['pdb'])
     }),
-    [statuses.pdb, urls.pdb, searchPdb]
+    [statuses.pdb, urls.pdb, run]
   );
 
   const yacpdb = useMemo<ProviderState>(
@@ -171,10 +172,10 @@ export function useDatabaseSearch(fen: string): UseDatabaseSearchResult {
       status: statuses.yacpdb,
       label: PROVIDER_LABEL.yacpdb,
       url: urls.yacpdb,
-      search: searchYacpdb
+      search: () => run(['yacpdb'])
     }),
-    [statuses.yacpdb, urls.yacpdb, searchYacpdb]
+    [statuses.yacpdb, urls.yacpdb, run]
   );
 
-  return { lichess, chessdb, pdb, yacpdb };
+  return { lichess, chessdb, pdb, yacpdb, searchAll };
 }

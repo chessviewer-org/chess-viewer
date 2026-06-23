@@ -16,6 +16,7 @@ export * from './imageOptimizer';
 export * from './logger';
 export * from './pageScroll';
 export * from './pieceImageCache';
+export * from './pieceSort';
 export * from './reducedMotion';
 export * from './svgExporter';
 export * from './syncHydration';

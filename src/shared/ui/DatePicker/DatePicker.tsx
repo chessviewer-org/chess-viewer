@@ -19,6 +19,8 @@ interface DatePickerProps {
   onChange: (value: number | undefined) => void;
   placeholder?: string;
   label?: string;
+  /** Which edge of the trigger to align the dropdown to. Default: 'left' */
+  align?: 'left' | 'right';
 }
 
 const MONTH_NAMES = [
@@ -46,9 +48,11 @@ const DatePicker = memo(function DatePicker({
   value,
   onChange,
   placeholder = 'Select date',
-  label
+  label,
+  align = 'left'
 }: DatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [openUpward, setOpenUpward] = useState(false);
   const [viewDate, setViewDate] = useState(() => {
     if (value) return new Date(value);
     return new Date();
@@ -74,6 +78,12 @@ const DatePicker = memo(function DatePicker({
       }
     };
     if (isOpen) {
+      // Detect if dropdown would overflow below the viewport; if so, open upward.
+      if (triggerRef.current) {
+        const rect = triggerRef.current.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        setOpenUpward(spaceBelow < 360);
+      }
       document.addEventListener('mousedown', handleClickOutside);
       return () =>
         document.removeEventListener('mousedown', handleClickOutside);
@@ -277,7 +287,7 @@ const DatePicker = memo(function DatePicker({
           role="dialog"
           aria-modal="false"
           aria-labelledby={dialogLabelId}
-          className="absolute z-30 mt-2 w-72 max-w-[calc(100vw-2rem)] bg-surface-elevated border border-border rounded-xl shadow-2xl overflow-hidden"
+          className={`absolute z-30 w-72 max-w-[calc(100vw-2rem)] bg-surface-elevated border border-border rounded-xl shadow-2xl overflow-hidden ${openUpward ? 'bottom-full mb-2' : 'top-full mt-2'} ${align === 'right' ? 'right-0' : 'left-0'}`}
         >
           <div className="bg-linear-to-r from-accent/10 to-accent/5 px-4 py-3 border-b border-border">
             <div className="flex items-center justify-between">

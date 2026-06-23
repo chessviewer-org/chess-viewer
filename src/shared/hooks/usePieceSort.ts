@@ -1,10 +1,6 @@
 import { useMemo } from 'react';
 
-import {
-  type PieceSort,
-  sortPieceSets
-} from '@/components/features/ColorPicker';
-
+import { type PieceSort, sortPieceSets } from '@utils';
 import { useLocalStorage } from './useLocalStorage';
 
 /**

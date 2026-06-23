@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Home, RefreshCw } from 'lucide-react';
+import { Home, Mail, RefreshCw } from 'lucide-react';
 
 import { Logo } from '@/components/layout';
 
@@ -12,12 +12,30 @@ interface ErrorFallbackProps {
   resetErrorBoundary: () => void;
 }
 
+/** Support address users can reach to report an unrecoverable error. */
+const SUPPORT_EMAIL = 'contact@chessvision.org';
+
 /**
  * Full-page fallback UI displayed when `ErrorBoundary` catches an unhandled
- * render error. Professional, brand-led apology screen — logo lockup, a clear
- * apology, and recovery actions. No raw error details are exposed to the user.
+ * render error. Professional, brand-led status screen — logo lockup, a precise
+ * statement of the failure, recovery actions, and a way to report the error.
+ * No raw error details are exposed to the user.
  */
-function ErrorFallback({ resetErrorBoundary }: ErrorFallbackProps) {
+function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
+  const reportSubject = encodeURIComponent('ChessVision — Error report');
+  const reportBody = encodeURIComponent(
+    [
+      'Please describe what you were doing when the error occurred:',
+      '',
+      '',
+      '— — — — — — — — — —',
+      'Technical details (do not edit):',
+      `Reference: ${error?.name ?? 'UnknownError'}`,
+      `Page: ${typeof window !== 'undefined' ? window.location.href : 'unknown'}`
+    ].join('\n')
+  );
+  const reportHref = `mailto:${SUPPORT_EMAIL}?subject=${reportSubject}&body=${reportBody}`;
+
   return (
     <div
       role="alert"
@@ -26,19 +44,20 @@ function ErrorFallback({ resetErrorBoundary }: ErrorFallbackProps) {
     >
       <div className="w-full max-w-md text-center animate-fadeIn">
         {/* Brand lockup: the real accent-themed logo + wordmark. */}
-        <div className="inline-flex items-center gap-2.5 mb-12">
-          <Logo className="w-9 h-9 object-contain" />
-          <span className="text-xl font-display font-bold text-text-primary tracking-tight">
+        <div className="inline-flex items-center justify-center gap-3 mb-12">
+          <Logo className="w-12 h-12 object-contain" />
+          <span className="text-2xl font-display font-bold text-text-primary tracking-tight">
             ChessVision
           </span>
         </div>
 
-        <h1 className="text-h2 font-display font-bold text-text-primary mb-3">
-          We&rsquo;re sorry — something went wrong
+        <h1 className="text-h2 font-display font-bold text-text-primary text-center mb-3">
+          We&rsquo;re sorry &mdash; something went wrong
         </h1>
-        <p className="text-text-secondary text-fluid-base leading-relaxed mb-10">
-          An unexpected error stopped this page from loading. Our team has been
-          notified. Please try again, or return home — your work is safe.
+        <p className="text-text-secondary text-fluid-base leading-relaxed text-center mx-auto max-w-sm mb-10">
+          An unexpected error prevented this page from loading. We apologise for
+          the inconvenience. Your saved work is safe &mdash; reload the page to
+          continue, or return to the home page.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -46,10 +65,10 @@ function ErrorFallback({ resetErrorBoundary }: ErrorFallbackProps) {
             type="button"
             onClick={resetErrorBoundary}
             className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-accent hover:bg-accent-hover text-bg rounded-xl font-bold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            aria-label="Try again to recover from error"
+            aria-label="Reload to recover from error"
           >
             <RefreshCw className="w-5 h-5" aria-hidden="true" />
-            Try Again
+            Reload
           </button>
 
           <a
@@ -61,6 +80,18 @@ function ErrorFallback({ resetErrorBoundary }: ErrorFallbackProps) {
             Go Home
           </a>
         </div>
+
+        {/* Reporting channel: opens a pre-filled mail draft to support. */}
+        <p className="mt-10 text-sm text-text-secondary text-center">
+          If the problem persists, report it to{' '}
+          <a
+            href={reportHref}
+            className="inline-flex items-center gap-1 font-semibold text-accent hover:text-accent-hover underline-offset-4 hover:underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm"
+          >
+            <Mail className="w-4 h-4" aria-hidden="true" />
+            {SUPPORT_EMAIL}
+          </a>
+        </p>
       </div>
     </div>
   );

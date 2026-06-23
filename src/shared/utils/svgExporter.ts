@@ -216,6 +216,21 @@ export async function generateBoardSVG(
   return parts.join('\n');
 }
 
+export async function getSVGBlob(
+  config: SVGExportConfig,
+  onProgress?: (progress: number, label?: string | null) => void
+): Promise<Blob> {
+  if (!config) throw new Error('Config is null or undefined');
+  if (!config.fen) throw new Error('FEN is missing');
+  if (!config.pieceImages || Object.keys(config.pieceImages).length === 0) {
+    throw new Error('pieceImages is empty or missing');
+  }
+  onProgress?.(5, 'Preparing');
+  const svgString = await generateBoardSVG(config);
+  onProgress?.(80, 'SVG ready');
+  return new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+}
+
 /**
  * Generates an SVG of the board position and triggers a browser download.
  *
@@ -230,16 +245,8 @@ export async function downloadSVG(
   onProgress?: (progress: number, label?: string | null) => void
 ): Promise<void> {
   try {
-    if (!config) throw new Error('Config is null or undefined');
-    if (!config.fen) throw new Error('FEN is missing');
-    if (!config.pieceImages || Object.keys(config.pieceImages).length === 0) {
-      throw new Error('pieceImages is empty or missing');
-    }
     const safeFileName = sanitizeFileName(fileName);
-    onProgress?.(5, 'Preparing');
-    const svgString = await generateBoardSVG(config);
-    onProgress?.(80, 'SVG ready');
-    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const blob = await getSVGBlob(config, onProgress);
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;

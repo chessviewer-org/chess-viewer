@@ -61,12 +61,13 @@ export const Seo: React.FC<SeoProps> = ({
       ? `${SITE_URL}${path === '/' ? '/' : path}${dynamicParams || ''}`
       : undefined;
 
-  // Securely stringify JSON-LD. Replaces `<` to prevent </script> XSS breakouts.
-  // We use dangerouslySetInnerHTML to prevent React from encoding quotes to &quot;
-  // inside the script body, which would invalidate the JSON-LD.
-  const jsonLd = schema
-    ? JSON.stringify(schema).replace(/</g, '\\u003c')
-    : undefined;
+  // Each schema object gets its own <script> block — cleaner for Google's parser
+  // than a top-level array, and avoids @context duplication across items.
+  // Replaces `<` to prevent </script> XSS breakouts.
+  const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
+
+  const serialize = (obj: Record<string, unknown>) =>
+    JSON.stringify(obj).replace(/</g, '\\u003c');
 
   return (
     <>
@@ -94,13 +95,21 @@ export const Seo: React.FC<SeoProps> = ({
       <meta name="twitter:description" content={desc} />
       <meta name="twitter:image" content={ogImage} />
 
-      {/* Structured Data */}
-      {jsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonLd }}
-        />
-      )}
+      {/* Structured Data — one <script> per schema object.
+          dangerouslySetInnerHTML is required: React encodes quotes inside
+          <script> to &quot;, which breaks JSON-LD parsing. All schema objects
+          come exclusively from seoConstants.ts (no user input); `<` is escaped
+          to < above to prevent </script> injection. */}
+      {schemas.map((s) => {
+        const key = (s['@id'] ?? s['@type'] ?? JSON.stringify(s)) as string;
+        return (
+          <script
+            key={key}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: serialize(s) }}
+          />
+        );
+      })}
     </>
   );
 };

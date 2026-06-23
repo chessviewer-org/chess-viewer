@@ -2,10 +2,7 @@ export { useBoardPieceSet } from './useBoardPieceSet';
 export { useChessBoard } from './useChessBoard';
 export { useColorVision, useColorVisionSetting } from './useColorVision';
 export { useContrast, useContrastSetting } from './useContrast';
-export type {
-  ProviderState,
-  UseDatabaseSearchResult
-} from './useDatabaseSearch';
+export type { ProviderState } from './useDatabaseSearch';
 export { useDatabaseSearch } from './useDatabaseSearch';
 export { useDebouncedFENValidation } from './useDebouncedFENValidation';
 export { useEditorKeyboard } from './useEditorKeyboard';

@@ -3,8 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { syncStorage } from '@/features/auth/services/syncStorage';
 import type { ActiveHistoryEntry } from '@app-types';
 
-import { mergeById, sortByMostRecent } from '@utils';
-import { safeJSONParse } from '@utils';
+import { mergeById, safeJSONParse, sortByMostRecent } from '@utils';
 import { persistHistory } from './persistHistory';
 
 /**

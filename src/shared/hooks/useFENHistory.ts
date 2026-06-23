@@ -9,19 +9,17 @@ import {
   HistorySource
 } from '@app-types';
 
-import { validateFEN } from '@utils';
-import {
-  archiveEntries as archiveEntriesUtil,
-  performAutoArchival
-} from '@utils';
 import {
   applyFilters,
+  archiveEntries as archiveEntriesUtil,
   calculateStatus,
   createHistoryEntry,
+  logger,
+  performAutoArchival,
   sortByMostRecent,
-  touchEntry
+  touchEntry,
+  validateFEN
 } from '@utils';
-import { logger } from '@utils';
 import { useArchiveManager } from './fenHistory/useArchiveManager';
 import { useHistoryDragDebounce } from './fenHistory/useHistoryDragDebounce';
 import { useHistoryHydration } from './fenHistory/useHistoryHydration';

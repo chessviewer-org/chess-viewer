@@ -2,8 +2,7 @@ import { useEffect } from 'react';
 
 import { syncStorage } from '@/features/auth/services/syncStorage';
 
-import { logger } from '@utils';
-import { safeJSONParse, sanitizeHexColor } from '@utils';
+import { logger, safeJSONParse, sanitizeHexColor } from '@utils';
 import type { ThemeHistoryItem } from './types';
 
 /** Options for `useThemePersistence`. */

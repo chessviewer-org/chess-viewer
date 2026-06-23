@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { PIECE_MAP } from '@constants';
 
-import { logger } from '@utils';
-import { preloadPieceStyle, setCachedPieces } from '@utils';
+import { logger, preloadPieceStyle, setCachedPieces } from '@utils';
 
 /**
  * Loads and caches all piece images for the given piece style.

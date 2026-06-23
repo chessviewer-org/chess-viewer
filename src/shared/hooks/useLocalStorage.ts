@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { logger } from '@utils';
-import { safeJSONParse } from '@utils';
+import { logger, safeJSONParse } from '@utils';
 
 /**
  * Persists state to localStorage with debounced writes to improve performance

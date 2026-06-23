@@ -78,17 +78,14 @@ function triggerDownload(
   }, 100);
 }
 
-async function downloadRaster(
+export async function getRasterBlob(
   config: ExportConfig,
-  fileName: string,
   format: 'png' | 'jpeg',
-  extension: string,
   onProgress?: ProgressCallback
-): Promise<void> {
+): Promise<Blob> {
   resetExportState();
   try {
     validateExportConfig(config);
-    const safeFileName = sanitizeFileName(fileName);
     setProgress(onProgress, 5, 'Preparing');
     await waitWhilePaused();
     checkCancellation();
@@ -99,8 +96,22 @@ async function downloadRaster(
     checkCancellation();
 
     const exportInfo = getExportInfo(config);
-    const finalBlob = await changeDPI(blob, exportInfo.effectiveDPI, format);
+    return await changeDPI(blob, exportInfo.effectiveDPI, format);
+  } finally {
+    resetExportState();
+  }
+}
 
+async function downloadRaster(
+  config: ExportConfig,
+  fileName: string,
+  format: 'png' | 'jpeg',
+  extension: string,
+  onProgress?: ProgressCallback
+): Promise<void> {
+  try {
+    const finalBlob = await getRasterBlob(config, format, onProgress);
+    const safeFileName = sanitizeFileName(fileName);
     triggerDownload(finalBlob, safeFileName, extension);
     setProgress(onProgress, 100, 'Done');
   } catch (error: unknown) {
@@ -111,8 +122,6 @@ async function downloadRaster(
       `${format.toUpperCase()} export failed: ${error instanceof Error ? error.message : String(error)}`,
       { cause: error instanceof Error ? error : undefined }
     );
-  } finally {
-    resetExportState();
   }
 }
 
