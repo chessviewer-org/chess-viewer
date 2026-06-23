@@ -2,6 +2,3 @@
 /support  /about   301
 /download /export  301
 /donate   /about   301
-
-# SPA fallback — must be last
-/*        /index.html 200
