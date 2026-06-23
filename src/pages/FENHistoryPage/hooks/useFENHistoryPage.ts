@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -172,11 +172,10 @@ export const useFENHistoryPage = () => {
     [reactivateArchivedEntry]
   );
 
-  // Favorites de-duplicated by position: the same FEN can appear many times in
-  // the raw history (re-loaded repeatedly), but a position is favourited once.
-  // Keep a single card per board-field, the MOST RECENTLY favourited first.
-  // View-only dedup — the underlying history data is never mutated.
-  const favoritesData = (() => {
+  // Stable memoized favorites — new array reference only when fenHistory changes.
+  // Without useMemo the IIFE produces a new array every render, which makes
+  // FENHistoryGrid's `useEffect([data])` reset pagination on every re-render.
+  const favoritesData = useMemo(() => {
     const favorites = fenHistory.filter(
       (entry: ActiveHistoryEntry) => entry.isFavorite
     );
@@ -192,44 +191,39 @@ export const useFENHistoryPage = () => {
       unique.push(entry);
     }
     return unique;
-  })();
+  }, [fenHistory]);
 
-  const applyFavoritesFilters = useCallback(
-    (entries: ActiveHistoryEntry[]) => {
-      let filtered = entries;
+  const filteredFavorites = useMemo(() => {
+    let filtered = favoritesData;
 
-      if (favoritesFilters.fenSearch) {
-        filtered = filtered.filter((entry) =>
-          entry.fen
-            .toLowerCase()
-            .includes(favoritesFilters.fenSearch?.toLowerCase() || '')
-        );
-      }
+    if (favoritesFilters.fenSearch) {
+      filtered = filtered.filter((entry) =>
+        entry.fen
+          .toLowerCase()
+          .includes(favoritesFilters.fenSearch?.toLowerCase() || '')
+      );
+    }
 
-      if (favoritesFilters.source) {
-        filtered = filtered.filter(
-          (entry) => entry.source === favoritesFilters.source
-        );
-      }
+    if (favoritesFilters.source) {
+      filtered = filtered.filter(
+        (entry) => entry.source === favoritesFilters.source
+      );
+    }
 
-      if (favoritesFilters.dateFrom !== undefined) {
-        filtered = filtered.filter(
-          (entry) => entry.createdAt >= (favoritesFilters.dateFrom || 0)
-        );
-      }
+    if (favoritesFilters.dateFrom !== undefined) {
+      filtered = filtered.filter(
+        (entry) => entry.createdAt >= (favoritesFilters.dateFrom || 0)
+      );
+    }
 
-      if (favoritesFilters.dateTo !== undefined) {
-        filtered = filtered.filter(
-          (entry) => entry.createdAt <= (favoritesFilters.dateTo || Infinity)
-        );
-      }
+    if (favoritesFilters.dateTo !== undefined) {
+      filtered = filtered.filter(
+        (entry) => entry.createdAt <= (favoritesFilters.dateTo || Infinity)
+      );
+    }
 
-      return filtered;
-    },
-    [favoritesFilters]
-  );
-
-  const filteredFavorites = applyFavoritesFilters(favoritesData);
+    return filtered;
+  }, [favoritesData, favoritesFilters]);
 
   const currentData =
     activeTab === 'archive'

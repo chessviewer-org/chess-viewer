@@ -5,9 +5,16 @@
 // ChessEditor layout — CSS Module
 //
 // Container breakpoints (relative to .workspace-container inline-size):
-//   < 564px   single-column : board full-width, panel stacked below
-//   >= 564px  side-by-side  : board left, panel right
-//   >= 1024px desktop       : panel height pinned to board via --board-h
+//   < 564px   single-column      : board full-width, panel stacked below
+//   ≥ 564px   side-by-side       : board left, panel right; commandbar top
+//   ≥ 800px   cmd-in-panel       : commandbar moves into right panel
+//   ≥ 1024px  desktop            : larger board formula
+//
+// INVARIANT: board height === panel height at all side-by-side breakpoints.
+//   Achieved via align-items:stretch on .editorMainRow + align-self:flex-start
+//   on .editorBoardCol + height:100% on .editorPanel. The board's aspect-ratio
+//   1/1 drives the row height; the panel fills it with justify-content:
+//   space-between (palette top, trash bottom, display-opts filling the gap).
 // =============================================================================
 
 // -- Root wrapper -------------------------------------------------------------
@@ -21,7 +28,9 @@
   overflow-x: hidden;
 }
 
-// -- CommandBar: full-width above board (single-column only) ------------------
+// -- CommandBar: full-width strip above the main row --------------------------
+//   Visible on mobile + small tablet (< 800px container).
+//   At ≥ 800px it moves into the right panel (.editorCommandbarPanel).
 
 .editorCommandbarTop {
   display: block;
@@ -30,7 +39,7 @@
   margin-bottom: 0.25rem;
   padding-inline: 0.25rem;
 
-  @include m.editor-side-by-side {
+  @include m.editor-cmd-in-panel {
     display: none;
   }
 }
@@ -41,13 +50,13 @@
   margin-top: 0.5rem;
 }
 
-// -- CommandBar: inside right panel (side-by-side only) -----------------------
+// -- CommandBar: inside right panel (≥ 800px) ---------------------------------
 
 .editorCommandbarPanel {
   display: none;
   flex-shrink: 0;
 
-  @include m.editor-side-by-side {
+  @include m.editor-cmd-in-panel {
     display: block;
   }
 }
@@ -64,11 +73,7 @@
 
   @include m.editor-side-by-side {
     flex-direction: row;
-    align-items: flex-start;
-  }
-
-  @include m.editor-desktop {
-    flex-direction: row;
+    // INVARIANT: stretch so panel can height:100% to match board column height.
     align-items: stretch;
   }
 }
@@ -86,6 +91,8 @@
   @include m.editor-side-by-side {
     width: 52%;
     max-width: 460px;
+    // flex-start so board col drives the row height (not stretched by the row).
+    align-self: flex-start;
   }
 
   @include m.editor-desktop {
@@ -110,15 +117,12 @@
   }
 
   @include m.editor-desktop {
-    max-width: calc((100vh - 260px) * 0.88);
+    max-width: calc((100vh - 260px) * 0.93);
   }
 }
 
 .editorBoardInner {
   width: 100%;
-  // Breathing room above the board so the outward "Board Frame" overlay has
-  // real space to render on the top edge (above the a8–h8 rank) instead of
-  // being swallowed by the command-bar block directly above it.
   padding-top: 3px;
 }
 
@@ -131,8 +135,6 @@
   container-type: inline-size;
 }
 
-// Coordinate labels rendered as a non-interactive overlay so the board
-// never resizes when coords are toggled — only labels appear/disappear.
 .editorCoordsOverlay {
   position: absolute;
   inset: 0;
@@ -140,7 +142,7 @@
   z-index: 2;
 }
 
-// -- Right panel: palette, options, trash, DB search --------------------------
+// -- Right panel: palette, display-opts, trash --------------------------------
 
 .editorPanel {
   display: flex;
@@ -154,31 +156,17 @@
 
   @include m.editor-side-by-side {
     flex: 1;
-    width: 0; // flex-row: grow into remaining space after board column
+    width: 0; // grow into remaining space after board column in flex-row
     max-width: none;
     margin: 0;
-  }
-
-  @include m.editor-desktop {
+    // INVARIANT: fill the height that board column sets via align-items:stretch.
+    height: 100%;
     overflow: hidden;
   }
 }
 
-// -- Stacked single-column order ----------------------------------------------
-//
-// Source order is the side-by-side/desktop order (palette → display → DB →
-// trash pinned to the bottom of the column). But when the panel stacks BELOW
-// the board (single-column, < 564px container) the user wants delete-related
-// controls adjacent to the board: a piece is dragged off the board into the
-// TrashZone, so "Drop to remove" must sit right under the palette — not after
-// four rows of database-search results. We only reorder in single-column via
-// CSS `order`; side-by-side/desktop keep DOM order (all `order: 0`), so the
-// trash stays pinned at the bottom of the right column there.
-//
-//   single-col target order:  palette(1) → trash(2) → display(3) → DB(4)
-//
-// `order` on flex children is purely visual and touches no React tree, so the
-// memo budget on the board squares is unaffected.
+// -- Single-column visual order -----------------------------------------------
+//   palette(1) → trash(2) → display(3) → DB(4)
 
 .editorPaletteCard {
   width: 100%;
@@ -207,6 +195,16 @@
   @include m.editor-single-col {
     order: 3;
   }
+
+  // Side-by-side: grow to fill space between palette and trash.
+  @include m.editor-side-by-side {
+    flex: 1;
+    min-height: 0;
+  }
+
+  @include m.editor-desktop {
+    flex: 1;
+  }
 }
 
 .editorDisplayOptsLabel {
@@ -225,6 +223,14 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem 1rem;
+
+  // Tablet + desktop: stack vertically so items fit the narrow panel.
+  @include m.editor-side-by-side {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 0.375rem;
+  }
 }
 
 // -- Trash zone ---------------------------------------------------------------
@@ -241,14 +247,12 @@
     height: 2.75rem;
   }
 
-  // Single-column: pull the TrashZone up to sit directly under the palette so
-  // "Drop to remove" is adjacent to the board the user drags pieces off of.
   @include m.editor-single-col {
     order: 2;
   }
 }
 
-// -- Database search ----------------------------------------------------------
+// -- Database search: in-panel on mobile + desktop; below row on tablet -------
 
 .editorDbSearch {
   display: flex;
@@ -256,9 +260,33 @@
   gap: v.$gap-xs;
   flex-shrink: 0;
 
-  // Single-column: DB search drops to the bottom, below the immediate edit
-  // controls (palette → trash → display) per the proximity-first stacking.
   @include m.editor-single-col {
     order: 4;
+  }
+
+  // Tablet (564–1024px): hidden from panel — shown in .editorDbRow instead.
+  @include m.editor-side-by-side {
+    display: none;
+  }
+
+  @include m.editor-desktop {
+    display: flex;
+  }
+}
+
+// -- Database search row: full-width below board+panel on tablet only ---------
+
+.editorDbRow {
+  display: none;
+
+  @include m.editor-side-by-side {
+    display: block;
+    width: 100%;
+    flex-shrink: 0;
+    margin-top: 0.5rem; // small gap between row and db search
+  }
+
+  @include m.editor-desktop {
+    display: none;
   }
 }

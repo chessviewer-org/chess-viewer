@@ -80,6 +80,13 @@
   }
 }
 
+// Commandbar moves from top strip into the right panel at this width.
+@mixin editor-cmd-in-panel {
+  @include container-up(v.$editor-breakpoint-cmd) {
+    @content;
+  }
+}
+
 @mixin editor-desktop {
   @include container-up(v.$editor-breakpoint-desk) {
     @content;

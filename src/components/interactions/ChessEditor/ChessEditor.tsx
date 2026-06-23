@@ -8,7 +8,12 @@ import {
   useState
 } from 'react';
 
-import { DndContext, DragOverlay, pointerWithin } from '@dnd-kit/core';
+import {
+  DndContext,
+  DragOverlay,
+  type Modifier,
+  pointerWithin
+} from '@dnd-kit/core';
 
 import {
   useDatabaseSearch,
@@ -31,6 +36,22 @@ import ShareDialog from './parts/ShareDialog';
 import { useDragState } from './useDragState';
 import { useEditorBoardSize } from './useEditorBoardSize';
 import { useShareBoard } from './useShareBoard';
+
+// Centers the DragOverlay ghost on the pointer — fixes the offset when
+// dragging from PiecePalette where the drag starts from the element corner.
+const snapCenterToCursor: Modifier = ({
+  activatorEvent,
+  draggingNodeRect,
+  transform
+}) => {
+  if (!draggingNodeRect || !activatorEvent) return transform;
+  const e = activatorEvent as PointerEvent;
+  const offsetX =
+    e.clientX - (draggingNodeRect.left + draggingNodeRect.width / 2);
+  const offsetY =
+    e.clientY - (draggingNodeRect.top + draggingNodeRect.height / 2);
+  return { ...transform, x: transform.x + offsetX, y: transform.y + offsetY };
+};
 
 /** Props for the `ChessEditor` interactive board wrapper. */
 export interface ChessEditorProps {
@@ -252,16 +273,18 @@ export const ChessEditor = memo(function ChessEditor({
         className={`${styles.editorRoot} ${className}`}
         onClick={clearSelection}
       >
+        {/* CommandBar: full-width above board+panel on mobile and tablet */}
+        <div className={styles.editorCommandbarTop}>
+          <div className="flex items-center justify-end w-full">
+            <CommandBar {...commandBarProps} />
+          </div>
+          <div className={styles.editorCommandbarSeparator} />
+        </div>
+
         <div className={styles.editorMainRow}>
           {/* ── Board column ── */}
           <div className={styles.editorBoardCol}>
             <div className={styles.editorBoardWrap}>
-              <div className={styles.editorCommandbarTop}>
-                <div className="flex items-center justify-end w-full">
-                  <CommandBar {...commandBarProps} />
-                </div>
-                <div className={styles.editorCommandbarSeparator} />
-              </div>
               <div className={styles.editorBoardInner}>
                 <div className="relative w-full aspect-square">
                   {/* Coordinates gutters always take up 5% space. Board always takes 95% space. */}
@@ -350,7 +373,13 @@ export const ChessEditor = memo(function ChessEditor({
             style={
               {
                 '--board-h': `${boardTotalH}px`,
-                paddingBottom: showCoords ? `${(cellSize * 8) / 19}px` : '0'
+                // Coords occupy 5% of the board wrapper below the squares.
+                // Pad the panel bottom by the same amount so trash aligns with
+                // the bottom of the board squares, not the coord row.
+                // cellSize×8 = real rendered board width (= height, aspect 1:1).
+                // Coord gutters are 5% of that, so pad the panel bottom by 5%
+                // to align trash with the board squares, not the coord row.
+                paddingBottom: showCoords ? `${cellSize * 8 * 0.05}px` : '0'
               } as CSSProperties
             }
           >
@@ -401,6 +430,16 @@ export const ChessEditor = memo(function ChessEditor({
           </div>
         </div>
 
+        {/* Tablet-only: DB search full-width below the board+panel row */}
+        <div className={styles.editorDbRow}>
+          <DatabaseSearchPanel
+            lichess={lichessState}
+            chessdb={chessdbState}
+            pdb={pdbState}
+            yacpdb={yacpdbState}
+          />
+        </div>
+
         <ShareDialog
           isOpen={isShareOpen}
           onClose={closeShare}
@@ -414,7 +453,7 @@ export const ChessEditor = memo(function ChessEditor({
         />
       </div>
 
-      <DragOverlay dropAnimation={null}>
+      <DragOverlay dropAnimation={null} modifiers={[snapCenterToCursor]}>
         {activeDragData ? (
           <DragGhost
             {...(activeDragData.pieceKey != null

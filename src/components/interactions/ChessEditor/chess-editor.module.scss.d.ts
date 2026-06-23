@@ -17,6 +17,7 @@ declare const styles: {
   readonly editorBottomGroup: string;
   readonly editorTrash: string;
   readonly editorDbSearch: string;
+  readonly editorDbRow: string;
 };
 
 export default styles;

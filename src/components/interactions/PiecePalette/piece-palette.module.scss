@@ -13,17 +13,14 @@
   width: 100%;
 }
 
-// -- Stacked view: right panel, side-by-side layout (>= 564px) ---------------
+// -- Stacked view: all breakpoints (mobile shows groups top-to-bottom,
+//    desktop shows white/black side-by-side inside .stackedRow) ---------------
 
 .stacked {
-  display: none;
+  display: flex;
   width: 100%;
   flex-direction: column;
   gap: 0.375rem;
-
-  @include m.editor-side-by-side {
-    display: flex;
-  }
 }
 
 .stackedGroup {
@@ -71,17 +68,10 @@
   flex: 1;
 }
 
-// -- Flat view: below board, single-column layout (< 564px) ------------------
+// -- Flat view: hidden everywhere (replaced by stacked on all breakpoints) ----
 
 .flat {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  width: 100%;
-
-  @include m.editor-side-by-side {
-    display: none;
-  }
+  display: none;
 }
 
 .flatGroup {

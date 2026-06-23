@@ -74,13 +74,13 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
   return (
     <div
       data-page-scroll
-      className="bg-bg min-h-full lg:h-full lg:overflow-hidden animate-pageEnter"
+      className="bg-bg min-h-full lg:h-screen lg:max-h-screen lg:overflow-hidden animate-pageEnter"
     >
       <Seo {...getRouteSeo('/advanced-fen')} schema={SOFTWARE_APP_SCHEMA} />
 
-      <div className="page-container flex flex-col gap-6 py-6 sm:py-8 md:flex-row md:gap-8 lg:gap-10 h-full">
+      <div className="page-container flex flex-col gap-6 py-6 sm:py-8 md:flex-row md:gap-8 lg:gap-10 lg:h-full lg:overflow-hidden">
         {/* Sidebar: sticky left column on md+ */}
-        <div className="shrink-0 md:border-r md:border-border md:pr-8 md:w-52 lg:w-56 w-full">
+        <div className="shrink-0 md:border-r md:border-border md:pr-8 md:w-52 lg:w-56 w-full lg:overflow-y-auto">
           <div className="md:sticky md:top-8">
             <PageTabs
               groups={groups}
@@ -91,13 +91,13 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
           </div>
         </div>
 
-        {/* `@container`: the preview/export layout below reads THIS wrapper's
-            width via `@3xl:` variants, so the board↔panel split tracks the
-            actual content width, not the viewport (the sidebar offsets them). */}
+        {/* @container: preview/export layout reads THIS wrapper's width.
+            On desktop the column is pinned (overflow-y-auto + h-full) so the
+            board sticks to the top and only the right panel scrolls. */}
         <div
           role="region"
           aria-label="Editor content"
-          className="@container min-w-0 flex-1 h-full flex flex-col overflow-y-auto pr-2 pb-2"
+          className="@container min-w-0 flex-1 flex flex-col overflow-y-auto lg:overflow-hidden pr-2 pb-2 lg:h-full"
         >
           {state.activeTab === TABS.POSITIONS && (
             <PositionsTab

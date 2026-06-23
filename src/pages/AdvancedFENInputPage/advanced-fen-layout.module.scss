@@ -27,6 +27,15 @@ $split: 720px;
   @include m.container-up($split) {
     flex-direction: row;
     gap: 2.5rem;
+    align-items: flex-start;
+    min-height: 100%;
+  }
+
+  // Desktop: fill the pinned content column completely so the board sits at the
+  // top and only the right panel scrolls — no page-level scroll on this tab.
+  @include m.viewport-up(1024px) {
+    height: 100%;
+    overflow: hidden;
   }
 }
 
@@ -38,7 +47,7 @@ $split: 720px;
   @include m.container-up($split) {
     width: 45%;
     position: sticky;
-    top: 2rem;
+    top: 0;
   }
 }
 
@@ -49,6 +58,13 @@ $split: 720px;
 
   @include m.container-up($split) {
     width: 55%;
+    overflow-y: auto;
+  }
+
+  // Desktop: constrain to the layout height so the panel scrolls internally
+  // and the page never overflows.
+  @include m.viewport-up(1024px) {
+    height: 100%;
     overflow-y: auto;
   }
 }

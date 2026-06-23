@@ -4,14 +4,16 @@ import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 
 import {
+  checkCancellation,
   downloadJPEG,
   downloadPNG,
   downloadSVG,
   getRasterBlob,
   getSVGBlob,
-  logger
+  logger,
+  sanitizeFileName,
+  waitWhilePaused
 } from '@utils';
-import { checkCancellation, waitWhilePaused } from '@utils';
 import { parseSmartNaming } from './parseSmartNaming';
 import type {
   ExportConfigLike,
@@ -115,12 +117,14 @@ export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
   );
 
   const activeFileName = useMemo(() => {
+    let raw: string;
     if (!isChained && positionSettings[currentFen]?.fileName) {
       const posName = positionSettings[currentFen].fileName as string;
-      // Evaluate smart naming just for this one position if it has a custom name
-      return parseSmartNaming(posName || 'Position', 1)[0] || 'Position-1';
+      raw = parseSmartNaming(posName || 'Position', 1)[0] ?? '';
+    } else {
+      raw = parsedNames[safeCurrentIndex] ?? '';
     }
-    return parsedNames[safeCurrentIndex] || `Position-${safeCurrentIndex + 1}`;
+    return sanitizeFileName(raw || `Position-${safeCurrentIndex + 1}`);
   }, [parsedNames, safeCurrentIndex, isChained, positionSettings, currentFen]);
 
   /**
@@ -257,18 +261,16 @@ export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
             : undefined;
 
         // The base name for this position
-        let baseName = '';
+        let rawName = '';
         if (posConfig && posConfig.fileName) {
-          // Parse the individual custom string as if it's the only one
-          baseName =
-            parseSmartNaming(posConfig.fileName as string, 1)[0] ||
-            `Position-${i + 1}`;
+          rawName = parseSmartNaming(posConfig.fileName as string, 1)[0] ?? '';
         } else {
           const fallbackParsed = isChained
             ? parsedNames
             : parseSmartNaming(initial.fileNamesInput, validFens.length);
-          baseName = fallbackParsed[i] || `Position-${i + 1}`;
+          rawName = fallbackParsed[i] ?? '';
         }
+        const baseName = sanitizeFileName(rawName || `Position-${i + 1}`);
         const folder = zip.folder(baseName);
         if (!folder) continue;
 

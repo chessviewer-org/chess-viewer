@@ -96,8 +96,8 @@ const HomePage: React.FC = () => {
         image={dynamicOgImage ?? getRouteSeo('/').image}
         schema={[WEBSITE_SCHEMA, SOFTWARE_APP_SCHEMA, HOME_FAQ_SCHEMA]}
       />
-      <div className="w-full bg-bg py-2 overflow-x-hidden min-h-full lg:h-full lg:overflow-hidden flex flex-col animate-pageEnter">
-        <div className="flex flex-col gap-fluid-xs lg:gap-3 page-container pt-1.5 lg:pt-0 flex-1 lg:justify-center">
+      <div className="w-full bg-bg py-2 overflow-x-hidden min-h-full lg:h-full lg:overflow-hidden flex flex-col lg:justify-center animate-pageEnter">
+        <div className="flex flex-col gap-fluid-xs lg:gap-3 page-container pt-1.5 lg:pt-0">
           <div className="min-w-0">
             <FenToolbar
               fen={fen}

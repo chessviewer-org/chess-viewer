@@ -22,6 +22,7 @@ $bp-2xl: 1536px;
 //   ≥ 1024px desktop       : panel height pinned to board height
 
 $editor-breakpoint-side: 564px; // single-col → side-by-side
+$editor-breakpoint-cmd: 800px; // commandbar top → commandbar in panel
 $editor-breakpoint-desk: 1024px; // side-by-side → desktop pin
 
 // -- Database search thresholds -----------------------------------------------

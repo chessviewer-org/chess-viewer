@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { Download, LayoutGrid } from 'lucide-react';
-import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, Download, LayoutGrid } from 'lucide-react';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 
 import { type PageTabGroup, PageTabs } from '@/components/layout';
 import { useHomeExport, useNotifications, usePieceImages } from '@hooks';
 
+import { safeJSONParse } from '@utils';
 import { Seo } from '@shared/ui';
 import BoardStyleStep from './components/BoardStyleStep';
 import ExportSettingsStep from './components/ExportSettingsStep';
@@ -39,12 +40,30 @@ export interface ExportPageConfig {
   fileName: string;
 }
 
+const SESSION_KEY = 'cv_export_config';
+
 const ExportPage = () => {
   const location = useLocation();
-  const initialState = location.state as ExportPageConfig | null;
+  const routerState = location.state as ExportPageConfig | null;
 
-  // Seo renders before the redirect so Googlebot sees the canonical tag and
-  // description on /export even when no router state is present (direct visit).
+  // Persist to sessionStorage so a hard refresh keeps the config.
+  // Runs in an effect (not during render) to comply with React's render-purity rule.
+  useEffect(() => {
+    if (!routerState) return;
+    try {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(routerState));
+    } catch {
+      // sessionStorage unavailable — no-op
+    }
+  }, [routerState]);
+
+  const initialState: ExportPageConfig | null =
+    routerState ??
+    safeJSONParse<ExportPageConfig | null>(
+      sessionStorage.getItem(SESSION_KEY),
+      null
+    );
+
   if (!initialState) {
     return (
       <>
@@ -53,7 +72,28 @@ const ExportPage = () => {
           path="/export"
           description="Export your chess diagram as a high-resolution PNG, JPEG, or SVG. Choose DPI, board size, piece style, and colors — then download instantly. Free, no watermarks."
         />
-        <Navigate to="/" replace />
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-4">
+          <div className="flex flex-col items-center gap-3">
+            <Download
+              className="w-12 h-12 text-text-secondary/40"
+              strokeWidth={1.5}
+            />
+            <h1 className="text-xl font-semibold text-text-primary">
+              No board loaded
+            </h1>
+            <p className="text-text-secondary text-sm max-w-xs">
+              Open a position from the editor to export it as a high-resolution
+              image.
+            </p>
+          </div>
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-accent text-bg hover:bg-accent-hover transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Editor
+          </Link>
+        </div>
       </>
     );
   }
