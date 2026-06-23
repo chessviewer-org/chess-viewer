@@ -19,7 +19,6 @@ interface NavbarProps {
   dropdownRef: React.RefObject<HTMLDivElement | null>;
   handleLogoClick: () => void;
   toggleMobileMenu: () => void;
-  openAuthModal: (tab: 'signin' | 'signup' | 'security') => void;
   handleSignOut: () => void;
 }
 
@@ -33,7 +32,6 @@ function Navbar({
   dropdownRef,
   handleLogoClick,
   toggleMobileMenu,
-  openAuthModal,
   handleSignOut
 }: NavbarProps) {
   return (
@@ -74,7 +72,6 @@ function Navbar({
                   isDropdownOpen={isDropdownOpen}
                   setIsDropdownOpen={setIsDropdownOpen}
                   dropdownRef={dropdownRef}
-                  openAuthModal={openAuthModal}
                   handleSignOut={handleSignOut}
                 />
               </div>
@@ -109,7 +106,6 @@ function Navbar({
           isOpen={isMobileMenuOpen}
           isAuthenticated={isAuthenticated}
           setIsMobileMenuOpen={setIsMobileMenuOpen}
-          openAuthModal={openAuthModal}
           handleSignOut={handleSignOut}
         />
       </motion.nav>

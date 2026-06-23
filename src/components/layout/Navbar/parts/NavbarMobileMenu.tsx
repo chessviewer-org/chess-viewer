@@ -52,7 +52,6 @@ interface NavbarMobileMenuProps {
   isOpen: boolean;
   isAuthenticated: boolean;
   setIsMobileMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  openAuthModal: (tab: 'signin' | 'signup' | 'security') => void;
   handleSignOut: () => void;
 }
 
@@ -60,7 +59,6 @@ export const NavbarMobileMenu = memo(function NavbarMobileMenu({
   isOpen,
   isAuthenticated,
   setIsMobileMenuOpen,
-  openAuthModal,
   handleSignOut
 }: NavbarMobileMenuProps) {
   const prefetch = usePrefetchRoute();
@@ -186,28 +184,24 @@ export const NavbarMobileMenu = memo(function NavbarMobileMenu({
             </button>
           ) : (
             <div className="flex flex-col">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  openAuthModal('signin');
-                }}
+              <Link
+                to="/auth/sign-in"
+                {...prefetch('/auth/sign-in')}
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={linkClass}
               >
                 <LogIn className="w-5 h-5" aria-hidden="true" />
                 <span className="font-medium text-base">Sign In</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  openAuthModal('signup');
-                }}
+              </Link>
+              <Link
+                to="/auth/sign-up"
+                {...prefetch('/auth/sign-up')}
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={linkClass}
               >
                 <UserPlus className="w-5 h-5" aria-hidden="true" />
                 <span className="font-medium text-base">Sign Up</span>
-              </button>
+              </Link>
             </div>
           )}
         </div>

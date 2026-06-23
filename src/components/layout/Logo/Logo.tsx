@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-import defaultLogo from '@/assets/logo/default.png';
+import defaultLogo from '@/assets/logo/Logo.png';
 
 /** Props for the `Logo` mark. */
 interface LogoProps {

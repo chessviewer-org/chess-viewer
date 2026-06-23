@@ -56,7 +56,6 @@ interface NavbarDesktopDropdownProps {
   isDropdownOpen: boolean;
   setIsDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
   dropdownRef: React.RefObject<HTMLDivElement | null>;
-  openAuthModal: (tab: 'signin' | 'signup' | 'security') => void;
   handleSignOut: () => void;
 }
 
@@ -65,7 +64,6 @@ export const NavbarDesktopDropdown = memo(function NavbarDesktopDropdown({
   isDropdownOpen,
   setIsDropdownOpen,
   dropdownRef,
-  openAuthModal,
   handleSignOut
 }: NavbarDesktopDropdownProps) {
   const { displayName, isSupporter, membershipTier } = useProfile();
@@ -202,12 +200,10 @@ export const NavbarDesktopDropdown = memo(function NavbarDesktopDropdown({
                 </button>
               ) : (
                 <>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsDropdownOpen(false);
-                      openAuthModal('signin');
-                    }}
+                  <Link
+                    to="/auth/sign-in"
+                    {...prefetch('/auth/sign-in')}
+                    onClick={() => setIsDropdownOpen(false)}
                     className={itemClass}
                   >
                     <LogIn
@@ -215,13 +211,11 @@ export const NavbarDesktopDropdown = memo(function NavbarDesktopDropdown({
                       aria-hidden="true"
                     />
                     <span>Sign In</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsDropdownOpen(false);
-                      openAuthModal('signup');
-                    }}
+                  </Link>
+                  <Link
+                    to="/auth/sign-up"
+                    {...prefetch('/auth/sign-up')}
+                    onClick={() => setIsDropdownOpen(false)}
                     className={itemClass}
                   >
                     <UserPlus
@@ -229,7 +223,7 @@ export const NavbarDesktopDropdown = memo(function NavbarDesktopDropdown({
                       aria-hidden="true"
                     />
                     <span>Sign Up</span>
-                  </button>
+                  </Link>
                 </>
               )}
             </div>

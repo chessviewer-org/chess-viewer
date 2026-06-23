@@ -113,14 +113,12 @@ const PageTabs = memo(function PageTabs({
   );
 
   return (
-    <nav aria-label={ariaLabel}>
-      {/* Always a vertical, stacked rail (GitHub-settings pattern): full width
-          on phones, a fixed-width sticky left column on tablet + desktop. */}
+    <nav aria-label={ariaLabel} className="mb-6 md:mb-0 w-full">
       <div
         role="tablist"
         aria-label={ariaLabel}
         aria-orientation="vertical"
-        className="flex flex-col gap-0.5"
+        className="flex flex-col gap-0.5 w-full"
       >
         {groups.map((group, groupIndex) => {
           const groupId = group.id || `group-${groupIndex}`;
@@ -133,9 +131,12 @@ const PageTabs = memo(function PageTabs({
             <div
               key={groupId}
               className={
-                groupIndex > 0 ? 'mt-3 border-t border-border pt-3' : ''
+                groupIndex > 0
+                  ? 'mt-3 border-t border-border pt-3 w-full'
+                  : 'w-full'
               }
             >
+              {/* Group label: hidden on mobile horizontal, shown on tablet+ */}
               {group.label && isCollapsible ? (
                 <button
                   type="button"
@@ -178,16 +179,20 @@ const PageTabs = memo(function PageTabs({
                 </span>
               ) : null}
 
+              {/* Always show items if expanded */}
               {isExpanded && (
                 <div
                   className={
                     isCollapsible
-                      ? 'mt-1 flex flex-col gap-0.5'
-                      : 'flex flex-col gap-0.5'
+                      ? 'mt-1 flex flex-col gap-0.5 w-full'
+                      : 'flex flex-col gap-0.5 w-full'
                   }
                 >
                   {group.items.map(({ id, label, icon: Icon }) => {
                     const isActive = id === activeId;
+                    const indentCls = isCollapsible
+                      ? 'w-full pl-8'
+                      : 'w-full pl-3';
                     return (
                       <button
                         key={id}
@@ -201,19 +206,16 @@ const PageTabs = memo(function PageTabs({
                         tabIndex={isActive ? 0 : -1}
                         onClick={() => onSelect(id)}
                         onKeyDown={(e) => handleKeyDown(e, id)}
-                        className={`group relative flex w-full items-center gap-2.5 rounded-lg py-2 pr-3 text-left text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset ${
-                          isCollapsible ? 'pl-8' : 'pl-3'
-                        } ${
+                        className={`group relative flex shrink-0 items-center gap-2 rounded-lg py-2 pr-3 text-left text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset ${indentCls} ${
                           isActive
                             ? 'bg-accent/10 text-accent'
                             : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary'
                         }`}
                       >
+                        {/* Active indicator: left bar */}
                         <span
                           aria-hidden="true"
-                          className={`absolute inset-y-1.5 left-0 w-0.5 rounded-full transition-colors ${
-                            isActive ? 'bg-accent' : 'bg-transparent'
-                          }`}
+                          className={`absolute inset-y-1.5 left-0 w-0.5 rounded-full transition-colors ${isActive ? 'bg-accent' : 'bg-transparent'}`}
                         />
                         <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
                         {label}
