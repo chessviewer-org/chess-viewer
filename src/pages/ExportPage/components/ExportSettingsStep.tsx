@@ -175,7 +175,8 @@ export default function ExportSettingsStep({
           <button
             type="button"
             onClick={onExport}
-            className="w-full rounded-lg bg-accent px-4 py-3 text-sm font-bold text-bg transition-colors hover:bg-accent-hover focus:outline-none focus:bg-accent-hover flex items-center justify-center gap-2"
+            disabled={wizard.selectedFormats.length === 0}
+            className="w-full rounded-lg bg-accent px-4 py-3 text-sm font-bold text-bg transition-colors hover:bg-accent-hover focus:outline-none focus:bg-accent-hover flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Download
           </button>

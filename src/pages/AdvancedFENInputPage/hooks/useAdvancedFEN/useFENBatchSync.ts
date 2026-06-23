@@ -5,8 +5,13 @@ import { useLocation } from 'react-router-dom';
 import { useFENBatch } from '@contexts';
 import { ADVANCED_FEN_CONFIG } from '@constants';
 
-import { getFENValidationError, logger, validateFEN } from '@utils';
-import { MAX_FEN_LENGTH, safeJSONParse } from '@utils';
+import {
+  getFENValidationError,
+  logger,
+  MAX_FEN_LENGTH,
+  safeJSONParse,
+  validateFEN
+} from '@utils';
 
 const { MAX_FENS, STORAGE_KEYS } = ADVANCED_FEN_CONFIG;
 

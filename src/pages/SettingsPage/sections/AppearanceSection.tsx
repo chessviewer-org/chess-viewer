@@ -3,8 +3,11 @@ import { memo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check, Contrast, Monitor, Moon, Sparkles, Sun } from 'lucide-react';
 
-import { useContrastSetting, useThemeMode } from '@hooks';
-import { useEffectiveReducedMotion } from '@hooks';
+import {
+  useContrastSetting,
+  useEffectiveReducedMotion,
+  useThemeMode
+} from '@hooks';
 
 import type { ContrastPreference, ThemeModePreference } from '@utils';
 import { CustomSelect } from '@shared/ui';

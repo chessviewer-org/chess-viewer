@@ -1,9 +1,42 @@
 import { useCallback, useMemo } from 'react';
 
-import { downloadJPEG, downloadPNG, downloadSVG, logger } from '@utils';
+import { saveAs } from 'file-saver';
+import JSZip from 'jszip';
+
+import {
+  downloadJPEG,
+  downloadPNG,
+  downloadSVG,
+  getRasterBlob,
+  getSVGBlob,
+  logger
+} from '@utils';
 import { checkCancellation, waitWhilePaused } from '@utils';
 import { parseSmartNaming } from './parseSmartNaming';
-import type { ExportFormat, PositionSettings } from './useAdvancedFEN.types';
+import type {
+  ExportConfigLike,
+  ExportFormat,
+  PositionSettings
+} from './useAdvancedFEN.types';
+
+const FORMAT_ORDER: ExportFormat[] = ['jpeg', 'png', 'svg'];
+
+/** Sorts formats into a stable canonical order (jpeg → png → svg). */
+function sortFormats(formats: ExportFormat[]): ExportFormat[] {
+  return FORMAT_ORDER.filter((format) => formats.includes(format));
+}
+
+/** Runs the export pipeline for a single format with the given config + file name. */
+function runFormatExport(
+  format: ExportFormat,
+  config: ExportConfigLike,
+  name: string,
+  onProgress: (progress: number, label?: string | null) => void
+): Promise<void> {
+  if (format === 'png') return downloadPNG(config, name, onProgress);
+  if (format === 'jpeg') return downloadJPEG(config, name, onProgress);
+  return downloadSVG(config, name, onProgress);
+}
 
 /** Arguments for the useAdvancedExportActions hook. */
 interface UseAdvancedExportActionsArgs {
@@ -12,7 +45,6 @@ interface UseAdvancedExportActionsArgs {
   safeCurrentIndex: number;
   pieceStyle: string;
   boardSize: number;
-  fileName: string;
   exportQuality: number;
   showCoordsLocal: boolean;
   showCoordinateBorder: boolean;
@@ -21,10 +53,22 @@ interface UseAdvancedExportActionsArgs {
   darkSquare: string;
   isFlipped: boolean;
   pieceImages: Record<string, HTMLImageElement> | null;
-  exportFormat: ExportFormat;
+  selectedFormats: ExportFormat[];
   isChained: boolean;
   positionSettings: PositionSettings;
-  smartNamingInput: string;
+  initialSettingsRef: React.MutableRefObject<{
+    pieceStyle: string;
+    boardSize: number;
+    fileNamesInput: string;
+    exportQuality: number;
+    showCoords: boolean;
+    showCoordinateBorder: boolean;
+    showThinFrame: boolean;
+    lightSquare: string;
+    darkSquare: string;
+  }>;
+  /** Comma-separated per-format names from the File Name field (ExportPage parity). */
+  fileNamesInput: string;
   handleExportStart: (format: string) => void;
   handleExportProgress: (
     progress: number,
@@ -34,7 +78,7 @@ interface UseAdvancedExportActionsArgs {
   handleExportFinish: () => void;
 }
 
-/** Builds export config, parses smart file names, and handles single and batch export execution. */
+/** Builds export config, resolves file names, and handles single and batch multi-format export execution. */
 export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
   const {
     currentFen,
@@ -42,7 +86,6 @@ export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
     safeCurrentIndex,
     pieceStyle,
     boardSize,
-    fileName,
     exportQuality,
     showCoordsLocal,
     showCoordinateBorder,
@@ -51,25 +94,46 @@ export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
     darkSquare,
     isFlipped,
     pieceImages,
-    exportFormat,
+    selectedFormats,
     isChained,
     positionSettings,
-    smartNamingInput,
+    initialSettingsRef,
+    fileNamesInput,
     handleExportStart,
     handleExportProgress,
     handleExportFinish
   } = args;
 
   const parsedNames = useMemo(
-    () => parseSmartNaming(smartNamingInput, validFens.length),
-    [smartNamingInput, validFens.length]
+    () => parseSmartNaming(fileNamesInput, validFens.length),
+    [fileNamesInput, validFens.length]
   );
 
-  const activeFileName = useMemo(
-    () =>
-      parsedNames[safeCurrentIndex] || `${fileName}-${safeCurrentIndex + 1}`,
-    [parsedNames, safeCurrentIndex, fileName]
+  const orderedFormats = useMemo(
+    () => sortFormats(selectedFormats),
+    [selectedFormats]
   );
+
+  const activeFileName = useMemo(() => {
+    if (!isChained && positionSettings[currentFen]?.fileName) {
+      const posName = positionSettings[currentFen].fileName as string;
+      // Evaluate smart naming just for this one position if it has a custom name
+      return parseSmartNaming(posName || 'Position', 1)[0] || 'Position-1';
+    }
+    return parsedNames[safeCurrentIndex] || `Position-${safeCurrentIndex + 1}`;
+  }, [parsedNames, safeCurrentIndex, isChained, positionSettings, currentFen]);
+
+  /**
+   * File names for the ACTIVE position. It relies entirely on the Smart-Naming
+   * parser so single-format downloads keep their meaningful name.
+   */
+  const resolvedActiveFileNames = useMemo<Record<ExportFormat, string>>(() => {
+    return {
+      jpeg: activeFileName,
+      png: activeFileName,
+      svg: activeFileName
+    };
+  }, [activeFileName]);
 
   const exportConfig = useMemo(
     () => ({
@@ -101,32 +165,36 @@ export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
   );
 
   const handleExportActive = useCallback(async () => {
-    const format = exportFormat;
-    const name = activeFileName;
+    if (orderedFormats.length === 0) return;
     try {
-      handleExportStart(format);
-      const config = exportConfig;
-      if (format === 'png') {
-        await downloadPNG(config, name, (progress, label) => {
-          handleExportProgress(progress, format, label ?? undefined);
-        });
-      } else if (format === 'jpeg') {
-        await downloadJPEG(config, name, (progress, label) => {
-          handleExportProgress(progress, format, label ?? undefined);
-        });
-      } else if (format === 'svg') {
-        await downloadSVG(config, name, (progress, label) => {
-          handleExportProgress(progress, format, label ?? undefined);
+      handleExportStart(orderedFormats[0] as string);
+      const total = orderedFormats.length;
+
+      for (let f = 0; f < orderedFormats.length; f++) {
+        await waitWhilePaused();
+        checkCancellation();
+
+        const format = orderedFormats[f];
+        if (!format) continue;
+        const name = resolvedActiveFileNames[format];
+
+        await runFormatExport(format, exportConfig, name, (progress) => {
+          const totalProgress = ((f + progress / 100) / total) * 100;
+          handleExportProgress(totalProgress, format, `${f + 1}/${total}`);
         });
       }
     } catch (err: unknown) {
-      logger.error('Active export failed:', err);
+      if (err instanceof Error && err.message === 'Export cancelled') {
+        logger.log('Active export cancelled by user.');
+      } else {
+        logger.error('Active export failed:', err);
+      }
     } finally {
       handleExportFinish();
     }
   }, [
-    exportFormat,
-    activeFileName,
+    orderedFormats,
+    resolvedActiveFileNames,
     exportConfig,
     handleExportStart,
     handleExportProgress,
@@ -134,53 +202,80 @@ export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
   ]);
 
   const handleExportBatch = useCallback(async () => {
+    if (orderedFormats.length === 0) return;
     try {
-      handleExportStart(exportFormat);
+      handleExportStart(orderedFormats[0] as string);
+
+      // Total unit count spans every position × every selected format so the
+      // progress bar advances smoothly across the whole batch.
+      const totalUnits = validFens.length * orderedFormats.length;
+      let unit = 0;
+
+      const zip = new JSZip();
 
       for (let i = 0; i < validFens.length; i++) {
-        // Honor pause/cancel between items — otherwise the controls do nothing
-        // until the whole batch finishes (required by the export pipeline rules).
-        await waitWhilePaused();
-        checkCancellation();
-
         const fen = validFens[i];
         if (!fen) continue;
 
         const settings = positionSettings[fen] || {};
+        const initial = initialSettingsRef.current;
         const activeStyle = isChained
           ? pieceStyle
-          : (settings.pieceStyle ?? pieceStyle);
+          : (settings.pieceStyle ?? initial.pieceStyle);
         const activeQuality = isChained
           ? exportQuality
-          : (settings.exportQuality ?? exportQuality);
+          : (settings.exportQuality ?? initial.exportQuality);
         const activeLight = isChained
           ? lightSquare
-          : (settings.lightSquare ?? lightSquare);
+          : (settings.lightSquare ?? initial.lightSquare);
         const activeDark = isChained
           ? darkSquare
-          : (settings.darkSquare ?? darkSquare);
+          : (settings.darkSquare ?? initial.darkSquare);
         const activeFlipped = isChained
           ? isFlipped
-          : (settings.isFlipped ?? isFlipped);
+          : (settings.isFlipped ?? false);
         const activeShowCoords = isChained
           ? showCoordsLocal
-          : (settings.showCoords ?? showCoordsLocal);
+          : (settings.showCoords ?? initial.showCoords);
         const activeShowBorder = isChained
           ? showCoordinateBorder
-          : (settings.showCoordinateBorder ?? showCoordinateBorder);
+          : (settings.showCoordinateBorder ?? initial.showCoordinateBorder);
         const activeShowFrame = isChained
           ? showThinFrame
-          : (settings.showThinFrame ?? showThinFrame);
-        const format = isChained
-          ? exportFormat
-          : (settings.exportFormat ?? exportFormat);
+          : (settings.showThinFrame ?? initial.showThinFrame);
+        const formats = isChained
+          ? orderedFormats
+          : sortFormats(settings.selectedFormats ?? orderedFormats);
 
-        const numberedName = parsedNames[i] || `${fileName}-${i + 1}`;
+        const activeBoardSize = isChained
+          ? boardSize
+          : (settings.boardSize ?? initial.boardSize);
 
-        const config = {
+        const posConfig =
+          !isChained && positionSettings[fen]
+            ? positionSettings[fen]
+            : undefined;
+
+        // The base name for this position
+        let baseName = '';
+        if (posConfig && posConfig.fileName) {
+          // Parse the individual custom string as if it's the only one
+          baseName =
+            parseSmartNaming(posConfig.fileName as string, 1)[0] ||
+            `Position-${i + 1}`;
+        } else {
+          const fallbackParsed = isChained
+            ? parsedNames
+            : parseSmartNaming(initial.fileNamesInput, validFens.length);
+          baseName = fallbackParsed[i] || `Position-${i + 1}`;
+        }
+        const folder = zip.folder(baseName);
+        if (!folder) continue;
+
+        const config: ExportConfigLike = {
           fen,
           pieceStyle: activeStyle,
-          boardSize,
+          boardSize: activeBoardSize,
           showCoords: activeShowCoords,
           showCoordinateBorder: activeShowBorder,
           showThinFrame: activeShowFrame,
@@ -191,26 +286,42 @@ export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
           exportQuality: activeQuality
         };
 
-        const reportProgress = (progress: number, _label?: string | null) => {
-          const totalProgress = ((i + progress / 100) / validFens.length) * 100;
-          handleExportProgress(
-            totalProgress,
-            format,
-            `${i + 1}/${validFens.length}`
-          );
-        };
+        for (const format of formats) {
+          await waitWhilePaused();
+          checkCancellation();
 
-        if (format === 'png') {
-          await downloadPNG(config, numberedName, reportProgress);
-        } else if (format === 'jpeg') {
-          await downloadJPEG(config, numberedName, reportProgress);
-        } else if (format === 'svg') {
-          await downloadSVG(config, numberedName, reportProgress);
+          const fixedUnit = unit;
+          const onProgress = (progress: number) => {
+            const totalProgress =
+              ((fixedUnit + progress / 100) / totalUnits) * 100;
+            handleExportProgress(
+              totalProgress,
+              format,
+              `${i + 1}/${validFens.length}`
+            );
+          };
+
+          try {
+            if (format === 'svg') {
+              const blob = await getSVGBlob(config, onProgress);
+              folder.file(`${baseName}.svg`, blob);
+            } else {
+              const blob = await getRasterBlob(config, format, onProgress);
+              const ext = format === 'jpeg' ? 'jpg' : format;
+              folder.file(`${baseName}.${ext}`, blob);
+            }
+          } catch (e) {
+            logger.error(`Failed to export ${format} for position ${i + 1}`, e);
+            throw e;
+          }
+          unit++;
         }
       }
+
+      handleExportProgress(99, 'zip', 'Zipping...');
+      const content = await zip.generateAsync({ type: 'blob' });
+      saveAs(content, 'chess_batch_export.zip');
     } catch (err: unknown) {
-      // A cancellation propagates as "Export cancelled" — that is expected user
-      // intent, not a failure, so it stops the batch quietly.
       if (err instanceof Error && err.message === 'Export cancelled') {
         logger.log('Batch export cancelled by user.');
       } else {
@@ -220,9 +331,10 @@ export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
       handleExportFinish();
     }
   }, [
-    exportFormat,
+    orderedFormats,
     validFens,
     positionSettings,
+    initialSettingsRef,
     isChained,
     pieceStyle,
     exportQuality,
@@ -233,7 +345,6 @@ export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
     showCoordinateBorder,
     showThinFrame,
     parsedNames,
-    fileName,
     pieceImages,
     boardSize,
     handleExportStart,
@@ -244,6 +355,7 @@ export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
   return {
     parsedNames,
     activeFileName,
+    resolvedActiveFileNames,
     exportConfig,
     handleExportActive,
     handleExportBatch

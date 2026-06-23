@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { useSearchParams } from 'react-router-dom';
+
 import { useChessBoard, usePieceImages, useTheme } from '@hooks';
 import { ADVANCED_FEN_CONFIG } from '@constants';
 
@@ -33,8 +35,6 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
     setPieceStyle,
     boardSize,
     setBoardSize,
-    fileName,
-    setFileName,
     exportQuality,
     setExportQuality,
     showCoordsLocal,
@@ -45,8 +45,14 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
     setShowThinFrame,
     isExportModalOpen,
     setIsExportModalOpen,
-    exportFormat,
-    setExportFormat
+    selectedFormats,
+    setSelectedFormats,
+    boardSizePreset,
+    setBoardSizePreset,
+    customBoardSizeInput,
+    setCustomBoardSizeInput,
+    fileNamesInput,
+    setFileNamesInput
   } = settings;
 
   const {
@@ -67,10 +73,36 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [intervalTime, setIntervalTime] = useState(DEFAULT_INTERVAL);
   const [showIntervalMenu, setShowIntervalMenu] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>(TABS.POSITIONS);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTabState] = useState<string>(
+    searchParams.get('tab') || TABS.POSITIONS
+  );
+
+  const setActiveTab = useCallback(
+    (value: React.SetStateAction<string>) => {
+      setActiveTabState((current) => {
+        const nextTab = typeof value === 'function' ? value(current) : value;
+        setSearchParams(
+          (prev) => {
+            prev.set('tab', nextTab);
+            return prev;
+          },
+          { replace: true }
+        );
+        return nextTab;
+      });
+    },
+    [setSearchParams]
+  );
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && tab !== activeTab) {
+      setActiveTabState(tab);
+    }
+  }, [searchParams, activeTab]);
   const [wizardStep, setWizardStep] = useState<1 | 2>(1);
-  const [isChained, setIsChained] = useState(true);
-  const [smartNamingInput, setSmartNamingInput] = useState('Chessboard');
+  const [isChained, setIsChained] = useState(false);
 
   const { lightSquare, darkSquare, setLightSquare, setDarkSquare } = useTheme({
     initialLight: initialLightSquare,
@@ -94,6 +126,18 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
   const currentFen = hasValidFens ? (validFens[safeCurrentIndex] ?? '') : '';
   const renderFen = currentFen || DEFAULT_FENS[0] || '';
 
+  // Validate the free-form board-size input (4–8 cm), mirroring ExportPage.
+  const customBoardSizeError = (() => {
+    const input = customBoardSizeInput.trim();
+    if (!input) return null;
+    const parsed = Number(input);
+    if (!Number.isFinite(parsed)) return 'Board size must be a valid number.';
+    if (parsed < 4 || parsed > 8) {
+      return 'Board size must be between 4cm and 8cm.';
+    }
+    return null;
+  })();
+
   const { board: boardState } = useChessBoard(renderFen);
   const { pieceImages, isLoading: imagesLoading } = usePieceImages(pieceStyle);
   const isBoardReady =
@@ -110,7 +154,7 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
     validFens,
     pieceStyle,
     boardSize,
-    fileName,
+    fileNamesInput,
     exportQuality,
     showCoordsLocal,
     showCoordinateBorder,
@@ -119,12 +163,14 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
     showCoordinates,
     lightSquare,
     darkSquare,
-    exportFormat,
+    selectedFormats,
     initialSettingsRef,
     setters: {
       setPieceStyle,
       setBoardSize,
-      setFileName,
+      setBoardSizePreset,
+      setCustomBoardSizeInput,
+      setFileNamesInput,
       setExportQuality,
       setShowCoordsLocal,
       setShowCoordinateBorder,
@@ -133,7 +179,7 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
       setShowCoordinates,
       setLightSquare,
       setDarkSquare,
-      setExportFormat
+      setSelectedFormats
     }
   });
 
@@ -151,6 +197,7 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
   const {
     parsedNames,
     activeFileName,
+    resolvedActiveFileNames,
     exportConfig,
     handleExportActive,
     handleExportBatch
@@ -160,7 +207,6 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
     safeCurrentIndex,
     pieceStyle,
     boardSize,
-    fileName,
     exportQuality,
     showCoordsLocal,
     showCoordinateBorder,
@@ -169,10 +215,12 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
     darkSquare,
     isFlipped,
     pieceImages,
-    exportFormat,
+    selectedFormats,
     isChained,
     positionSettings,
-    smartNamingInput,
+    initialSettingsRef,
+
+    fileNamesInput,
     handleExportStart,
     handleExportProgress,
     handleExportFinish
@@ -230,22 +278,23 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
     handleToggleIntervalMenu,
     handleFlipBoard,
     handleCloseExportModal,
-    handleSetFileName,
     handleSetExportQuality,
     handleSetPieceStyle,
     handleSetShowCoordsLocal,
     handleSetShowCoordinateBorder,
     handleSetShowThinFrame,
-    handleSetExportFormat,
+    handleToggleFormat,
+    handleSelectBoardSizePreset,
+    handleUpdateCustomBoardSize,
+    handleUpdateFileNames,
     handleApplyPresetTheme,
     handleApplyToAll
   } = useAdvancedUIHandlers({
     isChained,
-    safeCurrentIndex,
     validFens,
     pieceStyle,
     boardSize,
-    fileName,
+    fileNamesInput,
     exportQuality,
     showCoordsLocal,
     showCoordinateBorder,
@@ -254,7 +303,7 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
     showCoordinates,
     lightSquare,
     darkSquare,
-    exportFormat,
+    selectedFormats,
     setIsChained,
     setActiveTab,
     setIsPlaying,
@@ -262,13 +311,16 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
     setShowIntervalMenu,
     setIsFlipped,
     setIsExportModalOpen,
-    setFileName,
     setPieceStyle,
     setExportQuality,
     setShowCoordsLocal,
     setShowCoordinateBorder,
     setShowThinFrame,
-    setExportFormat,
+    setSelectedFormats,
+    setBoardSize,
+    setBoardSizePreset,
+    setCustomBoardSizeInput,
+    setFileNamesInput,
     setLightSquare,
     setDarkSquare,
     setPositionSettings
@@ -290,7 +342,6 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
       showCoordinates,
       pieceStyle,
       boardSize,
-      fileName,
       exportQuality,
       showCoordsLocal,
       showCoordinateBorder,
@@ -309,9 +360,13 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
       isBoardReady,
       exportConfig,
       wizardStep,
-      exportFormat,
+      selectedFormats,
+      boardSizePreset,
+      customBoardSizeInput,
+      customBoardSizeError,
+      fileNamesInput,
+      resolvedActiveFileNames,
       isChained,
-      smartNamingInput,
       parsedNames,
       activeFileName
     },
@@ -339,16 +394,17 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
       handleCancelExportProgress,
       handleCloseExportModal,
       setActiveTab,
-      setFileName: handleSetFileName,
       setExportQuality: handleSetExportQuality,
       setPieceStyle: handleSetPieceStyle,
       setShowCoordsLocal: handleSetShowCoordsLocal,
       setShowCoordinateBorder: handleSetShowCoordinateBorder,
       setShowThinFrame: handleSetShowThinFrame,
       setWizardStep,
-      setExportFormat: handleSetExportFormat,
+      toggleFormat: handleToggleFormat,
+      selectBoardSizePreset: handleSelectBoardSizePreset,
+      updateCustomBoardSize: handleUpdateCustomBoardSize,
+      updateFileNames: handleUpdateFileNames,
       setIsChained,
-      setSmartNamingInput,
       handleApplyPresetTheme,
       handleApplyToAll,
       handleExportActive,

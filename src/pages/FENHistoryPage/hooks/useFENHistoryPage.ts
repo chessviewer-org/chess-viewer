@@ -7,8 +7,7 @@ import { useModal } from '@contexts';
 import { useFENHistory } from '@hooks';
 import { ActiveHistoryEntry, HistoryFilters } from '@app-types';
 
-import { logger } from '@utils';
-import { safeJSONParse } from '@utils';
+import { logger, safeJSONParse } from '@utils';
 
 /** Union of available history tab identifiers. */
 export type TabType = 'active' | 'favorites' | 'archive';

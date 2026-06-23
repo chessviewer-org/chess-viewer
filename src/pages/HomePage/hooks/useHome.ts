@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { useFENHistory, useNotifications } from '@hooks';
-import { useHomeExport } from '@hooks';
+import { useFENHistory, useHomeExport, useNotifications } from '@hooks';
 
 import { useHomeBoardState } from './useHomeBoardState';
 

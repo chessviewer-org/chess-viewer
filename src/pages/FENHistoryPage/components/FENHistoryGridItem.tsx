@@ -63,6 +63,7 @@ export const FENHistoryGridItem: React.FC<FENHistoryGridItemProps> = memo(
   }) => {
     const timestamp = entry.createdAt ?? entry.timestamp ?? entry.archivedAt;
     const [copied, setCopied] = useState(false);
+
     const handleCopy = useCallback(() => {
       void navigator.clipboard.writeText(entry.fen).then(() => {
         setCopied(true);
@@ -75,23 +76,22 @@ export const FENHistoryGridItem: React.FC<FENHistoryGridItemProps> = memo(
         className="bg-surface border border-border rounded-xl overflow-hidden hover:shadow-lg hover:shadow-accent/5 hover:border-border transition-[box-shadow,border-color] duration-200 group flex flex-col min-h-50 animate-cardReveal"
         style={{ animationDelay: `${Math.min(index * 0.05, 0.3)}s` }}
       >
-        <div className="aspect-square bg-bg p-2 shrink-0 border-b border-border/30">
-          <div className="w-full h-full overflow-hidden">
-            <MiniPreview
-              fen={entry.fen}
-              lightSquare={lightSquare}
-              darkSquare={darkSquare}
-              pieceImages={pieceImages}
-              piecesLoading={piecesLoading}
-            />
-          </div>
+        {/* Board fills edge-to-edge, square aspect, high-res render */}
+        <div className="w-full shrink-0 border-b border-border/30 overflow-hidden">
+          <MiniPreview
+            fen={entry.fen}
+            lightSquare={lightSquare}
+            darkSquare={darkSquare}
+            pieceImages={pieceImages}
+            piecesLoading={piecesLoading}
+            size={400}
+          />
         </div>
 
         <div className="p-3 flex flex-col flex-1 min-h-0">
-          {/* Full FEN over two lines (no truncation) + one-tap copy. Slightly
-              larger mono so it reads cleanly; wraps on any char. */}
-          <div className="flex items-start gap-1.5 mb-2">
-            <code className="font-mono text-[13px] leading-snug text-text-secondary break-all line-clamp-2 flex-1">
+          {/* FEN: single line with truncate + inline copy button */}
+          <div className="flex items-center gap-1.5 mb-2 min-w-0">
+            <code className="font-mono text-[11px] leading-none text-text-secondary truncate flex-1 min-w-0">
               {entry.fen}
             </code>
             <button
@@ -102,26 +102,29 @@ export const FENHistoryGridItem: React.FC<FENHistoryGridItemProps> = memo(
               aria-label="Copy FEN to clipboard"
             >
               {copied ? (
-                <Check className="w-3.5 h-3.5 text-success" />
+                <Check className="w-3 h-3 text-success" />
               ) : (
-                <Copy className="w-3.5 h-3.5" />
+                <Copy className="w-3 h-3" />
               )}
             </button>
           </div>
 
-          {activeTab === 'active' && entry.lastActiveAt && (
+          {activeTab === 'active' && entry.lastActiveAt !== undefined && (
             <div className="mb-2">
               <StatusBadge lastActiveAt={entry.lastActiveAt} />
             </div>
           )}
 
-          <div className="flex-1"></div>
+          <div className="flex-1" />
 
           <div className="flex flex-col gap-2">
             {timestamp !== undefined && (
               <div className="flex items-center gap-2 text-[11px] sm:text-xs text-text-muted font-medium">
                 <span className="inline-flex items-center gap-1">
-                  <CalendarDays className="w-3 h-3 shrink-0 text-text-muted/70" />
+                  <CalendarDays
+                    className="w-3 h-3 shrink-0 text-text-muted/70"
+                    aria-hidden="true"
+                  />
                   {formatDate(timestamp)}
                 </span>
                 <span className="inline-flex items-center gap-1">

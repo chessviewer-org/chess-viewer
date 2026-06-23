@@ -2,6 +2,7 @@ import React, { memo, useRef, useState } from 'react';
 
 import {
   CheckCircle2,
+  Clock,
   Download,
   HardDrive,
   type LucideIcon,
@@ -143,6 +144,24 @@ const DataManagement = memo(function DataManagement() {
     event.target.value = '';
   }
 
+  async function handleClearHistory() {
+    const confirmed = await showConfirm(
+      'Clear FEN History',
+      'Delete all FEN history and archived positions from this browser? This cannot be undone.',
+      'danger'
+    );
+    if (!confirmed) return;
+    const historyKeys = [
+      'fen-history',
+      'fen-history-archive',
+      'favoriteFens',
+      'fen-history-skip-delete-confirm'
+    ];
+    historyKeys.forEach((key) => localStorage.removeItem(key));
+    refreshUsage();
+    setMessage('FEN history cleared.');
+  }
+
   async function handleResetData() {
     const confirmed = await showConfirm(
       'Reset Data',
@@ -156,7 +175,7 @@ const DataManagement = memo(function DataManagement() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 animate-pageEnter">
       <section className="rounded-2xl border border-border bg-surface-elevated p-5">
         <div className="mb-4 flex items-center justify-between gap-3">
           <h4 className="flex items-center gap-2 text-sm font-bold text-text-primary">
@@ -212,8 +231,16 @@ const DataManagement = memo(function DataManagement() {
           variant="neutral"
         />
         <DataRow
+          icon={Clock}
+          title="Clear FEN History"
+          description="Delete all saved FEN positions, favorites, and archive from this browser. Cannot be undone."
+          actionLabel="Clear History"
+          onAction={handleClearHistory}
+          variant="danger"
+        />
+        <DataRow
           icon={RotateCcw}
-          title="Reset Local Data"
+          title="Reset All Data"
           description="Clear all ChessVision data stored in this browser. This cannot be undone."
           actionLabel="Reset"
           onAction={handleResetData}

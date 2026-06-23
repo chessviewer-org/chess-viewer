@@ -2,18 +2,28 @@ import { useCallback } from 'react';
 
 import { ADVANCED_FEN_CONFIG } from '@constants';
 
-import type { ExportFormat, PositionSettings } from './useAdvancedFEN.types';
+import type {
+  BoardSizePreset,
+  ExportFormat,
+  PositionSettings
+} from './useAdvancedFEN.types';
 
 const { TABS } = ADVANCED_FEN_CONFIG;
+
+const BOARD_SIZE_MIN = 4;
+const BOARD_SIZE_MAX = 8;
+
+function clampBoardSize(value: number): number {
+  return Math.min(Math.max(value, BOARD_SIZE_MIN), BOARD_SIZE_MAX);
+}
 
 /** Arguments for the useAdvancedUIHandlers hook. */
 interface UseAdvancedUIHandlersArgs {
   isChained: boolean;
-  safeCurrentIndex: number;
   validFens: string[];
   pieceStyle: string;
   boardSize: number;
-  fileName: string;
+  fileNamesInput: string;
   exportQuality: number;
   showCoordsLocal: boolean;
   showCoordinateBorder: boolean;
@@ -22,7 +32,7 @@ interface UseAdvancedUIHandlersArgs {
   showCoordinates: boolean;
   lightSquare: string;
   darkSquare: string;
-  exportFormat: ExportFormat;
+  selectedFormats: ExportFormat[];
   setIsChained: React.Dispatch<React.SetStateAction<boolean>>;
   setActiveTab: React.Dispatch<React.SetStateAction<string>>;
   setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>;
@@ -30,13 +40,16 @@ interface UseAdvancedUIHandlersArgs {
   setShowIntervalMenu: React.Dispatch<React.SetStateAction<boolean>>;
   setIsFlipped: React.Dispatch<React.SetStateAction<boolean>>;
   setIsExportModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setFileName: React.Dispatch<React.SetStateAction<string>>;
   setPieceStyle: React.Dispatch<React.SetStateAction<string>>;
   setExportQuality: React.Dispatch<React.SetStateAction<number>>;
   setShowCoordsLocal: React.Dispatch<React.SetStateAction<boolean>>;
   setShowCoordinateBorder: React.Dispatch<React.SetStateAction<boolean>>;
   setShowThinFrame: React.Dispatch<React.SetStateAction<boolean>>;
-  setExportFormat: React.Dispatch<React.SetStateAction<ExportFormat>>;
+  setSelectedFormats: React.Dispatch<React.SetStateAction<ExportFormat[]>>;
+  setBoardSize: React.Dispatch<React.SetStateAction<number>>;
+  setBoardSizePreset: React.Dispatch<React.SetStateAction<BoardSizePreset>>;
+  setCustomBoardSizeInput: React.Dispatch<React.SetStateAction<string>>;
+  setFileNamesInput: React.Dispatch<React.SetStateAction<string>>;
   setLightSquare: (v: string) => void;
   setDarkSquare: (v: string) => void;
   setPositionSettings: React.Dispatch<React.SetStateAction<PositionSettings>>;
@@ -46,11 +59,10 @@ interface UseAdvancedUIHandlersArgs {
 export function useAdvancedUIHandlers(args: UseAdvancedUIHandlersArgs) {
   const {
     isChained,
-    safeCurrentIndex,
     validFens,
     pieceStyle,
     boardSize,
-    fileName,
+    fileNamesInput,
     exportQuality,
     showCoordsLocal,
     showCoordinateBorder,
@@ -59,7 +71,7 @@ export function useAdvancedUIHandlers(args: UseAdvancedUIHandlersArgs) {
     showCoordinates,
     lightSquare,
     darkSquare,
-    exportFormat,
+    selectedFormats,
     setIsChained,
     setActiveTab,
     setIsPlaying,
@@ -67,17 +79,27 @@ export function useAdvancedUIHandlers(args: UseAdvancedUIHandlersArgs) {
     setShowIntervalMenu,
     setIsFlipped,
     setIsExportModalOpen,
-    setFileName,
     setPieceStyle,
     setExportQuality,
     setShowCoordsLocal,
     setShowCoordinateBorder,
     setShowThinFrame,
-    setExportFormat,
+    setSelectedFormats,
+    setBoardSize,
+    setBoardSizePreset,
+    setCustomBoardSizeInput,
+    setFileNamesInput,
     setLightSquare,
     setDarkSquare,
     setPositionSettings
   } = args;
+
+  /** Breaks the chain when the user makes a per-position change while chain-sync is active. */
+  const unlinkIfChained = useCallback(() => {
+    if (isChained) {
+      setIsChained(false);
+    }
+  }, [isChained, setIsChained]);
 
   const handleShowPositionsTab = useCallback(() => {
     setActiveTab(TABS.POSITIONS);
@@ -107,31 +129,20 @@ export function useAdvancedUIHandlers(args: UseAdvancedUIHandlersArgs) {
     setIsExportModalOpen(false);
   }, [setIsExportModalOpen]);
 
-  const handleSetFileName = useCallback(
-    (name: string) => {
-      setFileName(name);
-    },
-    [setFileName]
-  );
-
   const handleSetExportQuality = useCallback(
     (quality: number) => {
-      if (isChained && safeCurrentIndex > 0) {
-        setIsChained(false);
-      }
+      unlinkIfChained();
       setExportQuality(quality);
     },
-    [isChained, safeCurrentIndex, setIsChained, setExportQuality]
+    [unlinkIfChained, setExportQuality]
   );
 
   const handleSetPieceStyle = useCallback(
     (style: string) => {
-      if (isChained && safeCurrentIndex > 0) {
-        setIsChained(false);
-      }
+      unlinkIfChained();
       setPieceStyle(style);
     },
-    [isChained, safeCurrentIndex, setIsChained, setPieceStyle]
+    [unlinkIfChained, setPieceStyle]
   );
 
   const handleSetShowCoordsLocal = useCallback(
@@ -155,25 +166,69 @@ export function useAdvancedUIHandlers(args: UseAdvancedUIHandlersArgs) {
     [setShowThinFrame]
   );
 
-  const handleSetExportFormat = useCallback(
+  /** Toggles a format in/out of the multi-select set, keeping at least one selected. */
+  const handleToggleFormat = useCallback(
     (format: ExportFormat) => {
-      if (isChained && safeCurrentIndex > 0) {
-        setIsChained(false);
-      }
-      setExportFormat(format);
+      unlinkIfChained();
+      setSelectedFormats((prev) => {
+        if (prev.includes(format)) {
+          if (prev.length === 1) return prev;
+          return prev.filter((f) => f !== format);
+        }
+        return [...prev, format];
+      });
     },
-    [isChained, safeCurrentIndex, setIsChained, setExportFormat]
+    [unlinkIfChained, setSelectedFormats]
+  );
+
+  /** Selects a centimetre board-size preset (or 'custom') and syncs the numeric board size. */
+  const handleSelectBoardSizePreset = useCallback(
+    (preset: BoardSizePreset) => {
+      unlinkIfChained();
+      setBoardSizePreset(preset);
+      if (preset !== 'custom') {
+        setBoardSize(preset);
+        setCustomBoardSizeInput(String(preset));
+      }
+    },
+    [unlinkIfChained, setBoardSizePreset, setBoardSize, setCustomBoardSizeInput]
+  );
+
+  /** Updates the free-form centimetre input, switching to the 'custom' preset. */
+  const handleUpdateCustomBoardSize = useCallback(
+    (value: string) => {
+      const next = value.trim();
+      if (next !== '' && !/^\d*\.?\d*$/.test(next)) return;
+
+      unlinkIfChained();
+      setBoardSizePreset('custom');
+      setCustomBoardSizeInput(value);
+
+      if (next === '') return;
+      const parsed = Number(next);
+      if (Number.isFinite(parsed)) {
+        setBoardSize(clampBoardSize(parsed));
+      }
+    },
+    [unlinkIfChained, setBoardSizePreset, setCustomBoardSizeInput, setBoardSize]
+  );
+
+  /** Updates the comma-separated per-format file-name input. */
+  const handleUpdateFileNames = useCallback(
+    (value: string) => {
+      unlinkIfChained();
+      setFileNamesInput(value);
+    },
+    [unlinkIfChained, setFileNamesInput]
   );
 
   const handleApplyPresetTheme = useCallback(
     (light: string, dark: string) => {
-      if (isChained && safeCurrentIndex > 0) {
-        setIsChained(false);
-      }
+      unlinkIfChained();
       setLightSquare(light);
       setDarkSquare(dark);
     },
-    [isChained, safeCurrentIndex, setIsChained, setLightSquare, setDarkSquare]
+    [unlinkIfChained, setLightSquare, setDarkSquare]
   );
 
   const handleApplyToAll = useCallback(() => {
@@ -185,7 +240,7 @@ export function useAdvancedUIHandlers(args: UseAdvancedUIHandlersArgs) {
           ...(updated[fen] || {}),
           pieceStyle,
           boardSize,
-          fileName,
+          fileName: fileNamesInput,
           exportQuality,
           showCoords: showCoordsLocal,
           showCoordinateBorder,
@@ -194,7 +249,7 @@ export function useAdvancedUIHandlers(args: UseAdvancedUIHandlersArgs) {
           showCoordinates,
           lightSquare,
           darkSquare,
-          exportFormat
+          selectedFormats
         };
       });
       return updated;
@@ -203,7 +258,7 @@ export function useAdvancedUIHandlers(args: UseAdvancedUIHandlersArgs) {
     validFens,
     pieceStyle,
     boardSize,
-    fileName,
+    fileNamesInput,
     exportQuality,
     showCoordsLocal,
     showCoordinateBorder,
@@ -212,7 +267,7 @@ export function useAdvancedUIHandlers(args: UseAdvancedUIHandlersArgs) {
     showCoordinates,
     lightSquare,
     darkSquare,
-    exportFormat,
+    selectedFormats,
     setIsChained,
     setPositionSettings
   ]);
@@ -224,13 +279,15 @@ export function useAdvancedUIHandlers(args: UseAdvancedUIHandlersArgs) {
     handleToggleIntervalMenu,
     handleFlipBoard,
     handleCloseExportModal,
-    handleSetFileName,
     handleSetExportQuality,
     handleSetPieceStyle,
     handleSetShowCoordsLocal,
     handleSetShowCoordinateBorder,
     handleSetShowThinFrame,
-    handleSetExportFormat,
+    handleToggleFormat,
+    handleSelectBoardSizePreset,
+    handleUpdateCustomBoardSize,
+    handleUpdateFileNames,
     handleApplyPresetTheme,
     handleApplyToAll
   };

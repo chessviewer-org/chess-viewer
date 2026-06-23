@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 
 import { AnimatePresence, motion, Transition } from 'framer-motion';
-import { AlertCircle, Check, Clipboard, Heart, Trash2 } from 'lucide-react';
+import { AlertCircle, Check, Clipboard, Star, Trash2 } from 'lucide-react';
 
 import { MAX_FEN_LENGTH, validateFEN } from '@utils';
 
@@ -80,7 +80,7 @@ const PositionsTab = memo(function PositionsTab({
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95, filter: 'blur(4px)' }}
                       transition={springTransition}
-                      className={`bg-surface border rounded-xl p-4 space-y-3 ${hasError ? 'border-error/50' : hasDuplicate ? 'border-warning/50' : 'border-border hover:border-border-hover'}`}
+                      className={`bg-surface border rounded-xl p-4 space-y-3 ${hasDuplicate ? 'border-warning/50' : 'border-border hover:border-border-hover'}`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -90,11 +90,13 @@ const PositionsTab = memo(function PositionsTab({
                           <span className="text-sm font-medium text-text-secondary">
                             Position {idx + 1}
                           </span>
-                          {fen && validateFEN(fen) && (
+                          {fen.trim() && (
                             <span
-                              className="w-1.5 h-1.5 rounded-full bg-success"
+                              className={`w-1.5 h-1.5 rounded-full ${hasError ? 'bg-error' : 'bg-success'}`}
                               role="img"
-                              aria-label="Valid position"
+                              aria-label={
+                                hasError ? 'Invalid position' : 'Valid position'
+                              }
                             />
                           )}
                         </div>
@@ -103,10 +105,10 @@ const PositionsTab = memo(function PositionsTab({
                             <button
                               type="button"
                               onClick={() => onToggleFavorite(fen)}
-                              className={`p-1.5 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${favorites[fen] ? 'bg-error/15 text-error hover:bg-error/25' : 'text-text-muted hover:text-error hover:bg-error/10'}`}
+                              className={`p-1.5 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${favorites[fen] ? 'bg-accent/15 text-accent hover:bg-accent/25' : 'text-text-muted hover:text-accent hover:bg-accent/10'}`}
                               aria-label="Toggle favorite"
                             >
-                              <Heart
+                              <Star
                                 className="w-3.5 h-3.5"
                                 fill={favorites[fen] ? 'currentColor' : 'none'}
                                 aria-hidden="true"

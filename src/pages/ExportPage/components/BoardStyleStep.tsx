@@ -74,7 +74,7 @@ export default function BoardStyleStep({ homeState }: BoardStyleStepProps) {
     <div className="flex h-full flex-col lg:flex-row overflow-y-auto p-4 lg:p-5 gap-6">
       {/* ── Left Side (Board + Display Options on Desktop) ──────────────── */}
       <div className="flex flex-col items-center lg:w-2/5 lg:sticky lg:top-0 gap-6 order-1">
-        <div className="w-full max-w-125 lg:max-w-150">
+        <div className="w-full max-w-[440px] lg:max-w-[500px]">
           <BoardPreviewCanvas
             fen={homeState.fen}
             lightSquare={lightSquare}
@@ -87,7 +87,7 @@ export default function BoardStyleStep({ homeState }: BoardStyleStepProps) {
           />
         </div>
 
-        <div className="hidden lg:block w-full max-w-125 lg:max-w-150">
+        <div className="hidden lg:block w-full max-w-[440px] lg:max-w-[500px]">
           <DisplayOptions
             showCoords={homeState.showCoords}
             setShowCoords={homeState.setShowCoords}

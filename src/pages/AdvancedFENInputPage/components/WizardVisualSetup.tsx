@@ -11,7 +11,11 @@ interface WizardVisualSetupProps {
   handlers: AdvancedFENReturn['handlers'];
 }
 
-/** Wizard step 1: board theme + piece-set picker panel. */
+/**
+ * Board Style tab: theme + piece-set picker and the display-option toggles
+ * (coordinates / board frame) that drive the read-only board preview. The
+ * board itself is no longer an editor — all appearance is set from here.
+ */
 const WizardVisualSetup = memo(function WizardVisualSetup({
   state,
   handlers
@@ -25,7 +29,6 @@ const WizardVisualSetup = memo(function WizardVisualSetup({
         onApplyTheme={handlers.handleApplyPresetTheme}
         onSelectPiece={handlers.setPieceStyle}
       />
-      <div className="flex-1" />
     </div>
   );
 });

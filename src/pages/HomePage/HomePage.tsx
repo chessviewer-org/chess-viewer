@@ -1,11 +1,15 @@
 import React from 'react';
 
-import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
 import { ExportProgress, FenToolbar } from '@/components/features';
 import { ChessEditor } from '@/components/interactions';
-import { getRouteSeo, SOFTWARE_APP_SCHEMA, WEBSITE_SCHEMA } from '@constants';
+import {
+  getRouteSeo,
+  HOME_FAQ_SCHEMA,
+  SOFTWARE_APP_SCHEMA,
+  WEBSITE_SCHEMA
+} from '@constants';
 
 import { NotificationContainer, Seo } from '@shared/ui';
 import { useHome } from './hooks/useHome';
@@ -90,15 +94,10 @@ const HomePage: React.FC = () => {
         {...getRouteSeo('/')}
         dynamicParams={dynamicParams}
         image={dynamicOgImage ?? getRouteSeo('/').image}
-        schema={[WEBSITE_SCHEMA, SOFTWARE_APP_SCHEMA]}
+        schema={[WEBSITE_SCHEMA, SOFTWARE_APP_SCHEMA, HOME_FAQ_SCHEMA]}
       />
-      <motion.div
-        initial={{ opacity: 0, y: 4 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="w-full bg-bg py-2 overflow-x-hidden min-h-screen flex flex-col"
-      >
-        <div className="flex flex-col gap-fluid-xs lg:gap-3 page-container pt-1.25 lg:pt-0 flex-1">
+      <div className="w-full bg-bg py-2 overflow-x-hidden min-h-full lg:h-full lg:overflow-hidden flex flex-col animate-pageEnter">
+        <div className="flex flex-col gap-fluid-xs lg:gap-3 page-container pt-1.5 lg:pt-0 flex-1 lg:justify-center">
           <div className="min-w-0">
             <FenToolbar
               fen={fen}
@@ -112,7 +111,7 @@ const HomePage: React.FC = () => {
             />
           </div>
           <div className="w-full">
-            <div className="workspace-container bg-surface border border-border/40 rounded-xl p-fluid-xs sm:p-fluid-sm overflow-visible lg:overflow-hidden">
+            <div className="workspace-container bg-surface border border-border/40 rounded-xl p-fluid-xs sm:p-fluid-sm overflow-x-hidden lg:overflow-hidden">
               <ChessEditor
                 fen={fen}
                 onFenChange={handleEditorFenChange}
@@ -153,7 +152,7 @@ const HomePage: React.FC = () => {
             onCancel={handleCancelExport}
           />
         )}
-      </motion.div>
+      </div>
     </>
   );
 };

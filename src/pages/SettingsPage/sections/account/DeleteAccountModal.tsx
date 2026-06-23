@@ -83,7 +83,7 @@ export function DeleteAccountModal({
   return (
     <Modal
       isOpen={isOpen}
-      title="Delete Account Forever"
+      title="Delete Account"
       type="danger"
       onConfirm={handleDelete}
       onCancel={onClose}

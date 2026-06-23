@@ -66,7 +66,7 @@ const AccessibilitySection = memo(function AccessibilitySection() {
       <SettingsHeading
         icon={Eye}
         title="Accessibility"
-        description="Adapt ChessVision to your visual needs. These settings are saved on this device and synced end-to-end encrypted when you are signed in."
+        description="Adapt ChessVision to your visual needs. These settings are saved on this device and synced when signed in."
       />
 
       <SettingsBlock

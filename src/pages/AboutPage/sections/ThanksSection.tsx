@@ -50,7 +50,7 @@ export default function ThanksSection() {
           page transitions come from{' '}
           <Ext href="https://www.framer.com/motion/">Framer Motion</Ext>, and
           the interactive board editor is powered by{' '}
-          <Ext href="https://react-dnd.github.io/react-dnd/">react-dnd</Ext>.
+          <Ext href="https://dndkit.com/">dnd-kit</Ext>.
         </p>
         <p>
           Large lists (such as a long FEN history) stay smooth thanks to{' '}
@@ -59,15 +59,13 @@ export default function ThanksSection() {
           <Ext href="https://lucide.dev">Lucide</Ext>, and the two-factor setup
           QR codes are rendered with{' '}
           <Ext href="https://github.com/zpao/qrcode.react">qrcode.react</Ext>.
-          Optional accounts and the end-to-end-encrypted cloud sync are built on{' '}
+          Optional accounts and cloud sync are built on{' '}
           <Ext href="https://supabase.com">Supabase</Ext>.
         </p>
         <p>
           The app is packaged with{' '}
           <Ext href="https://www.docker.com">Docker</Ext> and served by{' '}
-          <Ext href="https://nginx.org">nginx</Ext>, and the source code,
-          errors, and discussions live on{' '}
-          <Ext href="https://github.com">GitHub</Ext>. The position-database
+          <Ext href="https://nginx.org">nginx</Ext>. The position-database
           search would not be possible without the open chess data published by{' '}
           <Ext href="https://lichess.org">Lichess</Ext> and{' '}
           <Ext href="https://chessdb.cn/queryc_en/">ChessDB</Ext>, together with
@@ -75,6 +73,19 @@ export default function ThanksSection() {
           <Ext href="https://pdb.dieschwalbe.de">PDB (Problemdatenbank)</Ext>{' '}
           and <Ext href="https://www.yacpdb.org">YACPDB</Ext>.
         </p>
+
+        <p>
+          A special thanks goes to the open-source contributors who have helped
+          shape the project at{' '}
+          <Ext href="https://github.com/chessvision-org/chess-vision">
+            chessvision-org/chess-vision
+          </Ext>
+          , including <Ext href="https://github.com/vektorhub">vektorhub</Ext>,{' '}
+          <Ext href="https://github.com/yu102118">yu102118</Ext>, and{' '}
+          <Ext href="https://github.com/iccccccccccccc">iccccccccccccc</Ext>,
+          whose efforts have directly improved the codebase and the community.
+        </p>
+
         <p>
           Finally, thank you to everyone who reports bugs, suggests
           improvements, contributes code, and simply uses ChessVision. The

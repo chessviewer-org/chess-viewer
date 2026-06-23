@@ -11,9 +11,9 @@ import {
 } from '@constants';
 
 import { Seo } from '@shared/ui';
+import InteractiveBoardColumn from './components/InteractiveBoardColumn';
 import NoValidPositions from './components/NoValidPositions';
 import PositionsTab from './components/PositionsTab';
-import PreviewPlayerColumn from './components/PreviewPlayerColumn';
 import WizardExportSettings from './components/WizardExportSettings';
 import WizardVisualSetup from './components/WizardVisualSetup';
 import {
@@ -23,7 +23,9 @@ import {
 
 const { TABS } = ADVANCED_FEN_CONFIG;
 
-/** Shared two-column layout for preview/export tabs. */
+/** Shared two-column layout for preview/export tabs.
+ *  On desktop (lg+) board and panel sit side-by-side; on mobile/tablet they
+ *  stack vertically (board first, then panel). */
 function PreviewExportLayout({
   left,
   right
@@ -32,11 +34,11 @@ function PreviewExportLayout({
   right: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col lg:flex-row items-start gap-4 lg:gap-8 h-full">
-      <div className="flex flex-col lg:w-2/5 w-full gap-6 order-1 lg:sticky lg:top-8">
+    <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-10 h-full">
+      <div className="w-full lg:w-[45%] shrink-0 order-1 lg:sticky lg:top-8">
         {left}
       </div>
-      <div className="flex flex-col lg:w-3/5 w-full order-2 min-h-125">
+      <div className="w-full lg:w-[55%] order-2 min-h-0 lg:overflow-y-auto">
         {right}
       </div>
     </div>
@@ -65,19 +67,20 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
     }
   ];
 
-  const previewColumn = (
-    <PreviewPlayerColumn state={state} handlers={handlers} />
+  const interactiveBoard = (
+    <InteractiveBoardColumn state={state} handlers={handlers} />
   );
 
   return (
     <div
       data-page-scroll
-      className="min-h-full bg-bg md:h-full md:max-h-full md:overflow-y-auto"
+      className="bg-bg min-h-full lg:h-full lg:overflow-hidden animate-pageEnter"
     >
       <Seo {...getRouteSeo('/advanced-fen')} schema={SOFTWARE_APP_SCHEMA} />
 
-      <div className="page-container flex flex-col gap-6 py-6 sm:py-8 md:flex-row md:gap-8 lg:gap-10">
-        <div className="shrink-0 mb-6 md:mb-0 md:border-r md:border-border md:pr-8 md:w-52 lg:w-56">
+      <div className="page-container flex flex-col gap-6 py-6 sm:py-8 md:flex-row md:gap-8 lg:gap-10 h-full">
+        {/* Sidebar: sticky left column on md+ */}
+        <div className="shrink-0 md:border-r md:border-border md:pr-8 md:w-52 lg:w-56 w-full">
           <div className="md:sticky md:top-8">
             <PageTabs
               groups={groups}
@@ -91,7 +94,7 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
         <div
           role="region"
           aria-label="Editor content"
-          className="min-w-0 flex-1"
+          className="min-w-0 flex-1 h-full flex flex-col overflow-y-auto pr-2 pb-2"
         >
           {state.activeTab === TABS.POSITIONS && (
             <PositionsTab
@@ -116,7 +119,7 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
                 />
               ) : (
                 <PreviewExportLayout
-                  left={previewColumn}
+                  left={interactiveBoard}
                   right={
                     <WizardVisualSetup state={state} handlers={handlers} />
                   }
@@ -133,7 +136,7 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
                 />
               ) : (
                 <PreviewExportLayout
-                  left={previewColumn}
+                  left={interactiveBoard}
                   right={
                     <WizardExportSettings state={state} handlers={handlers} />
                   }

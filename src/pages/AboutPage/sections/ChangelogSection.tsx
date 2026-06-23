@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 
 import { REPO_CHANGELOG_URL, REPO_URL } from './aboutConstants';
-import changelog from './changelogData.json';
 import { Lead, SectionHeading } from './parts';
 
 /**
@@ -49,11 +48,12 @@ type RenderItem =
   | { kind: 'month'; key: string; month: string; year: number; count: number }
   | { kind: 'commit'; key: string; commit: ChangelogCommit };
 
-const DATA = changelog as ChangelogData;
-const YEARS = DATA.years;
+/** How many items to reveal per scroll step. */
 
 /** How many items to reveal per scroll step. */
 const PAGE_SIZE = 40;
+
+const EMPTY_YEARS: ChangelogYear[] = [];
 
 const REPO_COMMITS_URL = `${REPO_URL}/commits`;
 const commitUrl = (hash: string) => `${REPO_URL}/commit/${hash}`;
@@ -162,10 +162,18 @@ function CommitRow({ commit }: { commit: ChangelogCommit }) {
  * `scripts/generate-changelog.mjs` — never hand-edited.
  */
 export default function ChangelogSection() {
+  const [data, setData] = useState<ChangelogData | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    void import('./changelogData.json').then((mod) => {
+      setData(mod.default as ChangelogData);
+    });
+  }, []);
+
+  const YEARS = data?.years ?? EMPTY_YEARS;
   const totalPages = YEARS.length;
   const page = YEARS[pageIndex];
 
@@ -209,8 +217,8 @@ export default function ChangelogSection() {
         <Lead>
           The full history of meaningful changes to ChessVision — every feature,
           fix, performance, and refactor commit — taken straight from the
-          project&apos;s git log and grouped by month. {DATA.total} changes in
-          total. For the curated summary read the{' '}
+          project&apos;s git log and grouped by month. {data?.total ?? '…'}{' '}
+          changes in total. For the curated summary read the{' '}
           <a
             href={REPO_CHANGELOG_URL}
             target="_blank"

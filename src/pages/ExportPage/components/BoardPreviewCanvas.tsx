@@ -1,6 +1,6 @@
 import { memo, useEffect, useRef, useState } from 'react';
 
-import { FileCoordinates, RankCoordinates } from '@/components/board';
+// Removed unused imports
 import { BOARD_THEMES } from '@constants';
 
 import {
@@ -204,33 +204,54 @@ const BoardPreviewCanvas = memo(
         {/* Rank labels — left gutter column, top-aligned with the board */}
         {showCoords && cellSize > 0 && (
           <div
+            className="flex flex-col text-text-secondary font-bold select-none absolute"
             style={{
-              position: 'absolute',
               left: 0,
               top: 0,
               width: `${gutter}px`,
               height: `${boardPx}px`,
-              paddingRight: showThinFrame ? '6px' : '2px'
+              fontSize: `max(9px, ${boardPx * 0.028}px)`
             }}
+            aria-hidden="true"
           >
-            <RankCoordinates flipped={flipped} />
+            {(flipped
+              ? ['1', '2', '3', '4', '5', '6', '7', '8']
+              : ['8', '7', '6', '5', '4', '3', '2', '1']
+            ).map((rank) => (
+              <div
+                key={rank}
+                className={`flex items-center justify-end flex-1 ${showThinFrame ? 'pr-2 sm:pr-2.5' : 'pr-1 sm:pr-1.5'}`}
+              >
+                {rank}
+              </div>
+            ))}
           </div>
         )}
 
-        {/* File labels — bottom gutter row, starts at left edge so
-            FileCoordinates' own paddingLeft (gutterSize) aligns it with the board */}
+        {/* File labels — bottom gutter row, offset by left gutter to align with board */}
         {showCoords && cellSize > 0 && (
           <div
+            className="flex flex-row text-text-secondary font-bold select-none absolute lowercase"
             style={{
-              position: 'absolute',
-              left: 0,
+              left: `${gutter}px`,
               bottom: 0,
+              width: `${boardPx}px`,
               height: `${gutter}px`,
-              width: '100%',
-              paddingTop: showThinFrame ? '6px' : '2px'
+              fontSize: `max(9px, ${boardPx * 0.028}px)`
             }}
+            aria-hidden="true"
           >
-            <FileCoordinates flipped={flipped} />
+            {(flipped
+              ? ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a']
+              : ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+            ).map((file) => (
+              <div
+                key={file}
+                className={`flex items-start justify-center flex-1 ${showThinFrame ? 'pt-2 sm:pt-2.5' : 'pt-1 sm:pt-1.5'}`}
+              >
+                {file}
+              </div>
+            ))}
           </div>
         )}
       </div>

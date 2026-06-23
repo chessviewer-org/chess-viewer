@@ -82,12 +82,12 @@ const BoardSection = memo(function BoardSection() {
       <SettingsHeading
         icon={LayoutGrid}
         title="Board Style"
-        description="Colours and pieces for the board and your exports. Saved on this device, and synced (end-to-end encrypted) when signed in."
+        description="Colours and pieces for the board and your exports. Saved on this device, and synced when signed in."
       />
 
       <SettingsBlock title="Square colours">
         <div className="flex flex-col gap-5 md:flex-row md:items-stretch md:gap-6">
-          <div className="mx-auto w-full max-w-[24rem] shrink-0 overflow-hidden border border-border md:mx-0 md:w-80 lg:w-96">
+          <div className="mx-auto w-full max-w-[24rem] shrink-0 overflow-hidden md:mx-0 md:w-80 lg:w-96">
             <MiniPreview
               fen={STARTING_FEN}
               lightSquare={lightSquare}

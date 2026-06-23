@@ -5,9 +5,9 @@ import { InfoCard, Lead, SectionHeading } from './parts';
 /**
  * Privacy section: a detailed, accurate description of what data ChessVision
  * does and does not handle, grounded in how the app is actually built —
- * browser-local storage, no tracking, end-to-end-encrypted optional sync, and
+ * browser-local storage, no tracking, owner-scoped optional cloud sync, and
  * an explicit position-database lookup. It is transparent about the two things
- * that DO leave the device: the FEN you search, and encrypted sync blobs.
+ * that DO leave the device: the FEN you search, and synced settings blobs.
  */
 export default function PrivacySection() {
   return (

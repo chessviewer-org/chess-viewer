@@ -26,7 +26,7 @@ export function AccountActions({
           className="inline-flex items-center gap-2 rounded-xl border border-error/30 bg-error/10 px-5 py-2.5 text-sm font-bold text-error transition-colors hover:bg-error/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
         >
           <Trash2 className="h-4 w-4" aria-hidden="true" />
-          Delete Account Forever
+          Delete Account
         </button>
         <a
           href="mailto:contact@chessvision.org?subject=Account%20deletion%20request"

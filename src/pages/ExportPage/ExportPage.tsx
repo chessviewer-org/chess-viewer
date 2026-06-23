@@ -1,12 +1,11 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { Download, LayoutGrid } from 'lucide-react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
 
 import { type PageTabGroup, PageTabs } from '@/components/layout';
-import { useNotifications } from '@hooks';
-import { useHomeExport } from '@hooks';
+import { useHomeExport, useNotifications, usePieceImages } from '@hooks';
 
 import { Seo } from '@shared/ui';
 import BoardStyleStep from './components/BoardStyleStep';
@@ -44,16 +43,27 @@ const ExportPage = () => {
   const location = useLocation();
   const initialState = location.state as ExportPageConfig | null;
 
-  // If accessed directly without state, redirect to home.
+  // Seo renders before the redirect so Googlebot sees the canonical tag and
+  // description on /export even when no router state is present (direct visit).
   if (!initialState) {
-    return <Navigate to="/" replace />;
+    return (
+      <>
+        <Seo
+          name="Export Chess Diagram"
+          path="/export"
+          description="Export your chess diagram as a high-resolution PNG, JPEG, or SVG. Choose DPI, board size, piece style, and colors — then download instantly. Free, no watermarks."
+        />
+        <Navigate to="/" replace />
+      </>
+    );
   }
 
   return (
     <>
       <Seo
-        name="Export Studio"
-        description="Export chess board images with custom styles."
+        name="Export Chess Diagram"
+        path="/export"
+        description="Export your chess diagram as a high-resolution PNG, JPEG, or SVG. Choose DPI, board size, piece style, and colors — then download instantly. Free, no watermarks."
       />
       <ExportPageInner config={initialState} />
     </>
@@ -62,9 +72,35 @@ const ExportPage = () => {
 
 const ExportPageInner = ({ config }: { config: ExportPageConfig }) => {
   const wizard = useExportWizard();
-  const [activeTab, setActiveTab] = useState<'board-style' | 'export-settings'>(
-    'board-style'
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTabState] = useState<
+    'board-style' | 'export-settings'
+  >(
+    (searchParams.get('tab') as 'board-style' | 'export-settings') ||
+      'board-style'
   );
+
+  const setActiveTab = useCallback(
+    (tab: 'board-style' | 'export-settings') => {
+      setActiveTabState(tab);
+      setSearchParams(
+        (prev) => {
+          prev.set('tab', tab);
+          return prev;
+        },
+        { replace: true }
+      );
+    },
+    [setSearchParams]
+  );
+
+  useEffect(() => {
+    const tab = searchParams.get('tab') as 'board-style' | 'export-settings';
+    if (tab && tab !== activeTab) {
+      setActiveTabState(tab);
+    }
+  }, [searchParams, activeTab]);
+
   const { success, error, info } = useNotifications();
 
   // Local state for the export page, initialized from the config passed via router state.
@@ -96,6 +132,14 @@ const ExportPageInner = ({ config }: { config: ExportPageConfig }) => {
     saveExportFen: () => {},
     notify: { success, error, info }
   });
+
+  const { pieceImages, isLoading } = usePieceImages(pieceStyle);
+
+  useEffect(() => {
+    if (!isLoading && pieceImages) {
+      exportApi.handlePieceImagesChange(pieceImages);
+    }
+  }, [pieceImages, isLoading, exportApi]);
 
   const homeState: HomeStateForExport = {
     fen,
@@ -134,8 +178,8 @@ const ExportPageInner = ({ config }: { config: ExportPageConfig }) => {
   }, [exportApi, wizard]);
 
   return (
-    <div className="flex flex-col min-h-full">
-      <div className="page-container flex flex-col gap-6 py-6 sm:py-10 md:flex-row md:gap-8 lg:gap-10">
+    <div className="flex flex-col bg-bg min-h-full lg:h-full lg:overflow-hidden">
+      <div className="page-container flex flex-col gap-6 py-6 sm:py-10 md:flex-row md:gap-8 lg:gap-10 h-full">
         {/* ── Sidebar ───────────────────────────────────────────────────────── */}
         <div className="shrink-0 mb-6 md:mb-0 md:border-r md:border-border md:pr-8 md:w-52 lg:w-56">
           <div className="md:sticky md:top-10 flex flex-col gap-6">
