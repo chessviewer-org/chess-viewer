@@ -23,7 +23,6 @@ import {
 } from '@hooks';
 import type { PieceSymbol } from '@app-types';
 
-import type { ExportConfig } from '@utils';
 import { Checkbox } from '@shared/ui';
 import { type BoardKeyboardApi, InteractiveBoard } from '../InteractiveBoard';
 import { PiecePalette } from '../PiecePalette';
@@ -94,8 +93,8 @@ export const ChessEditor = memo(function ChessEditor({
   setShowCoords,
   showThinFrame = false,
   setShowThinFrame,
-  exportQuality = 2,
-  showCoordinateBorder = true,
+  exportQuality: _exportQuality = 2,
+  showCoordinateBorder: _showCoordinateBorder = true,
   onNotify,
   onPieceImagesChange,
   className = ''
@@ -106,11 +105,6 @@ export const ChessEditor = memo(function ChessEditor({
   // board below the editor-container width on large screens.
   const { boardSize, cellSize, containerRef, boardElementRef } =
     useEditorBoardSize();
-
-  const pieceImagesRef = useRef(pieceImages);
-  useEffect(() => {
-    pieceImagesRef.current = pieceImages;
-  }, [pieceImages]);
 
   const {
     board,
@@ -197,39 +191,10 @@ export const ChessEditor = memo(function ChessEditor({
   const handleShare = useCallback(() => setIsShareOpen(true), []);
   const closeShare = useCallback(() => setIsShareOpen(false), []);
 
-  const buildExportConfig = useCallback(
-    (): ExportConfig => ({
-      boardSize,
-      showCoords,
-      exportQuality,
-      showThinFrame,
-      fen,
-      lightSquare,
-      darkSquare,
-      pieceImages: pieceImagesRef.current,
-      flipped,
-      showCoordinateBorder
-    }),
-    [
-      boardSize,
-      showCoords,
-      exportQuality,
-      showThinFrame,
-      fen,
-      lightSquare,
-      darkSquare,
-      flipped,
-      showCoordinateBorder
-    ]
-  );
-
-  const { payload, targets, openTarget, copyLink, shareImage, isBusy } =
-    useShareBoard({
-      fen,
-      buildExportConfig,
-      isPiecesLoading: isLoading,
-      ...(onNotify ? { onNotify } : {})
-    });
+  const { payload, copyLink } = useShareBoard({
+    fen,
+    ...(onNotify ? { onNotify } : {})
+  });
 
   const boardTotalH = boardSize;
 
@@ -446,11 +411,7 @@ export const ChessEditor = memo(function ChessEditor({
           onClose={closeShare}
           fen={fen}
           positionUrl={payload.positionUrl}
-          targets={targets}
-          onOpenTarget={openTarget}
           onCopyLink={() => void copyLink()}
-          onShareImage={() => void shareImage()}
-          isBusy={isBusy}
         />
       </div>
 
