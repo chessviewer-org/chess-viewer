@@ -8,14 +8,10 @@ import {
   useState
 } from 'react';
 
-import { Navbar } from '@/components/layout';
-import { useNavbarState } from '@/components/layout/Navbar';
-import { AuthModal } from '@/features/auth';
-import { useAuth } from '@/features/auth';
-import { useSecurityCheck } from '@/features/auth';
+import { Navbar, useNavbarState } from '@/components/layout';
+import { useAuth, useSecurityCheck } from '@/features/auth';
 import Routes from '@/routes/Router';
-import { FENBatchProvider } from '@contexts';
-import { ModalProvider } from '@contexts';
+import { FENBatchProvider, ModalProvider } from '@contexts';
 import {
   useColorVision,
   useContrast,
@@ -212,13 +208,7 @@ function App() {
   // sync. `system` defers to the OS `prefers-reduced-motion` setting.
   useReducedMotionPreference();
 
-  const {
-    openAuthModal,
-    isAuthModalOpen,
-    setIsAuthModalOpen,
-    authModalTab,
-    ...navState
-  } = useNavbarState();
+  const { openAuthModal, ...navState } = useNavbarState();
 
   return (
     <ErrorBoundary>
@@ -232,18 +222,17 @@ function App() {
               Skip to main content
             </a>
 
-            <Navbar {...navState} openAuthModal={openAuthModal} />
+            <Navbar {...navState} />
 
             <main
               id="main-content"
               tabIndex={-1}
               className="main-content-offset lg:overscroll-trap flex-1 min-h-0 w-full min-w-0 max-w-full overflow-visible lg:overflow-x-hidden lg:overflow-y-auto focus:outline-none"
             >
-              {/* Gate the lock modal on `!isSecurityLoading` so it never flashes
-                  before the security state resolves. `isLocked` stays fail-closed
-                  (defaults to `true`); we suppress the *render* while the state is
-                  still unknown rather than defaulting to unlocked. The board stays
-                  hidden until then so locked content is never momentarily shown. */}
+              {/* Routes always render immediately for guests. For authenticated
+                  users we wait for the security check so locked content is never
+                  momentarily shown. Guests resolve instantly (no network call)
+                  because useSecurityCheck reads getSession() from local storage. */}
               {isAuthenticated && isSecurityLoading ? null : isAuthenticated &&
                 isLocked ? (
                 <Suspense fallback={null}>
@@ -256,16 +245,6 @@ function App() {
           </div>
         </ModalProvider>
       </FENBatchProvider>
-
-      {isAuthModalOpen && (
-        <Suspense fallback={null}>
-          <AuthModal
-            isOpen={isAuthModalOpen}
-            onClose={() => setIsAuthModalOpen(false)}
-            initialTab={authModalTab}
-          />
-        </Suspense>
-      )}
     </ErrorBoundary>
   );
 }

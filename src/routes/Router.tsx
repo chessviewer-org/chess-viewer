@@ -1,7 +1,11 @@
 import { ReactNode, Suspense } from 'react';
 
-import type { Transition, Variants } from 'framer-motion';
-import { AnimatePresence, motion } from 'framer-motion';
+import {
+  AnimatePresence,
+  motion,
+  type Transition,
+  type Variants
+} from 'framer-motion';
 import { Route, Routes, useLocation } from 'react-router-dom';
 
 import {
@@ -9,9 +13,13 @@ import {
   AdvancedFENInputPage,
   ExportPage,
   FENHistoryPage,
+  ForgotPasswordPage,
   HomePage,
+  MfaChallengePage,
   NotFoundPage,
-  SettingsPage
+  SettingsPage,
+  SignInPage,
+  SignUpPage
 } from '@/routes/lazyPages';
 import { useEffectiveReducedMotion } from '@hooks';
 
@@ -77,11 +85,11 @@ function BrandLoaderLogo() {
             initial={{ y: 45, height: 0 }}
             animate={{ y: [45, 0, 0], height: [0, 45, 45] }}
             transition={{
-              duration: 1.4,
+              duration: 0.9,
               times: [0, 0.7, 1],
               ease: 'easeInOut',
               repeat: Infinity,
-              repeatDelay: 0.15
+              repeatDelay: 0.3
             }}
           />
         </clipPath>
@@ -130,13 +138,8 @@ function PageLoader() {
       role="status"
       aria-label="Loading page"
     >
-      <div className="text-center">
-        <div className="relative w-20 h-20 mx-auto mb-6">
-          <BrandLoaderLogo />
-        </div>
-        <p className="text-text-secondary text-sm font-semibold tracking-wide">
-          Loading...
-        </p>
+      <div className="relative w-16 h-16">
+        <BrandLoaderLogo />
       </div>
     </motion.div>
   );
@@ -216,6 +219,38 @@ function AppRoutes() {
             element={
               <AnimatedPage reduced={reduced}>
                 <AdvancedFENInputPage />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="/auth/sign-in"
+            element={
+              <AnimatedPage reduced={reduced}>
+                <SignInPage />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="/auth/sign-up"
+            element={
+              <AnimatedPage reduced={reduced}>
+                <SignUpPage />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="/auth/forgot-password"
+            element={
+              <AnimatedPage reduced={reduced}>
+                <ForgotPasswordPage />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="/auth/mfa"
+            element={
+              <AnimatedPage reduced={reduced}>
+                <MfaChallengePage />
               </AnimatedPage>
             }
           />

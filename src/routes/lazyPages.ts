@@ -19,6 +19,12 @@ const fenHistoryImport = () => import('@/pages/FENHistoryPage/FENHistoryPage');
 const advancedFenImport = () =>
   import('@/pages/AdvancedFENInputPage/AdvancedFENInputPage');
 const notFoundImport = () => import('@/pages/NotFoundPage/NotFoundPage');
+const signInImport = () => import('@/pages/AuthPage/pages/SignInPage');
+const signUpImport = () => import('@/pages/AuthPage/pages/SignUpPage');
+const forgotPasswordImport = () =>
+  import('@/pages/AuthPage/pages/ForgotPasswordPage');
+const mfaChallengeImport = () =>
+  import('@/pages/AuthPage/pages/MfaChallengePage');
 
 export const HomePage = lazy(homeImport);
 export const AboutPage = lazy(aboutImport);
@@ -27,6 +33,10 @@ export const SettingsPage = lazy(settingsImport);
 export const FENHistoryPage = lazy(fenHistoryImport);
 export const AdvancedFENInputPage = lazy(advancedFenImport);
 export const NotFoundPage = lazy(notFoundImport);
+export const SignInPage = lazy(signInImport);
+export const SignUpPage = lazy(signUpImport);
+export const ForgotPasswordPage = lazy(forgotPasswordImport);
+export const MfaChallengePage = lazy(mfaChallengeImport);
 
 /**
  * Maps a route pathname to its chunk-prefetch factory. Query strings are
@@ -38,5 +48,9 @@ Object.assign(prefetchByPath, {
   '/export': exportImport,
   '/settings': settingsImport,
   '/fen-history': fenHistoryImport,
-  '/advanced-fen': advancedFenImport
+  '/advanced-fen': advancedFenImport,
+  '/auth/sign-in': signInImport,
+  '/auth/sign-up': signUpImport,
+  '/auth/forgot-password': forgotPasswordImport,
+  '/auth/mfa': mfaChallengeImport
 });
