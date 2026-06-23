@@ -1,6 +1,6 @@
 # v6.0.0 Release
 
-v6.0.0 is a major release that introduces optional user accounts with end-to-end encrypted cloud sync, TypeScript 6 across the entire codebase, and a redesigned theme customization system.
+v6.0.0 is a major release that introduces optional user accounts with owner-scoped cloud sync, TypeScript 6 across the entire codebase, and a redesigned theme customization system.
 
 ---
 
@@ -9,7 +9,7 @@ v6.0.0 is a major release that introduces optional user accounts with end-to-end
 ### Authentication and Cloud Sync
 
 - Optional email/password sign-in with TOTP-based multi-factor authentication
-- End-to-end encrypted cloud sync via Supabase — the server stores only ciphertext; the decryption key never leaves the device
+- Owner-scoped cloud sync via Supabase — Row-Level Security ensures each user can only access their own data
 - Automatic migration of localStorage data on first sign-in
 - 90-day re-verification gate for privileged operations
 - Security lock screen with fail-closed behavior

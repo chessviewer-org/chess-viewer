@@ -30,9 +30,7 @@ If `pnpm validate` passes, your PR will pass the quality gates.
 
 A few things the project cares about (the hooks will tell you if you miss one):
 
-- **Keep each PR small and focused.** Aim for **one commit touching one file**.
-  Several files in one commit is fine only when they are small, related changes
-  that belong together (a fix and its test, a component and its styles).
+- **Keep each PR small and focused.** Each commit should represent one logical task — a fix, a feature, a refactor. A commit may touch several files when they belong together (a fix and its test, a component and its styles). What it must not do is mix unrelated concerns (e.g., source changes and CI config in the same commit). The pre-commit hook enforces this.
 - **Commit messages** follow [Conventional Commits](https://www.conventionalcommits.org/):
   `type(scope): subject` — e.g. `fix: correct piece rendering in Safari`.
   Common types: `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `chore`.

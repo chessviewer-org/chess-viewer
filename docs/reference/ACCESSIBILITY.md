@@ -102,26 +102,16 @@ A complete keyboard alternative to drag-and-drop, in `useBoardKeyboard`
 
 ### Touch / Mobile Drag-and-Drop
 
-- The DnD backend is chosen by device capability in `DndProvider`
-  (`src/components/interactions/DndProvider/DndProvider.tsx`): **TouchBackend** on
-  touch devices (`pointer: coarse` / `ontouchstart` / `maxTouchPoints`), where the
-  native HTML5 drag API does not fire — this is why dragging previously "did
-  nothing" on phone/tablet — and **HTML5Backend** on mouse/pen devices for
-  precise native dragging.
-- `touch-action: none` is now applied **inline on the draggable piece only**
-  (not as a global class on every piece), so a finger that starts on a piece can
-  still scroll: the TouchBackend's `scrollAngleRanges` route mostly-vertical
-  swipes (±30° of straight up/down) to page scroll, while horizontal/diagonal
-  motion starts a piece drag. The page no longer "freezes" under the finger.
-- **`delayTouchStart` is `0` (not a long-press delay).** A non-zero start delay
-  in react-dnd-touch-backend@16 silently disables `scrollAngleRanges`: while the
-  delay timer is pending the backend short-circuits the move handler before the
-  scroll-angle check runs, so — combined with `touch-action: none` on the piece —
-  a vertical scroll that started on a piece froze the page for the delay window
-  and was then mis-classified as a drag. With no delay the first finger move is
-  classified at once: a near-vertical swipe scrolls the page, and only a
-  horizontal/diagonal move past `touchSlop` (~12px) begins a drag. `touchSlop`,
-  not a timer, is what stops a tap from accidentally grabbing a piece.
+- The board uses `@dnd-kit/core` with both `PointerSensor` and `TouchSensor`
+  active simultaneously. `PointerSensor` handles mouse and pen input;
+  `TouchSensor` handles finger input on phones and tablets where the native HTML5
+  drag API does not fire.
+- `touch-action: none` is applied **inline on the draggable piece element only**
+  (not globally), so a finger that starts outside a piece can still scroll the
+  page normally. `@dnd-kit`'s `TouchSensor` uses an activation constraint
+  (`touchSlop` / distance threshold) so a near-vertical swipe scrolls the page,
+  and only a move past the threshold begins a drag. The page does not freeze under
+  the finger.
 - The grey/blue mobile **tap-highlight flash is suppressed on the board grid and
   piece palette only** (`-webkit-tap-highlight-color: transparent`, scoped in
   `src/index.css`): each square is click-to-select, so every tap and the first

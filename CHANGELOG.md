@@ -18,7 +18,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 ### Added
 
 - **Authentication** — Email/password sign-in with TOTP-based multi-factor authentication (Supabase TOTP; no custom TOTP logic).
-- **End-to-end encrypted cloud sync** — All user data encrypted client-side before transmission. Encryption key stored in `localStorage` under `cv_privacy_key`; server stores only ciphertext (`enc:<ciphertext>`).
+- **Cloud sync** — User data synced across devices via Supabase. Privacy model: Row-Level Security scopes every row to its owner — one account cannot read another's data. No client-side encryption; RLS is the privacy boundary.
 - **Security gate** — `useSecurityCheck` enforces a 90-day re-verification interval for privileged operations. Fail-closed by default.
 - **Data migration** — Automatic localStorage → Supabase migration on first sign-in (`dataMigration.ts`).
 - **Supabase RLS** — Row-Level Security active on all tables (`user_data`, `user_security`). `user_security.last_verified_at` writable only via `refresh_security_session` RPC.
@@ -31,7 +31,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - Canonical type definitions consolidated in `src/shared/types/` (`@app-types` alias).
 - `MAX_FEN_LENGTH` confirmed at 93 characters in `src/shared/utils/validation.ts`.
 - All colors moved to Tailwind 4 CSS variables in `src/index.css`; no hardcoded hex values in JSX.
-- Package manager locked to `pnpm@10.33.0`. Node.js engine requirement raised to `>=20.0.0`.
+- Package manager locked to `pnpm@10.33.0`. Node.js engine requirement raised to `>=22.12.0`.
 
 ---
 
@@ -278,5 +278,5 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
-_Last updated: May 2026_  
+_Last updated: June 2026_  
 _© 2026 Khatai Huseynzada. AGPL-3.0 License._

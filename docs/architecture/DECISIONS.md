@@ -38,9 +38,9 @@ Records of key architectural and technical decisions made during ChessVision's d
 
 **Date:** 2026-05-23 | **Status:** Accepted (supersedes zero-backend ADR-003-original)
 
-**Decision:** Supabase provides optional authentication, KV storage (`user_data` table), and RLS-enforced data access. All user data is end-to-end encrypted client-side before transmission.
+**Decision:** Supabase provides optional authentication, KV storage (`user_data` table), and RLS-enforced data access. Privacy is enforced by Row-Level Security: every row is owner-scoped — one account cannot read another's data. No client-side encryption.
 
-**Rationale:** Users requested cross-device sync. Supabase was chosen for its Row-Level Security, built-in auth with TOTP MFA, and PostgreSQL RPC support (needed for the security gate pattern).
+**Rationale:** Users requested cross-device sync. Supabase was chosen for its Row-Level Security, built-in auth with TOTP MFA, and PostgreSQL RPC support (needed for the security gate pattern). Client-side E2EE was considered and rejected as overengineering — RLS owner-scoping provides the necessary privacy guarantee without key-management complexity.
 
 **Constraints:**
 
@@ -109,15 +109,15 @@ Records of key architectural and technical decisions made during ChessVision's d
 
 ---
 
-## ADR-009: React DnD for Board Editing
+## ADR-009: @dnd-kit for Board Editing
 
-**Date:** 2025-12-28 | **Status:** Accepted
+**Date:** 2025-12-28 | **Status:** Accepted (migrated from `react-dnd`)
 
-**Decision:** `react-dnd` with dual backends: HTML5 for desktop, Touch for mobile. DnD state lives exclusively in `useInteractiveBoard.ts` and `react-dnd` monitors — never mirrored into React state.
+**Decision:** `@dnd-kit/core` with Pointer and Touch sensors. DnD state lives exclusively in `useInteractiveBoard.ts` — never mirrored into React board state.
 
-**Rationale:** Mirroring drag state into React state causes 64-square cascade re-renders on every drag event. `react-dnd` monitors provide efficient, targeted subscriptions.
+**Rationale:** Mirroring drag state into React state causes 64-square cascade re-renders on every drag event. `@dnd-kit` sensor events provide efficient, targeted subscriptions without polluting the board matrix. `@dnd-kit` is also better maintained and has first-class TypeScript support compared to `react-dnd`.
 
-**Constraints:** `BoardSquare`, `DraggablePiece`, `DroppableSquare` must stay `memo()`'d. `CustomDragLayer` reads only from `useDragLayer`, never from parent state.
+**Constraints:** `BoardSquare`, `DraggablePiece`, `DroppableSquare` must stay `memo()`'d. A new prop on any of these must be referentially stable (`useMemo`/`useCallback`) or it re-renders all 64 squares.
 
 ---
 

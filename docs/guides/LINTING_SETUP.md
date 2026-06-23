@@ -22,19 +22,16 @@ All tools are already installed and configured in the repository. This document 
 ## Daily Commands
 
 ```bash
-# Run all three quality gates (required before every commit)
-pnpm test && npx tsc --noEmit && pnpm lint
+# Run all four quality gates (required before every commit)
+pnpm validate      # typecheck + lint + format:check + test
 
-# Lint
-pnpm lint          # check — 0 warnings allowed
+# Individual gates
+pnpm typecheck     # tsc --noEmit — 0 errors required
+pnpm lint          # ESLint — 0 warnings allowed
 pnpm lint:fix      # auto-fix
-
-# Format
-pnpm format        # write
-pnpm format:check  # check without writing
-
-# Type check
-npx tsc --noEmit
+pnpm format        # Prettier write
+pnpm format:check  # Prettier check without writing
+pnpm test          # node:test unit tests
 ```
 
 ---
@@ -155,7 +152,7 @@ TypeScript 6 strict mode is enforced via `tsconfig.json`:
 Type check command:
 
 ```bash
-npx tsc --noEmit
+pnpm typecheck
 ```
 
 Zero errors required. `any`, `@ts-ignore`, and non-null assertions (`!`) are forbidden.
