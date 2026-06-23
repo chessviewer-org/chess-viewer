@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -13,6 +13,8 @@ import {
   Share2,
   X
 } from 'lucide-react';
+
+import { useFocusTrap } from '@hooks';
 
 import type { ShareMode, ShareTarget } from '../useShareBoard';
 
@@ -53,22 +55,23 @@ const ShareDialog = memo(function ShareDialog({
   isBusy
 }: ShareDialogProps) {
   const [mode, setMode] = useState<ShareMode>('fen');
-
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialogRef, isOpen);
 
   // Reset to the default mode each time the dialog reopens.
   useEffect(() => {
     if (isOpen) setMode('fen');
   }, [isOpen]);
+
+  // Escape key closes the dialog.
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [isOpen, onClose]);
 
   return (
     <AnimatePresence>
@@ -82,6 +85,7 @@ const ShareDialog = memo(function ShareDialog({
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
           <motion.div
+            ref={dialogRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby="share-dialog-title"

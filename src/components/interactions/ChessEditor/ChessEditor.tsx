@@ -227,6 +227,7 @@ export const ChessEditor = memo(function ChessEditor({
     useShareBoard({
       fen,
       buildExportConfig,
+      isPiecesLoading: isLoading,
       ...(onNotify ? { onNotify } : {})
     });
 

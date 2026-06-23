@@ -106,6 +106,8 @@ interface UseShareBoardArgs {
   /** Lazily builds the render config when an image share is requested. */
   buildExportConfig: () => ExportConfig;
   onNotify?: ShareNotify;
+  /** When true, piece images are still loading — image share is blocked. */
+  isPiecesLoading?: boolean;
 }
 
 /**
@@ -116,7 +118,8 @@ interface UseShareBoardArgs {
 export function useShareBoard({
   fen,
   buildExportConfig,
-  onNotify
+  onNotify,
+  isPiecesLoading = false
 }: UseShareBoardArgs) {
   const [isBusy, setIsBusy] = useState(false);
 
@@ -161,6 +164,10 @@ export function useShareBoard({
    */
   const shareImage = useCallback(async () => {
     if (isBusy) return;
+    if (isPiecesLoading) {
+      onNotify?.('Piece images are still loading, please wait', 'info');
+      return;
+    }
     setIsBusy(true);
     try {
       const blob = await renderImageBlob(buildExportConfig());
@@ -196,7 +203,7 @@ export function useShareBoard({
     } finally {
       setIsBusy(false);
     }
-  }, [isBusy, buildExportConfig, payload, onNotify]);
+  }, [isBusy, isPiecesLoading, buildExportConfig, payload, onNotify]);
 
   return {
     payload,
@@ -204,6 +211,6 @@ export function useShareBoard({
     openTarget,
     copyLink,
     shareImage,
-    isBusy
+    isBusy: isBusy || isPiecesLoading
   };
 }
