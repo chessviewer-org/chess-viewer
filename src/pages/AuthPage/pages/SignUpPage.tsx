@@ -221,7 +221,12 @@ export function SignUpPage() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+      <form
+        id="signup-form"
+        onSubmit={handleSubmit}
+        noValidate
+        className="flex flex-col gap-4"
+      >
         <div>
           <label
             htmlFor="signup-email"
@@ -231,6 +236,7 @@ export function SignUpPage() {
           </label>
           <input
             id="signup-email"
+            name="email"
             type="email"
             autoComplete="email"
             className={fieldClass}
@@ -256,6 +262,7 @@ export function SignUpPage() {
           <div className="relative">
             <input
               id="signup-password"
+              name="password"
               type={showPassword ? 'text' : 'password'}
               autoComplete="new-password"
               className={`${fieldClass} pr-10`}
@@ -299,6 +306,7 @@ export function SignUpPage() {
           <div className="relative">
             <input
               id="signup-confirm"
+              name="confirm-password"
               type={showConfirm ? 'text' : 'password'}
               autoComplete="new-password"
               className={`${fieldClass} pr-10`}
