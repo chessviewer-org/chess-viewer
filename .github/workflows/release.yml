@@ -1,8 +1,6 @@
 name: Release
 
 on:
-  push:
-    branches: [master]
   workflow_dispatch:
 
 concurrency:
@@ -41,7 +39,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Verify build before release
-        run: pnpm build
+        run: pnpm build:vite
 
       - name: Semantic Release
         env:
