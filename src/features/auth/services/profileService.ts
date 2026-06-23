@@ -61,7 +61,7 @@ export function isActiveSupporter(supporterUntil: string | null): boolean {
 }
 
 export const profileService = {
-  /** Fetch a registered user's profile. Returns null on missing row/schema (UI falls back). */
+  /** Fetch a registered user's profile. Auto-creates the row if missing (trigger fallback). */
   get: async (userId: string): Promise<Profile | null> => {
     try {
       const { data, error } = await supabase
@@ -74,13 +74,25 @@ export const profileService = {
         if (isMissingSchemaError(error)) return null;
         throw error;
       }
-      if (!data) return null;
+
+      // Row missing means the on_auth_user_created trigger didn't run (schema not
+      // applied yet). Create it now so the rest of the app works normally.
+      if (!data) {
+        const { error: upsertError } = await supabase
+          .from('profiles')
+          .upsert(
+            { user_id: userId, display_name: 'User' },
+            { onConflict: 'user_id' }
+          );
+        if (upsertError && !isMissingSchemaError(upsertError)) {
+          logger.error('profileService.get — auto-create failed:', upsertError);
+        }
+        return DEFAULT_PROFILE;
+      }
 
       return {
         displayName: data.display_name ?? 'User',
         supporterUntil: data.supporter_until ?? null,
-        // No dollar column server-side today; amount-driven tier stays 0 for
-        // registered users until a real billing field exists.
         supporterMonthlyUsd: 0
       };
     } catch (error: unknown) {
@@ -89,16 +101,18 @@ export const profileService = {
     }
   },
 
-  /** Update the caller's display name (RLS: users can update own profile). */
+  /** Update the caller's display name. Upserts so a missing profile row is created on the fly. */
   updateDisplayName: async (userId: string, name: string): Promise<void> => {
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ display_name: name })
-        .eq('user_id', userId);
-      if (error && !isMissingSchemaError(error)) throw error;
-    } catch (error: unknown) {
+    const { error } = await supabase
+      .from('profiles')
+      .upsert(
+        { user_id: userId, display_name: name },
+        { onConflict: 'user_id' }
+      )
+      .eq('user_id', userId);
+    if (error && !isMissingSchemaError(error)) {
       logger.error('profileService.updateDisplayName error:', error);
+      throw error;
     }
   },
 

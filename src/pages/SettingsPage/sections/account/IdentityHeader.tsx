@@ -17,28 +17,48 @@ export function IdentityHeader({
   displayName: string;
   email: string | null;
   loading: boolean;
-  onSaveName: (name: string) => void;
+  onSaveName: (name: string) => Promise<void>;
   isAuthenticated: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(displayName);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Reset the draft whenever editing opens or the upstream name resolves.
   useEffect(() => {
     if (editing) {
       setDraft(displayName);
+      setSaveError(null);
       inputRef.current?.focus();
     }
   }, [editing, displayName]);
 
   const trimmed = sanitizeInput(draft).slice(0, MAX_DISPLAY_NAME).trim();
   const canSave = trimmed.length > 0 && trimmed !== displayName;
-  const commit = () => {
-    if (canSave) onSaveName(trimmed);
-    setEditing(false);
+  const commit = async () => {
+    if (!canSave) {
+      setEditing(false);
+      return;
+    }
+    setSaving(true);
+    setSaveError(null);
+    try {
+      await onSaveName(trimmed);
+      setEditing(false);
+    } catch (err: unknown) {
+      setSaveError(
+        err instanceof Error ? err.message : 'Failed to save. Please try again.'
+      );
+    } finally {
+      setSaving(false);
+    }
   };
-  const cancel = () => setEditing(false);
+  const cancel = () => {
+    setEditing(false);
+    setSaveError(null);
+  };
 
   return (
     <section className="flex items-center gap-4 rounded-2xl border border-border bg-surface-elevated p-5">
@@ -51,45 +71,49 @@ export function IdentityHeader({
       </div>
       <div className="min-w-0 flex-1">
         {editing ? (
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <label htmlFor="account-display-name" className="sr-only">
-              Display name
-            </label>
-            <input
-              ref={inputRef}
-              id="account-display-name"
-              type="text"
-              value={draft}
-              maxLength={MAX_DISPLAY_NAME}
-              disabled={loading}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') commit();
-                if (e.key === 'Escape') cancel();
-              }}
-              placeholder="Your name"
-              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors duration-200 disabled:opacity-60"
-            />
-            <div className="flex shrink-0 gap-2">
-              <button
-                type="button"
-                onClick={commit}
-                disabled={!canSave}
-                aria-label="Save display name"
-                className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-bg transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Check className="h-4 w-4" aria-hidden="true" />
-                Save
-              </button>
-              <button
-                type="button"
-                onClick={cancel}
-                aria-label="Cancel editing display name"
-                className="inline-flex items-center justify-center rounded-lg border border-border bg-surface px-3 py-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              >
-                <X className="h-4 w-4" aria-hidden="true" />
-              </button>
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <label htmlFor="account-display-name" className="sr-only">
+                Display name
+              </label>
+              <input
+                ref={inputRef}
+                id="account-display-name"
+                type="text"
+                value={draft}
+                maxLength={MAX_DISPLAY_NAME}
+                disabled={loading || saving}
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') void commit();
+                  if (e.key === 'Escape') cancel();
+                }}
+                placeholder="Your name"
+                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors duration-200 disabled:opacity-60"
+              />
+              <div className="flex shrink-0 gap-2">
+                <button
+                  type="button"
+                  onClick={() => void commit()}
+                  disabled={!canSave || saving}
+                  aria-label="Save display name"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-bg transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Check className="h-4 w-4" aria-hidden="true" />
+                  {saving ? 'Saving…' : 'Save'}
+                </button>
+                <button
+                  type="button"
+                  onClick={cancel}
+                  disabled={saving}
+                  aria-label="Cancel editing display name"
+                  className="inline-flex items-center justify-center rounded-lg border border-border bg-surface px-3 py-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50"
+                >
+                  <X className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </div>
             </div>
+            {saveError && <p className="text-xs text-error">{saveError}</p>}
           </div>
         ) : (
           <>

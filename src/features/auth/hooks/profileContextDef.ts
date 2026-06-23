@@ -11,7 +11,7 @@ export interface ProfileContextValue {
   /** Display-only membership tier derived from `supporterMonthlyUsd`. */
   membershipTier: MembershipTier;
   loading: boolean;
-  setDisplayName: (name: string) => void;
+  setDisplayName: (name: string) => Promise<void>;
   /** months <= 0 clears supporter status. Defaults to a 1-month window. */
   setSupporter: (months?: number) => void;
   refresh: () => void;

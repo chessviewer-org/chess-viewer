@@ -91,17 +91,25 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
   }, [load, isAuthenticated, userId]);
 
   const setDisplayName = useCallback(
-    (name: string) => {
+    async (name: string): Promise<void> => {
       const trimmed = name.trim() || 'User';
-      setProfile((prev) => {
-        const next = { ...prev, displayName: trimmed };
-        if (isAuthenticated && userId) {
-          void profileService.updateDisplayName(userId, trimmed);
-        } else {
-          writeGuestProfile(next);
-        }
-        return next;
+      const prev = await new Promise<Profile>((resolve) => {
+        setProfile((p) => {
+          resolve(p);
+          return p;
+        });
       });
+      setProfile({ ...prev, displayName: trimmed });
+      if (isAuthenticated && userId) {
+        try {
+          await profileService.updateDisplayName(userId, trimmed);
+        } catch {
+          setProfile(prev);
+          throw new Error('Failed to save display name. Please try again.');
+        }
+      } else {
+        writeGuestProfile({ ...prev, displayName: trimmed });
+      }
     },
     [isAuthenticated, userId]
   );

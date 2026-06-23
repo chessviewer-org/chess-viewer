@@ -159,13 +159,24 @@ export function SignUpPage() {
 
     setIsSubmitting(true);
     try {
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email: email.trim(),
         password
       });
 
       if (signUpError) {
         setEmailError(getAuthErrorMessage(signUpError));
+        return;
+      }
+
+      // Supabase returns identities: [] when email confirmation is disabled AND
+      // the email is already registered — no error is thrown, so we detect it here.
+      if (
+        data.user &&
+        Array.isArray(data.user.identities) &&
+        data.user.identities.length === 0
+      ) {
+        setEmailError('An account with this email already exists.');
         return;
       }
 
