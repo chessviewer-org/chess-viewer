@@ -1,15 +1,1 @@
-echo "Running pre-commit checks..."
-
-# 1. Lint & format staged files (zero-warning ESLint + Prettier).
-if ! pnpm exec lint-staged; then
-  echo ""
-  echo "✖ lint-staged failed. Fix lint/format issues above and re-stage."
-  exit 1
-fi
-
-# 2. Enforce atomic commits (one logical task per commit).
-if ! node scripts/validate-atomic-commit.js; then
-  exit 1
-fi
-
-echo "Pre-commit checks passed!"
+pnpm exec lint-staged

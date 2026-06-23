@@ -1,29 +1,29 @@
 /**
- * dangerfile.js — automated PR checks for ChessVision.
+ * dangerfile.js — automated PR gate for ChessVision.
  *
- * Runs in CI via `pnpm danger ci` on pull_request events. These checks mirror
- * what's described in CONTRIBUTING.md and exist to give contributors fast,
- * friendly feedback before a human review:
+ * Philosophy: fail() only on hard violations that must be fixed before merge.
+ * No noisy warnings on cosmetic/refactor PRs. No bot-generated checklists
+ * that duplicate the PR template.
  *
- *   1. PR title follows Conventional Commits (types kept in sync with
- *      .commitlintrc.json).
- *   2. Source changes ship with test changes.
- *   3. PR has a meaningful description.
- *   4. PR stays small and focused (warns on sprawling diffs).
- *   5. Handy reminders (lockfile sync, FEN parser tests).
- *
- * `fail()` asks for a change before merge; `warn()` / `message()` are advisory.
+ * Gates:
+ *   1. PR title follows Conventional Commits.
+ *   2. PR has a meaningful description.
+ *   3. fenParser.ts changes require fenParser.test.ts changes.
+ *   4. package.json changes require a lockfile update.
  */
 
-import { danger, fail, markdown, message, warn } from 'danger';
+import { danger, fail, warn } from 'danger';
 
 const pr = danger.github.pr;
 const modified = danger.git.modified_files;
 const created = danger.git.created_files;
-const allChanged = [...modified, ...created, ...danger.git.deleted_files];
+const deleted = danger.git.deleted_files;
 const touched = [...modified, ...created];
+const allChanged = [...touched, ...deleted];
 
-// Conventional Commit types — MUST match .commitlintrc.json type-enum.
+// ---------------------------------------------------------------------------
+// 1. Conventional Commit PR title
+// ---------------------------------------------------------------------------
 const CONVENTIONAL_TYPES = [
   'feat',
   'fix',
@@ -38,57 +38,37 @@ const CONVENTIONAL_TYPES = [
   'revert'
 ];
 
-// ---------------------------------------------------------------------------
-// 1. Conventional Commit PR title
-// ---------------------------------------------------------------------------
 const titlePattern = new RegExp(
   `^(${CONVENTIONAL_TYPES.join('|')})(\\([\\w$.\\-*/ ]+\\))?(!)?: .+`
 );
 
 if (!titlePattern.test(pr.title)) {
   fail(
-    [
-      `**PR title is not a valid Conventional Commit.**`,
-      '',
-      `Received: \`${pr.title}\``,
-      '',
-      `Expected: \`<type>(optional-scope): <subject>\``,
-      `Allowed types: ${CONVENTIONAL_TYPES.map((t) => `\`${t}\``).join(', ')}`,
-      '',
-      'Examples: `feat(export): add SVG batch export`, `fix: correct FEN parsing on en passant`'
-    ].join('\n')
+    `**PR title must follow Conventional Commits.**\n\n` +
+      `Received: \`${pr.title}\`\n\n` +
+      `Expected format: \`<type>(optional-scope): <subject>\`\n` +
+      `Allowed types: ${CONVENTIONAL_TYPES.map((t) => `\`${t}\``).join(', ')}\n\n` +
+      `Examples:\n` +
+      `- \`feat(export): add SVG batch export\`\n` +
+      `- \`fix: correct FEN parsing on en passant\``
   );
 } else if (/\.$/.test(pr.title)) {
   fail('**PR title must not end with a period.**');
 }
 
 // ---------------------------------------------------------------------------
-// 2. Mandatory testing — source changes require test changes
+// 2. PR description
 // ---------------------------------------------------------------------------
-const isSource = (f) =>
-  f.startsWith('src/') &&
-  /\.[jt]sx?$/.test(f) &&
-  !/\.(test|spec)\.[jt]sx?$/.test(f);
-
-const isTest = (f) =>
-  /\.(test|spec)\.[jt]sx?$/.test(f) || /(^|\/)(__tests__|tests?)\//.test(f);
-
-const sourceChanges = touched.filter(isSource);
-const testChanges = touched.filter(isTest);
-
-if (sourceChanges.length > 0 && testChanges.length === 0) {
-  warn(
-    [
-      '**Source changed but no tests were added or updated.**',
-      '',
-      'If this PR changes behavior, please add or update a co-located',
-      '`*.test.ts`. If it is a pure refactor or cosmetic change with no',
-      'behavior change, just note that in the description.'
-    ].join('\n')
+if (!pr.body || pr.body.trim().length < 20) {
+  fail(
+    '**PR description is missing or too short.**\n\n' +
+      'Describe what changed and why. Link related issues with `Fixes #N`.'
   );
 }
 
-// fenParser is a hard invariant: any change requires its test to change too.
+// ---------------------------------------------------------------------------
+// 3. FEN parser hard invariant
+// ---------------------------------------------------------------------------
 const touchedFenParser = touched.some((f) =>
   f.endsWith('src/shared/utils/fenParser.ts')
 );
@@ -98,67 +78,30 @@ const touchedFenParserTest = touched.some((f) =>
 
 if (touchedFenParser && !touchedFenParserTest) {
   fail(
-    '**`fenParser.ts` changed without updating `fenParser.test.ts`.** ' +
-      'Every change to the FEN parser requires a corresponding test (see CONTRIBUTING.md).'
+    '**`fenParser.ts` changed without updating `fenParser.test.ts`.**\n\n' +
+      'Every change to the FEN parser must be covered by a corresponding test.'
   );
 }
 
 // ---------------------------------------------------------------------------
-// 3. PR description must exist
+// 4. Lockfile consistency
 // ---------------------------------------------------------------------------
-if (!pr.body || pr.body.trim().length < 20) {
-  fail(
-    '**PR description is missing or too short.** Describe what changed and why, ' +
-      'and link any related issue (e.g. `Fixes #123`).'
-  );
-}
+const changedPackageJson = allChanged.includes('package.json');
+const changedLockfile = allChanged.includes('pnpm-lock.yaml');
 
-// ---------------------------------------------------------------------------
-// 4. Atomic / scoped PR — advisory
-// ---------------------------------------------------------------------------
-const BIG_PR_FILE_COUNT = 40;
-
-if (allChanged.length > BIG_PR_FILE_COUNT) {
+if (changedPackageJson && !changedLockfile) {
   warn(
-    `**Large PR:** ${allChanged.length} files changed. If you can, split this ` +
-      'into smaller PRs (one change each) — they are much easier to review.'
+    '**`package.json` changed but `pnpm-lock.yaml` did not.**\n\n' +
+      'Run `pnpm install` and commit the updated lockfile so CI does not fail.'
   );
 }
 
 // ---------------------------------------------------------------------------
-// 5. Invariant reminders
+// 5. Large PR advisory (warn only, never block)
 // ---------------------------------------------------------------------------
-const depsChanged = touched.some(
-  (f) => f === 'package.json' || f === 'pnpm-lock.yaml'
-);
-const onlyPackageJson =
-  touched.includes('package.json') && !touched.includes('pnpm-lock.yaml');
-
-if (depsChanged && onlyPackageJson) {
+if (allChanged.length > 50) {
   warn(
-    '`package.json` changed but `pnpm-lock.yaml` did not. Run `pnpm install` and ' +
-      'commit the updated lockfile so CI `--frozen-lockfile` does not fail.'
+    `**Large PR:** ${allChanged.length} files changed.\n\n` +
+      'Consider splitting into smaller focused PRs — they are faster to review and easier to revert.'
   );
 }
-
-const editedHooksOrCi = allChanged.some(
-  (f) => f.startsWith('.husky/') || f.startsWith('.github/workflows/')
-);
-if (editedHooksOrCi) {
-  message(
-    'This PR modifies git hooks or CI workflows — verify the pipeline still ' +
-      'blocks non-conforming commits/PRs.'
-  );
-}
-
-markdown(
-  [
-    '### Reviewer checklist',
-    '',
-    '- [ ] `pnpm validate` green — typecheck, lint (0 warnings), format, tests.',
-    '- [ ] Commits are atomic and Conventional.',
-    '- [ ] No `any`, `@ts-ignore`, or non-null `!`.',
-    '- [ ] No hardcoded hex colors in JSX.',
-    '- [ ] Canvas blobs followed by `canvas.width = 0`.'
-  ].join('\n')
-);

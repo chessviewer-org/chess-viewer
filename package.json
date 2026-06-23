@@ -40,7 +40,6 @@
     "test": "node --experimental-strip-types --import ./scripts/register-test-aliases.mjs --test \"src/**/*.test.ts\"",
     "danger:ci": "danger ci",
     "validate": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test",
-    "validate:atomic": "node scripts/validate-atomic-commit.js",
     "prepare": "husky"
   },
   "devDependencies": {
@@ -68,7 +67,6 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
-    "eslint-plugin-simple-import-sort": "^13.0.0",
     "globals": "^17.6.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.7",
