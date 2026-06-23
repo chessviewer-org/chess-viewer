@@ -32,7 +32,7 @@ yarn-debug.log*
 yarn-error.log*
 .env
 
-.temp
+.tmp
 .log
 
 .idea

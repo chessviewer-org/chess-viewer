@@ -13,7 +13,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
-## [6.0.0] - 2026-05-23
+## [6.0.0] - 2026-06-23
 
 ### Added
 
@@ -24,6 +24,30 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - **Supabase RLS** — Row-Level Security active on all tables (`user_data`, `user_security`). `user_security.last_verified_at` writable only via `refresh_security_session` RPC.
 - **SecurityLockModal** and **TwoFactorSetup** components.
 - `syncStorage.ts` as the single approved KV interface for cloud-backed user data.
+- **Drag-and-drop migration to @dnd-kit** — Replaced `react-dnd` with `@dnd-kit/core` throughout the board editor. Ghost piece now centers precisely on the cursor via a `snapCenterToCursor` modifier; `pointerWithin` collision strategy prevents off-by-one square drops.
+- **ChessDB integration** — Added ChessDB as a fourth database search provider alongside Lichess, PDB, and YACPDB. Search results now surface from four independent sources simultaneously.
+- **Dynamic OG image** — Supabase Edge Function (`og-image`) generates per-position Open Graph images from FEN. Custom FEN positions on the home page receive a unique preview image for social sharing.
+- **Accent colour system** — Selectable accent colour presets (CSS variable tokens) with E2EE-synced persistence. Accent applies across focus rings, highlights, and interactive states without any hardcoded hex in JSX.
+- **Profile & membership** — `ProfileContext` provides shared profile state app-wide. `profileService` exposes relational profile CRUD, supporter badge, and `supporter_until` column via `set_supporter_status` RPC.
+- **Security activity log** — `SecurityEventsService` records auth events; the Security settings section surfaces last sign-in time and 2FA status.
+- **Avatar URL editor & copyable user ID** — Account settings section allows updating avatar URL and copying the internal user identifier.
+- **Per-category storage usage** — Settings Data Management section shows storage consumed per category with individual clear actions.
+- **High-contrast preference** — Accessibility settings expose a high-contrast toggle persisted to cloud sync.
+- **Color vision simulation** — `useColorVision` and `useContrast` hooks added for accessibility; contrast ratio calculation extracted to a standalone utility.
+- **Keyboard navigation for the board** — `useEditorKeyboard` and `useBoardKeyboardNav` hooks implement keyboard-driven piece placement and square navigation with full ARIA support.
+- **Page scroll keyboard hook** — Global keyboard handler (`usePageScrollKeyboard`) for accessibility-first scroll interactions.
+- **PWA service worker** — `vite-plugin-pwa` integrated with Workbox caching rules; `registerSW.js` wired in `index.html`. App is installable on desktop and mobile.
+- **Route prefetch registry** — `usePrefetchRoute` prefetches lazy page chunks on link hover/focus; `prefetchByPath` maps every route to its dynamic import factory.
+- **Board preview canvas** — `BoardPreviewCanvas` component renders a static read-only board preview used on the Export page and AdvancedFEN wizard.
+- **Export Studio** — `/export` route hosts a two-step wizard (Board Style → Export Settings) replacing the inline export panel. Preserves state across hard refresh via `sessionStorage`.
+- **Smart Naming for batch export** — `parseSmartNaming` parses comma-separated names and bracket ranges (`Sicilian[1-4], Trap[5-6]`) to auto-assign per-position file names across a batch. Comprehensive `node:test` suite co-located.
+- **`useEffectiveReducedMotion`** — Combines OS preference with the in-app reduced-motion toggle for animation decisions throughout the router and components.
+- **`switch` UI primitive** — Accessible toggle Switch component added to `@shared/ui`.
+- **`useFocusTrap` and `useListboxKeyboard`** — Reusable accessibility hooks for modal focus containment and listbox keyboard patterns.
+- **DeveloperOptions page** — Hidden settings section exposing internal flags for development use.
+- **Lichess-style brand loader** — Animated SVG logo fills bottom-to-top on a loop in the `PageLoader` Suspense fallback.
+- **`describeBoardPosition`** — Screen-reader utility that generates a natural-language description of the current board state for assistive technology.
+- **SCSS module system** — All component layout styles migrated from inline Tailwind to co-located `.module.scss` files with a shared `_variables.scss` / `_mixins.scss` system and container-query mixins.
 
 ### Changed
 
@@ -32,6 +56,84 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - `MAX_FEN_LENGTH` confirmed at 93 characters in `src/shared/utils/validation.ts`.
 - All colors moved to Tailwind 4 CSS variables in `src/index.css`; no hardcoded hex values in JSX.
 - Package manager locked to `pnpm@10.33.0`. Node.js engine requirement raised to `>=22.12.0`.
+- **Responsive editor layout overhaul** — Three-zone breakpoint system (`< 564px` single-column, `564–800px` tablet with commandbar top strip, `800–1024px` tablet with commandbar in panel, `≥ 1024px` desktop). Board height and panel height are kept pixel-identical at all side-by-side breakpoints via `align-items: stretch` + `justify-content: space-between`.
+- **Tablet layout** — Database search moves to a full-width row below the board+panel pair on tablet. CommandBar becomes a full-width strip above both columns on small tablets (< 800px container) and moves into the right panel on large tablets.
+- **Coordinate alignment fix** — Right panel receives `paddingBottom = cellSize × 8 × 0.05` when coordinates are active, aligning the Drop-to-Remove zone exactly with the bottom of the board squares regardless of viewport size.
+- **AdvancedFEN Export Settings tab** — Board preview sticks to the top of the layout; only the settings panel scrolls. Desktop mode is fully 100 vh with no page-level overflow.
+- **ExportPage refresh resilience** — Config is persisted to `sessionStorage` on navigation; hard refresh restores the export session instead of showing an empty state or redirecting.
+- **FENHistoryPage favorites pagination** — `favoritesData` and `filteredFavorites` memoized with `useMemo`; `FENHistoryGrid` reset effect no longer fires on every re-render, fixing the broken "load more" on the Favorites tab.
+- **Batch export file naming** — `sanitizeFileName` applied to every resolved name in both single-position and batch export paths. Empty `fileNamesInput` falls back to `Position-N` instead of producing nameless files in the ZIP.
+- **`parseSmartNaming` fallback** — Out-of-range bracket ranges (e.g., `Game[5-8]` with 3 FENs) now fall back to the range's own base name (`Game-N`) rather than the generic `Position-N`.
+- **Settings layout** — Migrated from sidebar navigation to a tabbed layout. Sections restructured: Appearance, Accessibility, Board, Account, Security, Data, Developer.
+- **Navbar redesign** — Theme-coloured knight logo component (`Logo.tsx`). ThemeToggle extracted to a standalone navbar button. Mobile menu unifies profile block with supporter badge and donate link.
+- **PageTabs component** — New reusable tab navigation used by Settings, ExportPage, AdvancedFEN, and FENHistory pages. Supports collapsible tab groups.
+- **About page** — Split into modular section components (About, Privacy, Thanks, Changelog). Structured changelog data served from constants.
+- **Accent focus rings** — Removed accent-coloured focus rings from `CustomSelect`, modal close button, notification actions, and `Switch`; replaced with muted borders for visual consistency.
+- **`useEditorBoardSize`** — Board size derived from `ResizeObserver` on the container element. `cellSize` measured from the actual rendered `boardElementRef` so the drag ghost is pixel-identical to placed pieces at any viewport, including screens where `max-width` clamps the board below the container width.
+- **Export quality tiers** — Quality presets corrected: Print 8×, Print 16×, Social 24×, Max 32×. Default changed to 2× for sensible out-of-box file sizes.
+- **FEN History** — Redesigned with improved layout, favorites deduplication by board-field (most-recently-favorited first), freshness indicators, and infinite scroll via `IntersectionObserver` (replaces `react-window` virtualization).
+- **`AuthPage`** — Auth flows (sign-in, sign-up, forgot password, MFA challenge) migrated to a dedicated `/auth/*` route subtree; modal-based auth removed.
+- **Routing** — All pages use `React.lazy` + `Suspense` + `<AnimatedPage>` + `AnimatePresence`. New routes: `/export`, `/auth/sign-in`, `/auth/sign-up`, `/auth/forgot-password`, `/auth/mfa`.
+- **`safeJSONParse`** — Used at every `localStorage` / Supabase / edge-function read boundary. Direct `JSON.parse` on external data is forbidden.
+- **Container queries** — Editor, palette, and layout breakpoints use `@container` queries on the workspace container instead of viewport media queries, so breakpoints track content width after the sidebar offsets.
+- **PiecePalette** — Stacked view (White / Black groups, 6-column grid each) shown at all breakpoints. Flat single-row view removed.
+- **Piece image cache** — `pieceImageCache.ts` is the single `HTMLImageElement` cache; `getPieceImageKey` generates stable lookup keys.
+- **`logger.ts`** — Only approved logging interface; bare `console.*` removed from all production paths.
+- **CI workflows** — CodeQL upgraded to Node 24 runtime. PR labeler rules updated. Danger check wired for PRs. `pnpm audit --audit-level=high` runs on every push.
+- **nginx config** — CSP updated with `img-src blob:` and `worker-src blob:` directives. PWA routes (`/sw.js`, `/registerSW.js`) receive dedicated cache-control headers.
+- **`esbuild` override** — Pinned to `>=0.28.1` to resolve advisory.
+
+### Fixed
+
+- **DnD connector ref leak** — `DraggablePiece`, `DroppableSquare`, and `TrashZone` now detach their react-dnd connectors on unmount, preventing stale DOM listener accumulation.
+- **Worker canvas disposal** — SVG raster worker disposes the `OffscreenCanvas` and `ImageBitmap` on every exit path (success, error, cancel) to prevent Safari GPU memory exhaustion.
+- **JPEG canvas disposal** — `exportRaster` releases the JPEG canvas on any failure during draw or blob conversion.
+- **Export cancellation** — Pause and cancel signals are honoured between batch export items; worker task cancel handle registered so `cancelExport` correctly stops in-flight raster jobs.
+- **SVG data URL escaping** — `svgExporter` escapes the data URL before embedding it in the SVG `<image href>` attribute.
+- **DPI encoder overflow** — `dpiEncoder` clamps JPEG DPI to the 16-bit field range to prevent metadata corruption on high-DPI exports.
+- **Duplicate MFA factor lookup** — Removed redundant factor lookup in `useSecurityUnlock` that caused a spurious second Supabase call.
+- **`syncStorage` auth subscription** — Auth state subscription made idempotent and disposed on HMR to prevent duplicate listeners across hot reloads.
+- **`dataMigration` empty-entry guard** — Cloud value tested directly (not its wrapper) so empty entries no longer block the first-login migration.
+- **`usePieceImages` placeholder canvas** — Memory released after placeholder encoding; `useMemo` wrapper removed (was ineffective on object identity).
+- **Security unlock fail-closed** — `useSecurityCheck` and `useSecurityUnlock` guard `getUser` and RPC calls; submitting state resets on failure.
+- **`useHomeBoardState` memoization** — Return value memoized to preserve stable board reference and prevent DnD memo invalidation.
+- **`FolderOpen` import** — Missing `FolderOpen` icon import in `CommandBar` resolved (`ReferenceError` on open-folder action).
+- **Board overflow on narrow phones** — `useEditorBoardSize` prevents the board container from exceeding the viewport width on very narrow screens.
+- **Export page empty state** — Visiting `/export` directly or after a hard refresh now shows a "Back to Editor" empty state instead of silently redirecting to `/`.
+- **`useSecurityCheck` fail-closed default** — Defaults to `isLocked = true`; only unlocks on positive server confirmation via `refresh_security_session` RPC.
+
+### Performance
+
+- **`DroppableSquare` and `DraggablePiece` prop stabilization** — Props are referentially stable so `React.memo` prevents unnecessary re-renders across all 64 squares on every board interaction.
+- **FEN history cap** — Active history list length capped to prevent unbounded memory growth.
+- **`willReadFrequently`** — Canvas 2D context hint applied for repeated `getImageData` calls in the color picker.
+- **Worker-based raster export** — SVG → PNG/JPEG conversion runs in an `OffscreenCanvas` Web Worker; main thread never blocks during high-resolution exports.
+- **`useHomeBoardState` stable reference** — `useMemo` on the return object prevents the board from remounting on unrelated parent renders.
+
+### Removed
+
+- **`react-dnd`** — Replaced by `@dnd-kit/core`.
+- **`react-window`** — Virtualization replaced by `IntersectionObserver`-driven windowing in `FENHistoryGrid`.
+- **Gemini Vision** — `geminiVision` and `geminiKeyStorage` modules removed.
+- **`ClipboardHistory` standalone component** — Inline clipboard history view integrated directly into `ChessEditor`.
+- **`ThemeSubmenu`** — Replaced by standalone `ThemeToggle` button in the navbar.
+- **`SupportPage`** and **`ToolPageHeader`** — Removed; support link folded into navbar dropdown.
+- **`HelpCenterDrawer`** — Removed from production build.
+- **Legacy SCSS modules** — Replaced by the new `*.module.scss` system.
+- **Barrel index files** for `Navbar`, `Logo`, and `PageTabs` — Removed in favour of direct imports.
+- **`SettingsSidebar`** — Replaced by tabbed settings layout.
+- **`CONTRIBUTORS.md`** — Removed.
+- **Accent theme hooks** — Replaced by the new CSS-variable accent system.
+- **Intersection-observer and crypto utility re-exports** — Unused barrel re-exports cleaned up.
+
+### Security
+
+- `safeJSONParse` enforced at every external data boundary; prototype-poisoning keys (`__proto__`, `constructor`, `prototype`) stripped unconditionally.
+- `MAX_FEN_LENGTH = 93` enforced before any parse — including FENs from URLs, shares, and paste actions.
+- `useSecurityCheck` is fail-closed: defaults `isLocked = true`; only unlocks on confirmed RPC response.
+- RLS remains ON for every Supabase table; `user_security.last_verified_at` writable only via `refresh_security_session` RPC.
+- CSP allow-list updated for every new outbound host; `script-src` and `default-src` remain `'self'` with no `unsafe-inline` or `unsafe-eval`.
+- `esbuild` advisory resolved via dependency override.
 
 ---
 
