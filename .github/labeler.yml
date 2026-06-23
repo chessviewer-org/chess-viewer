@@ -13,20 +13,24 @@
       - any-glob-to-any-file:
           - 'src/shared/utils/fenParser.ts'
           - 'src/shared/utils/fenParser.test.ts'
-          - 'src/components/panels/Fen/**'
+          - 'src/components/features/Fen/**'
+          - 'src/components/features/FenToolbar/**'
 
 'area: export':
   - changed-files:
       - any-glob-to-any-file:
           - 'src/shared/utils/canvas*.ts'
           - 'src/shared/utils/svgExporter.ts'
+          - 'src/shared/utils/svgPieceLoader.ts'
           - 'src/shared/utils/workerRasterExport.ts'
+          - 'src/shared/utils/exportRaster.ts'
           - 'src/shared/utils/imageOptimizer.ts'
           - 'src/shared/utils/exportState.ts'
           - 'src/shared/utils/dpiEncoder.ts'
           - 'src/shared/utils/archiveManager.ts'
           - 'src/shared/workers/**'
           - 'src/pages/AdvancedFENInputPage/**'
+          - 'src/components/features/Export/**'
 
 'area: auth':
   - changed-files:

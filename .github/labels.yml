@@ -27,31 +27,45 @@
 - name: chore
   color: ededed
   description: Tooling and maintenance
+- name: security
+  color: e4e669
+  description: Security fix or audit finding
+
+# --- Resolution ---
+- name: duplicate
+  color: cfd3d7
+  description: Already reported or requested
+- name: wontfix
+  color: ffffff
+  description: Intentional — will not be addressed
+- name: invalid
+  color: e4e669
+  description: Does not reproduce or off-topic
 
 # --- Area ---
 - name: 'area: board'
-  color: 5319e7
+  color: 0052cc
   description: Board rendering and drag-and-drop
 - name: 'area: fen'
-  color: 5319e7
+  color: 006b75
   description: FEN parsing and input
 - name: 'area: export'
-  color: 5319e7
+  color: e4693f
   description: Canvas / SVG export pipeline
 - name: 'area: auth'
   color: 5319e7
   description: Auth, Supabase, and cloud sync
 - name: 'area: history'
-  color: 5319e7
+  color: 1d76db
   description: FEN history
 - name: 'area: ui'
-  color: 5319e7
+  color: 0075ca
   description: Shared UI, layout, and theming
 - name: 'area: settings'
-  color: 5319e7
+  color: b60205
   description: Settings pages
 - name: 'area: ci'
-  color: 5319e7
+  color: f9d0c4
   description: CI, hooks, and tooling
 
 # --- Workflow ---
@@ -61,9 +75,15 @@
 - name: needs-review
   color: fef2c0
   description: Awaiting maintainer review
-- name: good first issue
+- name: 'good first issue'
   color: 7057ff
   description: Good for newcomers
-- name: help wanted
+- name: 'help wanted'
   color: 008672
   description: Extra attention is welcome
+- name: blocked
+  color: d93f0b
+  description: Cannot proceed until a dependency is resolved
+- name: 'breaking change'
+  color: d73a4a
+  description: Requires a major version bump
