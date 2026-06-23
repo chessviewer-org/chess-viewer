@@ -4,6 +4,7 @@ import { AnimatePresence, motion, Transition } from 'framer-motion';
 import { AlertCircle, Check, Clipboard, Star, Trash2 } from 'lucide-react';
 
 import { MAX_FEN_LENGTH, validateFEN } from '@utils';
+import styles from '../advanced-fen-layout.module.scss';
 
 /** Props for the animated FEN input grid on the Positions tab. */
 interface PositionsTabProps {
@@ -65,7 +66,11 @@ const PositionsTab = memo(function PositionsTab({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, height: 0, overflow: 'hidden' }}
               transition={springTransition}
-              className={`grid gap-4 3xl:gap-6 ${isSingle ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'}`}
+              // 2-up FEN slots track the CONTENT container width (`.fenGrid`
+              // goes two-column at ≥720px container via a px container query),
+              // not the viewport — so they don't split while the sidebar still
+              // squeezes the content narrow. Single trailing slot stays 1-col.
+              className={isSingle ? 'grid grid-cols-1 gap-4' : styles.fenGrid}
             >
               <AnimatePresence mode="popLayout">
                 {row.items.map(({ fen, originalIndex: idx, id }) => {

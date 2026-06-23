@@ -10,6 +10,7 @@ import {
 
 import { sanitizeHexColor } from '@utils';
 import type { HomeStateForExport } from '../ExportPage.types';
+import styles from './board-style-step.module.scss';
 import BoardPreviewCanvas from './BoardPreviewCanvas';
 
 interface BoardStyleStepProps {
@@ -19,9 +20,15 @@ interface BoardStyleStepProps {
 /**
  * ExportStudio step 1: board style editor.
  *
- * Left panel (40%): live board preview pinned to the top, with the compact
- * Display Options block beneath a separator. Right panel (60%): shared
- * BoardStylePanel (theme picker + piece-set grid).
+ * Layout reacts to the CONTENT container width (the `@container` wrapper in
+ * ExportPage), NOT the viewport — the sidebar steals ~208–236px so a viewport
+ * breakpoint would switch at the wrong moment.
+ *
+ *   container < 768px (`@3xl`) : single column — board → display options →
+ *                                theme picker, so the user sees themes directly
+ *                                below the board they apply them to.
+ *   container ≥ 768px (`@3xl`) : board (40%, sticky) on the left, theme picker
+ *                                (60%) on the right.
  *
  * Colour changes are debounced before writing back to homeState to keep the
  * live colour drag smooth.
@@ -71,10 +78,10 @@ export default function BoardStyleStep({ homeState }: BoardStyleStepProps) {
   );
 
   return (
-    <div className="flex h-full flex-col lg:flex-row overflow-y-auto p-4 lg:p-5 gap-6">
-      {/* ── Left Side (Board + Display Options on Desktop) ──────────────── */}
-      <div className="flex flex-col items-center lg:w-2/5 lg:sticky lg:top-0 gap-6 order-1">
-        <div className="w-full max-w-[440px] lg:max-w-[500px]">
+    <div className={styles.root}>
+      {/* ── Left Side (Board + Display Options when side-by-side) ───────── */}
+      <div className={styles.boardCol}>
+        <div className={styles.boardWrap}>
           <BoardPreviewCanvas
             fen={homeState.fen}
             lightSquare={lightSquare}
@@ -87,7 +94,10 @@ export default function BoardStyleStep({ homeState }: BoardStyleStepProps) {
           />
         </div>
 
-        <div className="hidden lg:block w-full max-w-[440px] lg:max-w-[500px]">
+        {/* Display options ride with the board only when side-by-side; in the
+            single column they move below the board (order-2) so the theme
+            picker can sit directly under the board (order-3). */}
+        <div className={styles.displayBeside}>
           <DisplayOptions
             showCoords={homeState.showCoords}
             setShowCoords={homeState.setShowCoords}
@@ -98,29 +108,29 @@ export default function BoardStyleStep({ homeState }: BoardStyleStepProps) {
         </div>
       </div>
 
-      <div className="border-t border-border lg:hidden order-2" />
-
-      {/* ── Right Side (Theme Picker + Piece Grid) ──────────────────────── */}
-      <div className="flex flex-col gap-6 lg:w-3/5 order-3">
-        <BoardStylePanel
-          lightSquare={lightSquare}
-          darkSquare={darkSquare}
-          pieceStyle={homeState.pieceStyle}
-          onApplyTheme={applyPreset}
-          onSelectPiece={handlePieceSelect}
-        />
-      </div>
-
-      <div className="border-t border-border lg:hidden order-4" />
-
-      {/* ── Mobile Display Options (Bottom) ─────────────────────────────── */}
-      <div className="lg:hidden order-5">
+      {/* ── Single-column Display Options (directly under the board) ────── */}
+      <div className={styles.displayStacked}>
         <DisplayOptions
           showCoords={homeState.showCoords}
           setShowCoords={homeState.setShowCoords}
           showThinFrame={homeState.showThinFrame}
           setShowThinFrame={homeState.setShowThinFrame}
           hideLabel={true}
+        />
+      </div>
+
+      <div className={styles.divider} />
+
+      {/* ── Right Side (Theme Picker + Piece Grid) ──────────────────────── */}
+      {/* In the single column this sits right below the board + display
+          controls, so themes are seen relative to the board. */}
+      <div className={styles.themeCol}>
+        <BoardStylePanel
+          lightSquare={lightSquare}
+          darkSquare={darkSquare}
+          pieceStyle={homeState.pieceStyle}
+          onApplyTheme={applyPreset}
+          onSelectPiece={handlePieceSelect}
         />
       </div>
     </div>

@@ -164,7 +164,21 @@
   }
 }
 
-// -- Piece palette card -------------------------------------------------------
+// -- Stacked single-column order ----------------------------------------------
+//
+// Source order is the side-by-side/desktop order (palette → display → DB →
+// trash pinned to the bottom of the column). But when the panel stacks BELOW
+// the board (single-column, < 564px container) the user wants delete-related
+// controls adjacent to the board: a piece is dragged off the board into the
+// TrashZone, so "Drop to remove" must sit right under the palette — not after
+// four rows of database-search results. We only reorder in single-column via
+// CSS `order`; side-by-side/desktop keep DOM order (all `order: 0`), so the
+// trash stays pinned at the bottom of the right column there.
+//
+//   single-col target order:  palette(1) → trash(2) → display(3) → DB(4)
+//
+// `order` on flex children is purely visual and touches no React tree, so the
+// memo budget on the board squares is unaffected.
 
 .editorPaletteCard {
   width: 100%;
@@ -177,6 +191,10 @@
   display: flex;
   flex-direction: column;
   gap: 0.375rem;
+
+  @include m.editor-single-col {
+    order: 1;
+  }
 }
 
 // -- Display options ----------------------------------------------------------
@@ -185,6 +203,10 @@
   width: 100%;
   flex-shrink: 0;
   padding: 2px 0.25rem;
+
+  @include m.editor-single-col {
+    order: 3;
+  }
 }
 
 .editorDisplayOptsLabel {
@@ -218,6 +240,12 @@
   @include m.touch {
     height: 2.75rem;
   }
+
+  // Single-column: pull the TrashZone up to sit directly under the palette so
+  // "Drop to remove" is adjacent to the board the user drags pieces off of.
+  @include m.editor-single-col {
+    order: 2;
+  }
 }
 
 // -- Database search ----------------------------------------------------------
@@ -227,4 +255,10 @@
   flex-direction: column;
   gap: v.$gap-xs;
   flex-shrink: 0;
+
+  // Single-column: DB search drops to the bottom, below the immediate edit
+  // controls (palette → trash → display) per the proximity-first stacking.
+  @include m.editor-single-col {
+    order: 4;
+  }
 }
