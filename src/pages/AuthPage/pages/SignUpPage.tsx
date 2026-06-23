@@ -160,7 +160,7 @@ export function SignUpPage() {
     setIsSubmitting(true);
     try {
       const { error: signUpError } = await supabase.auth.signUp({
-        email,
+        email: email.trim(),
         password
       });
 
