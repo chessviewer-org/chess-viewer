@@ -155,7 +155,7 @@ markdown(
   [
     '### Reviewer checklist',
     '',
-    '- [ ] `pnpm test && npx tsc --noEmit && pnpm lint` all green (0 warnings).',
+    '- [ ] `pnpm validate` green — typecheck, lint (0 warnings), format, tests.',
     '- [ ] Commits are atomic and Conventional.',
     '- [ ] No `any`, `@ts-ignore`, or non-null `!`.',
     '- [ ] No hardcoded hex colors in JSX.',

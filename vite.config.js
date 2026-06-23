@@ -111,11 +111,9 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (!id.includes('node_modules')) return undefined;
-          // Order matters — more specific patterns first to avoid the
-          // `react` substring swallowing `react-dnd`, `react-window`, etc.
           if (id.includes('lucide-react')) return 'vendor-icons';
           if (id.includes('framer-motion')) return 'vendor-motion';
-          if (id.includes('react-dnd')) return 'vendor-dnd';
+          if (id.includes('@dnd-kit')) return 'vendor-dnd';
           if (id.includes('react-window')) return 'vendor-virtualization';
           if (id.includes('@supabase')) return 'vendor-supabase';
           if (
@@ -163,9 +161,7 @@ export default defineConfig({
       'react',
       'react-dom',
       'react-router-dom',
-      'react-dnd',
-      'react-dnd-html5-backend',
-      'react-dnd-touch-backend',
+      '@dnd-kit/core',
       'lucide-react',
       'react-window'
     ]

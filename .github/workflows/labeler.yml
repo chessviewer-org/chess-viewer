@@ -3,9 +3,10 @@ name: PR Labeler
 # Auto-labels pull requests:
 #   1. area/type/dependency labels from changed file paths (actions/labeler)
 #   2. a type label derived from the Conventional Commit PR title
+#   3. needs-triage on every newly opened PR
 #
-# Uses pull_request_target so labeling also works for PRs from forks. This
-# event runs with the base repo's token; we never check out or run PR code here.
+# Uses pull_request_target so labeling works for PRs from forks.
+# This event runs with the base repo's token; PR code is never checked out here.
 
 on:
   pull_request_target:
@@ -14,6 +15,7 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  issues: write
 
 concurrency:
   group: labeler-${{ github.event.pull_request.number }}
@@ -51,6 +53,8 @@ jobs:
               build: 'dependencies',
               ci: 'area: ci',
               chore: 'chore',
+              style: 'chore',
+              revert: 'bug',
             };
 
             const label = map[match[1].toLowerCase()];
@@ -61,4 +65,29 @@ jobs:
               repo: context.repo.repo,
               issue_number: context.payload.pull_request.number,
               labels: [label],
+            });
+
+            // Flag breaking changes
+            if (match[0].includes('!')) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                labels: ['breaking change'],
+              });
+            }
+
+  triage:
+    name: Mark new PRs for triage
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened'
+    steps:
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              labels: ['needs-triage'],
             });

@@ -31,7 +31,10 @@ const PORT = 4178;
 // Routes to snapshot for static HTML / sitemap. `/settings` is intentionally
 // excluded (private/noindex); `/` already has the static fallbacks but we
 // re-snapshot it so its JSON-LD-adjacent helmet tags match the others.
-const ROUTES = ['/', '/advanced-fen', '/about', '/fen-history'];
+// `/export` redirects to `/` when accessed without router state but still
+// renders its <Seo> before the redirect, so the snapshot captures the correct
+// canonical, description, and title for Googlebot.
+const ROUTES = ['/', '/advanced-fen', '/about', '/fen-history', '/export'];
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
