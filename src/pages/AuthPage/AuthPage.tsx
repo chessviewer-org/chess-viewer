@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowLeft, LogIn, UserPlus } from 'lucide-react';
+import { LogIn, UserPlus } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -43,7 +43,7 @@ export function AuthPage({ children }: AuthPageProps) {
       <aside className="shrink-0 border-b border-border/40 bg-bg px-4 py-5 md:w-55 md:border-b-0 md:border-r md:px-5 md:py-8">
         <nav
           aria-label="Authentication"
-          className="flex flex-row gap-1 md:flex-col md:gap-1.5"
+          className="flex flex-col gap-1 md:gap-1.5"
         >
           {SIDEBAR_LINKS.map(({ to, label, icon: Icon }) => (
             <Link key={to} to={to} className={sidebarLinkClass(to)}>
@@ -51,16 +51,6 @@ export function AuthPage({ children }: AuthPageProps) {
               <span>{label}</span>
             </Link>
           ))}
-
-          <div className="mx-1 hidden h-px bg-border/60 md:my-3 md:block" />
-
-          <Link
-            to="/"
-            className="ml-auto flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:ml-0"
-          >
-            <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden="true" />
-            <span>Back to Home</span>
-          </Link>
         </nav>
       </aside>
 

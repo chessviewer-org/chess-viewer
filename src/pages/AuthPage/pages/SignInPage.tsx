@@ -50,7 +50,7 @@ export function SignInPage() {
     setIsSubmitting(true);
     try {
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim(),
         password
       });
 
