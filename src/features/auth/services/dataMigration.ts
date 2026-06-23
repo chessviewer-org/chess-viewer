@@ -1,5 +1,4 @@
-import { logger } from '@utils';
-import { safeJSONParse } from '@utils';
+import { logger, safeJSONParse } from '@utils';
 import { GUEST_PROFILE_KEY, PROFILE_REFRESH_EVENT } from './profileConstants';
 import {
   isActiveSupporter,

@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { logger } from '@utils';
-import { safeJSONParse } from '@utils';
+import { logger, safeJSONParse } from '@utils';
 import { getMembershipTier } from '../services/membership';
 import {
   GUEST_PROFILE_KEY,
