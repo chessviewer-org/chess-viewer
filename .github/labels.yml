@@ -1,112 +1,116 @@
 # Single source of truth for repository labels.
 # Synced to GitHub by .github/workflows/label-sync.yml whenever this file
 # changes on master. Edit here, not in the GitHub UI.
+# Color palette mirrors freeCodeCamp's label system.
 
 # --- Type ---
 - name: bug
-  color: b91c1c
+  color: b60205
   description: Something is not working correctly
 - name: enhancement
-  color: 0e7490
+  color: 5319e7
   description: New feature or improvement
 - name: documentation
-  color: 1e40af
+  color: 0075ca
   description: Documentation only
 - name: performance
-  color: b45309
+  color: FBCA04
   description: Performance improvement
 - name: refactor
-  color: 4b5563
+  color: c5def5
   description: Code restructuring with no behavior change
 - name: tests
-  color: 065f46
+  color: 006400
   description: Adding or updating tests
 - name: dependencies
-  color: 1d4ed8
-  description: Dependency updates
+  color: d4c5f9
+  description: Dependency updates (Renovate / Dependabot)
 - name: chore
-  color: 374151
+  color: e4e669
   description: Tooling, config, and maintenance
 - name: security
-  color: 92400e
+  color: b60205
   description: Security fix or vulnerability
 
 # --- Status ---
-- name: 'status: needs-triage'
-  color: 6b7280
-  description: Awaiting initial review and classification
-- name: 'status: waiting-review'
-  color: 1d4ed8
+- name: 'status: waiting triage'
+  color: d93f0b
+  description: Needs review to confirm validity and reproduction
+- name: 'status: waiting review'
+  color: d93f0b
   description: Ready for maintainer review
-- name: 'status: waiting-update'
-  color: 92400e
-  description: Waiting for reporter to provide more information
-- name: 'status: in-progress'
-  color: 065f46
+- name: 'status: waiting update'
+  color: FBCA04
+  description: Awaiting update or response from the author
+- name: 'status: in progress'
+  color: 5319e7
   description: Actively being worked on
 - name: 'status: blocked'
-  color: 991b1b
+  color: b60205
   description: Cannot proceed — depends on another issue or external factor
-- name: 'status: on-hold'
-  color: 374151
-  description: Intentionally paused — revisit later
+- name: 'status: on the roadmap'
+  color: 006400
+  description: Planned for a future release
+- name: 'status: discussing'
+  color: 0052cc
+  description: Under active discussion
+- name: 'status: wontfix'
+  color: 000000
+  description: Intentional — will not be addressed
 
 # --- Scope ---
 - name: 'scope: mobile'
-  color: 0f766e
-  description: Affects mobile / touch viewports
+  color: 4969c1
+  description: Affects mobile and touch viewports
 - name: 'scope: desktop'
-  color: 1e3a5f
+  color: 4969c1
   description: Affects desktop viewports only
-- name: 'scope: accessibility'
-  color: 4338ca
-  description: Affects keyboard nav, ARIA, or screen readers
-- name: 'scope: performance'
-  color: 78350f
-  description: Runtime or bundle performance impact
+- name: 'scope: a11y'
+  color: 4969c1
+  description: Keyboard navigation, ARIA, screen reader support
+- name: 'scope: UI'
+  color: 4969c1
+  description: UX changes and improvements to the user interface
 - name: 'scope: breaking'
-  color: 7f1d1d
+  color: b60205
   description: Introduces a breaking change
 
 # --- Area ---
 - name: 'area: board'
-  color: 1e40af
+  color: 59d683
   description: Board rendering and drag-and-drop
 - name: 'area: fen'
-  color: 065f46
+  color: 59d683
   description: FEN parsing and input
 - name: 'area: export'
-  color: 9a3412
+  color: 59d683
   description: Canvas and SVG export pipeline
 - name: 'area: auth'
-  color: 4c1d95
+  color: 59d683
   description: Authentication, Supabase, and cloud sync
 - name: 'area: history'
-  color: 0e4f6b
+  color: 59d683
   description: FEN history
 - name: 'area: ui'
-  color: 1f2937
+  color: 59d683
   description: Shared UI components, layout, and theming
 - name: 'area: settings'
-  color: 3b0764
+  color: 59d683
   description: Settings pages
 - name: 'area: ci'
-  color: 374151
+  color: 59d683
   description: CI pipelines, hooks, and tooling
 
 # --- Resolution ---
 - name: duplicate
-  color: 4b5563
+  color: cfd3d7
   description: Already reported or requested
-- name: wontfix
-  color: 1f2937
-  description: Intentional — will not be addressed
 - name: invalid
-  color: 4b5563
+  color: e4e669
   description: Does not reproduce or is off-topic
 - name: 'good first issue'
-  color: 065f46
+  color: 5319e7
   description: Well-scoped for a first contribution
 - name: 'help wanted'
-  color: 0e7490
-  description: Contributions welcome
+  color: 006400
+  description: Open for contributions
