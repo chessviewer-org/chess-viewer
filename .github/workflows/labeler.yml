@@ -1,12 +1,14 @@
 name: PR Labeler
 
 # Auto-labels pull requests:
-#   1. area/type/dependency labels from changed file paths (actions/labeler)
-#   2. a type label derived from the Conventional Commit PR title
-#   3. needs-triage on every newly opened PR
+#   1. area: labels from changed file paths  (actions/labeler, sync-labels off
+#      so manually applied labels are never stripped)
+#   2. type label derived from the Conventional Commit PR title
+#   3. scope: breaking when title contains a !
+#   4. status: waiting triage on every newly opened PR
 #
-# Uses pull_request_target so labeling works for PRs from forks.
-# This event runs with the base repo's token; PR code is never checked out here.
+# Uses pull_request_target so labeling works for fork PRs.
+# The base repo token is used; PR code is never checked out.
 
 on:
   pull_request_target:
@@ -29,13 +31,13 @@ jobs:
       - uses: actions/labeler@v6
         with:
           configuration-path: .github/labeler.yml
-          sync-labels: true
+          sync-labels: false
 
   type:
     name: Label by PR title
     runs-on: ubuntu-latest
     steps:
-      - name: Map Conventional Commit type to a label
+      - name: Map Conventional Commit type to label
         uses: actions/github-script@v8
         with:
           script: |
@@ -44,31 +46,30 @@ jobs:
             if (!match) return;
 
             const map = {
-              feat: 'enhancement',
-              fix: 'bug',
-              docs: 'documentation',
-              perf: 'performance',
+              feat:     'enhancement',
+              fix:      'bug',
+              docs:     'documentation',
+              perf:     'performance',
               refactor: 'refactor',
-              test: 'tests',
-              build: 'dependencies',
-              ci: 'area: ci',
-              chore: 'chore',
-              style: 'chore',
-              revert: 'bug',
+              test:     'tests',
+              build:    'dependencies',
+              ci:       'area: ci',
+              chore:    'chore',
+              style:    'chore',
+              revert:   'bug',
             };
 
             const label = map[match[1].toLowerCase()];
-            if (!label) return;
+            if (label) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                labels: [label],
+              });
+            }
 
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              labels: [label],
-            });
-
-            // Flag breaking changes
-            if (match[0].includes('!')) {
+            if (title.match(/^(\w+)(?:\([^)]*\))?!:/)) {
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,

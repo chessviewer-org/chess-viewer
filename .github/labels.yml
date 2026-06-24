@@ -114,3 +114,6 @@
 - name: 'help wanted'
   color: 006400
   description: Open for contributions
+- name: deprioritized
+  color: e99695
+  description: Low priority — lacks enough detail or impact to act on now
