@@ -28,7 +28,7 @@ export function usePieceImages(pieceStyle: string): {
 
   useEffect(() => {
     currentStyleRef.current = pieceStyle;
-    let cancelled = false;
+    const abortController = new AbortController();
 
     const loadPieces = async () => {
       const styleToLoad = pieceStyle;
@@ -41,13 +41,20 @@ export function usePieceImages(pieceStyle: string): {
           styleToLoad,
           PIECE_MAP,
           (progress: number) => {
-            if (!cancelled && currentStyleRef.current === styleToLoad) {
+            if (
+              !abortController.signal.aborted &&
+              currentStyleRef.current === styleToLoad
+            ) {
               setLoadProgress(progress);
             }
-          }
+          },
+          abortController.signal
         );
 
-        if (!cancelled && currentStyleRef.current === styleToLoad) {
+        if (
+          !abortController.signal.aborted &&
+          currentStyleRef.current === styleToLoad
+        ) {
           const images: Record<string, HTMLImageElement> = {};
           let missingCount = 0;
 
@@ -84,7 +91,10 @@ export function usePieceImages(pieceStyle: string): {
           setLoadProgress(100);
         }
       } catch (err: unknown) {
-        if (!cancelled && currentStyleRef.current === styleToLoad) {
+        if (
+          !abortController.signal.aborted &&
+          currentStyleRef.current === styleToLoad
+        ) {
           logger.error('Critical piece loading error:', err);
           setError('Failed to load pieces');
           setIsLoading(false);
@@ -95,7 +105,7 @@ export function usePieceImages(pieceStyle: string): {
     loadPieces();
 
     return () => {
-      cancelled = true;
+      abortController.abort();
     };
   }, [pieceStyle]);
 
