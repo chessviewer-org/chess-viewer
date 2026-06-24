@@ -157,12 +157,13 @@ function getBaselineFromCenter(
  *
  * @param ctx - Canvas context
  * @param squareSize - Pixel size of one square
- * @param borderSize - Width of the coordinate border area
+ * @param borderSize - Width of the coordinate border area (may include frame offset)
  * @param flipped - Whether the board is flipped
  * @param boardSize - Total board pixel size (excluding border)
  * @param forExport - Use black text for export output
  * @param displayWhite - Use white text for dark backgrounds
  * @param boardStartY - Override Y offset of the board origin
+ * @param frameOffset - Frame thickness offset (subtracted from borderSize to get pure coord border)
  */
 export function drawCoordinates(
   ctx: CanvasRenderingContext2D,
@@ -172,11 +173,14 @@ export function drawCoordinates(
   boardSize: number,
   forExport: boolean = false,
   displayWhite: boolean = true,
-  boardStartY?: number
+  boardStartY?: number,
+  frameOffset: number = 0
 ): void {
   const coordParams = getCoordinateParams(boardSize);
   const { fontSize, fontWeight } = coordParams;
   const effectiveBorder = borderSize ?? coordParams.borderSize;
+  // coordBorder is the pure coordinate band width without any frame offset
+  const coordBorder = effectiveBorder - frameOffset;
 
   const boardY = boardStartY ?? (forExport ? 0 : effectiveBorder);
 
@@ -196,7 +200,8 @@ export function drawCoordinates(
     const squareBottom = boardY + (row + 1) * squareSize;
     const centerY = Math.round((squareTop + squareBottom) / 2);
     const yPos = getBaselineFromCenter(centerY, rankMetrics);
-    const xPos = Math.round(effectiveBorder * 0.5);
+    // Center within the coord border band only (exclude frame offset)
+    const xPos = Math.round(frameOffset + coordBorder * 0.5);
     ctx.fillText(rank.toString(), xPos, yPos);
   }
 
@@ -204,9 +209,8 @@ export function drawCoordinates(
     const fileIndex = flipped ? 7 - col : col;
     const file = String.fromCharCode(97 + fileIndex);
     const xPos = getCellCenter(effectiveBorder, squareSize, col);
-    const bottomCenter = Math.round(
-      boardY + boardSize + effectiveBorder * 0.55
-    );
+    // Center within the coord border band below the board (exclude frame offset)
+    const bottomCenter = Math.round(boardY + boardSize + coordBorder * 0.55);
     const yPos = getBaselineFromCenter(bottomCenter, fileMetrics);
     ctx.fillText(file, xPos, yPos);
   }

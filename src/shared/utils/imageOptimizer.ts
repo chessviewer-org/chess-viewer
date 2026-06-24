@@ -183,8 +183,7 @@ export function calculateRenderSurfaceSize(
     exportQuality
   );
   const borderSize = showCoords ? exportSize.borderSize : 0;
-  const shouldShowFrame =
-    !!showThinFrame && getExportMode(exportSize.exportQuality) === 'print';
+  const shouldShowFrame = !!showThinFrame;
   const frameThickness = shouldShowFrame
     ? Math.max(2, Math.round(exportSize.boardPixels * 0.003))
     : 0;
