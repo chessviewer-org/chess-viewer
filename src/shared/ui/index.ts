@@ -6,5 +6,7 @@ export type { ModalType } from './Modal/Modal';
 export { default as Modal } from './Modal/Modal';
 export { default as ModalShell } from './Modal/ModalShell';
 export { default as NotificationContainer } from './NotificationContainer/NotificationContainer';
+export type { PaginationProps } from './Pagination/Pagination';
+export { default as Pagination } from './Pagination/Pagination';
 export { Seo } from './Seo/Seo';
 export { default as Switch } from './Switch/Switch';
