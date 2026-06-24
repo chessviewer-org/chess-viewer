@@ -176,20 +176,12 @@ export async function createUltraQualityCanvas(
 
   if (shouldShowFrame) {
     ctx.fillStyle = '#333333';
-    ctx.fillRect(frameOffset, 0, borderSize + finalBoardPixels, frameThickness);
-    ctx.fillRect(
-      frameOffset,
-      frameOffset + finalBoardPixels + borderSize,
-      borderSize + finalBoardPixels,
-      frameThickness
-    );
+    // Top and bottom bars span the full canvas width (corners included)
+    ctx.fillRect(0, 0, canvasWidth, frameThickness);
+    ctx.fillRect(0, canvasHeight - frameThickness, canvasWidth, frameThickness);
+    // Left and right bars span the full canvas height
     ctx.fillRect(0, 0, frameThickness, canvasHeight);
-    ctx.fillRect(
-      frameOffset + borderSize + finalBoardPixels,
-      0,
-      frameThickness,
-      canvasHeight
-    );
+    ctx.fillRect(canvasWidth - frameThickness, 0, frameThickness, canvasHeight);
   }
 
   if (effectiveCoordBorder && (format === 'jpeg' || format === 'jpg')) {
@@ -279,7 +271,8 @@ export async function createUltraQualityCanvas(
       finalBoardPixels,
       true,
       false,
-      boardY
+      boardY,
+      frameOffset
     );
   }
 
