@@ -1,10 +1,10 @@
 # Single source of truth for repository labels.
-# Synced to GitHub by .github/workflows/label-sync.yml whenever this file
-# changes on master. Edit here, not in the GitHub UI.
+# Synced to GitHub by .github/workflows/label-sync.yml on push to master.
+# Edit here — do not change labels via the GitHub UI.
 # Color palette mirrors freeCodeCamp's label system.
 
 # --- Type ---
-- name: bug
+- name: Bug
   color: b60205
   description: Something is not working correctly
 - name: enhancement
@@ -24,7 +24,7 @@
   description: Adding or updating tests
 - name: dependencies
   color: d4c5f9
-  description: Dependency updates (Renovate / Dependabot)
+  description: Dependency updates (Dependabot / Renovate)
 - name: chore
   color: e4e669
   description: Tooling, config, and maintenance
@@ -38,22 +38,28 @@
   description: Needs review to confirm validity and reproduction
 - name: 'status: waiting review'
   color: d93f0b
-  description: Ready for maintainer review
+  description: Ready for maintainer code review
 - name: 'status: waiting update'
   color: FBCA04
   description: Awaiting update or response from the author
-- name: 'status: in progress'
+- name: 'status: PR in works'
   color: 5319e7
-  description: Actively being worked on
+  description: Work in progress — a fix or implementation is underway
 - name: 'status: blocked'
   color: b60205
-  description: Cannot proceed — depends on another issue or external factor
+  description: Cannot proceed — blocked on another issue or external dependency
+- name: 'status: discussing'
+  color: 0052cc
+  description: Under active discussion — no implementation started yet
 - name: 'status: on the roadmap'
   color: 006400
   description: Planned for a future release
-- name: 'status: discussing'
-  color: 0052cc
-  description: Under active discussion
+- name: 'status: shipping'
+  color: 9ed361
+  description: Fixed and awaiting deployment
+- name: 'status: decayed'
+  color: e99695
+  description: Stale — closed for inactivity, needs follow-up to reopen
 - name: 'status: wontfix'
   color: 000000
   description: Intentional — will not be addressed
@@ -67,13 +73,13 @@
   description: Affects desktop viewports only
 - name: 'scope: a11y'
   color: 4969c1
-  description: Keyboard navigation, ARIA, screen reader support
+  description: Keyboard navigation, ARIA, and screen reader support
 - name: 'scope: UI'
   color: 4969c1
   description: UX changes and improvements to the user interface
 - name: 'scope: breaking'
   color: b60205
-  description: Introduces a breaking change
+  description: Introduces a breaking change — requires major version bump
 
 # --- Area ---
 - name: 'area: board'
@@ -101,19 +107,33 @@
   color: 59d683
   description: CI pipelines, hooks, and tooling
 
-# --- Resolution ---
+# --- Moderation ---
+- name: 'DO NOT MERGE!'
+  color: b60205
+  description: ''
+- name: 'MERGE CONFLICT!'
+  color: b60205
+  description: PR has a merge conflict and needs to be updated
+- name: spam
+  color: FFE27D
+  description: Low-effort or spammy submission
+- name: deprioritized
+  color: e99695
+  description: Deprioritized — lacks detail or ignores contribution guidelines
+- name: 'device specific'
+  color: e99695
+  description: Browser, device, or OS-specific issue
+
+# --- Contribution ---
+- name: 'first timers only'
+  color: 5319e7
+  description: Open for first-time contributors — no permission needed
+- name: 'help wanted'
+  color: 006400
+  description: Open for contributions — no permission needed
 - name: duplicate
   color: cfd3d7
   description: Already reported or requested
 - name: invalid
   color: e4e669
   description: Does not reproduce or is off-topic
-- name: 'good first issue'
-  color: 5319e7
-  description: Well-scoped for a first contribution
-- name: 'help wanted'
-  color: 006400
-  description: Open for contributions
-- name: deprioritized
-  color: e99695
-  description: Low priority — lacks enough detail or impact to act on now

@@ -1,11 +1,9 @@
 name: PR Labeler
 
-# Auto-labels pull requests:
-#   1. area: labels from changed file paths  (actions/labeler, sync-labels off
-#      so manually applied labels are never stripped)
-#   2. type label derived from the Conventional Commit PR title
-#   3. scope: breaking when title contains a !
-#   4. status: waiting triage on every newly opened PR
+# Auto-labels pull requests based on changed file paths.
+# Type labels (bug, enhancement, etc.) are applied by the separate
+# "Label by PR title" job below, derived from the Conventional Commit title.
+# status: waiting triage is applied to every newly opened PR.
 #
 # Uses pull_request_target so labeling works for fork PRs.
 # The base repo token is used; PR code is never checked out.
@@ -20,7 +18,7 @@ permissions:
   issues: write
 
 concurrency:
-  group: labeler-${{ github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
@@ -30,8 +28,9 @@ jobs:
     steps:
       - uses: actions/labeler@v6
         with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           configuration-path: .github/labeler.yml
-          sync-labels: false
+          sync-labels: true
 
   type:
     name: Label by PR title
@@ -47,7 +46,7 @@ jobs:
 
             const map = {
               feat:     'enhancement',
-              fix:      'bug',
+              fix:      'Bug',
               docs:     'documentation',
               perf:     'performance',
               refactor: 'refactor',
@@ -56,7 +55,7 @@ jobs:
               ci:       'area: ci',
               chore:    'chore',
               style:    'chore',
-              revert:   'bug',
+              revert:   'Bug',
             };
 
             const label = map[match[1].toLowerCase()];
@@ -69,7 +68,7 @@ jobs:
               });
             }
 
-            if (title.match(/^(\w+)(?:\([^)]*\))?!:/)) {
+            if (/^(\w+)(?:\([^)]*\))?!:/.test(title)) {
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
