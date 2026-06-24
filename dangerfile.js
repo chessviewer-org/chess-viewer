@@ -7,9 +7,10 @@
  *
  * Gates:
  *   1. PR title follows Conventional Commits.
- *   2. PR has a meaningful description.
- *   3. fenParser.ts changes require fenParser.test.ts changes.
- *   4. package.json changes require a lockfile update.
+ *   2. PR description is present and meaningful.
+ *   3. PR body references a closing issue (Closes/Fixes/Resolves #N).
+ *   4. fenParser.ts changes require fenParser.test.ts changes.
+ *   5. package.json changes require a lockfile update.
  */
 
 import { danger, fail, warn } from 'danger';
@@ -62,12 +63,25 @@ if (!titlePattern.test(pr.title)) {
 if (!pr.body || pr.body.trim().length < 20) {
   fail(
     '**PR description is missing or too short.**\n\n' +
-      'Describe what changed and why. Link related issues with `Fixes #N`.'
+      'Describe what changed and why. Link related issues with `Closes #N`.'
   );
 }
 
 // ---------------------------------------------------------------------------
-// 3. FEN parser hard invariant
+// 3. Closing issue reference
+// ---------------------------------------------------------------------------
+const CLOSES_PATTERN = /(?:closes|fixes|resolves)\s+#\d+/i;
+
+if (pr.body && !CLOSES_PATTERN.test(pr.body)) {
+  fail(
+    '**PR must reference a closing issue.**\n\n' +
+      'Add `Closes #N` (or `Fixes #N` / `Resolves #N`) at the top of the PR description.\n\n' +
+      'Every change should be traceable to an issue. If one does not exist yet, open it first.'
+  );
+}
+
+// ---------------------------------------------------------------------------
+// 4. FEN parser hard invariant
 // ---------------------------------------------------------------------------
 const touchedFenParser = touched.some((f) =>
   f.endsWith('src/shared/utils/fenParser.ts')
@@ -84,7 +98,7 @@ if (touchedFenParser && !touchedFenParserTest) {
 }
 
 // ---------------------------------------------------------------------------
-// 4. Lockfile consistency
+// 5. Lockfile consistency
 // ---------------------------------------------------------------------------
 const changedPackageJson = allChanged.includes('package.json');
 const changedLockfile = allChanged.includes('pnpm-lock.yaml');
@@ -97,7 +111,7 @@ if (changedPackageJson && !changedLockfile) {
 }
 
 // ---------------------------------------------------------------------------
-// 5. Large PR advisory (warn only, never block)
+// 6. Large PR advisory (warn only, never block)
 // ---------------------------------------------------------------------------
 if (allChanged.length > 50) {
   warn(

@@ -9,7 +9,7 @@ body:
     attributes:
       label: What happened?
       description: What went wrong, and what did you expect instead?
-      placeholder: Pieces disappear after exporting to PNG. Expected the full board.
+      placeholder: Pieces disappear after exporting to PNG. Expected the full board with all pieces.
     validations:
       required: true
 
@@ -18,9 +18,10 @@ body:
     attributes:
       label: Steps to reproduce
       placeholder: |
-        1. Enter FEN ...
-        2. Click Export
-        3. ...
+        1. Paste FEN: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+        2. Open Export panel → PNG → 4×
+        3. Click Download
+        4. Open the file — pieces are missing
     validations:
       required: true
 
@@ -28,8 +29,8 @@ body:
     id: environment
     attributes:
       label: Browser & OS
-      description: Helps us reproduce. Include versions if known.
-      placeholder: Chrome 121 on Windows 11 / Safari 17 on iOS
+      description: Include version if known.
+      placeholder: Chrome 125 on Windows 11 / Safari 17 on iOS 17
     validations:
       required: true
 
@@ -37,7 +38,7 @@ body:
     id: console
     attributes:
       label: Console errors (optional)
-      description: Open DevTools (F12) → Console and paste any red errors.
+      description: Open DevTools (F12 / Cmd+Opt+I) → Console and paste any red errors.
       render: shell
 
   - type: checkboxes

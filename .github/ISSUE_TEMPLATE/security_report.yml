@@ -1,0 +1,62 @@
+name: Security Report
+description: Report a security vulnerability (for critical issues, email us privately instead)
+title: '[Security]: '
+labels: ['security', 'needs-triage']
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > **Critical or exploitable vulnerabilities?** Do not open a public issue.
+        > Email **abdullayev.yusif185@gmail.com** instead.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Vulnerability description
+      description: What is the issue and what could an attacker do with it?
+      placeholder: The export endpoint reflects unsanitized user input back into the SVG output, enabling stored XSS.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the export panel
+        2. Set the FEN to: ...
+        3. Download SVG
+        4. Open in browser — script executes
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity estimate
+      options:
+        - Critical (remote code execution / data exfiltration)
+        - High (authentication bypass / privilege escalation)
+        - Medium (data exposure / limited impact)
+        - Low (minor or requires physical access)
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Browser & OS
+      placeholder: Chrome 125 on macOS 14
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Before submitting
+      options:
+        - label: This is not a critical/exploitable issue (otherwise I emailed instead).
+          required: true
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
