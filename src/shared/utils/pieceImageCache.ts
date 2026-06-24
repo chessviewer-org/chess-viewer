@@ -30,10 +30,13 @@ function enforceCacheCap(): void {
     if (oldImg) {
       const url = blobUrls.get(oldImg);
       if (url) {
+        // Revoke the blob URL to release memory, but do NOT clear img.src —
+        // the same HTMLImageElement may still be referenced by an active
+        // pieceImages state snapshot, and zeroing src corrupts it in place,
+        // causing pieces to disappear mid-render (naturalWidth → 0).
         URL.revokeObjectURL(url);
         blobUrls.delete(oldImg);
       }
-      oldImg.src = '';
     }
     pieceCache.delete(oldestKey);
   }
@@ -45,11 +48,17 @@ function enforceCacheCap(): void {
  * browser will rasterise at that high resolution. Returns `null` on any failure
  * so the caller can fall back to the raw CDN URL.
  */
-async function buildHiResSvgUrl(url: string): Promise<string | null> {
+async function buildHiResSvgUrl(
+  url: string,
+  signal?: AbortSignal
+): Promise<string | null> {
   // Abort a hung CDN connection after 2s so it can't stall preloadPieceStyle's
   // Promise.all indefinitely (matches svgPieceLoader's fetch discipline).
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 2000);
+  // Also abort if the caller's signal fires (e.g. piece style changed).
+  const onExternalAbort = () => controller.abort();
+  signal?.addEventListener('abort', onExternalAbort, { once: true });
   try {
     const res = await fetch(url, { mode: 'cors', signal: controller.signal });
     if (!res.ok) return null;
@@ -67,6 +76,7 @@ async function buildHiResSvgUrl(url: string): Promise<string | null> {
     return null;
   } finally {
     clearTimeout(timer);
+    signal?.removeEventListener('abort', onExternalAbort);
   }
 }
 
@@ -81,7 +91,8 @@ async function buildHiResSvgUrl(url: string): Promise<string | null> {
 export async function preloadPieceStyle(
   style: string,
   pieceMap: Record<string, string>,
-  onProgress?: (progress: number) => void
+  onProgress?: (progress: number) => void,
+  signal?: AbortSignal
 ): Promise<Record<string, HTMLImageElement>> {
   const pieces = Object.keys(pieceMap);
   const total = pieces.length;
@@ -107,7 +118,7 @@ export async function preloadPieceStyle(
     // Prefer a high-resolution blob (SVG resized to PIECE_RASTER_PX) so the
     // canvas samples a crisp bitmap; fall back to the raw CDN URL if the fetch
     // or rewrite fails (e.g. offline / CORS), preserving the old behaviour.
-    const hiResUrl = await buildHiResSvgUrl(cdnUrl);
+    const hiResUrl = await buildHiResSvgUrl(cdnUrl, signal);
     const srcUrl = hiResUrl ?? cdnUrl;
 
     await new Promise<void>((resolve) => {
