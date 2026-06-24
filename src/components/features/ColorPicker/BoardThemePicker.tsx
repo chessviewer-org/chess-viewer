@@ -8,8 +8,6 @@ import {
 } from 'react';
 
 import {
-  ChevronLeft,
-  ChevronRight,
   Palette,
   Pencil,
   Plus,
@@ -20,6 +18,8 @@ import {
 
 import { useNotifications, useThemePresets } from '@hooks';
 import { BOARD_THEMES } from '@constants';
+
+import { Pagination } from '@shared/ui';
 
 import { ColorPickerPanel } from './parts/ColorPickerPanel';
 import { Swatch } from './parts/Swatch';
@@ -356,43 +356,13 @@ const BoardThemePicker = memo(function BoardThemePicker({
       )}
 
       {tab === 'main' && totalPages > 1 && (
-        <div className="mt-auto flex items-center justify-center gap-3 pt-1">
-          <button
-            type="button"
-            onClick={() =>
-              setCurrentPage((currentPage - 1 + totalPages) % totalPages)
-            }
-            aria-label="Previous page"
-            className="hidden rounded-md border border-border bg-surface p-1.5 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:inline-flex"
-          >
-            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-          </button>
-
-          <div className="flex items-center gap-2">
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => setCurrentPage(i)}
-                aria-label={`Page ${i + 1}`}
-                aria-current={currentPage === i ? 'page' : undefined}
-                className={`h-2 rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                  currentPage === i
-                    ? 'w-5 bg-accent'
-                    : 'w-2 bg-border hover:bg-text-muted'
-                }`}
-              />
-            ))}
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setCurrentPage((currentPage + 1) % totalPages)}
-            aria-label="Next page"
-            className="hidden rounded-md border border-border bg-surface p-1.5 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:inline-flex"
-          >
-            <ChevronRight className="h-4 w-4" aria-hidden="true" />
-          </button>
+        <div className="mt-auto pt-1">
+          <Pagination
+            page={currentPage}
+            pageCount={totalPages}
+            onChange={setCurrentPage}
+            label="Board theme pages"
+          />
         </div>
       )}
     </div>

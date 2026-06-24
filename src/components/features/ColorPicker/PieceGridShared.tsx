@@ -1,9 +1,9 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-
 import { usePagedCarousel } from '@hooks';
 import type { PieceSet } from '@app-types';
+
+import { Pagination } from '@shared/ui';
 
 /** Default rows shown per page; columns come from the responsive breakpoint. */
 const DEFAULT_PIECE_ROWS = 2;
@@ -142,44 +142,12 @@ function PieceGridSharedComponent({
       </div>
 
       {showPager && (
-        <div className="flex items-center justify-center gap-3">
-          {/* Arrow buttons — primarily for desktop/pointer; hidden from AT since
-              the dots already expose page state. Swipe covers touch. */}
-          <button
-            type="button"
-            onClick={prev}
-            aria-label="Previous page"
-            className="hidden rounded-md border border-border bg-surface p-1.5 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:inline-flex"
-          >
-            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-          </button>
-
-          <div className="flex items-center gap-2">
-            {Array.from({ length: pageCount }, (_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => goTo(i)}
-                aria-label={`Page ${i + 1} of ${pageCount}`}
-                aria-current={page === i ? 'page' : undefined}
-                className={`h-2 rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                  page === i
-                    ? 'w-5 bg-accent'
-                    : 'w-2 bg-border hover:bg-text-muted'
-                }`}
-              />
-            ))}
-          </div>
-
-          <button
-            type="button"
-            onClick={next}
-            aria-label="Next page"
-            className="hidden rounded-md border border-border bg-surface p-1.5 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:inline-flex"
-          >
-            <ChevronRight className="h-4 w-4" aria-hidden="true" />
-          </button>
-        </div>
+        <Pagination
+          page={page}
+          pageCount={pageCount}
+          onChange={goTo}
+          label="Piece set pages"
+        />
       )}
     </div>
   );

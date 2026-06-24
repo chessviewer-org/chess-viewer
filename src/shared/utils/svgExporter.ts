@@ -1,7 +1,7 @@
 import { ChessBoard, isChessBoard } from '@app-types';
 
 import { parseFEN } from './fenParser';
-import { getExportMode, shouldForceCoordinateBorder } from './imageOptimizer';
+import { shouldForceCoordinateBorder } from './imageOptimizer';
 import {
   getPieceKey,
   imageToEmbeddableDataURL,
@@ -71,7 +71,7 @@ export async function generateBoardSVG(
   const withBorder =
     withCoords &&
     (showCoordinateBorder || shouldForceCoordinateBorder(exportQuality));
-  const withFrame = !!showThinFrame && getExportMode(exportQuality) === 'print';
+  const withFrame = !!showThinFrame;
   const framePx = withFrame ? Math.max(2, Math.round(boardPx * 0.003)) * 2 : 0;
 
   const totalWidth = borderPx + boardPx + framePx;
@@ -198,14 +198,15 @@ export async function generateBoardSVG(
 
     for (let col = 0; col < 8; col++) {
       const x = boardX + col * squarePx + squarePx / 2;
-      const y = boardY + boardPx + borderPx * 0.7;
+      const y = boardY + boardPx + borderPx * 0.55 + fontSize * 0.35;
       parts.push(
         `<text x="${x}" y="${y}" ${textAttrs}>${sanitizeInput(files[col])}</text>`
       );
     }
 
     for (let row = 0; row < 8; row++) {
-      const x = boardX - borderPx * 0.5;
+      const frameOffset = withFrame ? framePx / 2 : 0;
+      const x = frameOffset + borderPx * 0.5;
       const y = boardY + row * squarePx + squarePx / 2 + fontSize * 0.35;
       parts.push(
         `<text x="${x}" y="${y}" ${textAttrs}>${sanitizeInput(ranks[row])}</text>`
