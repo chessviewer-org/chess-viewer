@@ -73,7 +73,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.payload.pull_request.number,
-                labels: ['breaking change'],
+                labels: ['scope: breaking'],
               });
             }
 
@@ -89,5 +89,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.payload.pull_request.number,
-              labels: ['needs-triage'],
+              labels: ['status: needs-triage'],
             });
