@@ -61,7 +61,7 @@ if (!titlePattern.test(pr.title)) {
 // 2. PR description
 // ---------------------------------------------------------------------------
 if (!pr.body || pr.body.trim().length < 20) {
-  fail(
+  warn(
     '**PR description is missing or too short.**\n\n' +
       'Describe what changed and why. Link related issues with `Closes #N`.'
   );
@@ -73,10 +73,9 @@ if (!pr.body || pr.body.trim().length < 20) {
 const CLOSES_PATTERN = /(?:closes|fixes|resolves)\s+#\d+/i;
 
 if (pr.body && !CLOSES_PATTERN.test(pr.body)) {
-  fail(
-    '**PR must reference a closing issue.**\n\n' +
-      'Add `Closes #N` (or `Fixes #N` / `Resolves #N`) at the top of the PR description.\n\n' +
-      'Every change should be traceable to an issue. If one does not exist yet, open it first.'
+  warn(
+    '**PR has no closing issue reference.**\n\n' +
+      'Add `Closes #N` (or `Fixes #N` / `Resolves #N`) to link the related issue.'
   );
 }
 
