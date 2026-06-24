@@ -1,13 +1,12 @@
 # Contributing to ChessVision
 
-Thanks for taking the time to contribute! ChessVision is an open-source project,
+Thanks for taking the time to contribute! ChessVision is an open-source project
 and contributions of all sizes are welcome — bug reports, fixes, features, and
 docs.
 
-This guide is short on purpose. The goal is to help you get a change merged
-without surprises, not to put you through hoops.
+---
 
-## Getting started
+## Quick start
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/chess-vision.git
@@ -18,53 +17,98 @@ pnpm dev            # dev server at http://localhost:3000
 
 Requirements: **Node 22+** and **pnpm 10+**.
 
-## Before you open a pull request
+---
 
-Run the checks locally — the same ones run in CI:
+## Branching model
 
-```bash
-pnpm validate       # typecheck + lint + format + tests, in one command
+```
+master  ←  feat/<name>
+        ←  fix/<name>
+        ←  bugfix/<name>
+        ←  chore/<name>
 ```
 
-If `pnpm validate` passes, your PR will pass the quality gates.
+- **`master`** is the only long-lived branch. It is always deployable.
+- Create a short-lived branch off `master` for every change.
+- Open a PR against `master` when your work is ready for review.
+- `archive/develop` is a read-only snapshot kept for history — do not target it.
 
-A few things the project cares about (the hooks will tell you if you miss one):
+One branch per change. One PR per branch.
 
-- **Keep each PR small and focused.** Each commit should represent one logical task — a fix, a feature, a refactor. A commit may touch several files when they belong together (a fix and its test, a component and its styles). What it must not do is mix unrelated concerns (e.g., source changes and CI config in the same commit). The pre-commit hook enforces this.
-- **Commit messages** follow [Conventional Commits](https://www.conventionalcommits.org/):
-  `type(scope): subject` — e.g. `fix: correct piece rendering in Safari`.
-  Common types: `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `chore`.
-- **TypeScript strict mode** — no `any`, `@ts-ignore`, or non-null `!`.
-- **Colors** come from Tailwind CSS variables, not hardcoded hex values.
-- **Tests** for behavioral changes. Any change to `fenParser.ts` needs a
-  matching test in `fenParser.test.ts`.
-- **Write it yourself.** We don't accept unreviewed AI-generated PRs. Using a
-  tool to help is fine, but you must understand, test, and stand behind every
-  line you submit.
+---
 
-Don't worry about memorizing these — `pnpm validate` and the commit hook check
-them for you before anything reaches CI.
+## Before you open a pull request
 
-## Opening the pull request
+Run the full quality gate — the same checks CI runs:
 
-1. **Create a branch for each change**, off `develop`
-   (e.g. `fix/export-scaling` or `feat/svg-export`). One change, one branch.
+```bash
+pnpm validate       # typecheck + lint + format-check + tests
+```
+
+If `pnpm validate` passes locally, CI will pass.
+
+Things the project enforces (hooks and CI will catch violations):
+
+| Rule                                               | Why                      |
+| -------------------------------------------------- | ------------------------ |
+| No `any`, `@ts-ignore`, or non-null `!`            | TypeScript strict mode   |
+| Colors via CSS variables, not hardcoded hex in JSX | Design token consistency |
+| Tests for behavioral changes                       | Regressions caught early |
+| `pnpm validate` green before every commit          | Fast feedback loop       |
+
+---
+
+## Commit messages
+
+Follow [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+type(scope): subject
+```
+
+Types: `feat` · `fix` · `refactor` · `perf` · `docs` · `test` · `chore` · `ci` · `build` · `revert`
+
+Rules enforced by commitlint:
+
+- lowercase type and subject
+- no trailing period
+- header ≤ 100 characters
+- blank line before body
+
+Examples:
+
+```
+feat(export): add SVG download support
+fix(board): correct piece rendering in Safari
+docs: update setup instructions for Node 22
+```
+
+---
+
+## Opening a pull request
+
+1. **Branch off `master`** — `feat/<name>`, `fix/<name>`, or `bugfix/<name>`.
 2. Make your changes and run `pnpm validate`.
-3. **Open the PR against `develop`** — never against `master`. Maintainers
-   promote `develop` to `master` after testing. Use a Conventional Commit title
-   and explain **what** changed and **why**. Link the issue it closes:
-   `Fixes #123`.
+3. **Open the PR against `master`**.
+   - Use a Conventional Commit title.
+   - Explain **what** changed and **why** in the description.
+   - Link the issue it closes: `Fixes #123`.
+4. A maintainer will review. Automated checks run on every PR — if one fails
+   the log will point you to the fix.
 
-A maintainer will review it. Automated checks run on every PR; if one fails, the
-log will point you to the fix. Feel free to ask questions in the PR — we're
-happy to help you get it across the line.
+PRs are merged with **squash merge** so every change lands as a single,
+well-described commit on `master`.
+
+---
 
 ## Reporting bugs and requesting features
 
-Open an [issue](https://github.com/chessvision-org/chess-vision/issues) using the
-templates. For questions and ideas, use
+Open an [issue](https://github.com/chessvision-org/chess-vision/issues) using
+the provided templates. For questions and ideas use
 [Discussions](https://github.com/chessvision-org/chess-vision/discussions).
+
+---
 
 ## Code of Conduct
 
-By participating, you agree to our [Code of Conduct](CODE_OF_CONDUCT.md).
+By participating you agree to our [Code of Conduct](CODE_OF_CONDUCT.md).
