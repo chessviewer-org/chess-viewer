@@ -3,7 +3,8 @@ name: PR Labeler
 # Auto-labels pull requests based on changed file paths.
 # Type labels (bug, enhancement, etc.) are applied by the separate
 # "Label by PR title" job below, derived from the Conventional Commit title.
-# status: waiting triage is applied to every newly opened PR.
+# "status: waiting triage" is applied to newly opened PRs from contributors —
+# maintainer-authored PRs (OWNER / MEMBER) are skipped.
 #
 # Uses pull_request_target so labeling works for fork PRs.
 # The base repo token is used; PR code is never checked out.
@@ -80,7 +81,11 @@ jobs:
   triage:
     name: Mark new PRs for triage
     runs-on: ubuntu-latest
-    if: github.event.action == 'opened'
+    # Skip PRs opened by a repo owner or org member — already triaged.
+    if: >-
+      github.event.action == 'opened' &&
+      github.event.pull_request.author_association != 'OWNER' &&
+      github.event.pull_request.author_association != 'MEMBER'
     steps:
       - uses: actions/github-script@v8
         with:
