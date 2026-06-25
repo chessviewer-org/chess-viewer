@@ -5,6 +5,7 @@ import { Eye, Globe, List, Sliders } from 'lucide-react';
 import { ExportProgress } from '@/components/features';
 import { type PageTabGroup, PageTabs } from '@/components/layout';
 import {
+  ADVANCED_FEN_BREADCRUMB_SCHEMA,
   ADVANCED_FEN_CONFIG,
   getRouteSeo,
   SOFTWARE_APP_SCHEMA
@@ -76,7 +77,11 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
       data-page-scroll
       className="bg-bg min-h-full lg:h-screen lg:max-h-screen lg:overflow-hidden animate-pageEnter"
     >
-      <Seo {...getRouteSeo('/advanced-fen')} schema={SOFTWARE_APP_SCHEMA} />
+      <Seo
+        {...getRouteSeo('/advanced-fen')}
+        schema={[SOFTWARE_APP_SCHEMA, ADVANCED_FEN_BREADCRUMB_SCHEMA]}
+      />
+      <h1 className="sr-only">Batch FEN Export — Chess Diagram Studio</h1>
 
       <div className="page-container flex flex-col gap-6 py-6 sm:py-8 md:flex-row md:gap-8 lg:gap-10 lg:h-full lg:overflow-hidden">
         {/* Sidebar: sticky left column on md+ */}
