@@ -120,7 +120,6 @@ export default defineConfig({
           if (id.includes('lucide-react')) return 'vendor-icons';
           if (id.includes('framer-motion')) return 'vendor-motion';
           if (id.includes('@dnd-kit')) return 'vendor-dnd';
-          if (id.includes('react-window')) return 'vendor-virtualization';
           if (id.includes('@supabase')) return 'vendor-supabase';
           if (
             id.includes('/react/') ||
@@ -168,8 +167,7 @@ export default defineConfig({
       'react-dom',
       'react-router-dom',
       '@dnd-kit/core',
-      'lucide-react',
-      'react-window'
+      'lucide-react'
     ]
   },
 
