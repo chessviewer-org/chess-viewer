@@ -21,7 +21,7 @@ Technical documentation for ChessVision v6.0.0.
 
 ## Guides
 
-- [Roadmap](guides/ROADMAP.md) — Implemented features, priority items, known technical debt
+- [Roadmap](../ROADMAP.md) — Implemented features, priority items, known technical debt, release milestones
 - [FAQ](guides/FAQ.md) — Common questions from users and contributors
 - [Code Quality Setup](guides/LINTING_SETUP.md) — ESLint, Prettier, Husky, commitlint, TypeScript configuration
 
