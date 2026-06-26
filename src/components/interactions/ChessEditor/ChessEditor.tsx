@@ -431,5 +431,3 @@ export const ChessEditor = memo(function ChessEditor({
 });
 
 ChessEditor.displayName = 'ChessEditor';
-
-export default ChessEditor;
