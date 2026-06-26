@@ -35,7 +35,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - **High-contrast preference** — Accessibility settings expose a high-contrast toggle persisted to cloud sync.
 - **Color vision simulation** — `useColorVision` and `useContrast` hooks added for accessibility; contrast ratio calculation extracted to a standalone utility.
 - **Keyboard navigation for the board** — `useEditorKeyboard` and `useBoardKeyboardNav` hooks implement keyboard-driven piece placement and square navigation with full ARIA support.
-- **Page scroll keyboard hook** — Global keyboard handler (`usePageScrollKeyboard`) for accessibility-first scroll interactions.
+- **Page scroll keyboard hook** — Global keyboard handler (`usePageScrollKeys`) for accessibility-first scroll interactions.
 - **PWA service worker** — `vite-plugin-pwa` integrated with Workbox caching rules; `registerSW.js` wired in `index.html`. App is installable on desktop and mobile.
 - **Route prefetch registry** — `usePrefetchRoute` prefetches lazy page chunks on link hover/focus; `prefetchByPath` maps every route to its dynamic import factory.
 - **Board preview canvas** — `BoardPreviewCanvas` component renders a static read-only board preview used on the Export page and AdvancedFEN wizard.
