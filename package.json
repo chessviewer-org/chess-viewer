@@ -24,7 +24,7 @@
   "scripts": {
     "dev": "vite",
     "start": "vite",
-    "build": "vite build && pnpm prerender",
+    "build": "vite build && node scripts/update-csp-hash.mjs && pnpm prerender",
     "build:vite": "vite build",
     "prerender": "node scripts/prerender.mjs",
     "preview": "vite preview",
