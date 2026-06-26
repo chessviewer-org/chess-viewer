@@ -137,6 +137,63 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [5.6.0] - 2026-05-31
+
+### Added
+
+- GitHub Sponsors funding configuration (`FUNDING.yml`).
+- GitHub Pages deployment workflow; project migrated off Vercel (`vercel.json` removed).
+- PGP public key published to the public directory for security contact.
+
+### Changed
+
+- Domain and contact migration: `robots.txt` crawl settings, Code of Conduct contact email, live-demo URLs across README, CONTRIBUTING, SECURITY, and the PR template updated to the new domain.
+- Hardened CI security-audit job and extended Danger governance.
+
+---
+
+## [5.5.9] - 2026-05-27
+
+### Fixed
+
+- **Storage read hardening** — App context, theme, FEN history, and export now read stored values through safe readers; direct `localStorage` reads are blocked to prevent crashes on malformed data.
+- FEN parser tests run through the stable bundle rather than an experimental loader.
+- Release commits skip the pre-commit hook so automated `semantic-release` runs no longer fail.
+
+### Changed
+
+- Added enterprise governance infrastructure and expanded `CONTRIBUTING.md`.
+
+---
+
+## [5.5.6] - 2026-05-26
+
+### Fixed
+
+- **Canvas memory release** — SVG export and raster export release their canvases after encoding, preventing GPU memory accumulation.
+- `no-console` lint rule enforced; TypeScript files added to ESLint coverage.
+
+### Changed
+
+- CodeQL scanning configuration resolved; CI actions bumped to v5/v7 (Node 24) with extended queries.
+- Documentation audit: README, CONTRIBUTING, ARCHITECTURE, SECURITY, and ROADMAP aligned with the v5.5.x line; `MAX_FEN_LENGTH` corrected throughout.
+
+---
+
+## [5.5.1] - 2026-05-10
+
+### Added
+
+- Automated semantic-versioning release workflow (`semantic-release` + `.releaserc`).
+- `RELEASES.md` documenting version history.
+- SAST & logic review report with security findings.
+
+### Changed
+
+- Brand name standardized to **ChessVision** (one word) across all docs, templates, and source.
+
+---
+
 ## [5.5.0] - 2026-05-09
 
 ### Added
