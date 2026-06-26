@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from 'react';
 
-import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 
 import {
@@ -12,6 +11,7 @@ import {
   getSVGBlob,
   logger,
   sanitizeFileName,
+  saveBlob,
   waitWhilePaused
 } from '@utils';
 import { parseSmartNaming } from './parseSmartNaming';
@@ -322,7 +322,7 @@ export function useAdvancedExportActions(args: UseAdvancedExportActionsArgs) {
 
       handleExportProgress(99, 'zip', 'Zipping...');
       const content = await zip.generateAsync({ type: 'blob' });
-      saveAs(content, 'chess_batch_export.zip');
+      saveBlob(content, 'chess_batch_export', 'zip');
     } catch (err: unknown) {
       if (err instanceof Error && err.message === 'Export cancelled') {
         logger.log('Batch export cancelled by user.');
