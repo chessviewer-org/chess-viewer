@@ -79,7 +79,8 @@
   },
   "pnpm": {
     "overrides": {
-      "esbuild": ">=0.28.1"
+      "esbuild": ">=0.28.1",
+      "node-fetch": "^3.3.2"
     }
   }
 }
