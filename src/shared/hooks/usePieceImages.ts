@@ -68,12 +68,11 @@ export function usePieceImages(pieceStyle: string): {
             }
           });
 
-          // A partial CDN miss is already handled gracefully by substituting
-          // placeholders — do NOT raise a user-facing error overlay for it
-          // (it fired unsolicited on first load whenever lichess1.org was slow
-          // or rate-limited a single asset). Only a TOTAL failure, where no
-          // real piece loaded at all, is worth surfacing. Partial misses are
-          // logged for diagnostics and the cache is seeded with placeholders.
+          // A partial load miss is already handled gracefully by substituting
+          // placeholders — do NOT raise a user-facing error overlay for it.
+          // Only a TOTAL failure, where no real piece loaded at all, is worth
+          // surfacing. Partial misses are logged for diagnostics and the cache
+          // is seeded with placeholders.
           if (missingCount > 0) {
             setCachedPieces(styleToLoad, images);
             const totalPieces = Object.keys(PIECE_MAP).length;
