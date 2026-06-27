@@ -137,3 +137,19 @@ jobs:
           fi
 
           echo "Announced $version to Mastodon."
+
+      - name: Post to Bluesky
+        # Independent of the steps above; one channel failing must not block this.
+        continue-on-error: true
+        env:
+          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          TAG: ${{ github.event.release.tag_name }}
+          NAME: ${{ github.event.release.name }}
+          URL: ${{ github.event.release.html_url }}
+          BODY: ${{ github.event.release.body }}
+        # AT Protocol is a two-step flow (create session, then create record) and
+        # needs byte-accurate facet offsets for clickable links/hashtags, which is
+        # fragile in pure shell. A small inline Node script (Node ships on the
+        # runner — no extra dependency) does the offset math and the API calls.
+        run: node .github/scripts/bluesky-announce.mjs
