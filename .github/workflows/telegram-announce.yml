@@ -1,0 +1,82 @@
+name: Telegram Release Announce
+
+# Fires for BOTH paths:
+#   - semantic-release publishing a GitHub Release (via release.yml)
+#   - a Release you create/publish by hand in the GitHub UI
+# Both surface as a `release: published` event, so one workflow covers both.
+
+on:
+  release:
+    types: [published]
+
+concurrency:
+  group: telegram-announce-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  announce:
+    name: Post release to Telegram
+    runs-on: ubuntu-latest
+    # Skip drafts and pre-releases; only announce real, public releases.
+    if: github.event.release.draft == false && github.event.release.prerelease == false
+    steps:
+      - name: Send Telegram message
+        env:
+          BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TAG: ${{ github.event.release.tag_name }}
+          NAME: ${{ github.event.release.name }}
+          URL: ${{ github.event.release.html_url }}
+          BODY: ${{ github.event.release.body }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${BOT_TOKEN:-}" ] || [ -z "${CHAT_ID:-}" ]; then
+            echo "::error::TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID secret is not set."
+            exit 1
+          fi
+
+          version="${NAME:-$TAG}"
+
+          # Trim the release notes: drop until the first list item, cap length,
+          # so the channel post stays a readable highlight reel, not a wall of text.
+          notes="$(printf '%s' "$BODY" \
+            | grep -E '^[*-] ' \
+            | head -n 8 \
+            | sed -E 's/^[*-] /• /' \
+            | cut -c1-180)"
+
+          if [ -z "$notes" ]; then
+            notes="See the full changelog on GitHub."
+          fi
+
+          # HTML parse mode: escape the few characters Telegram cares about so a
+          # stray <, >, or & in commit notes never breaks the message.
+          esc() {
+            printf '%s' "$1" \
+              | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g'
+          }
+
+          safe_version="$(esc "$version")"
+          safe_notes="$(esc "$notes")"
+
+          text="$(printf '♟️ <b>ChessVision %s</b>\n\n%s\n\n<a href="%s">Release notes →</a>' \
+            "$safe_version" "$safe_notes" "$URL")"
+
+          http_code="$(curl -sS -o /tmp/tg_resp.json -w '%{http_code}' \
+            "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${CHAT_ID}" \
+            --data-urlencode "text=${text}" \
+            -d "parse_mode=HTML" \
+            -d "disable_web_page_preview=false")"
+
+          if [ "$http_code" != "200" ]; then
+            echo "::error::Telegram API returned HTTP $http_code"
+            cat /tmp/tg_resp.json
+            exit 1
+          fi
+
+          echo "Announced $version to Telegram."
