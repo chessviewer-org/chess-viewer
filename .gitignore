@@ -33,6 +33,7 @@ yarn-error.log*
 .env
 
 .tmp
+.temp
 .log
 
 .idea
