@@ -183,6 +183,21 @@ export const ChessEditor = memo(function ChessEditor({
     yacpdb: yacpdbState
   } = useDatabaseSearch(fen);
 
+  // PDB/YACPDB are slow problem databases (their matrix search can take ~30-40s).
+  // Warn the user the first time they trigger EITHER slow lookup so the long
+  // "Searching…" state reads as expected, not broken. Shown ONCE per session
+  // (a ref, not state — no re-render) regardless of which of the two they press
+  // or how many times. Stable identity keeps the memo'd panel from re-rendering.
+  const slowSearchNotified = useRef(false);
+  const notifySlowSearch = useCallback(() => {
+    if (slowSearchNotified.current) return;
+    slowSearchNotified.current = true;
+    onNotify?.(
+      'PDB/YACPDB are slow databases — this lookup can take up to ~40 seconds.',
+      'warning'
+    );
+  }, [onNotify]);
+
   const handleCopyFen = useCallback(() => {
     void navigator.clipboard.writeText(fen);
   }, [fen]);
@@ -388,6 +403,7 @@ export const ChessEditor = memo(function ChessEditor({
                 chessdb={chessdbState}
                 pdb={pdbState}
                 yacpdb={yacpdbState}
+                onSlowSearch={notifySlowSearch}
               />
             </div>
             <div className={styles.editorTrash}>
@@ -403,6 +419,7 @@ export const ChessEditor = memo(function ChessEditor({
             chessdb={chessdbState}
             pdb={pdbState}
             yacpdb={yacpdbState}
+            onSlowSearch={notifySlowSearch}
           />
         </div>
 

@@ -3,11 +3,14 @@
 // Proxies position lookups to the PDB (pdb.dieschwalbe.de) and YACPDB
 // (yacpdb.org) chess-problem databases, bypassing browser CORS limits.
 //
-// Pipeline:  client FEN  ->  Postgres cache check  ->  (on miss) external
-//            fetch + HTML parse  ->  cache write  ->  unified JSON.
+// Pipeline:  client FEN  ->  Postgres cache check (PDB/YACPDB only)  ->  query
+//            ALL FOUR providers independently (in parallel)  ->  cache write  ->
+//            per-provider JSON map.
 //
-// Response shape (always 200 unless the request itself is malformed):
-//   { found: boolean, database: string | null, url: string | null }
+// Response shape (always 200 unless the request itself is malformed) — a
+// per-provider map so the client lights up each row from its own key, with no
+// first-hit-wins shadowing (issue #158):
+//   { lichess:{found,url}, chessdb:{found,url}, pdb:{found,url}, yacpdb:{found,url} }
 //
 // Robustness: every external call is time-boxed AND retried with backoff on
 // transient failure (timeout / 5xx / network). Only a *terminal* outcome (a
@@ -28,6 +31,17 @@ interface SearchResponse {
   url: string | null;
 }
 
+// Per-provider result map — the protocol the client consumes (issue #158). Each
+// provider is resolved INDEPENDENTLY and reported under its own key, so pressing
+// one provider's Search button always reflects THAT provider (no first-hit-wins
+// shadowing). `found` is the catalogued flag; `url` is the human link-out.
+interface ProviderHit {
+  found: boolean;
+  url: string;
+}
+type Provider = 'lichess' | 'chessdb' | 'pdb' | 'yacpdb';
+type ProviderMap = Record<Provider, ProviderHit>;
+
 // CORS allow-list. `Allow-Headers` must cover every header the Supabase JS
 // client attaches to an invoke (authorization, apikey, x-client-info, the JSON
 // content-type, and the newer x-supabase-api-version) — a header the browser
@@ -46,12 +60,13 @@ const CORS_HEADERS: Record<string, string> = {
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 // Negative ("not found") results expire faster so newly-added problems surface.
 const NEGATIVE_TTL_MS = 24 * 60 * 60 * 1000; // 1 day
-// Per-attempt request timeout (ms). MEASURED upstream TTFB: YACPDB ~11–12s,
-// PDB ~9s (server-side matrix search is genuinely slow — NOT bot-blocking; both
-// return 200 regardless of User-Agent). 5s aborted before either could answer,
-// which was the sole cause of the "exhausted N attempts" timeouts. 20s clears
-// the worst case with headroom.
-const FETCH_TIMEOUT_MS = 20000;
+// Per-attempt request timeout (ms). MEASURED upstream TTFB (re-measured 2026-06):
+// PDB returns the START position in ~37s (server-side matrix search is genuinely
+// slow — NOT bot-blocking; returns 200 regardless of User-Agent), YACPDB similar.
+// 20s aborted PDB before it could answer, which made real hits read as "not
+// found" (issue #158). 40s clears the measured worst case with headroom. All four
+// providers run in PARALLEL, so this is the wall-clock ceiling, not a sum.
+const FETCH_TIMEOUT_MS = 40000;
 // Extra attempts after the first on a TRANSIENT failure (timeout/5xx/network).
 // Kept at 1 (was 2): at a 20s budget per attempt, stacking retries would push a
 // fully-failing lookup past sane edge-execution / client-wait limits. One retry
@@ -59,10 +74,11 @@ const FETCH_TIMEOUT_MS = 20000;
 const RETRY_ATTEMPTS = 1;
 // Backoff before each retry (ms); index 0 → before 1st retry, etc.
 const RETRY_BACKOFF_MS = [600];
+// Cap on how long a 429 Retry-After may make us wait before the single retry, so
+// a hostile/huge value can't stall the edge invocation past its execution budget.
+const RETRY_AFTER_CAP_MS = 5000;
 // How much raw upstream body to echo into logs on parser drift (chars).
 const DRIFT_LOG_CHARS = 2000;
-
-const NOT_FOUND: SearchResponse = { found: false, database: null, url: null };
 
 const sleep = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -150,12 +166,24 @@ function parsePieces(board: string): PlacedPiece[] {
  *  - `ok`        : 2xx body retrieved — terminal success.
  *  - `terminal`  : the upstream answered with a 4xx it owns — do NOT retry
  *                  (retrying a client-side rejection just wastes the budget).
- *  - `transient` : timeout / 5xx / network error — safe to retry.
+ *  - `transient` : timeout / 5xx / network / 429 — safe to retry. `retryAfterMs`
+ *                  carries the upstream's `Retry-After` (429) when present so we
+ *                  back off for at least as long as it asked.
  */
 type FetchAttempt =
   | { kind: 'ok'; text: string }
   | { kind: 'terminal' }
-  | { kind: 'transient' };
+  | { kind: 'transient'; retryAfterMs?: number };
+
+/** Parse a `Retry-After` header (delta-seconds or HTTP-date) into ms. */
+function parseRetryAfter(value: string | null): number | undefined {
+  if (!value) return undefined;
+  const secs = Number(value);
+  if (Number.isFinite(secs)) return Math.max(0, secs * 1000);
+  const when = Date.parse(value);
+  if (Number.isFinite(when)) return Math.max(0, when - Date.now());
+  return undefined;
+}
 
 /** One time-boxed fetch attempt, classified for the retry loop. */
 async function fetchOnce(
@@ -181,7 +209,18 @@ async function fetchOnce(
       }
     });
     if (res.ok) return { kind: 'ok', text: await res.text() };
-    // 5xx → transient (upstream hiccup); 4xx → terminal (it rejected us).
+    // 429 → rate-limited: transient, but honour Retry-After so we don't hammer
+    // the upstream (Lichess explorer in particular shares an IP across all our
+    // users). 5xx → transient (upstream hiccup); other 4xx → terminal.
+    if (res.status === 429) {
+      const retryAfterMs = parseRetryAfter(res.headers.get('Retry-After'));
+      console.error(
+        `Upstream ${url} returned 429 (rate-limited) retryAfterMs=${retryAfterMs ?? 'n/a'}`
+      );
+      return retryAfterMs !== undefined
+        ? { kind: 'transient', retryAfterMs }
+        : { kind: 'transient' };
+    }
     if (res.status >= 500) {
       console.error(`Upstream ${url} returned ${res.status} (retryable)`);
       return { kind: 'transient' };
@@ -210,9 +249,16 @@ async function fetchText(
     const outcome = await fetchOnce(url, init);
     if (outcome.kind === 'ok') return outcome.text;
     if (outcome.kind === 'terminal') return null;
-    // transient: back off and retry unless the budget is spent.
+    // transient: back off and retry unless the budget is spent. A 429 carries
+    // the upstream's Retry-After — wait AT LEAST that long (capped so one nasty
+    // value can't stall the whole edge invocation past its budget).
     if (attempt < RETRY_ATTEMPTS) {
-      await sleep(RETRY_BACKOFF_MS[attempt] ?? RETRY_BACKOFF_MS.at(-1) ?? 500);
+      const base = RETRY_BACKOFF_MS[attempt] ?? RETRY_BACKOFF_MS.at(-1) ?? 500;
+      const wait =
+        outcome.retryAfterMs !== undefined
+          ? Math.min(Math.max(outcome.retryAfterMs, base), RETRY_AFTER_CAP_MS)
+          : base;
+      await sleep(wait);
     }
   }
   console.error(`Upstream ${url} exhausted ${RETRY_ATTEMPTS + 1} attempts`);
@@ -289,12 +335,14 @@ function pdbUrl(pieces: PlacedPiece[]): string {
 async function searchPdb(pieces: PlacedPiece[]): Promise<SearchResponse> {
   const expression = buildPdbExpression(pieces);
   const url = pdbUrl(pieces);
+  // Every return carries the human URL so a miss still link-outs to PDB.
+  const miss: SearchResponse = { found: false, database: 'PDB', url };
   TRACE('PDB', 'expression', expression);
   try {
     const html = await fetchText(url);
     if (html === null) {
       TRACE('PDB', 'fetch', 'null (timeout/exhausted) → NOT_FOUND');
-      return NOT_FOUND;
+      return miss;
     }
     TRACE('PDB', 'rawLen', html.length);
     // A rejected query renders an error <section> instead of a result count;
@@ -302,13 +350,13 @@ async function searchPdb(pieces: PlacedPiece[]): Promise<SearchResponse> {
     if (/the search command is not correct/i.test(html)) {
       TRACE('PDB', 'rejected', 'search command not correct — logging drift');
       logDrift('PDB', url, html);
-      return NOT_FOUND;
+      return miss;
     }
     // Explicit empty result — a clean miss, NOT a layout change. Recognising it
     // keeps the drift log quiet for the common no-hit case.
     if (/no problems? (have|has) been found/i.test(html)) {
       TRACE('PDB', 'result', 'explicit "no problems found" → NOT_FOUND');
-      return NOT_FOUND;
+      return miss;
     }
     // PDB prints "N problem(s) found"; any non-zero count is a hit. A missing
     // marker on an otherwise-OK page means the layout changed → log + degrade.
@@ -316,14 +364,14 @@ async function searchPdb(pieces: PlacedPiece[]): Promise<SearchResponse> {
     if (!m) {
       TRACE('PDB', 'marker', 'absent — logging drift');
       logDrift('PDB', url, html);
-      return NOT_FOUND;
+      return miss;
     }
     const count = parseInt(m[1] ?? '0', 10);
     TRACE('PDB', 'count', count);
-    return count > 0 ? { found: true, database: 'PDB', url } : NOT_FOUND;
+    return count > 0 ? { found: true, database: 'PDB', url } : miss;
   } catch (err) {
     console.error('PDB parse error:', err);
-    return NOT_FOUND;
+    return miss;
   }
 }
 
@@ -459,9 +507,22 @@ function lichessHasGames(text: string): boolean {
   return asCount(d.white) + asCount(d.draws) + asCount(d.black) > 0;
 }
 
-/** Human-facing link: opens the Lichess Opening Explorer directly at this position. */
-function _lichessExplorerUrl(fen: string, db: 'masters' | 'lichess'): string {
-  return `https://lichess.org/analysis#explorer?db=${db}&fen=${encodeURIComponent(fen)}`;
+/**
+ * Human-facing Lichess link for a position. Opens the analysis board (whose
+ * Opening Explorer panel lists the games that reached this position); keys on
+ * the FULL FEN like the API does. Used for the found link-out.
+ *
+ * Uses the PATH form `/analysis/standard/<fen>` (spaces → `_`, FEN `/` kept as
+ * path separators), NOT `?fen=` — the query form returns 200 but the analysis
+ * SPA silently shows the START position instead of hydrating from it (issue #158).
+ */
+function lichessHumanUrl(fen: string): string {
+  const path = fen
+    .trim()
+    .split(' ')
+    .map((seg) => seg.split('/').map(encodeURIComponent).join('/'))
+    .join('_');
+  return `https://lichess.org/analysis/standard/${path}`;
 }
 
 // ChessDB.cn (www.chessdb.cn) — an open, free, no-key cloud engine-evaluation
@@ -472,12 +533,17 @@ function _lichessExplorerUrl(fen: string, db: 'masters' | 'lichess'): string {
 // / "checkmate" / "stalemate") otherwise. We treat the presence of at least one
 // `move:` entry as "catalogued"; terminal game states (mate/stalemate) and
 // unknown are a clean miss. Existence is all we need — we don't parse scores.
+// Human link-out uses ChessDB's OWN query-page scheme: spaces → `_`, `/` kept
+// literal, NOT percent-encoded (encoding `/` breaks the page → it loads the
+// START position, issue #158). NB: the cdb.php API call below is separate and
+// DOES need encodeURIComponent on its `board=` param.
 function chessdbHumanUrl(fen: string): string {
-  return `https://www.chessdb.cn/queryc_en/?${encodeURIComponent(fen)}`;
+  return `https://www.chessdb.cn/queryc_en/?${fen.trim().replace(/ /g, '_')}`;
 }
 
 async function searchChessdb(fen: string): Promise<SearchResponse> {
   const url = chessdbHumanUrl(fen);
+  const miss: SearchResponse = { found: false, database: 'CHESSDB', url };
   const api = `https://www.chessdb.cn/cdb.php?action=queryall&board=${encodeURIComponent(
     fen
   )}`;
@@ -486,7 +552,7 @@ async function searchChessdb(fen: string): Promise<SearchResponse> {
     const text = await fetchText(api, { headers: { Accept: 'text/plain' } });
     if (text === null) {
       TRACE('CHESSDB', 'fetch', 'null (timeout/exhausted) → NOT_FOUND');
-      return NOT_FOUND;
+      return miss;
     }
     TRACE('CHESSDB', 'rawLen', text.length, 'head', text.slice(0, 60));
     // A known position returns one or more "move:<uci>,score:..." records.
@@ -494,32 +560,56 @@ async function searchChessdb(fen: string): Promise<SearchResponse> {
     // stalemate) carry no `move:` and are a clean miss.
     const found = /(^|[\s,])move:/i.test(text);
     TRACE('CHESSDB', 'found', found);
-    return found ? { found: true, database: 'CHESSDB', url } : NOT_FOUND;
+    return found ? { found: true, database: 'CHESSDB', url } : miss;
   } catch (err) {
     console.error('ChessDB parse error:', err);
-    return NOT_FOUND;
+    return miss;
   }
 }
 
+// Lichess Opening Explorer now requires an OAuth token (the previously-open
+// endpoints return 401 anonymously — confirmed against the live API + OpenAPI
+// `security: OAuth2`). Supply a Lichess Personal Access Token via the
+// `LICHESS_TOKEN` function secret (`supabase secrets set LICHESS_TOKEN=...`).
+// The token needs NO scopes — a plain PAT authenticates the explorer. Without
+// it, Lichess degrades to a clean miss (still returns the link-out URL).
+const LICHESS_TOKEN = Deno.env.get('LICHESS_TOKEN') ?? '';
+
 async function searchLichess(fen: string): Promise<SearchResponse> {
   const url = lichessHumanUrl(fen);
+  const miss: SearchResponse = { found: false, database: 'LICHESS', url };
+  if (!LICHESS_TOKEN) {
+    TRACE('LICHESS', 'no LICHESS_TOKEN secret → skip (clean miss)');
+    return miss;
+  }
   const qs = `fen=${encodeURIComponent(fen)}&moves=0&topGames=0&recentGames=0`;
-  const masters = `https://explorer.lichess.ovh/masters?${qs}`;
-  const online = `https://explorer.lichess.ovh/lichess?${qs}`;
+  // Documented host is explorer.lichess.org (the .ovh alias also 401s anonymously).
+  const masters = `https://explorer.lichess.org/masters?${qs}`;
+  const online = `https://explorer.lichess.org/lichess?${qs}`;
+  const headers = {
+    Accept: 'application/json',
+    Authorization: `Bearer ${LICHESS_TOKEN}`
+  };
   TRACE('LICHESS', 'fen', fen);
   try {
-    const [mText, oText] = await Promise.all([
-      fetchText(masters, { headers: { Accept: 'application/json' } }),
-      fetchText(online, { headers: { Accept: 'application/json' } })
-    ]);
-    const found =
-      (mText !== null && lichessHasGames(mText)) ||
-      (oText !== null && lichessHasGames(oText));
-    TRACE('LICHESS', 'found', found);
-    return found ? { found: true, database: 'LICHESS', url } : NOT_FOUND;
+    // SEQUENTIAL, not parallel: Lichess asks clients not to fire concurrent
+    // requests, and the explorer shares one IP across all our users — two
+    // simultaneous calls per search doubles our rate-limit exposure. Query the
+    // masters DB first (smaller, faster, covers most named/opening positions);
+    // only fall through to the broader online DB if masters has no game. This
+    // halves request volume for any hit and keeps us well under the limit.
+    const mText = await fetchText(masters, { headers });
+    if (mText !== null && lichessHasGames(mText)) {
+      TRACE('LICHESS', 'found', 'masters');
+      return { found: true, database: 'LICHESS', url };
+    }
+    const oText = await fetchText(online, { headers });
+    const found = oText !== null && lichessHasGames(oText);
+    TRACE('LICHESS', 'found', found ? 'online' : false);
+    return found ? { found: true, database: 'LICHESS', url } : miss;
   } catch (err) {
     console.error('Lichess parse error:', err);
-    return NOT_FOUND;
+    return miss;
   }
 }
 
@@ -530,6 +620,11 @@ async function searchYacpdb(
   const want = yacPieceSet(pieces);
   const query = `Matrix('${[...want].join(' ')}')`;
   const humanUrl = yacpdbHumanUrl(board);
+  const miss: SearchResponse = {
+    found: false,
+    database: 'YACPDB',
+    url: humanUrl
+  };
   TRACE('YACPDB', 'humanUrl', humanUrl);
   TRACE('YACPDB', 'want', [...want].sort());
   TRACE('YACPDB', 'query', query);
@@ -542,7 +637,7 @@ async function searchYacpdb(
     });
     if (text === null) {
       TRACE('YACPDB', 'fetch', 'null (timeout/exhausted) → NOT_FOUND');
-      return NOT_FOUND;
+      return miss;
     }
     TRACE('YACPDB', 'rawLen', text.length);
 
@@ -551,7 +646,7 @@ async function searchYacpdb(
       data = JSON.parse(text);
     } catch {
       logDrift('YACPDB', apiUrl, text);
-      return NOT_FOUND;
+      return miss;
     }
 
     const d = data as {
@@ -564,12 +659,12 @@ async function searchYacpdb(
     if (d.success !== true) {
       TRACE('YACPDB', 'success', false, '— logging drift');
       logDrift('YACPDB', apiUrl, text);
-      return NOT_FOUND;
+      return miss;
     }
     const entries = d.result?.entries;
     if (!Array.isArray(entries)) {
       TRACE('YACPDB', 'entries', 'not an array → NOT_FOUND');
-      return NOT_FOUND;
+      return miss;
     }
     TRACE('YACPDB', 'count', d.result?.count, 'entries', entries.length);
 
@@ -586,12 +681,10 @@ async function searchYacpdb(
       }
     }
     TRACE('YACPDB', 'exactMatch', exact);
-    return exact
-      ? { found: true, database: 'YACPDB', url: humanUrl }
-      : NOT_FOUND;
+    return exact ? { found: true, database: 'YACPDB', url: humanUrl } : miss;
   } catch (err) {
     console.error('YACPDB parse error:', err);
-    return NOT_FOUND;
+    return miss;
   }
 }
 
@@ -621,15 +714,38 @@ Deno.serve(async (req: Request) => {
 
   const board = boardField(fen);
   TRACE('REQ', 'fen', fen, 'board', board, 'noCache', noCache);
+
+  // All four providers, each with its human link-out, all `found: false`. This
+  // is what an invalid position or a total failure degrades to — never a bare
+  // null — so the client always has a URL to link out to (issue #158).
+  const baseMap = (): ProviderMap => ({
+    lichess: { found: false, url: lichessHumanUrl(fen) },
+    chessdb: { found: false, url: chessdbHumanUrl(fen) },
+    pdb: { found: false, url: pdbUrl(parsePieces(board)) },
+    yacpdb: { found: false, url: yacpdbHumanUrl(board) }
+  });
+
   if (!isValidBoardField(board)) {
     // Malformed position — nothing to search; safe not-found (no upstream call).
+    // pieces can't be derived from an invalid board, so emit the bare base.
     TRACE('REQ', 'invalid board field → NOT_FOUND');
-    return json(NOT_FOUND);
+    return json({
+      lichess: { found: false, url: lichessHumanUrl(fen) },
+      chessdb: { found: false, url: chessdbHumanUrl(fen) },
+      pdb: { found: false, url: '' },
+      yacpdb: { found: false, url: '' }
+    } satisfies ProviderMap);
   }
 
-  // Decompose once; both upstream queries are built from the same placed pieces.
+  // Decompose once; both problem-DB queries are built from the same placed pieces.
   const pieces = parsePieces(board);
   TRACE('REQ', 'pieces', pieces.length, pieces);
+
+  /** Reduce a SearchResponse to a ProviderHit (drop the now-redundant tag). */
+  const toHit = (r: SearchResponse): ProviderHit => ({
+    found: r.found,
+    url: r.url ?? ''
+  });
 
   // ---- Service-role Supabase client (RLS-exempt) for the cache table. -------
   const supabase = createClient(
@@ -637,38 +753,38 @@ Deno.serve(async (req: Request) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
   );
 
-  // ---- 1. Cache check ------------------------------------------------------
+  // ---- 1. Cache check (board-keyed problem DBs only: PDB + YACPDB) ---------
+  // Only PDB/YACPDB are cached: they key on the board field (matching the cache
+  // key) and are SLOW, which is the whole reason the cache exists. Lichess and
+  // ChessDB key on the FULL FEN — caching them under the board key would serve a
+  // wrong answer for the same diagram with a different side-to-move/castling —
+  // and they are fast + CDN-cached upstream, so they always run live below.
+  let cachedPair: { pdb: ProviderHit; yacpdb: ProviderHit } | null = null;
   if (!noCache) {
     try {
       const { data: cached } = await supabase
         .from('db_search_cache')
-        .select('found, database, url, checked_at')
+        .select('providers, found, checked_at')
         .eq('fen_board', board)
         .maybeSingle();
 
-      if (cached) {
+      if (cached && isProviderPair(cached.providers)) {
         const age = Date.now() - new Date(cached.checked_at).getTime();
-        const ttl = cached.found ? CACHE_TTL_MS : NEGATIVE_TTL_MS;
+        // A row is "found" if EITHER problem DB hit; that drives the longer TTL.
+        const anyFound = cached.found === true;
+        const ttl = anyFound ? CACHE_TTL_MS : NEGATIVE_TTL_MS;
         TRACE(
           'CACHE',
           'hit',
-          { found: cached.found, database: cached.database },
+          cached.providers,
           'ageMs',
           age,
-          'ttlMs',
-          ttl,
           'fresh',
           age < ttl
         );
-        if (age < ttl) {
-          return json({
-            found: cached.found,
-            database: cached.database,
-            url: cached.url
-          });
-        }
+        if (age < ttl) cachedPair = cached.providers;
       } else {
-        TRACE('CACHE', 'miss (no row)');
+        TRACE('CACHE', 'miss (no usable row)');
       }
     } catch (err) {
       // Cache is best-effort; a cache failure must not block the search.
@@ -678,59 +794,131 @@ Deno.serve(async (req: Request) => {
     TRACE('CACHE', 'bypassed (nocache=true)');
   }
 
-  // ---- 2. External lookup (Lichess → ChessDB → PDB → YACPDB; first hit wins)-
-  // Lichess and ChessDB are first: both are fast and key on the FULL FEN (they
-  // receive `fen` directly), answering the game/engine questions. PDB/YACPDB
-  // only run if those miss, preserving their slower problem-database lookups.
-  let result: SearchResponse = NOT_FOUND;
+  // ---- 1b. Lichess cache check (FULL-FEN keyed) ----------------------------
+  // Lichess is the rate-limited provider whose IP we share across all users, so
+  // unlike ChessDB it IS cached — but keyed on the FULL FEN (side-to-move /
+  // castling / en-passant change the answer), under a synthetic `lfen|<fen>`
+  // key in the same table. This collapses repeat lookups of the same position
+  // to zero Lichess requests, which is the main rate-limit defence.
+  let cachedLichess: ProviderHit | null = null;
+  if (!noCache) {
+    cachedLichess = await readLichessCache(supabase, fen);
+  }
+
+  // ---- 2. External lookup — provider-aware (issue #158) --------------------
+  // Each provider resolved on its own key — no first-hit-wins ordering. Cache
+  // hits (Lichess full-FEN, PDB/YACPDB board) skip the corresponding upstream.
+  const map = baseMap();
   try {
-    const lichess = await searchLichess(fen);
-    if (lichess.found) {
-      result = lichess;
-    } else {
-      const chessdb = await searchChessdb(fen);
-      if (chessdb.found) {
-        result = chessdb;
-      } else {
-        const pdb = await searchPdb(pieces);
-        if (pdb.found) {
-          result = pdb;
-        } else {
-          const yac = await searchYacpdb(pieces, board);
-          if (yac.found) result = yac;
-        }
-      }
-    }
+    const [lichess, chessdb, pdb, yacpdb] = await Promise.all([
+      cachedLichess ? Promise.resolve(null) : searchLichess(fen),
+      searchChessdb(fen), // fast + not rate-limited → always live
+      cachedPair ? Promise.resolve(null) : searchPdb(pieces),
+      cachedPair ? Promise.resolve(null) : searchYacpdb(pieces, board)
+    ]);
+    map.lichess = cachedLichess ?? toHit(lichess as SearchResponse);
+    map.chessdb = toHit(chessdb);
+    map.pdb = cachedPair ? cachedPair.pdb : toHit(pdb as SearchResponse);
+    map.yacpdb = cachedPair
+      ? cachedPair.yacpdb
+      : toHit(yacpdb as SearchResponse);
   } catch (err) {
     console.error('Search pipeline error:', err);
-    result = NOT_FOUND;
+    // map already holds the safe base (all not-found with link-outs).
   }
-  TRACE('REQ', 'final result', result);
+  TRACE('REQ', 'final map', map);
 
-  // ---- 3. Cache write (best-effort) ---------------------------------------
-  // Skip caching FULL-FEN providers (Lichess, ChessDB): the cache is keyed on
-  // `fen_board` (board field only), but their results depend on the full FEN —
-  // caching under the board key would wrongly serve them for the same diagram
-  // with a different side-to-move / castling state. Both are fast and CDN-cached
-  // upstream, so a cache-less round-trip is cheap. PDB/YACPDB (board-field
-  // results) cache as before.
-  if (result.database === 'LICHESS' || result.database === 'CHESSDB') {
-    return json(result);
+  // ---- 3. Cache writes (best-effort; only freshly-fetched providers) -------
+  // PDB/YACPDB pair under the board key; Lichess under its full-FEN key. Each
+  // write is skipped when that result was served from cache (nothing new).
+  if (!cachedPair) {
+    try {
+      const pair = { pdb: map.pdb, yacpdb: map.yacpdb };
+      await supabase.from('db_search_cache').upsert(
+        {
+          fen_board: board,
+          found: map.pdb.found || map.yacpdb.found,
+          providers: pair,
+          checked_at: new Date().toISOString()
+        },
+        { onConflict: 'fen_board' }
+      );
+    } catch (err) {
+      console.error('Cache write failed:', err);
+    }
   }
+  if (!cachedLichess) {
+    await writeLichessCache(supabase, fen, map.lichess);
+  }
+
+  return json(map);
+});
+
+/** Synthetic full-FEN cache key for Lichess (distinct from board-field keys). */
+function lichessCacheKey(fen: string): string {
+  return `lfen|${fen.trim()}`.slice(0, 100); // column CHECK is <= 100
+}
+
+/** The service-role Supabase client type (inferred from createClient). */
+type ServiceClient = ReturnType<typeof createClient>;
+
+/** Read a cached Lichess hit for this exact FEN, or null on miss/stale/error. */
+async function readLichessCache(
+  supabase: ServiceClient,
+  fen: string
+): Promise<ProviderHit | null> {
+  try {
+    const { data } = await supabase
+      .from('db_search_cache')
+      .select('providers, found, checked_at')
+      .eq('fen_board', lichessCacheKey(fen))
+      .maybeSingle();
+    if (!data || !isHit(data.providers?.lichess)) {
+      TRACE('CACHE', 'lichess miss (no usable row)');
+      return null;
+    }
+    const age = Date.now() - new Date(data.checked_at).getTime();
+    const ttl = data.found ? CACHE_TTL_MS : NEGATIVE_TTL_MS;
+    TRACE('CACHE', 'lichess hit', data.providers.lichess, 'fresh', age < ttl);
+    return age < ttl ? (data.providers.lichess as ProviderHit) : null;
+  } catch (err) {
+    console.error('Lichess cache read failed:', err);
+    return null;
+  }
+}
+
+/** Persist a Lichess hit under its full-FEN key (best-effort). */
+async function writeLichessCache(
+  supabase: ServiceClient,
+  fen: string,
+  hit: ProviderHit
+): Promise<void> {
   try {
     await supabase.from('db_search_cache').upsert(
       {
-        fen_board: board,
-        found: result.found,
-        database: result.database,
-        url: result.url,
+        fen_board: lichessCacheKey(fen),
+        found: hit.found,
+        providers: { lichess: hit },
         checked_at: new Date().toISOString()
       },
       { onConflict: 'fen_board' }
     );
   } catch (err) {
-    console.error('Cache write failed:', err);
+    console.error('Lichess cache write failed:', err);
   }
+}
 
-  return json(result);
-});
+/** Runtime guard for a cached `{ pdb, yacpdb }` provider pair. */
+function isProviderPair(
+  v: unknown
+): v is { pdb: ProviderHit; yacpdb: ProviderHit } {
+  if (typeof v !== 'object' || v === null) return false;
+  const o = v as Record<string, unknown>;
+  return isHit(o['pdb']) && isHit(o['yacpdb']);
+}
+
+function isHit(v: unknown): v is ProviderHit {
+  if (typeof v !== 'object' || v === null) return false;
+  const o = v as Record<string, unknown>;
+  return typeof o['found'] === 'boolean' && typeof o['url'] === 'string';
+}

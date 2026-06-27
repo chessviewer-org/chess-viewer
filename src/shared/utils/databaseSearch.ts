@@ -9,13 +9,16 @@ import { logger } from './logger';
  * The actual lookup runs server-side in the `chess-database-search` Supabase
  * Edge Function (which bypasses browser CORS, caches results in Postgres, and
  * rate-limits the external sites). This module is the thin client seam: it
- * invokes that function and maps its UNIFIED result to the per-provider shape
- * the toolbar UI consumes.
+ * invokes that function and maps its PER-PROVIDER result map straight to the
+ * shape the toolbar UI consumes.
  *
- * Edge function response:  { found, database: 'PDB'|'YACPDB'|null, url|null }
- * Client shape (per icon):  { pdb: {found,url}, yacpdb: {found,url} }
- * Only the provider whose `database` matches lights up; the other stays muted
- * but still carries a valid human search `url` for manual link-out.
+ * Edge function response (provider-aware — issue #158):
+ *   { lichess:{found,url}, chessdb:{found,url}, pdb:{found,url}, yacpdb:{found,url} }
+ * Client shape (identical):
+ *   { lichess:{found,url}, chessdb:{found,url}, pdb:{found,url}, yacpdb:{found,url} }
+ * Each provider is resolved independently server-side, so every row reflects its
+ * OWN database — no first-hit-wins shadowing — and always carries a valid human
+ * search `url` for manual link-out even on a miss.
  */
 
 export type DatabaseProvider = 'pdb' | 'yacpdb' | 'lichess' | 'chessdb';
@@ -39,26 +42,39 @@ interface DatabaseHit {
 /** Combined result for all supported providers. */
 export type DatabaseSearchResult = Record<DatabaseProvider, DatabaseHit>;
 
-/** Unified response returned by the edge function. */
-interface EdgeSearchResponse {
+/** One provider entry in the edge function's per-provider response map. */
+interface EdgeProviderHit {
   found: boolean;
-  database: string | null;
-  url: string | null;
+  url: string;
+}
+
+/** Per-provider response returned by the edge function (issue #158). */
+type EdgeSearchResponse = Record<DatabaseProvider, EdgeProviderHit>;
+
+const PROVIDERS: readonly DatabaseProvider[] = [
+  'lichess',
+  'chessdb',
+  'pdb',
+  'yacpdb'
+];
+
+/** Runtime guard for a single provider entry. */
+function isEdgeProviderHit(value: unknown): value is EdgeProviderHit {
+  if (typeof value !== 'object' || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return typeof v['found'] === 'boolean' && typeof v['url'] === 'string';
 }
 
 /**
  * Runtime guard for the edge response. The payload crosses a trust boundary
  * (network → client), so we verify its shape before reading fields off it; a
  * malformed body degrades to a clean miss rather than risking a bad render.
+ * Every provider key must be present and well-formed.
  */
 function isEdgeSearchResponse(value: unknown): value is EdgeSearchResponse {
   if (typeof value !== 'object' || value === null) return false;
   const v = value as Record<string, unknown>;
-  return (
-    typeof v['found'] === 'boolean' &&
-    (v['database'] === null || typeof v['database'] === 'string') &&
-    (v['url'] === null || typeof v['url'] === 'string')
-  );
+  return PROVIDERS.every((p) => isEdgeProviderHit(v[p]));
 }
 
 /** Just the board-placement field of a FEN (what these DBs key on). */
@@ -153,21 +169,34 @@ function buildYacpdbUrl(fen: string): string {
 
 /**
  * Human-facing Lichess URL for a position. Unlike PDB/YACPDB (board-field only),
- * Lichess keys on the FULL FEN, so we pass it whole. Opens the analysis board,
- * whose Opening Explorer panel lists the games that reached this position.
+ * Lichess keys on the FULL FEN, so we pass it whole.
+ *
+ * Uses Lichess's PATH form `/analysis/standard/<fen>` (spaces → `_`, the FEN's
+ * `/` kept as path separators) — NOT `?fen=`. The query form returns 200 but the
+ * analysis SPA does not reliably hydrate from it, so it silently shows the START
+ * position; the path form opens the actual position. (issue #158)
  */
 function buildLichessUrl(fen: string): string {
-  return `https://lichess.org/analysis?fen=${encodeURIComponent(fen.trim())}`;
+  // Spaces are the only FEN char that must become `_`; encode the rest per
+  // segment while preserving the `/` rank separators in the path.
+  const path = fen
+    .trim()
+    .split(' ')
+    .map((seg) => seg.split('/').map(encodeURIComponent).join('/'))
+    .join('_');
+  return `https://lichess.org/analysis/standard/${path}`;
 }
 
 /**
  * Human-facing ChessDB.cn URL for a position. ChessDB is an open, free cloud
  * engine-evaluation database keyed on the FULL FEN; its public query page is
- * `queryc_en/?<FEN>` with the FEN passed verbatim in the query string (their
- * own scheme — spaces preserved, encoded for safety).
+ * `queryc_en/?<FEN>` in ITS OWN scheme: spaces become `_`, the `/` rank
+ * separators are kept LITERAL, and the value is NOT percent-encoded. Encoding
+ * the `/` to %2F breaks the page's parser and it silently loads the START
+ * position instead (issue #158).
  */
 function buildChessdbUrl(fen: string): string {
-  return `https://www.chessdb.cn/queryc_en/?${encodeURIComponent(fen.trim())}`;
+  return `https://www.chessdb.cn/queryc_en/?${fen.trim().replace(/ /g, '_')}`;
 }
 
 function notFound(fen: string): DatabaseSearchResult {
@@ -218,37 +247,17 @@ export async function searchPositionDatabases(
   }
 
   if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
-  if (!data.found || !data.database) return notFound(fen);
 
-  // Light up only the matching provider; keep link-out URLs for the rest.
+  // Map each provider straight from its own key. Locally-built link-out URLs are
+  // the fallback so a row is never left without a URL. Server URLs land in an
+  // <a href>, so only https:// is trusted (reject javascript:/data: before the
+  // DOM) — even though the edge function builds them from validated data.
   const base = notFound(fen);
-  // Only trust https:// link-outs — the value lands in an <a href>, so reject
-  // any non-https scheme (javascript:/data:) before it can reach the DOM, even
-  // though the edge function builds these URLs server-side from validated data.
-  const matchedUrl = data.url?.startsWith('https://') ? data.url : '';
-  if (data.database === 'LICHESS') {
-    return {
-      ...base,
-      lichess: { found: true, url: matchedUrl || base.lichess.url }
-    };
+  const result = { ...base };
+  for (const p of PROVIDERS) {
+    const hit = data[p];
+    const trusted = hit.url.startsWith('https://') ? hit.url : '';
+    result[p] = { found: hit.found, url: trusted || base[p].url };
   }
-  if (data.database === 'CHESSDB') {
-    return {
-      ...base,
-      chessdb: { found: true, url: matchedUrl || base.chessdb.url }
-    };
-  }
-  if (data.database === 'PDB') {
-    return {
-      ...base,
-      pdb: { found: true, url: matchedUrl || base.pdb.url }
-    };
-  }
-  if (data.database === 'YACPDB') {
-    return {
-      ...base,
-      yacpdb: { found: true, url: matchedUrl || base.yacpdb.url }
-    };
-  }
-  return base;
+  return result;
 }
