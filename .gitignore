@@ -36,3 +36,7 @@ yarn-error.log*
 .log
 
 .idea
+
+# Supabase CLI local artifacts (link state, temp files) — never committed
+supabase/.temp/
+supabase/.branches/
