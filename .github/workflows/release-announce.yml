@@ -1,16 +1,18 @@
-name: Telegram Release Announce
+name: Release Announce
 
 # Fires for BOTH paths:
 #   - semantic-release publishing a GitHub Release (via release.yml)
 #   - a Release you create/publish by hand in the GitHub UI
 # Both surface as a `release: published` event, so one workflow covers both.
+# Announces to every configured social channel; each channel is independent,
+# so a failure on one never blocks the others.
 
 on:
   release:
     types: [published]
 
 concurrency:
-  group: telegram-announce-${{ github.event.release.tag_name }}
+  group: release-announce-${{ github.event.release.tag_name }}
   cancel-in-progress: false
 
 permissions:
@@ -18,12 +20,15 @@ permissions:
 
 jobs:
   announce:
-    name: Post release to Telegram
+    name: Post release to social channels
     runs-on: ubuntu-latest
     # Skip drafts and pre-releases; only announce real, public releases.
     if: github.event.release.draft == false && github.event.release.prerelease == false
     steps:
       - name: Send Telegram message
+        # Independent of the Mastodon step below; one channel failing
+        # must not suppress the other.
+        continue-on-error: true
         env:
           BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -80,3 +85,55 @@ jobs:
           fi
 
           echo "Announced $version to Telegram."
+
+      - name: Send Mastodon toot
+        # Independent of the Telegram step above; runs even if Telegram failed.
+        continue-on-error: true
+        env:
+          MASTODON_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
+          # The instance the @chessvision account lives on.
+          MASTODON_HOST: mastodon.social
+          TAG: ${{ github.event.release.tag_name }}
+          NAME: ${{ github.event.release.name }}
+          URL: ${{ github.event.release.html_url }}
+          BODY: ${{ github.event.release.body }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${MASTODON_TOKEN:-}" ]; then
+            echo "::error::MASTODON_ACCESS_TOKEN secret is not set."
+            exit 1
+          fi
+
+          version="${NAME:-$TAG}"
+
+          # Same highlight-reel trimming as Telegram: first list items only,
+          # length-capped, so the toot stays readable and well under the
+          # 500-character instance limit.
+          notes="$(printf '%s' "$BODY" \
+            | grep -E '^[*-] ' \
+            | head -n 5 \
+            | sed -E 's/^[*-] /• /' \
+            | cut -c1-120)"
+
+          if [ -z "$notes" ]; then
+            notes="See the full changelog on GitHub."
+          fi
+
+          # Mastodon takes plain text (no HTML), so no escaping needed —
+          # just assemble the status with the canonical hashtags.
+          status="$(printf '♟️ ChessVision %s\n\n%s\n\n%s\n\n#chess #opensource' \
+            "$version" "$notes" "$URL")"
+
+          http_code="$(curl -sS -o /tmp/masto_resp.json -w '%{http_code}' \
+            -H "Authorization: Bearer ${MASTODON_TOKEN}" \
+            --data-urlencode "status=${status}" \
+            "https://${MASTODON_HOST}/api/v1/statuses")"
+
+          if [ "$http_code" != "200" ]; then
+            echo "::error::Mastodon API returned HTTP $http_code"
+            cat /tmp/masto_resp.json
+            exit 1
+          fi
+
+          echo "Announced $version to Mastodon."
