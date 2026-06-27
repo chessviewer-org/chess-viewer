@@ -9,7 +9,7 @@
 // env; never logs the app password. Exits non-zero on failure so the step is
 // visibly red (but `continue-on-error` keeps it from blocking other channels).
 
-const PDS = "https://bsky.social";
+const PDS = 'https://bsky.social';
 const MAX_POST_GRAPHEMES = 300; // Bluesky hard limit (graphemes; we stay well under)
 
 const {
@@ -18,7 +18,7 @@ const {
   TAG: tag,
   NAME: name,
   URL: url,
-  BODY: body = "",
+  BODY: body = ''
 } = process.env;
 
 function fail(msg) {
@@ -27,25 +27,25 @@ function fail(msg) {
 }
 
 if (!handle || !appPassword) {
-  fail("BLUESKY_HANDLE or BLUESKY_APP_PASSWORD secret is not set.");
+  fail('BLUESKY_HANDLE or BLUESKY_APP_PASSWORD secret is not set.');
 }
 
-const version = name || tag || "release";
+const version = name || tag || 'release';
 
 // Highlight-reel trim: first few changelog bullets, length-capped, so the post
 // stays a readable summary rather than the whole changelog.
 const notes =
   body
-    .split("\n")
+    .split('\n')
     .filter((line) => /^[*-]\s/.test(line))
     .slice(0, 4)
-    .map((line) => "• " + line.replace(/^[*-]\s/, "").slice(0, 100))
-    .join("\n") || "See the full changelog on GitHub.";
+    .map((line) => '• ' + line.replace(/^[*-]\s/, '').slice(0, 100))
+    .join('\n') || 'See the full changelog on GitHub.';
 
-const hashtags = ["chess", "opensource"];
+const hashtags = ['chess', 'opensource'];
 const text =
   `♟️ ChessVision ${version}\n\n${notes}\n\n${url}\n\n` +
-  hashtags.map((t) => `#${t}`).join(" ");
+  hashtags.map((t) => `#${t}`).join(' ');
 
 // Facets index into the UTF-8 byte representation, not JS string indices, so
 // build a byte view and locate each span by its byte offset.
@@ -69,8 +69,11 @@ const facets = [];
 const urlStart = byteIndexOf(url);
 if (urlStart !== -1) {
   facets.push({
-    index: { byteStart: urlStart, byteEnd: urlStart + encoder.encode(url).length },
-    features: [{ $type: "app.bsky.richtext.facet#link", uri: url }],
+    index: {
+      byteStart: urlStart,
+      byteEnd: urlStart + encoder.encode(url).length
+    },
+    features: [{ $type: 'app.bsky.richtext.facet#link', uri: url }]
   });
 }
 
@@ -82,7 +85,7 @@ for (const t of hashtags) {
   if (start === -1) continue;
   facets.push({
     index: { byteStart: start, byteEnd: start + encoder.encode(token).length },
-    features: [{ $type: "app.bsky.richtext.facet#tag", tag: t }],
+    features: [{ $type: 'app.bsky.richtext.facet#tag', tag: t }]
   });
   cursor = start + encoder.encode(token).length;
 }
@@ -90,45 +93,49 @@ for (const t of hashtags) {
 // Grapheme-safe length guard (Intl.Segmenter counts user-perceived characters).
 const graphemeCount = [...new Intl.Segmenter().segment(text)].length;
 if (graphemeCount > MAX_POST_GRAPHEMES) {
-  fail(`Post is ${graphemeCount} graphemes; Bluesky limit is ${MAX_POST_GRAPHEMES}.`);
+  fail(
+    `Post is ${graphemeCount} graphemes; Bluesky limit is ${MAX_POST_GRAPHEMES}.`
+  );
 }
 
 async function api(path, payload, token) {
   const res = await fetch(`${PDS}/xrpc/${path}`, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(payload)
   });
   const json = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error(`${path} -> HTTP ${res.status}: ${json.error || ""} ${json.message || ""}`);
+    throw new Error(
+      `${path} -> HTTP ${res.status}: ${json.error || ''} ${json.message || ''}`
+    );
   }
   return json;
 }
 
 try {
-  const session = await api("com.atproto.server.createSession", {
+  const session = await api('com.atproto.server.createSession', {
     identifier: handle,
-    password: appPassword,
+    password: appPassword
   });
 
   await api(
-    "com.atproto.repo.createRecord",
+    'com.atproto.repo.createRecord',
     {
       repo: session.did,
-      collection: "app.bsky.feed.post",
+      collection: 'app.bsky.feed.post',
       record: {
-        $type: "app.bsky.feed.post",
+        $type: 'app.bsky.feed.post',
         text,
         facets,
         createdAt: new Date().toISOString(),
-        langs: ["en"],
-      },
+        langs: ['en']
+      }
     },
-    session.accessJwt,
+    session.accessJwt
   );
 
   console.log(`Announced ${version} to Bluesky.`);
