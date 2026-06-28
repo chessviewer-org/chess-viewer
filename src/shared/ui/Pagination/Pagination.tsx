@@ -5,9 +5,18 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { getSlots } from './getSlots';
 
 const DOT_TONE: Record<'active' | 'normal' | 'faded', string> = {
-  active: 'h-2 w-5 bg-accent',
-  normal: 'h-2 w-2 bg-border hover:bg-text-muted',
-  faded: 'h-1.5 w-1.5 bg-border/60 hover:bg-border'
+  active: 'bg-accent hover:bg-accent',
+  normal: 'bg-border hover:bg-text-muted',
+  faded: 'bg-border/60 hover:bg-border'
+};
+
+const DOT_SIZE: Record<
+  'active' | 'normal' | 'faded',
+  { width: number; height: number }
+> = {
+  active: { width: 20, height: 8 },
+  normal: { width: 8, height: 8 },
+  faded: { width: 6, height: 6 }
 };
 
 const ARROW_CLASS =
@@ -53,7 +62,7 @@ const Pagination = memo(function Pagination({
   return (
     <nav
       aria-label={label}
-      className={`flex items-center justify-center gap-3 ${className}`}
+      className={`flex flex-row items-center justify-center gap-2 self-center ${className}`}
     >
       <button
         type="button"
@@ -64,7 +73,7 @@ const Pagination = memo(function Pagination({
         <ChevronLeft className="h-4 w-4" aria-hidden="true" />
       </button>
 
-      <div className="flex items-center gap-1.5">
+      <div className="flex flex-row items-center gap-1.5 self-center shrink-0">
         {getSlots(page, pageCount).map((slot) =>
           slot.kind === 'ellipsis' ? (
             <span
@@ -79,7 +88,19 @@ const Pagination = memo(function Pagination({
               onClick={() => onChange(slot.page)}
               aria-label={`Page ${slot.page + 1} of ${pageCount}`}
               aria-current={slot.page === page ? 'page' : undefined}
-              className={`rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${DOT_TONE[slot.tone]}`}
+              style={{
+                flexShrink: 0,
+                width: DOT_SIZE[slot.tone].width,
+                height: DOT_SIZE[slot.tone].height,
+                minWidth: DOT_SIZE[slot.tone].width,
+                minHeight: DOT_SIZE[slot.tone].height,
+                maxWidth: DOT_SIZE[slot.tone].width,
+                maxHeight: DOT_SIZE[slot.tone].height,
+                borderRadius: 9999,
+                padding: 0,
+                border: 'none'
+              }}
+              className={`transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${DOT_TONE[slot.tone]}`}
             />
           )
         )}

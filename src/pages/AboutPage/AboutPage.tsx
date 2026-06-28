@@ -107,6 +107,7 @@ const AboutPage = memo(function AboutPage() {
         {...getRouteSeo('/about')}
         schema={[WEBSITE_SCHEMA, ORGANIZATION_SCHEMA]}
       />
+      <h1 className="sr-only">About ChessVision</h1>
       {/* Two-column shell, constrained to the navbar's width so the page reads
           as one column under the bar: a sticky left category rail (always
           visible, never collapses) and a scrolling content column on the right

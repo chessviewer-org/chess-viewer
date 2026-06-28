@@ -8,6 +8,11 @@ import { type PageTabGroup, PageTabs } from '@/components/layout';
 import { useHomeExport, useNotifications, usePieceImages } from '@hooks';
 
 import { safeJSONParse } from '@utils';
+import {
+  EXPORT_BREADCRUMB_SCHEMA,
+  EXPORT_HOWTO_SCHEMA,
+  getRouteSeo
+} from '@constants';
 import { Seo } from '@shared/ui';
 import BoardStyleStep from './components/BoardStyleStep';
 import ExportSettingsStep from './components/ExportSettingsStep';
@@ -68,9 +73,8 @@ const ExportPage = () => {
     return (
       <>
         <Seo
-          name="Export Chess Diagram"
-          path="/export"
-          description="Export your chess diagram as a high-resolution PNG, JPEG, or SVG. Choose DPI, board size, piece style, and colors — then download instantly. Free, no watermarks."
+          {...getRouteSeo('/export')}
+          schema={[EXPORT_HOWTO_SCHEMA, EXPORT_BREADCRUMB_SCHEMA]}
         />
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-4">
           <div className="flex flex-col items-center gap-3">
@@ -78,9 +82,10 @@ const ExportPage = () => {
               className="w-12 h-12 text-text-secondary/40"
               strokeWidth={1.5}
             />
-            <h1 className="text-xl font-semibold text-text-primary">
+            <h1 className="sr-only">Export Chess Diagram</h1>
+            <p className="text-xl font-semibold text-text-primary">
               No board loaded
-            </h1>
+            </p>
             <p className="text-text-secondary text-sm max-w-xs">
               Open a position from the editor to export it as a high-resolution
               image.
@@ -101,9 +106,8 @@ const ExportPage = () => {
   return (
     <>
       <Seo
-        name="Export Chess Diagram"
-        path="/export"
-        description="Export your chess diagram as a high-resolution PNG, JPEG, or SVG. Choose DPI, board size, piece style, and colors — then download instantly. Free, no watermarks."
+        {...getRouteSeo('/export')}
+        schema={[EXPORT_HOWTO_SCHEMA, EXPORT_BREADCRUMB_SCHEMA]}
       />
       <ExportPageInner config={initialState} />
     </>

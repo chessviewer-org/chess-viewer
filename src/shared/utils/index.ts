@@ -18,6 +18,7 @@ export * from './pageScroll';
 export * from './pieceImageCache';
 export * from './pieceSort';
 export * from './reducedMotion';
+export * from './saveBlob';
 export * from './svgExporter';
 export * from './syncHydration';
 export * from './themeMode';

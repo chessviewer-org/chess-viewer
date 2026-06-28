@@ -948,13 +948,23 @@ $$ LANGUAGE plpgsql
 --     not the actual enforcer. The real write barrier is the ABSENCE of any
 --     anon/authenticated write policy + table GRANTs limited to SELECT.
 -- ===========================================================================
+-- `providers` holds the per-provider problem-DB result pair the edge function
+-- now writes (issue #158): { pdb:{found,url}, yacpdb:{found,url} }. Only PDB and
+-- YACPDB are cached (board-keyed + slow); Lichess/ChessDB key on the full FEN
+-- and always run live. The legacy scalar columns (`database`, `url`) are kept
+-- for backward-compatibility / older rows and are no longer written.
 CREATE TABLE IF NOT EXISTS public.db_search_cache (
     fen_board   TEXT        PRIMARY KEY CHECK (char_length(fen_board) <= 100),
     found       BOOLEAN     NOT NULL DEFAULT FALSE,
     database    TEXT        CHECK (database IS NULL OR char_length(database) <= 32),
     url         TEXT        CHECK (url IS NULL OR char_length(url) <= 2048),
+    providers   JSONB,
     checked_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Additive migration for existing deployments (no-op on a fresh create above).
+ALTER TABLE public.db_search_cache
+    ADD COLUMN IF NOT EXISTS providers JSONB;
 
 CREATE INDEX IF NOT EXISTS idx_db_search_cache_checked
     ON public.db_search_cache(checked_at);

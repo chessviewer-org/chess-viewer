@@ -123,13 +123,6 @@ export const SOFTWARE_APP_SCHEMA = {
     priceCurrency: 'USD',
     availability: 'https://schema.org/InStock'
   },
-  aggregateRating: {
-    '@type': 'AggregateRating',
-    ratingValue: '5',
-    ratingCount: '1',
-    bestRating: '5',
-    worstRating: '1'
-  },
   publisher: { '@id': `${SITE_URL}/#organization` }
 };
 
@@ -180,6 +173,86 @@ export const HOME_FAQ_SCHEMA = {
         '@type': 'Answer',
         text: 'Yes, ChessVision is forever free and open-source. All features — including high-resolution export, batch processing, and cloud sync — are free with no paywalls. Visit chessvision.org to get started.'
       }
+    }
+  ]
+};
+
+/**
+ * HowTo schema for the Export page — targets "how to export chess diagram" rich results.
+ */
+export const EXPORT_HOWTO_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  '@id': `${SITE_URL}/export#howto`,
+  name: 'How to Export a Chess Diagram',
+  description:
+    'Convert a FEN position to a high-resolution PNG, JPEG, or SVG chess diagram using ChessVision.',
+  step: [
+    {
+      '@type': 'HowToStep',
+      name: 'Enter FEN',
+      text: 'Paste your FEN string into the board editor on chessvision.org.'
+    },
+    {
+      '@type': 'HowToStep',
+      name: 'Customize',
+      text: 'Choose your board theme, piece set, coordinates, and physical board size.'
+    },
+    {
+      '@type': 'HowToStep',
+      name: 'Select format',
+      text: 'Pick PNG, JPEG, or SVG and set the quality preset (300–1200 DPI).'
+    },
+    {
+      '@type': 'HowToStep',
+      name: 'Download',
+      text: 'Click Export to download your print-ready chess diagram instantly — no watermarks, no sign-up.'
+    }
+  ]
+};
+
+/**
+ * BreadcrumbList schema for /export.
+ */
+export const EXPORT_BREADCRUMB_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  '@id': `${SITE_URL}/export#breadcrumb`,
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'ChessVision',
+      item: `${SITE_URL}/`
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Export Chess Diagram',
+      item: `${SITE_URL}/export`
+    }
+  ]
+};
+
+/**
+ * BreadcrumbList schema for /advanced-fen.
+ */
+export const ADVANCED_FEN_BREADCRUMB_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  '@id': `${SITE_URL}/advanced-fen#breadcrumb`,
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'ChessVision',
+      item: `${SITE_URL}/`
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Batch FEN Export',
+      item: `${SITE_URL}/advanced-fen`
     }
   ]
 };
