@@ -61,13 +61,17 @@ const EMPTY_URLS: UrlMap = {
 };
 
 /**
- * Manual lookup of the current position in the chess problem databases
- * (PDB / YACPDB). Returns per-provider state, each with its own `search()`.
+ * Manual lookup of the current position in the four position databases
+ * (Lichess / ChessDB / PDB / YACPDB). Returns per-provider state, each with its
+ * own `search()`.
  *
- * The edge proxy resolves both providers in a single call, so a provider's
- * `search()` runs one combined lookup; the `which` argument only scopes which
- * rows show the `searching` spinner and pick up the result. Changing `fen`
- * resets all rows to `idle` (stale results are cleared) but never auto-searches.
+ * The edge proxy resolves ALL providers independently in a single call and
+ * returns a per-provider map (issue #158), so a provider's `search()` runs one
+ * combined lookup; the `which` argument only scopes which rows show the
+ * `searching` spinner and pick up the result. Because the server reports each
+ * provider under its own key, `res[p].found` always reflects provider `p` — no
+ * first-hit-wins shadowing. Changing `fen` resets all rows to `idle` (stale
+ * results are cleared) but never auto-searches.
  *
  * @param fen Current board FEN.
  */
@@ -75,27 +79,35 @@ export function useDatabaseSearch(fen: string): UseDatabaseSearchResult {
   const [statuses, setStatuses] = useState<StatusMap>(IDLE_STATUS);
   const [urls, setUrls] = useState<UrlMap>(EMPTY_URLS);
 
-  // Abort any in-flight lookup when the position changes or on unmount.
-  const controllerRef = useRef<AbortController | null>(null);
+  // Every in-flight lookup, so the position-change/unmount cleanup can abort
+  // them ALL. Crucially we do NOT abort one provider's lookup when another's is
+  // triggered — concurrent provider searches must each resolve on their own,
+  // or a row that was mid-search gets cancelled and spins forever (issue #158).
+  const controllersRef = useRef<Set<AbortController>>(new Set());
 
-  // Reset to idle whenever the position changes — no auto-search.
+  // Reset to idle whenever the position changes — abort everything, no auto-search.
   useEffect(() => {
-    controllerRef.current?.abort();
-    controllerRef.current = null;
+    for (const c of controllersRef.current) c.abort();
+    controllersRef.current.clear();
     setStatuses(IDLE_STATUS);
     setUrls(EMPTY_URLS);
   }, [fen]);
 
-  useEffect(() => () => controllerRef.current?.abort(), []);
+  useEffect(() => {
+    const controllers = controllersRef.current;
+    return () => {
+      for (const c of controllers) c.abort();
+      controllers.clear();
+    };
+  }, []);
 
   const run = useCallback(
     (which: DatabaseProvider[]) => {
       const trimmed = fen.trim();
       if (!trimmed || !validateFEN(trimmed)) return;
 
-      controllerRef.current?.abort();
       const controller = new AbortController();
-      controllerRef.current = controller;
+      controllersRef.current.add(controller);
 
       setStatuses((prev) => {
         const next = { ...prev };
@@ -127,6 +139,9 @@ export function useDatabaseSearch(fen: string): UseDatabaseSearchResult {
             for (const p of which) next[p] = 'error';
             return next;
           });
+        })
+        .finally(() => {
+          controllersRef.current.delete(controller);
         });
     },
     [fen]

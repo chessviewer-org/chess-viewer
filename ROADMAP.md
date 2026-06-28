@@ -1,6 +1,6 @@
 # ChessVision — Roadmap
 
-What is built, what is next, and what is not planned. No timeline commitments.
+What is built, what is next, and what is not planned. Milestone targets below are planning estimates, not hard commitments.
 
 ---
 
@@ -97,17 +97,18 @@ What is built, what is next, and what is not planned. No timeline commitments.
 ### Priority Items
 
 1. **Full keyboard control of the board** — arrow keys to move pieces, no mouse required
-2. **Annotations** — arrow and highlight overlays on squares and pieces
-3. **PGN import** — paste a PGN and step through positions
-4. **Direct game import** — paste a Lichess or Chess.com URL and extract positions
+2. **Annotations** — right-click square highlighting (red/yellow/green/blue) and arrow overlays ([#161](https://github.com/chessvision-org/chess-vision/issues/161), _v6.2.0_)
+3. **AI position import** — Open Folder picks a board image and a vision model extracts the FEN directly onto the board ([#163](https://github.com/chessvision-org/chess-vision/issues/163), _v6.3.0_)
+4. **PGN import** — paste a PGN and step through positions
+5. **Direct game import** — paste a Lichess URL and extract positions
 
 ### Lower Priority
 
 - [ ] URL-based position sharing (`?fen=...`)
-- [ ] Custom piece set upload
+- [ ] Custom & fairy piece sets — hybrid pieces, themed sets, user upload ([#162](https://github.com/chessvision-org/chess-vision/issues/162), _v6.2.0_)
 - [ ] i18n / multi-language support
 - [ ] Full WCAG 2.1 AA compliance — canvas still has no DOM alternative for screen readers
-- [ ] Lichess/Chess.com browser extension (Phase 3 on the roadmap)
+- [ ] Lichess browser extension (Phase 3 on the roadmap)
 - [ ] npm package release (`@chessvision-org/core`) for headless board rendering
 
 ---
@@ -126,6 +127,21 @@ What is built, what is next, and what is not planned. No timeline commitments.
 - Move animation or game playback
 - Native mobile apps
 - Multi-player or real-time features
+
+---
+
+## Release Milestones
+
+Active milestones tracked on the [project board](https://github.com/orgs/chessvision-org/projects/1):
+
+| Milestone | Focus                                                           | Target   |
+| --------- | --------------------------------------------------------------- | -------- |
+| v6.0.1    | Critical fixes                                                  | Jun 2026 |
+| v6.0.2    | Mobile responsive                                               | Jul 2026 |
+| v6.0.3    | Polish                                                          | Jul 2026 |
+| v6.1.0    | Swipe & interaction                                             | Sep 2026 |
+| v6.2.0    | Features — annotations, custom/fairy piece sets, click-to-place | Oct 2026 |
+| v6.3.0    | AI & Import — Open Folder FEN extraction                        | Nov 2026 |
 
 ---
 

@@ -27,7 +27,11 @@ export default defineConfig({
       workbox: {
         // Precache the built app shell (hashed JS/CSS) so a hard refresh is
         // served from cache. SPA navigations fall back to index.html.
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Piece SVGs are excluded from precache: there are 276 of them but a
+        // user only ever loads 1–2 styles, so they're runtime-cached on demand
+        // (see the /piece/ rule below) instead of bloating the precache.
+        globPatterns: ['**/*.{js,css,html,ico,png,woff2}'],
+        globIgnores: ['piece/**'],
         navigateFallback: '/index.html',
         // Supabase API, the chess-DB edge function, and auth must always hit
         // the network — never serve a stale cached response for them.
@@ -37,13 +41,15 @@ export default defineConfig({
         skipWaiting: true,
         runtimeCaching: [
           {
-            // Lichess piece images — immutable, safe to cache long-term.
-            urlPattern: /^https:\/\/lichess1\.org\/.*/i,
-            handler: 'CacheFirst',
+            // Self-hosted piece SVGs — immutable, cached on first use so only
+            // the styles a user actually opens are stored. StaleWhileRevalidate
+            // self-heals a bad entry on the next load.
+            urlPattern: /\/piece\/.*\.svg$/i,
+            handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'lichess-pieces',
-              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
-              cacheableResponse: { statuses: [0, 200] }
+              cacheName: 'piece-svgs',
+              expiration: { maxEntries: 120, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheableResponse: { statuses: [200] }
             }
           },
           {
@@ -114,7 +120,6 @@ export default defineConfig({
           if (id.includes('lucide-react')) return 'vendor-icons';
           if (id.includes('framer-motion')) return 'vendor-motion';
           if (id.includes('@dnd-kit')) return 'vendor-dnd';
-          if (id.includes('react-window')) return 'vendor-virtualization';
           if (id.includes('@supabase')) return 'vendor-supabase';
           if (
             id.includes('/react/') ||
@@ -162,8 +167,7 @@ export default defineConfig({
       'react-dom',
       'react-router-dom',
       '@dnd-kit/core',
-      'lucide-react',
-      'react-window'
+      'lucide-react'
     ]
   },
 

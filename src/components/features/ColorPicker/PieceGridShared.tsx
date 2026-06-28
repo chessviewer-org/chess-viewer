@@ -114,7 +114,7 @@ function PieceGridSharedComponent({
               }`}
             >
               <img
-                src={`https://lichess1.org/assets/piece/${set.id}/wN.svg`}
+                src={`/piece/${set.id}/wN.svg`}
                 alt={set.name}
                 width={44}
                 height={44}

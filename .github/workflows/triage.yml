@@ -1,7 +1,10 @@
 name: Issue Triage
 
-# Applies needs-triage to every newly opened issue so nothing falls through
-# without a maintainer review.
+# Applies "status: waiting triage" to newly opened issues so contributor
+# reports don't fall through without a maintainer review.
+#
+# Maintainer-authored issues (OWNER / MEMBER) are skipped — the maintainer has
+# already triaged anything they open themselves.
 
 on:
   issues:
@@ -12,8 +15,12 @@ permissions:
 
 jobs:
   label:
-    name: Apply needs-triage
+    name: Apply waiting triage
     runs-on: ubuntu-latest
+    # Skip issues opened by a repo owner or org member.
+    if: >-
+      github.event.issue.author_association != 'OWNER' &&
+      github.event.issue.author_association != 'MEMBER'
     steps:
       - uses: actions/github-script@v8
         with:
@@ -22,5 +29,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              labels: ['needs-triage'],
+              labels: ['status: waiting triage'],
             });

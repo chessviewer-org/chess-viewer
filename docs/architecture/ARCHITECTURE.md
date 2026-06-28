@@ -31,19 +31,19 @@ ChessVision is a React single-page application. It parses FEN notation, renders 
 
 ## Technology Stack
 
-| Category        | Library / Tool   | Version |
-| --------------- | ---------------- | ------- |
-| UI framework    | React            | 19.x    |
-| Language        | TypeScript       | 6.x     |
-| Build tool      | Vite             | 8.x     |
-| Styling         | Tailwind CSS     | 4.x     |
-| Routing         | React Router DOM | 7.x     |
-| Drag and drop   | @dnd-kit         | 6.x     |
-| Animations      | Framer Motion    | 12.x    |
-| Virtual lists   | react-window     | 2.x     |
-| Icons           | Lucide React     | latest  |
-| Backend / Auth  | Supabase         | 2.x     |
-| Package manager | pnpm             | 10.x    |
+| Category        | Library / Tool                | Version |
+| --------------- | ----------------------------- | ------- |
+| UI framework    | React                         | 19.x    |
+| Language        | TypeScript                    | 6.x     |
+| Build tool      | Vite                          | 8.x     |
+| Styling         | Tailwind CSS                  | 4.x     |
+| Routing         | React Router DOM              | 7.x     |
+| Drag and drop   | @dnd-kit                      | 6.x     |
+| Animations      | Framer Motion                 | 12.x    |
+| Virtual lists   | IntersectionObserver (native) | —       |
+| Icons           | Lucide React                  | latest  |
+| Backend / Auth  | Supabase                      | 2.x     |
+| Package manager | pnpm                          | 10.x    |
 
 ---
 

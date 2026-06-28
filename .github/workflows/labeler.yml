@@ -1,12 +1,13 @@
 name: PR Labeler
 
-# Auto-labels pull requests:
-#   1. area/type/dependency labels from changed file paths (actions/labeler)
-#   2. a type label derived from the Conventional Commit PR title
-#   3. needs-triage on every newly opened PR
+# Auto-labels pull requests based on changed file paths.
+# Type labels (bug, enhancement, etc.) are applied by the separate
+# "Label by PR title" job below, derived from the Conventional Commit title.
+# "status: waiting triage" is applied to newly opened PRs from contributors —
+# maintainer-authored PRs (OWNER / MEMBER) are skipped.
 #
-# Uses pull_request_target so labeling works for PRs from forks.
-# This event runs with the base repo's token; PR code is never checked out here.
+# Uses pull_request_target so labeling works for fork PRs.
+# The base repo token is used; PR code is never checked out.
 
 on:
   pull_request_target:
@@ -18,7 +19,7 @@ permissions:
   issues: write
 
 concurrency:
-  group: labeler-${{ github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
@@ -28,14 +29,23 @@ jobs:
     steps:
       - uses: actions/labeler@v6
         with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           configuration-path: .github/labeler.yml
-          sync-labels: true
+          # Additive only — never strip labels. With sync-labels: true the path
+          # job removed any label not in labeler.yml, which raced the title job
+          # below and silently deleted its type labels (Bug/enhancement/chore) on
+          # synchronize/edit. Labels are only ever added now; removing them is a
+          # maintainer's call, not the bot's.
+          sync-labels: false
 
   type:
     name: Label by PR title
     runs-on: ubuntu-latest
+    # The type label comes from the title, which only changes on open/edit —
+    # skip synchronize (new commits) so we don't re-run for nothing.
+    if: github.event.action != 'synchronize'
     steps:
-      - name: Map Conventional Commit type to a label
+      - name: Map Conventional Commit type to label
         uses: actions/github-script@v8
         with:
           script: |
@@ -44,43 +54,46 @@ jobs:
             if (!match) return;
 
             const map = {
-              feat: 'enhancement',
-              fix: 'bug',
-              docs: 'documentation',
-              perf: 'performance',
+              feat:     'enhancement',
+              fix:      'Bug',
+              docs:     'documentation',
+              perf:     'performance',
               refactor: 'refactor',
-              test: 'tests',
-              build: 'dependencies',
-              ci: 'area: ci',
-              chore: 'chore',
-              style: 'chore',
-              revert: 'bug',
+              test:     'tests',
+              build:    'dependencies',
+              ci:       'area: ci',
+              chore:    'chore',
+              style:    'chore',
+              revert:   'Bug',
             };
 
             const label = map[match[1].toLowerCase()];
-            if (!label) return;
-
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              labels: [label],
-            });
-
-            // Flag breaking changes
-            if (match[0].includes('!')) {
+            if (label) {
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.payload.pull_request.number,
-                labels: ['breaking change'],
+                labels: [label],
+              });
+            }
+
+            if (/^(\w+)(?:\([^)]*\))?!:/.test(title)) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                labels: ['scope: breaking'],
               });
             }
 
   triage:
     name: Mark new PRs for triage
     runs-on: ubuntu-latest
-    if: github.event.action == 'opened'
+    # Skip PRs opened by a repo owner or org member — already triaged.
+    if: >-
+      github.event.action == 'opened' &&
+      github.event.pull_request.author_association != 'OWNER' &&
+      github.event.pull_request.author_association != 'MEMBER'
     steps:
       - uses: actions/github-script@v8
         with:
@@ -89,5 +102,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.payload.pull_request.number,
-              labels: ['needs-triage'],
+              labels: ['status: waiting triage'],
             });

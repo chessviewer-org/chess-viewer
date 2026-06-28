@@ -67,5 +67,3 @@ export function AuthPage({ children }: AuthPageProps) {
     </div>
   );
 }
-
-export default AuthPage;

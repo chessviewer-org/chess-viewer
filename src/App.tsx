@@ -217,7 +217,7 @@ function App() {
           <div className="isolate-root shell-safe-area min-h-dvh lg:h-screen lg:overflow-hidden flex flex-col bg-linear-to-br from-bg-gradient-start to-bg-gradient-end text-fluid-base transition-colors duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
             <a
               href="#main-content"
-              className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-100 focus:px-6 focus:py-3 focus:bg-accent focus:text-bg focus:rounded-xl focus:shadow-lg focus:font-semibold"
+              className="sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:top-4 focus-visible:left-4 focus-visible:z-100 focus-visible:px-6 focus-visible:py-3 focus-visible:bg-accent focus-visible:text-bg focus-visible:rounded-xl focus-visible:shadow-lg focus-visible:font-semibold"
             >
               Skip to main content
             </a>

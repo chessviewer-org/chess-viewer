@@ -105,6 +105,17 @@ async function prerender() {
 
       let html = await page.content();
 
+      // Rewrite absolute prerender-origin URLs back to root-relative paths.
+      // The app builds piece (and other asset) URLs as root-relative strings
+      // (e.g. `/piece/cburnett/wN.svg`). When the headless browser renders the
+      // page at http://localhost:4178, `page.content()` serialises the resolved
+      // DOM, so those relative `src`/`href` values come back fully-qualified
+      // against the prerender origin. Left untouched, every visitor's browser
+      // would request `http://localhost:4178/piece/...` and get
+      // ERR_CONNECTION_REFUSED. Strip the origin so the snapshot ships the same
+      // root-relative URLs the runtime app uses, resolved against the live host.
+      html = html.replaceAll(`http://localhost:${PORT}`, '');
+
       // Strip the static SEO fallback block. react-helmet-async appends its
       // per-route title/meta/canonical/OG tags but does NOT remove the static
       // home-route fallbacks already in <head>, so a raw snapshot would carry
