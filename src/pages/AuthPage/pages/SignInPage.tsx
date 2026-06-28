@@ -20,12 +20,18 @@ export function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  // Server/sign-in errors (wrong credentials, network, anything from Supabase)
+  // belong at the form level, NOT under the password field — otherwise a network
+  // or server failure reads as "your password is wrong" even when it's correct
+  // (the original symptom in #134, which traced back to the missing Supabase env).
+  const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validate = (): boolean => {
     let valid = true;
     setEmailError('');
     setPasswordError('');
+    setFormError('');
 
     if (!email.trim()) {
       setEmailError('Email is required.');
@@ -55,7 +61,10 @@ export function SignInPage() {
       });
 
       if (signInError) {
-        setPasswordError(getAuthErrorMessage(signInError));
+        // A failed sign-in is a form-level outcome (wrong credentials are about
+        // the email+password pair, not the password alone; network/server
+        // failures aren't about the inputs at all).
+        setFormError(getAuthErrorMessage(signInError));
         return;
       }
 
@@ -95,6 +104,15 @@ export function SignInPage() {
         noValidate
         className="flex flex-col gap-4"
       >
+        {formError && (
+          <div
+            role="alert"
+            className="rounded-lg border border-error/30 bg-error/10 px-3 py-2.5 text-sm text-error"
+          >
+            {formError}
+          </div>
+        )}
+
         <div>
           <label
             htmlFor="signin-email"
