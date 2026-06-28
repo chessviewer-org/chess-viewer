@@ -149,133 +149,147 @@ export async function createUltraQualityCanvas(
   canvas.width = Math.max(1, canvasWidth);
   canvas.height = Math.max(1, canvasHeight);
 
-  const ctx = canvas.getContext('2d', {
-    alpha: true,
-    desynchronized: false,
-    willReadFrequently: false
-  });
+  try {
+    const ctx = canvas.getContext('2d', {
+      alpha: true,
+      desynchronized: false,
+      willReadFrequently: false
+    });
 
-  if (!ctx) {
-    canvas.width = 0;
-    canvas.height = 0;
-    throw new Error('Failed to get canvas context');
-  }
-
-  const squareSize = finalBoardPixels / 8;
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
-
-  const frameOffset = shouldShowFrame ? frameThickness : 0;
-  const boardX = borderSize + frameOffset;
-  const boardY = frameOffset;
-
-  const yieldToMain = () => new Promise((resolve) => setTimeout(resolve, 0));
-
-  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-  await yieldToMain();
-
-  if (shouldShowFrame) {
-    ctx.fillStyle = '#333333';
-    // Top and bottom bars span the full canvas width (corners included)
-    ctx.fillRect(0, 0, canvasWidth, frameThickness);
-    ctx.fillRect(0, canvasHeight - frameThickness, canvasWidth, frameThickness);
-    // Left and right bars span the full canvas height
-    ctx.fillRect(0, 0, frameThickness, canvasHeight);
-    ctx.fillRect(canvasWidth - frameThickness, 0, frameThickness, canvasHeight);
-  }
-
-  if (effectiveCoordBorder && (format === 'jpeg' || format === 'jpg')) {
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(frameOffset, frameOffset, borderSize, finalBoardPixels);
-    ctx.fillRect(
-      frameOffset,
-      frameOffset + finalBoardPixels,
-      borderSize + finalBoardPixels,
-      borderSize
-    );
-  }
-
-  // Draw border flush outside the board area — offset by half lineWidth so
-  // the stroke doesn't overlap the outermost squares (outset stroke).
-  const boardBorderWidth = Math.max(1, finalBoardPixels * 0.002);
-  const bHalf = boardBorderWidth / 2;
-  ctx.strokeStyle = '#000000';
-  ctx.lineWidth = boardBorderWidth;
-  ctx.strokeRect(
-    boardX - bHalf,
-    boardY - bHalf,
-    finalBoardPixels + boardBorderWidth,
-    finalBoardPixels + boardBorderWidth
-  );
-
-  await yieldToMain();
-
-  for (let row = 0; row < 8; row++) {
-    for (let col = 0; col < 8; col++) {
-      ctx.fillStyle = (row + col) % 2 === 0 ? lightSquare : darkSquare;
-      const drawRow = flipped ? 7 - row : row;
-      const drawCol = flipped ? 7 - col : col;
-      const bounds = getSquareBounds(
-        drawRow,
-        drawCol,
-        squareSize,
-        boardX,
-        boardY
-      );
-      ctx.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+    if (!ctx) {
+      throw new Error('Failed to get canvas context');
     }
-  }
 
-  await yieldToMain();
+    const squareSize = finalBoardPixels / 8;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
-  for (let row = 0; row < 8; row++) {
-    for (let col = 0; col < 8; col++) {
-      const fenPiece = board[row]?.[col];
-      if (!fenPiece) continue;
+    const frameOffset = shouldShowFrame ? frameThickness : 0;
+    const boardX = borderSize + frameOffset;
+    const boardY = frameOffset;
 
-      const pieceKey = getPieceKey(fenPiece);
-      if (!pieceKey) continue;
+    const yieldToMain = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-      const img = pieceImages[pieceKey];
-      if (!img || !img.complete || img.naturalWidth === 0) continue;
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    await yieldToMain();
 
-      const drawRow = flipped ? 7 - row : row;
-      const drawCol = flipped ? 7 - col : col;
-      const bounds = getSquareBounds(
-        drawRow,
-        drawCol,
-        squareSize,
-        boardX,
-        boardY
+    if (shouldShowFrame) {
+      ctx.fillStyle = '#333333';
+      // Top and bottom bars span the full canvas width (corners included)
+      ctx.fillRect(0, 0, canvasWidth, frameThickness);
+      ctx.fillRect(
+        0,
+        canvasHeight - frameThickness,
+        canvasWidth,
+        frameThickness
       );
+      // Left and right bars span the full canvas height
+      ctx.fillRect(0, 0, frameThickness, canvasHeight);
+      ctx.fillRect(
+        canvasWidth - frameThickness,
+        0,
+        frameThickness,
+        canvasHeight
+      );
+    }
 
-      const pieceSize = Math.min(bounds.width, bounds.height);
-      const px = bounds.centerX - pieceSize / 2;
-      const py = bounds.centerY - pieceSize / 2;
+    if (effectiveCoordBorder && (format === 'jpeg' || format === 'jpg')) {
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(frameOffset, frameOffset, borderSize, finalBoardPixels);
+      ctx.fillRect(
+        frameOffset,
+        frameOffset + finalBoardPixels,
+        borderSize + finalBoardPixels,
+        borderSize
+      );
+    }
 
-      try {
-        ctx.drawImage(img, px, py, pieceSize, pieceSize);
-      } catch (err: unknown) {
-        logger.error(`Failed to draw piece ${pieceKey}:`, err);
+    // Draw border flush outside the board area — offset by half lineWidth so
+    // the stroke doesn't overlap the outermost squares (outset stroke).
+    const boardBorderWidth = Math.max(1, finalBoardPixels * 0.002);
+    const bHalf = boardBorderWidth / 2;
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = boardBorderWidth;
+    ctx.strokeRect(
+      boardX - bHalf,
+      boardY - bHalf,
+      finalBoardPixels + boardBorderWidth,
+      finalBoardPixels + boardBorderWidth
+    );
+
+    await yieldToMain();
+
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        ctx.fillStyle = (row + col) % 2 === 0 ? lightSquare : darkSquare;
+        const drawRow = flipped ? 7 - row : row;
+        const drawCol = flipped ? 7 - col : col;
+        const bounds = getSquareBounds(
+          drawRow,
+          drawCol,
+          squareSize,
+          boardX,
+          boardY
+        );
+        ctx.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
       }
     }
+
     await yieldToMain();
-  }
 
-  if (showCoords) {
-    drawCoordinates(
-      ctx,
-      squareSize,
-      borderSize + frameOffset,
-      flipped,
-      finalBoardPixels,
-      true,
-      false,
-      boardY,
-      frameOffset
-    );
-  }
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        const fenPiece = board[row]?.[col];
+        if (!fenPiece) continue;
 
-  await yieldToMain();
-  return canvas;
+        const pieceKey = getPieceKey(fenPiece);
+        if (!pieceKey) continue;
+
+        const img = pieceImages[pieceKey];
+        if (!img || !img.complete || img.naturalWidth === 0) continue;
+
+        const drawRow = flipped ? 7 - row : row;
+        const drawCol = flipped ? 7 - col : col;
+        const bounds = getSquareBounds(
+          drawRow,
+          drawCol,
+          squareSize,
+          boardX,
+          boardY
+        );
+
+        const pieceSize = Math.min(bounds.width, bounds.height);
+        const px = bounds.centerX - pieceSize / 2;
+        const py = bounds.centerY - pieceSize / 2;
+
+        try {
+          ctx.drawImage(img, px, py, pieceSize, pieceSize);
+        } catch (err: unknown) {
+          logger.error(`Failed to draw piece ${pieceKey}:`, err);
+        }
+      }
+      await yieldToMain();
+    }
+
+    if (showCoords) {
+      drawCoordinates(
+        ctx,
+        squareSize,
+        borderSize + frameOffset,
+        flipped,
+        finalBoardPixels,
+        true,
+        false,
+        boardY,
+        frameOffset
+      );
+    }
+
+    await yieldToMain();
+    return canvas;
+  } catch (err: unknown) {
+    canvas.width = 0;
+    canvas.height = 0;
+    throw err;
+  }
 }
