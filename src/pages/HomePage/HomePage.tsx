@@ -81,8 +81,10 @@ const HomePage: React.FC = () => {
 
   // Use VITE_SUPABASE_URL to construct the absolute URL to the Edge Function.
   // We cannot use SITE_URL/api/og because Nginx does not proxy it by default.
+  // Dot notation so Vite inlines the value at build time — bracket notation is
+  // left untouched and resolves to undefined in production (see supabaseClient).
   const supabaseUrl =
-    import.meta.env['VITE_SUPABASE_URL']?.replace(/\/$/, '') ||
+    import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, '') ||
     'https://placeholder.supabase.co';
   const dynamicOgImage = isCustomFen
     ? `${supabaseUrl}/functions/v1/og-image${dynamicParams}`

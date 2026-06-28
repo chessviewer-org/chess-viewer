@@ -2,9 +2,14 @@ import { createClient } from '@supabase/supabase-js';
 
 import { logger } from '@utils';
 
-let supabaseUrl: string = import.meta.env['VITE_SUPABASE_URL'] || '';
+// Dot notation is REQUIRED: Vite only statically inlines `import.meta.env`
+// access written this way. Bracket notation (env['VITE_…']) is left untouched by
+// the build, so in production it resolves to undefined and the client silently
+// falls back to the placeholder URL — breaking auth, sync, and DB search even
+// though the secrets are present at build time.
+let supabaseUrl: string = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey: string =
-  import.meta.env['VITE_SUPABASE_ANON_KEY'] || 'placeholder';
+  import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder';
 
 // Validate that the URL is a valid HTTP/HTTPS URL, otherwise Supabase will crash on initialization.
 if (!supabaseUrl.startsWith('http://') && !supabaseUrl.startsWith('https://')) {

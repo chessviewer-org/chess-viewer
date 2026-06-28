@@ -31,11 +31,19 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           configuration-path: .github/labeler.yml
-          sync-labels: true
+          # Additive only — never strip labels. With sync-labels: true the path
+          # job removed any label not in labeler.yml, which raced the title job
+          # below and silently deleted its type labels (Bug/enhancement/chore) on
+          # synchronize/edit. Labels are only ever added now; removing them is a
+          # maintainer's call, not the bot's.
+          sync-labels: false
 
   type:
     name: Label by PR title
     runs-on: ubuntu-latest
+    # The type label comes from the title, which only changes on open/edit —
+    # skip synchronize (new commits) so we don't re-run for nothing.
+    if: github.event.action != 'synchronize'
     steps:
       - name: Map Conventional Commit type to label
         uses: actions/github-script@v8
