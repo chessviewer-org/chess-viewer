@@ -1,89 +1,139 @@
 # Single source of truth for repository labels.
-# Synced to GitHub by .github/workflows/label-sync.yml whenever this file
-# changes on master. Edit here, not in the GitHub UI.
+# Synced to GitHub by .github/workflows/label-sync.yml on push to master.
+# Edit here — do not change labels via the GitHub UI.
+# Color palette mirrors freeCodeCamp's label system.
 
 # --- Type ---
-- name: bug
-  color: d73a4a
-  description: Something is not working
+- name: Bug
+  color: b60205
+  description: Something is not working correctly
 - name: enhancement
-  color: a2eeef
-  description: New feature or request
+  color: 5319e7
+  description: New feature or improvement
 - name: documentation
   color: 0075ca
   description: Documentation only
 - name: performance
-  color: fbca04
+  color: FBCA04
   description: Performance improvement
 - name: refactor
-  color: cfd3d7
-  description: Code change with no behavior change
+  color: c5def5
+  description: Code restructuring with no behavior change
 - name: tests
-  color: bfd4f2
+  color: 006400
   description: Adding or updating tests
 - name: dependencies
-  color: 0366d6
-  description: Dependency updates
+  color: d4c5f9
+  description: Dependency updates (Dependabot / Renovate)
 - name: chore
-  color: ededed
-  description: Tooling and maintenance
+  color: e4e669
+  description: Tooling, config, and maintenance
 - name: security
-  color: e4e669
-  description: Security fix or audit finding
+  color: b60205
+  description: Security fix or vulnerability
 
-# --- Resolution ---
-- name: duplicate
-  color: cfd3d7
-  description: Already reported or requested
-- name: wontfix
-  color: ffffff
+# --- Status ---
+- name: 'status: waiting triage'
+  color: d93f0b
+  description: Needs review to confirm validity and reproduction
+- name: 'status: waiting review'
+  color: d93f0b
+  description: Ready for maintainer code review
+- name: 'status: waiting update'
+  color: FBCA04
+  description: Awaiting update or response from the author
+- name: 'status: PR in works'
+  color: 5319e7
+  description: Work in progress — a fix or implementation is underway
+- name: 'status: blocked'
+  color: b60205
+  description: Cannot proceed — blocked on another issue or external dependency
+- name: 'status: discussing'
+  color: 0052cc
+  description: Under active discussion — no implementation started yet
+- name: 'status: on the roadmap'
+  color: 006400
+  description: Planned for a future release
+- name: 'status: shipping'
+  color: 9ed361
+  description: Fixed and awaiting deployment
+- name: 'status: decayed'
+  color: e99695
+  description: Stale — closed for inactivity, needs follow-up to reopen
+- name: 'status: wontfix'
+  color: 000000
   description: Intentional — will not be addressed
-- name: invalid
-  color: e4e669
-  description: Does not reproduce or off-topic
+
+# --- Scope ---
+- name: 'scope: mobile'
+  color: 4969c1
+  description: Affects mobile and touch viewports
+- name: 'scope: desktop'
+  color: 4969c1
+  description: Affects desktop viewports only
+- name: 'scope: a11y'
+  color: 4969c1
+  description: Keyboard navigation, ARIA, and screen reader support
+- name: 'scope: UI'
+  color: 4969c1
+  description: UX changes and improvements to the user interface
+- name: 'scope: breaking'
+  color: b60205
+  description: Introduces a breaking change — requires major version bump
 
 # --- Area ---
 - name: 'area: board'
-  color: 0052cc
+  color: 59d683
   description: Board rendering and drag-and-drop
 - name: 'area: fen'
-  color: 006b75
+  color: 59d683
   description: FEN parsing and input
 - name: 'area: export'
-  color: e4693f
-  description: Canvas / SVG export pipeline
+  color: 59d683
+  description: Canvas and SVG export pipeline
 - name: 'area: auth'
-  color: 5319e7
-  description: Auth, Supabase, and cloud sync
+  color: 59d683
+  description: Authentication, Supabase, and cloud sync
 - name: 'area: history'
-  color: 1d76db
+  color: 59d683
   description: FEN history
 - name: 'area: ui'
-  color: 0075ca
-  description: Shared UI, layout, and theming
+  color: 59d683
+  description: Shared UI components, layout, and theming
 - name: 'area: settings'
-  color: b60205
+  color: 59d683
   description: Settings pages
 - name: 'area: ci'
-  color: f9d0c4
-  description: CI, hooks, and tooling
+  color: 59d683
+  description: CI pipelines, hooks, and tooling
 
-# --- Workflow ---
-- name: needs-triage
+# --- Moderation ---
+- name: 'DO NOT MERGE!'
+  color: b60205
+  description: ''
+- name: 'MERGE CONFLICT!'
+  color: b60205
+  description: PR has a merge conflict and needs to be updated
+- name: spam
+  color: FFE27D
+  description: Low-effort or spammy submission
+- name: deprioritized
   color: e99695
-  description: Awaiting maintainer triage
-- name: needs-review
-  color: fef2c0
-  description: Awaiting maintainer review
-- name: 'good first issue'
-  color: 7057ff
-  description: Good for newcomers
+  description: Deprioritized — lacks detail or ignores contribution guidelines
+- name: 'device specific'
+  color: e99695
+  description: Browser, device, or OS-specific issue
+
+# --- Contribution ---
+- name: 'first timers only'
+  color: 5319e7
+  description: Open for first-time contributors — no permission needed
 - name: 'help wanted'
-  color: 008672
-  description: Extra attention is welcome
-- name: blocked
-  color: d93f0b
-  description: Cannot proceed until a dependency is resolved
-- name: 'breaking change'
-  color: d73a4a
-  description: Requires a major version bump
+  color: 006400
+  description: Open for contributions — no permission needed
+- name: duplicate
+  color: cfd3d7
+  description: Already reported or requested
+- name: invalid
+  color: e4e669
+  description: Does not reproduce or is off-topic

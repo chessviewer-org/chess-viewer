@@ -81,8 +81,10 @@ const HomePage: React.FC = () => {
 
   // Use VITE_SUPABASE_URL to construct the absolute URL to the Edge Function.
   // We cannot use SITE_URL/api/og because Nginx does not proxy it by default.
+  // Dot notation so Vite inlines the value at build time — bracket notation is
+  // left untouched and resolves to undefined in production (see supabaseClient).
   const supabaseUrl =
-    import.meta.env['VITE_SUPABASE_URL']?.replace(/\/$/, '') ||
+    import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, '') ||
     'https://placeholder.supabase.co';
   const dynamicOgImage = isCustomFen
     ? `${supabaseUrl}/functions/v1/og-image${dynamicParams}`
@@ -96,6 +98,9 @@ const HomePage: React.FC = () => {
         image={dynamicOgImage ?? getRouteSeo('/').image}
         schema={[WEBSITE_SCHEMA, SOFTWARE_APP_SCHEMA, HOME_FAQ_SCHEMA]}
       />
+      <h1 className="sr-only">
+        Free Chess Diagram Generator — FEN to PNG, JPEG &amp; SVG
+      </h1>
       <div className="w-full bg-bg py-2 overflow-x-hidden min-h-full lg:h-full lg:overflow-hidden flex flex-col lg:justify-center animate-pageEnter">
         <div className="flex flex-col gap-fluid-xs lg:gap-3 page-container pt-1.5 lg:pt-0">
           <div className="min-w-0">

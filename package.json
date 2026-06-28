@@ -12,7 +12,6 @@
     "@dnd-kit/core": "^6.3.1",
     "@fontsource-variable/inter": "^5.2.8",
     "@supabase/supabase-js": "^2.107.0",
-    "file-saver": "^2.0.5",
     "framer-motion": "^12.40.0",
     "jszip": "^3.10.1",
     "lucide-react": "^1.17.0",
@@ -24,7 +23,7 @@
   "scripts": {
     "dev": "vite",
     "start": "vite",
-    "build": "vite build && pnpm prerender",
+    "build": "vite build && node scripts/update-csp-hash.mjs && pnpm prerender",
     "build:vite": "vite build",
     "prerender": "node scripts/prerender.mjs",
     "preview": "vite preview",
@@ -53,12 +52,9 @@
     "@semantic-release/npm": "^12.0.2",
     "@semantic-release/release-notes-generator": "^14.1.0",
     "@tailwindcss/postcss": "^4.3.0",
-    "@types/file-saver": "^2.0.7",
     "@types/node": "^25.9.1",
     "@types/react": "^19.2.16",
     "@types/react-dom": "^19.2.3",
-    "@typescript-eslint/eslint-plugin": "^8.60.1",
-    "@typescript-eslint/parser": "^8.60.1",
     "@vitejs/plugin-react": "6.0.2",
     "autoprefixer": "^10.5.0",
     "danger": "^13.0.7",
@@ -83,7 +79,8 @@
   },
   "pnpm": {
     "overrides": {
-      "esbuild": ">=0.28.1"
+      "esbuild": ">=0.28.1",
+      "node-fetch": "^3.3.2"
     }
   }
 }

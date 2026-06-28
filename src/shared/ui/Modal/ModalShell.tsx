@@ -46,7 +46,7 @@ const ModalShell = memo(
     return (
       <AnimatePresence>
         {isOpen && (
-          <div className="fixed inset-0 z-90 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-90 h-[100dvh] flex items-center justify-center p-4">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

@@ -47,7 +47,6 @@ export const PIECE_MAP: Record<string, string> = {
 };
 
 export const PIECE_SETS: PieceSet[] = [
-  { id: 'alpha', name: 'Alpha' },
   { id: 'cardinal', name: 'Cardinal' },
   { id: 'california', name: 'California' },
   { id: 'cburnett', name: 'Classic (CBurnett)' },
@@ -65,8 +64,6 @@ export const PIECE_SETS: PieceSet[] = [
   { id: 'maestro', name: 'Maestro' },
   { id: 'pirouetti', name: 'Pirouetti' },
   { id: 'pixel', name: 'Pixel' },
-  { id: 'reillycraig', name: 'Reilly Craig' },
-  { id: 'riohacha', name: 'Riohacha' },
   { id: 'spatial', name: 'Spatial' },
   { id: 'staunty', name: 'Staunty' },
   { id: 'tatiana', name: 'Tatiana' }
@@ -82,7 +79,6 @@ export const PIECE_SETS: PieceSet[] = [
 export const PIECE_SET_POPULARITY: readonly string[] = [
   'cburnett',
   'merida',
-  'alpha',
   'staunty',
   'maestro',
   'horsey',
@@ -100,9 +96,7 @@ export const PIECE_SET_POPULARITY: readonly string[] = [
   'california',
   'pirouetti',
   'kosal',
-  'reillycraig',
-  'spatial',
-  'riohacha'
+  'spatial'
 ];
 
 export const BOARD_THEMES: BoardThemes = {

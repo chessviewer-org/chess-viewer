@@ -25,6 +25,20 @@ body:
     validations:
       required: true
 
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area (optional)
+      description: Which part of the app? Leave blank if unsure.
+      options:
+        - Board editor / drag & drop
+        - FEN input or history
+        - Image export (PNG / JPEG / SVG)
+        - Database search
+        - Accounts / cloud sync
+        - Theme / appearance
+        - Other / not sure
+
   - type: input
     id: environment
     attributes:

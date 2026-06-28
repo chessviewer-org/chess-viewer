@@ -1,4 +1,4 @@
-import {
+import React, {
   Fragment,
   memo,
   useCallback,
@@ -78,6 +78,7 @@ const BoardThemePicker = memo(function BoardThemePicker({
   } | null>(null);
 
   const returnToPageRef = useRef(0);
+  const touchStartXRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [cols, setCols] = useState(8);
   const [rows, setRows] = useState(4);
@@ -196,6 +197,24 @@ const BoardThemePicker = memo(function BoardThemePicker({
   const setCurrentPage = setMainPage;
   const totalPages = mainPages;
 
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartXRef.current = e.touches[0]?.clientX ?? null;
+  }, []);
+
+  const onTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      const startX = touchStartXRef.current;
+      if (startX === null) return;
+      const endX = e.changedTouches[0]?.clientX ?? startX;
+      touchStartXRef.current = null;
+      const delta = endX - startX;
+      if (Math.abs(delta) < 40) return;
+      if (delta < 0) setMainPage((p) => (p + 1) % totalPages);
+      else setMainPage((p) => (p - 1 + totalPages) % totalPages);
+    },
+    [totalPages]
+  );
+
   const gridStyle = { gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` };
 
   return (
@@ -244,9 +263,11 @@ const BoardThemePicker = memo(function BoardThemePicker({
 
       {tab === 'main' ? (
         <ul
-          className="grid flex-1 content-start gap-x-3 gap-y-4"
+          className="grid flex-1 content-start gap-x-3 gap-y-4 touch-pan-y"
           style={gridStyle}
           aria-label="Board themes"
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
         >
           {mainSlice.map((tile) => {
             const customId = tile.custom;
