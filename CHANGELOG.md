@@ -13,7 +13,46 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
-## [6.1.0] - 2026-06-23
+# [6.1.0](https://github.com/chessvision-org/chess-vision/compare/v6.0.0...v6.1.0) (2026-06-29)
+
+### Bug Fixes
+
+- **a11y:** show skip-link only on keyboard focus, not mouse/programmatic ([55892af](https://github.com/chessvision-org/chess-vision/commit/55892afef5c0b65c5bb0765ac98dbb194255fc3a))
+- **auth:** add name/id attributes to sign-in and sign-up forms for password manager autofill ([4a71da8](https://github.com/chessvision-org/chess-vision/commit/4a71da864d2859238a39ae2c99fd5217285c648a))
+- **auth:** fix signup email validation and mobile sidebar layout ([1e82d61](https://github.com/chessvision-org/chess-vision/commit/1e82d6175dcc37a8f7f506ca4e8f18860c537738))
+- **auth:** resolve sign-up failures and display name persistence ([46430ab](https://github.com/chessvision-org/chess-vision/commit/46430ab5f7c70265fd02e1567e0093863211582e))
+- **auth:** show sign-in failures at form level, not under the password ([#176](https://github.com/chessvision-org/chess-vision/issues/176)) ([7919c3e](https://github.com/chessvision-org/chess-vision/commit/7919c3ebb74aa7de234f8ba8d29a7d7d14662e02)), closes [#134](https://github.com/chessvision-org/chess-vision/issues/134)
+- **board:** abort in-flight piece fetches when piece style changes ([#154](https://github.com/chessvision-org/chess-vision/issues/154)) ([cd8adb7](https://github.com/chessvision-org/chess-vision/commit/cd8adb7f29847085345037277870051301cc803a))
+- **csp:** allow React inline styles and Cloudflare analytics beacon ([68a7f62](https://github.com/chessvision-org/chess-vision/commit/68a7f627340a3469f35a6cfa390690374d3b1afc))
+- **csp:** allow React inline styles and Cloudflare analytics beacon ([f4d8b20](https://github.com/chessvision-org/chess-vision/commit/f4d8b203b7b6d014d7dbed142972df6bf7beba24))
+- **csp:** auto-compute style-src hash from index.html at build time ([9b68ff0](https://github.com/chessvision-org/chess-vision/commit/9b68ff04da3108f8a1e878f15dabcfa40315523b))
+- **db-search:** make all four databases return real results ([#170](https://github.com/chessvision-org/chess-vision/issues/170)) ([e5fdd31](https://github.com/chessvision-org/chess-vision/commit/e5fdd31ac8b5f5914538a65c90edebb1dc183ef3))
+- **db:** backfill profiles and user_security for pre-trigger users ([e248049](https://github.com/chessvision-org/chess-vision/commit/e248049d403f65531a02e5cff3ea73a469ac16cc))
+- **deploy:** add Cloudflare Pages \_redirects and \_headers ([72d731f](https://github.com/chessvision-org/chess-vision/commit/72d731fb23c86ae655b802b82012604a963ee2d0))
+- **deploy:** add full security headers and CSP to Cloudflare Pages \_headers ([2b7c9e6](https://github.com/chessvision-org/chess-vision/commit/2b7c9e61314f77650c442f4f288b04107795f837))
+- **deploy:** remove SPA fallback from \_redirects ([7d52f01](https://github.com/chessvision-org/chess-vision/commit/7d52f01fe9f3095d5892c435c704d6726c79082c))
+- **env:** read Vite env vars with dot notation so they survive the build ([#173](https://github.com/chessvision-org/chess-vision/issues/173)) ([caa76ec](https://github.com/chessvision-org/chess-vision/commit/caa76ecb0f462d4e931f5a8bc9185f4010a64df4))
+- **export:** fix frame rendering, coordinate placement, and quality-gating ([ba7380b](https://github.com/chessvision-org/chess-vision/commit/ba7380b4866b0696f8aef52453ac0518819cb760))
+- **export:** prevent right-side border clipping on mobile preview ([#200](https://github.com/chessvision-org/chess-vision/issues/200)) ([ba6128d](https://github.com/chessvision-org/chess-vision/commit/ba6128d06bb6bfeab6db330d9ac8bbdfc5af9b9e))
+- **export:** reset canvas dimensions on render failure ([#193](https://github.com/chessvision-org/chess-vision/issues/193)) ([b47b436](https://github.com/chessvision-org/chess-vision/commit/b47b436b974c3e8086c9e66504a98d763e545d44))
+- **prerender:** strip prerender-origin from asset URLs in snapshots ([aac14ce](https://github.com/chessvision-org/chess-vision/commit/aac14ce1ce2735cd84857a6719dc8542d3f5e739))
+- **seo:** redirect legacy URLs to current routes ([cc02270](https://github.com/chessvision-org/chess-vision/commit/cc0227042b72200276ec8b5c059b6000c99f30f0))
+- **share:** add focus trap, Escape key, and piece-loading guard to ShareDialog ([27090e3](https://github.com/chessvision-org/chess-vision/commit/27090e3023ddf926734bccfa91ab5d39dae7c52b))
+- **ui:** center modals against dvh on mobile ([#133](https://github.com/chessvision-org/chess-vision/issues/133)) ([1c45841](https://github.com/chessvision-org/chess-vision/commit/1c45841b64320a701e54ce8c07a4907dd96bd2f8))
+- **ui:** pin pagination dot dimensions with inline styles to prevent flex-col stretch ([#168](https://github.com/chessvision-org/chess-vision/issues/168)) ([b170bb8](https://github.com/chessvision-org/chess-vision/commit/b170bb8de129642dffb93b275976f67733d5f9a5))
+
+### Features
+
+- **pieces:** self-host piece SVGs, drop Lichess CDN dependency ([#160](https://github.com/chessvision-org/chess-vision/issues/160)) ([1e89ef5](https://github.com/chessvision-org/chess-vision/commit/1e89ef511d3e376f4788fde997eebc46e06a2125))
+- **seo:** add structured data, page headings, and richer metadata ([#156](https://github.com/chessvision-org/chess-vision/issues/156)) ([bf8bfda](https://github.com/chessvision-org/chess-vision/commit/bf8bfdac6229458d4e122d14117eb2ec698455c4))
+- **ui:** add swipe gesture to board theme presets ([#169](https://github.com/chessvision-org/chess-vision/issues/169)) ([801d3ca](https://github.com/chessvision-org/chess-vision/commit/801d3cac65eb3cd64f6afa981819f5851500af38))
+- **ui:** replace inline pagers with shared Pagination component ([09e1742](https://github.com/chessvision-org/chess-vision/commit/09e17423008843a79098f664111d8253ec108701))
+
+### Reverts
+
+- Revert "fix(csp): allow React inline styles and Cloudflare analytics beacon" ([f2886e8](https://github.com/chessvision-org/chess-vision/commit/f2886e86d27646c84697057765f9b4934c2b658a))
+
+## [6.0.0] - 2026-06-23
 
 ### Added
 
