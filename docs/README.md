@@ -1,6 +1,6 @@
 # ChessVision — Documentation
 
-Technical documentation for ChessVision v6.0.0.
+Technical documentation for ChessVision v6.0.1.
 
 - Source: [github.com/chessvision-org/chess-vision](https://github.com/chessvision-org/chess-vision)
 - Demo: [chessvision.org](https://chessvision.org)
@@ -59,4 +59,4 @@ pnpm build:analyze    # build + bundle visualizer
 
 ---
 
-_Last updated: June 2026 — v6.0.0_
+_Last updated: June 2026 — v6.0.1_

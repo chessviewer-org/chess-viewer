@@ -22,5 +22,5 @@ export const CRYPTO_WALLET_ADDRESS =
   '0x31eB555dAAC8253FF9835448bFA1542BFA969aDb';
 
 /** App version, sourced from package.json metadata. */
-export const APP_VERSION = '6.0.0';
+export const APP_VERSION = '6.0.1';
 export const LICENSE_NAME = 'GNU AGPL-3.0';

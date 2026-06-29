@@ -283,4 +283,4 @@ Authentication is entirely optional. The app is fully functional without an acco
 
 ---
 
-_Last updated: June 2026 — v6.0.0_
+_Last updated: June 2026 — v6.0.1_
