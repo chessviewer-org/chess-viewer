@@ -4,7 +4,7 @@ What is built, what is next, and what is not planned. Milestone targets below ar
 
 ---
 
-## Implemented (v6.0.0)
+## Implemented (v6.0.1)
 
 ### Core Editor
 
@@ -145,4 +145,4 @@ Active milestones tracked on the [project board](https://github.com/orgs/chessvi
 
 ---
 
-**Last updated:** June 2026 — v6.0.0
+**Last updated:** June 2026 — v6.0.1

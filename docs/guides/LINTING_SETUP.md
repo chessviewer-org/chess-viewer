@@ -204,4 +204,4 @@ echo "feat: your description" | npx commitlint
 
 ---
 
-_Last updated: May 2026 — v6.0.0_
+_Last updated: May 2026 — v6.0.1_
