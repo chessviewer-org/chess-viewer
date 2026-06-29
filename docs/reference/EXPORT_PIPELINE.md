@@ -208,4 +208,4 @@ Progress is reported per-file and globally across the batch.
 
 ---
 
-_Last updated: June 2026 — v6.0.1_
+_Last updated: June 2026 — v6.1.0_

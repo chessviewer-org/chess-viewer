@@ -361,4 +361,4 @@ e3    ← correct (rank 3 or 6 only)
 
 ---
 
-_Last updated: May 2026 — v6.0.1_
+_Last updated: May 2026 — v6.1.0_

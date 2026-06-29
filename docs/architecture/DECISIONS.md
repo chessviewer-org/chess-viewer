@@ -189,5 +189,5 @@ Records of key architectural and technical decisions made during ChessVision's d
 
 ---
 
-_Last updated: May 2026 — v6.0.1_  
+_Last updated: May 2026 — v6.1.0_  
 _Maintainer: [@BilgeGates](https://github.com/BilgeGates)_

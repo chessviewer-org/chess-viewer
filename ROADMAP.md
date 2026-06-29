@@ -4,7 +4,7 @@ What is built, what is next, and what is not planned. Milestone targets below ar
 
 ---
 
-## Implemented (v6.0.1)
+## Implemented (v6.1.0)
 
 ### Core Editor
 
@@ -136,7 +136,7 @@ Active milestones tracked on the [project board](https://github.com/orgs/chessvi
 
 | Milestone | Focus                                                           | Target   |
 | --------- | --------------------------------------------------------------- | -------- |
-| v6.0.1    | Critical fixes                                                  | Jun 2026 |
+| v6.1.0    | Critical fixes                                                  | Jun 2026 |
 | v6.0.2    | Mobile responsive                                               | Jul 2026 |
 | v6.0.3    | Polish                                                          | Jul 2026 |
 | v6.1.0    | Swipe & interaction                                             | Sep 2026 |
@@ -145,4 +145,4 @@ Active milestones tracked on the [project board](https://github.com/orgs/chessvi
 
 ---
 
-**Last updated:** June 2026 — v6.0.1
+**Last updated:** June 2026 — v6.1.0

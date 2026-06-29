@@ -215,4 +215,4 @@ See [CONTRIBUTING.md](../../CONTRIBUTING.md) for setup instructions.
 
 ---
 
-_Last updated: June 2026 — v6.0.1 (board keyboard model, app-wide keyboard scrolling — now correctly resolving inner page scroll columns, keyboard-adjustable + labelled numeric controls, capability-based DnD backend for touch; app-wide keyboard/ARIA audit: explicit `type="button"` on all action buttons, `aria-hidden` on decorative icons + `aria-label` on icon-only controls, visible focus on Navbar/modals/Checkbox, tablist/combobox/switch roles verified, collapsed mobile menu made `inert`)_
+_Last updated: June 2026 — v6.1.0 (board keyboard model, app-wide keyboard scrolling — now correctly resolving inner page scroll columns, keyboard-adjustable + labelled numeric controls, capability-based DnD backend for touch; app-wide keyboard/ARIA audit: explicit `type="button"` on all action buttons, `aria-hidden` on decorative icons + `aria-label` on icon-only controls, visible focus on Navbar/modals/Checkbox, tablist/combobox/switch roles verified, collapsed mobile menu made `inert`)_
