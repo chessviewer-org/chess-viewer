@@ -172,22 +172,26 @@ const BoardPreviewCanvas = memo(
       >
         {/* Board canvas — offset right by gutter, offset up from bottom by gutter */}
         <div
-          className="box-content border-[3px] transition-colors"
           style={{
             position: 'absolute',
             left: `${gutter}px`,
             top: 0,
             width: `${boardPx}px`,
-            height: `${boardPx}px`,
-            borderColor: showThinFrame
-              ? (darkSquare ?? DEFAULT_DARK)
-              : 'transparent'
+            height: `${boardPx}px`
           }}
         >
           <canvas
             ref={canvasRef}
             aria-hidden="true"
             className={`block transition-opacity duration-200 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+          />
+          <div
+            className="pointer-events-none absolute inset-0 border-[3px] transition-colors duration-200"
+            style={{
+              borderColor: showThinFrame
+                ? (darkSquare ?? DEFAULT_DARK)
+                : 'transparent'
+            }}
           />
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-surface/60">

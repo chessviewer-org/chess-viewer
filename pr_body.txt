@@ -1,0 +1,11 @@
+Closes #136
+
+## What & why
+
+Fixed a layout issue on mobile where `box-content border-[3px]` caused the Export Preview canvas wrapper to overflow the viewport horizontally, cutting off the right-side border. Moved the border rendering to a `pointer-events-none absolute inset-0` overlay that draws inside the bounds without altering the element's layout width. Also bumped the package version to `v6.0.1`.
+
+## Checklist
+
+- [x] `pnpm validate` passes locally
+- [x] No `any` / `@ts-ignore` / non-null `!` introduced
+- [ ] Screenshots or a screen recording added — only if this changes the UI
