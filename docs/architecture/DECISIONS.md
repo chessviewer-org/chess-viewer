@@ -167,15 +167,13 @@ Records of key architectural and technical decisions made during ChessVision's d
 
 ---
 
-## ADR-014: Semantic Versioning
+## ADR-014: No versioned releases
 
-**Date:** 2025-12-28 | **Status:** Accepted
+**Date:** 2025-12-28 | **Updated:** 2026-07-01 | **Status:** Superseded
 
-**Decision:** SemVer 2.0.0: MAJOR.MINOR.PATCH.
+**Original decision:** SemVer 2.0.0 with semantic-release automation.
 
-- MAJOR: breaking changes, removed localStorage keys, incompatible behavior
-- MINOR: new features, backwards-compatible
-- PATCH: bug fixes, backwards-compatible
+**Superseded by:** ChessVision ships as a web app with no npm publish or extension store submission. Automated tagging added noise without value — a patch commit every few hours would produce a new tag with no meaningful signal. The project now follows a rolling-release model: `master` is always production, changes are documented in `CHANGELOG.md` by month, and GitHub milestones group open work by theme rather than version.
 
 ---
 
@@ -189,5 +187,5 @@ Records of key architectural and technical decisions made during ChessVision's d
 
 ---
 
-_Last updated: May 2026 — v6.1.0_  
-_Maintainer: [@BilgeGates](https://github.com/BilgeGates)_
+_Last updated: July 2026_  
+_Maintainer: [Khatai Huseynzada](https://github.com/BilgeGates)_

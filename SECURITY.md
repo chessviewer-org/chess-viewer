@@ -2,12 +2,7 @@
 
 ## Supported Versions
 
-| Version | Status      | Security Updates |
-| ------- | ----------- | ---------------- |
-| v6.x    | Active      | Yes              |
-| < v6.0  | Unsupported | No               |
-
-ChessVision is a web application — only the version running at [chessvision.org](https://chessvision.org) is actively maintained. Self-hosted deployments should track the latest release.
+ChessVision is a web application — only the code running at [chessvision.org](https://chessvision.org) is actively maintained. There are no versioned releases; the `master` branch is always the current production deployment. Self-hosted deployments should track `master`.
 
 ---
 

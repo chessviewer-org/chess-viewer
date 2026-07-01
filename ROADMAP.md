@@ -4,7 +4,7 @@ What is built, what is next, and what is not planned. Milestone targets below ar
 
 ---
 
-## Implemented (v6.1.0)
+## Implemented
 
 ### Core Editor
 
@@ -97,15 +97,15 @@ What is built, what is next, and what is not planned. Milestone targets below ar
 ### Priority Items
 
 1. **Full keyboard control of the board** — arrow keys to move pieces, no mouse required
-2. **Annotations** — right-click square highlighting (red/yellow/green/blue) and arrow overlays ([#161](https://github.com/chessvision-org/chess-vision/issues/161), _v6.2.0_)
-3. **AI position import** — Open Folder picks a board image and a vision model extracts the FEN directly onto the board ([#163](https://github.com/chessvision-org/chess-vision/issues/163), _v6.3.0_)
+2. **Annotations** — right-click square highlighting (red/yellow/green/blue) and arrow overlays ([#161](https://github.com/chessvision-org/chess-vision/issues/161))
+3. **AI position import** — Open Folder picks a board image and a vision model extracts the FEN directly onto the board ([#163](https://github.com/chessvision-org/chess-vision/issues/163))
 4. **PGN import** — paste a PGN and step through positions
 5. **Direct game import** — paste a Lichess URL and extract positions
 
 ### Lower Priority
 
 - [ ] URL-based position sharing (`?fen=...`)
-- [ ] Custom & fairy piece sets — hybrid pieces, themed sets, user upload ([#162](https://github.com/chessvision-org/chess-vision/issues/162), _v6.2.0_)
+- [ ] Custom & fairy piece sets — hybrid pieces, themed sets, user upload ([#162](https://github.com/chessvision-org/chess-vision/issues/162))
 - [ ] i18n / multi-language support
 - [ ] Full WCAG 2.1 AA compliance — canvas still has no DOM alternative for screen readers
 - [ ] Lichess browser extension (Phase 3 on the roadmap)
@@ -130,19 +130,18 @@ What is built, what is next, and what is not planned. Milestone targets below ar
 
 ---
 
-## Release Milestones
+## Upcoming Work
 
 Active milestones tracked on the [project board](https://github.com/orgs/chessvision-org/projects/1):
 
-| Milestone | Focus                                                           | Target   |
-| --------- | --------------------------------------------------------------- | -------- |
-| v6.1.0    | Critical fixes                                                  | Jun 2026 |
-| v6.0.2    | Mobile responsive                                               | Jul 2026 |
-| v6.0.3    | Polish                                                          | Jul 2026 |
-| v6.1.0    | Swipe & interaction                                             | Sep 2026 |
-| v6.2.0    | Features — annotations, custom/fairy piece sets, click-to-place | Oct 2026 |
-| v6.3.0    | AI & Import — Open Folder FEN extraction                        | Nov 2026 |
+| Milestone                  | Focus                                                        | Target   |
+| -------------------------- | ------------------------------------------------------------ | -------- |
+| Mobile layout              | Mobile layout fixes across all pages                         | Jul 2026 |
+| Export bugs                | File size estimate, style leak, torn blob, coordinate shift  | Aug 2026 |
+| Runtime & memory           | Race conditions, blob URL leaks, promise rejections          | Aug 2026 |
+| Annotations & new features | Square highlighting, arrows, click-to-place, PGN/embed/LaTeX | Oct 2026 |
+| AI & Import                | Open Folder — FEN extraction from board images               | Nov 2026 |
 
 ---
 
-**Last updated:** June 2026 — v6.1.0
+**Last updated:** July 2026
