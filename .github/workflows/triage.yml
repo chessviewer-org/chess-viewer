@@ -22,7 +22,7 @@ jobs:
       github.event.issue.author_association != 'OWNER' &&
       github.event.issue.author_association != 'MEMBER'
     steps:
-      - uses: actions/github-script@v8
+      - uses: actions/github-script@v9
         with:
           script: |
             await github.rest.issues.addLabels({
