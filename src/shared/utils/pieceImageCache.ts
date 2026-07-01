@@ -95,19 +95,3 @@ export async function preloadPieceStyle(
   await Promise.all(promises);
   return result;
 }
-
-/**
- * Manually adds images to the cache for a style.
- *
- * @param style - The piece style name
- * @param pieces - Map of piece keys to image elements
- */
-export function setCachedPieces(
-  style: string,
-  pieces: Record<string, HTMLImageElement>
-): void {
-  Object.entries(pieces).forEach(([key, img]) => {
-    pieceCache.set(`${style}_${key}`, img);
-  });
-  enforceCacheCap();
-}
