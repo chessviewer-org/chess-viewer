@@ -28,7 +28,6 @@
     "prerender": "node scripts/prerender.mjs",
     "preview": "vite preview",
     "build:analyze": "vite build && npx vite-bundle-visualizer",
-    "changelog": "node scripts/generate-changelog.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
