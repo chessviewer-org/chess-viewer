@@ -1,5 +1,6 @@
 /**
- * Generates src/pages/about/changelogData.json from the real git history.
+ * Generates src/pages/AboutPage/sections/changelogData.json from the real git
+ * history.
  *
  * Includes only meaningful commits (feat / fix / perf / refactor), drops merges,
  * and groups them by year → month (both newest-first). The About page's
@@ -13,7 +14,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const OUT = resolve(ROOT, 'src/pages/about/changelogData.json');
+const OUT = resolve(ROOT, 'src/pages/AboutPage/sections/changelogData.json');
 
 const MONTHS = [
   'January',
