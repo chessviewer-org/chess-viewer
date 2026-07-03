@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 import {
   Code2,
@@ -71,6 +71,7 @@ const AboutPage = memo(function AboutPage() {
       : DEFAULT_TAB;
 
   const [activeTab, setActiveTab] = useState(initialTab);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // Redirect an unknown tab key to the default so old/bad links land on a valid
   // section instead of an empty area.
@@ -94,27 +95,29 @@ const AboutPage = memo(function AboutPage() {
     (tabId: string) => {
       setActiveTab(tabId);
       setSearchParams({ tab: tabId });
+      // Each section starts at its top, not wherever the previous one was left.
+      contentRef.current?.scrollTo({ top: 0 });
     },
     [setSearchParams]
   );
 
   return (
-    <div
-      data-page-scroll
-      className="min-h-full bg-bg md:h-full md:max-h-full md:overflow-y-auto"
-    >
+    <div className="min-h-full bg-bg md:h-full md:max-h-full">
       <Seo
         {...getRouteSeo('/about')}
         schema={[WEBSITE_SCHEMA, ORGANIZATION_SCHEMA]}
       />
       <h1 className="sr-only">About ChessVision</h1>
-      {/* Two-column shell, constrained to the navbar's width so the page reads
-          as one column under the bar: a sticky left category rail (always
-          visible, never collapses) and a scrolling content column on the right
-          (GitHub-settings pattern), mirroring the Settings page layout. */}
-      <div className="page-container flex flex-col gap-6 py-6 sm:py-10 md:flex-row md:gap-8 lg:gap-10">
-        <div className="shrink-0 mb-6 md:mb-0 md:border-r md:border-border md:pr-8 md:w-52 lg:w-56">
-          <div className="md:sticky md:top-10">
+      {/* Two-column split pane, constrained to the navbar's width so the page
+          reads as one column under the bar (GitHub-settings pattern, mirroring
+          the Settings page layout). At lg+ the shell locks the outer page, the
+          row fills the visible height and ONLY the right content column
+          scrolls — the rail and the separator stay put. Below lg the window
+          scrolls and the rail falls back to `sticky`, offset past the fixed
+          navbar. */}
+      <div className="page-container flex flex-col gap-6 py-6 sm:py-10 md:h-full md:min-h-0 md:flex-row md:gap-8 lg:gap-10">
+        <div className="shrink-0 mb-6 md:mb-0 md:w-52 lg:w-56">
+          <div className="md:sticky md:top-[calc(var(--navbar-height)+1.5rem)]">
             <PageTabs
               groups={groups}
               activeId={activeTab}
@@ -124,13 +127,23 @@ const AboutPage = memo(function AboutPage() {
           </div>
         </div>
 
+        {/* Separator as its own flex child (not a border on the rail): at lg+
+            it spans the row's padded content box, so it starts below the navbar
+            and stops above the bottom instead of running edge to edge. */}
+        <div
+          aria-hidden="true"
+          className="hidden md:block w-px shrink-0 self-stretch bg-border"
+        />
+
         {/* Scroll region, NOT a landmark: the app shell already owns the single
             `<main id="main-content">`. A second `<main>` is an ARIA landmark
             violation (1.3.1). `role="region"` + label keeps it navigable. */}
         <div
+          ref={contentRef}
+          data-page-scroll
           role="region"
           aria-label="About content"
-          className="min-w-0 flex-1"
+          className="min-w-0 flex-1 md:min-h-0 lg:overflow-y-auto"
         >
           {activeTab === 'about' && <AboutMainSection />}
           {activeTab === 'changelog' && <ChangelogSection />}
