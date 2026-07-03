@@ -458,9 +458,16 @@ html[data-reduced-motion='reduce'] ::view-transition-new(root) {
     font-variant-numeric: tabular-nums;
   }
 
+  /* No `contain: layout` and no `overflow-x` here. Layout containment makes
+     #root the containing block for every `position: fixed` descendant, so the
+     navbar (and any fixed overlay) scrolls away with the document below lg.
+     `overflow-x: hidden` silently computes overflow-y to `auto`, turning #root
+     into a scrollport that never scrolls — which disables every `sticky`
+     descendant (the About/Settings rail). Horizontal clipping is already owned
+     by `html` and `body` (overflow-x: hidden + max-width: 100vw) above. */
   #root {
-    @apply overflow-x-hidden w-full max-w-full;
-    contain: layout style;
+    @apply w-full max-w-full;
+    contain: style;
   }
 
   button {
