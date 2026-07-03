@@ -117,7 +117,7 @@ const SettingsPage = memo(function SettingsPage() {
           `sticky`, offset past the fixed navbar. */}
       <div className="page-container flex flex-col gap-6 py-6 sm:py-8 md:h-full md:min-h-0 md:flex-row md:gap-8 lg:gap-10">
         <div className="shrink-0 mb-6 md:mb-0 md:w-52 lg:w-56">
-          <div className="md:sticky md:top-[calc(var(--navbar-height)+2rem)]">
+          <div className="md:sticky md:top-[calc(var(--navbar-height)+1.5rem)]">
             <PageTabs
               groups={groups}
               activeId={activeTab}
@@ -143,7 +143,7 @@ const SettingsPage = memo(function SettingsPage() {
           data-page-scroll
           role="region"
           aria-label="Settings"
-          className="min-w-0 flex-1 md:min-h-0 md:overflow-y-auto lg:overflow-y-auto pb-8 sm:pb-12"
+          className="min-w-0 flex-1 md:min-h-0 lg:overflow-y-auto"
         >
           {activeTab === 'profile' && <AccountSection />}
           {activeTab === 'appearance' && <AppearanceSection />}
