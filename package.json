@@ -14,7 +14,7 @@
     "@supabase/supabase-js": "^2.107.0",
     "framer-motion": "^12.40.0",
     "jszip": "^3.10.1",
-    "lucide-react": "^1.17.0",
+    "lucide-react": "^1.23.0",
     "qrcode.react": "^4.2.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
