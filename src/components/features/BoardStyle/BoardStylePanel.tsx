@@ -4,7 +4,7 @@ import {
   BoardThemePicker,
   PieceGridShared
 } from '@/components/features/ColorPicker';
-import { usePieceSort } from '@hooks';
+import { usePieceSort } from '@/shared/hooks';
 import { PIECE_SORT_OPTIONS } from '@constants';
 
 import { CustomSelect } from '@shared/ui';
@@ -15,20 +15,13 @@ export interface BoardStylePanelProps {
   pieceStyle: string;
   onApplyTheme: (light: string, dark: string) => void;
   onSelectPiece: (id: string) => void;
-  /** Max rows for the theme picker grid. Defaults to 3. */
+
   themeRows?: number;
-  /** Rows for the piece grid. Defaults to 2. */
+
   pieceRows?: number;
 }
 
-/**
- * Shared board-style panel: theme colour picker + piece-set grid with sort
- * dropdown. Used by Export Studio (BoardStyleStep), the Advanced FEN wizard
- * (WizardVisualSetup), and anywhere else that needs the same controls.
- *
- * The caller is responsible for persisting / debouncing colour changes.
- */
-const BoardStylePanel = memo(function BoardStylePanel({
+export const BoardStylePanel = memo(function BoardStylePanel({
   lightSquare,
   darkSquare,
   pieceStyle,
@@ -76,4 +69,3 @@ const BoardStylePanel = memo(function BoardStylePanel({
 });
 
 BoardStylePanel.displayName = 'BoardStylePanel';
-export default BoardStylePanel;

@@ -1,16 +1,16 @@
 import { memo, useEffect, useState } from 'react';
 
-import { FileImage, Pause, Play, XCircle } from 'lucide-react';
+import { FileImage, Pause, Play, XCircle } from '@/assets/icons';
 
 import {
   type ExportConfig,
   type ExportInfo,
   type FileSizeEstimates,
   getExportInfo
-} from '@utils';
+} from '@/shared/utils';
 import { ModalShell } from '@shared/ui';
+import uiStyles from '@/shared/styles/ui.module.scss';
 
-/** Props for the `ExportProgress` modal overlay. */
 interface ExportProgressProps {
   isExporting: boolean;
   progress: number;
@@ -24,13 +24,7 @@ interface ExportProgressProps {
   isPaused?: boolean;
 }
 
-/**
- * Modal progress overlay for active export operations.
- *
- * Smoothly interpolates the progress bar and surfaces pause/resume/cancel controls.
- * Returns `null` when no export is in progress.
- */
-const ExportProgress = memo(function ExportProgress({
+export const ExportProgress = memo(function ExportProgress({
   isExporting,
   progress,
   currentFormat,
@@ -135,7 +129,7 @@ const ExportProgress = memo(function ExportProgress({
             <button
               type="button"
               onClick={isPaused ? onResume : onPause}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-surface-elevated hover:bg-surface-hover border border-border rounded-lg transition-colors text-text-primary font-semibold text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className={`${uiStyles['btnSecondary']} flex-1 flex items-center justify-center gap-2`}
               aria-label={isPaused ? 'Resume export' : 'Pause export'}
             >
               {isPaused ? (
@@ -183,4 +177,3 @@ const ExportProgress = memo(function ExportProgress({
 });
 
 ExportProgress.displayName = 'ExportProgress';
-export default ExportProgress;

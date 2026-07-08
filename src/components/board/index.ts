@@ -1,1 +1,1 @@
-export { default as MiniPreview } from './MiniPreview';
+export { MiniPreview } from './MiniPreview';

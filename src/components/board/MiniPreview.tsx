@@ -2,23 +2,19 @@ import { memo, useEffect, useRef, useState } from 'react';
 
 import { BOARD_THEMES } from '@constants';
 
-import { logger, parseFEN } from '@utils';
+import { logger, parseFEN } from '@/shared/utils';
 
-/** Props for the `MiniPreview` canvas thumbnail component. */
 interface MiniPreviewProps {
   fen: string;
   lightSquare?: string;
   darkSquare?: string;
-  /**
-   * Pre-loaded piece images, hoisted to the parent so a grid of previews shares
-   * a single `usePieceImages` load instead of one hook instance per card.
-   */
+
   pieceImages: Record<string, HTMLImageElement>;
-  /** Whether the parent's piece images are still loading. */
+
   piecesLoading?: boolean;
   size?: number;
 }
-const MiniPreview = memo(
+export const MiniPreview = memo(
   function MiniPreview({
     fen,
     lightSquare,
@@ -29,10 +25,6 @@ const MiniPreview = memo(
   }: MiniPreviewProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [hasError, setHasError] = useState(false);
-    // Only show the loading state (hidden board + spinner) on the FIRST load,
-    // when there are no piece images to draw yet. When the user switches piece
-    // sets, the previously rendered board stays on screen until the new images
-    // are ready and the canvas redraws — no flicker / blank gap.
     const hasImages = Object.keys(pieceImages).length > 0;
     const isLoading = piecesLoading && !hasImages;
 
@@ -60,10 +52,6 @@ const MiniPreview = memo(
         style.getPropertyValue('--color-dark-square').trim() ||
         (BOARD_THEMES['classic']?.dark ?? '#b58863');
 
-      // Render at the REAL displayed device-pixel size, not a fixed 160×2.
-      // The card preview stretches the canvas via `w-full h-full`; sizing the
-      // backing store to (CSS px × devicePixelRatio) of the actual box keeps
-      // the thumbnail crisp instead of upscaling a small canvas (the blur).
       const cssSize = Math.max(
         size,
         Math.round(canvas.clientWidth || canvas.parentElement?.clientWidth || 0)
@@ -75,10 +63,6 @@ const MiniPreview = memo(
       canvas.style.width = '100%';
       canvas.style.height = '100%';
       ctx.scale(dpr, dpr);
-      // Piece SVGs are rasterised at a high intrinsic size (256px, see
-      // pieceImageCache) and drawn DOWN to cell size here, so high-quality
-      // smoothing gives the crispest result; disabling it aliased the
-      // downscale into jagged, low-quality pieces.
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
       try {
@@ -86,11 +70,6 @@ const MiniPreview = memo(
         if (!board || !Array.isArray(board) || board.length !== 8) {
           throw new Error('Invalid board structure');
         }
-        // Snap every square to integer CSS-pixel edges so adjacent fills share
-        // an exact boundary. Using `col * squareSize` with a fractional
-        // squareSize leaves sub-pixel gaps that render as thin hairlines
-        // ("cuts") inside the board — computing each edge from the rounded next
-        // edge eliminates them.
         const edge = (i: number) => Math.round((i * cssSize) / 8);
         for (let row = 0; row < 8; row++) {
           for (let col = 0; col < 8; col++) {
@@ -115,9 +94,6 @@ const MiniPreview = memo(
                 const x = edge(col);
                 const y = edge(row);
                 const cellW = edge(col + 1) - x;
-                // Snap the piece box to whole DEVICE pixels. With ctx.scale(dpr),
-                // a fractional CSS offset lands the SVG between device pixels and
-                // the rasteriser blurs it. Rounding to 1/dpr keeps edges crisp.
                 const snap = (val: number) => Math.round(val * dpr) / dpr;
                 const pieceSize = snap(cellW * 0.9);
                 const offset = snap((cellW - pieceSize) / 2);
@@ -181,4 +157,3 @@ const MiniPreview = memo(
   }
 );
 MiniPreview.displayName = 'MiniPreview';
-export default MiniPreview;

@@ -1,14 +1,12 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 
-import { usePagedCarousel } from '@hooks';
+import { usePagination } from '@/shared/hooks';
 import type { PieceSet } from '@app-types';
 
 import { Pagination } from '@shared/ui';
 
-/** Default rows shown per page; columns come from the responsive breakpoint. */
 const DEFAULT_PIECE_ROWS = 2;
 
-/** Per-page column count for each Tailwind breakpoint (matches the grid below). */
 function colsForViewport(): number {
   if (typeof window === 'undefined') return 4;
   if (window.matchMedia('(min-width: 1024px)').matches) return 8; // lg
@@ -16,29 +14,16 @@ function colsForViewport(): number {
   return 4; // mobile
 }
 
-/** Props for the shared, paged piece-set picker grid. */
 export interface PieceGridSharedProps {
   sets: PieceSet[];
-  /** Changing this (e.g. the sort mode) snaps the carousel back to page 1. */
+
   resetKey: string;
   pieceStyle: string;
   onSelect: (id: string) => void;
-  /** Rows shown per page. Defaults to 2. */
+
   rows?: number;
 }
 
-/**
- * Visual piece-set picker: a paged, responsive grid of knight (wN) previews,
- * one per set, rendered from Lichess's piece CDN (allow-listed in the CSP
- * `img-src`). The selected set carries an accent ring; the parent decides what
- * the choice drives (Settings → `useBoardPieceSet`, ExportStudio → both the
- * board piece-set store AND `homeState.setPieceStyle`).
- *
- * Paging is circular (`usePagedCarousel`): on touch screens swipe left/right to
- * page (a swipe past either edge wraps around); on desktop the ◂ ▸ buttons and
- * Left/Right arrow keys do the same. Tiles start flush at the container edge —
- * no inset gutter — and fill the width responsively (4 / 6 / 8 columns).
- */
 function PieceGridSharedComponent({
   sets,
   resetKey,
@@ -56,19 +41,16 @@ function PieceGridSharedComponent({
   }, []);
 
   const perPage = cols * rows;
-  const { page, pageCount, goTo, next, prev, swipeHandlers } = usePagedCarousel(
+  const { page, pageCount, goTo, next, prev, swipeHandlers } = usePagination(
     sets.length,
     perPage
   );
 
-  // Snap back to the first page when the ordering changes.
   useEffect(() => {
     goTo(0);
   }, [resetKey, goTo]);
 
   const pageSets = sets.slice(page * perPage, (page + 1) * perPage);
-  // Pad last page with invisible placeholders so the grid always occupies the
-  // same number of rows and the container height never shrinks on page change.
   const placeholderCount = perPage - pageSets.length;
 
   const onKeyDown = useCallback(
@@ -102,8 +84,6 @@ function PieceGridSharedComponent({
               key={set.id}
               type="button"
               onClick={() => onSelect(set.id)}
-              // Don't take focus on pointer click, so no focus ring lingers after
-              // selecting; keyboard focus (Tab) still shows the ring for a11y.
               onMouseDown={(e) => e.preventDefault()}
               aria-pressed={pieceStyle === set.id}
               aria-label={set.name}

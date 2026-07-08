@@ -1,15 +1,13 @@
+import { useLocation } from 'wouter';
 import { memo, Ref, useCallback, useImperativeHandle } from 'react';
 
-import { History, ListPlus } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { History, ListPlus } from '@/assets/icons';
 
-import {
-  FENInputField,
-  type NotificationType
-} from '@/components/features/Fen';
-import { useFENHistory, usePrefetchRoute } from '@hooks';
+import { FENInputField, type NotificationType } from './FENInputField';
+import { useFENHistory, usePrefetchRoute } from '@/shared/hooks';
 
-import { MAX_FEN_LENGTH } from '@utils';
+import { MAX_FEN_LENGTH } from '@/shared/utils';
+import styles from '../styles/fen-toolbar.module.scss';
 
 interface FenToolbarProps {
   fen: string;
@@ -25,7 +23,7 @@ interface FenToolbarProps {
   ) => void;
 }
 
-const FenToolbar = memo(function FenToolbar({
+export const FenToolbar = memo(function FenToolbar({
   fen,
   setFen,
   addToFavoritesRef,
@@ -34,7 +32,7 @@ const FenToolbar = memo(function FenToolbar({
   saveManualFen: externalSaveManualFen,
   addCurrentToFavorites: externalAddCurrentToFavorites
 }: FenToolbarProps) {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const prefetch = usePrefetchRoute();
 
   const localHistory = useFENHistory(fen, onFavoriteStatusChange);
@@ -93,34 +91,32 @@ const FenToolbar = memo(function FenToolbar({
   );
 
   return (
-    <div className="bg-surface border border-border/40 rounded-xl px-fluid-sm py-2.5 sm:py-3">
-      <div className="space-y-2.5">
-        <div className="flex items-center justify-between gap-2 min-w-0">
-          <label className="text-fluid-sm font-semibold text-text-primary shrink-0">
-            FEN Notation
-          </label>
-          <div className="flex items-center gap-1.5 shrink-0">
+    <div className={styles['toolbarContainer']}>
+      <div className={styles['toolbarInner']}>
+        <div className={styles['toolbarHeader']}>
+          <label className={styles['toolbarLabel']}>FEN Notation</label>
+          <div className={styles['toolbarActions']}>
             <button
               type="button"
               onClick={() => navigate('/advanced-fen')}
               {...prefetch('/advanced-fen')}
-              className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-3 py-1 min-h-8 coarse:min-h-11 rounded-lg text-accent text-fluid-xs font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className={styles['actionBtn']}
               aria-label="Advanced FEN Input"
               title="Advanced FEN Input"
             >
-              <ListPlus className="w-4 h-4 shrink-0" aria-hidden="true" />
-              <span className="hidden xs:inline">Advanced</span>
+              <ListPlus className={styles['actionIcon']} aria-hidden="true" />
+              <span className={styles['actionLabel']}>Advanced</span>
             </button>
             <button
               type="button"
               onClick={() => navigate('/fen-history')}
               {...prefetch('/fen-history')}
-              className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-3 py-1 min-h-8 coarse:min-h-11 rounded-lg text-accent text-fluid-xs font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className={styles['actionBtn']}
               aria-label="FEN History"
               title="FEN History"
             >
-              <History className="w-4 h-4 shrink-0" aria-hidden="true" />
-              <span className="hidden xs:inline">History</span>
+              <History className={styles['actionIcon']} aria-hidden="true" />
+              <span className={styles['actionLabel']}>History</span>
             </button>
           </div>
         </div>
@@ -138,4 +134,3 @@ const FenToolbar = memo(function FenToolbar({
 });
 
 FenToolbar.displayName = 'FenToolbar';
-export default FenToolbar;

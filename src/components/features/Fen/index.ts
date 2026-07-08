@@ -1,2 +1,5 @@
-export type { NotificationType } from './FENInputField';
-export { default as FENInputField } from './FENInputField';
+export {
+  type NotificationType,
+  FENInputField
+} from './components/FENInputField';
+export { FenToolbar } from './components/FenToolbar';

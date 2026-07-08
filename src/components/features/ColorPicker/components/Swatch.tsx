@@ -1,9 +1,5 @@
-import { Check } from 'lucide-react';
+import { Check } from '@/assets/icons';
 
-/**
- * A circular swatch showing a light/dark color pair with an optional checkmark
- * overlay when selected.
- */
 export function Swatch({
   light,
   dark,

@@ -2,26 +2,19 @@ import { memo } from 'react';
 
 import { Checkbox } from '@shared/ui';
 
-/** Props for the `DisplayOptions` checkbox group. */
 interface DisplayOptionsProps {
   showCoords: boolean;
   setShowCoords: (show: boolean) => void;
   showThinFrame: boolean;
   setShowThinFrame: (show: boolean) => void;
-  /** Hide the "Display Options" section label (compact contexts). */
+
   hideLabel?: boolean;
-  /** Optional 3rd parameter to apply settings to all items. */
+
   applyToAll?: boolean;
   setApplyToAll?: (apply: boolean) => void;
 }
 
-/**
- * Coordinate and board-frame display toggles.
- *
- * The board frame is only offered once coordinates are enabled, since the frame
- * exists to host the coordinate labels.
- */
-function DisplayOptions({
+function DisplayOptionsComponent({
   showCoords,
   setShowCoords,
   showThinFrame,
@@ -67,4 +60,5 @@ function DisplayOptions({
   );
 }
 
-export default memo(DisplayOptions);
+export const DisplayOptions = memo(DisplayOptionsComponent);
+DisplayOptions.displayName = 'DisplayOptions';

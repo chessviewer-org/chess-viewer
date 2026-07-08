@@ -1,13 +1,7 @@
 import { useCallback, useRef } from 'react';
 
-import { hsvToRgb, rgbToHex } from '@utils';
+import { hsvToRgb, rgbToHex } from '@/shared/utils';
 
-/**
- * Classic 2D colour field: horizontal = saturation, vertical = value. The
- * background is the pure hue with white (left) and black (bottom) gradients
- * layered over it. A draggable thumb marks the current s/v. Pointer events make
- * it work for mouse and touch.
- */
 export function SaturationField({
   hue,
   s,

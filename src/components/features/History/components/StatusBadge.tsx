@@ -1,16 +1,15 @@
 import { memo } from 'react';
 
-import { CircleCheck, Clock, Hourglass } from 'lucide-react';
+import { CircleCheck, Clock, Hourglass } from '@/assets/icons';
 
-import { calculateStatus } from '@utils';
+import { calculateStatus } from '@/shared/utils';
 
-/** Props for the `StatusBadge` freshness indicator. */
 interface StatusBadgeProps {
   lastActiveAt: number;
   className?: string;
 }
 
-const StatusBadge = memo(function StatusBadge({
+export const StatusBadge = memo(function StatusBadge({
   lastActiveAt,
   className = ''
 }: StatusBadgeProps) {
@@ -51,4 +50,3 @@ const StatusBadge = memo(function StatusBadge({
   );
 });
 StatusBadge.displayName = 'StatusBadge';
-export default StatusBadge;

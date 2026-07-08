@@ -1,4 +1,4 @@
-export { default as ConfirmationModal } from './ConfirmationModal';
-export type { HistoryFilterState } from './HistoryFilters';
-export { default as HistoryFilters } from './HistoryFilters';
-export { default as StatusBadge } from './StatusBadge';
+export { ConfirmationModal } from './components/ConfirmationModal';
+export type { HistoryFilterState } from './components/HistoryFilters';
+export { HistoryFilters } from './components/HistoryFilters';
+export { StatusBadge } from './components/StatusBadge';

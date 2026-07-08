@@ -14,15 +14,16 @@ import {
   SlidersHorizontal,
   Trash2,
   X
-} from 'lucide-react';
+} from '@/assets/icons';
 
-import { useNotifications, useThemePresets } from '@hooks';
+import { useNotifications, useThemePresets } from '@/shared/hooks';
 import { BOARD_THEMES } from '@constants';
 
 import { Pagination } from '@shared/ui';
 
-import { ColorPickerPanel } from './parts/ColorPickerPanel';
-import { Swatch } from './parts/Swatch';
+import { ColorPickerPanel } from './ColorPickerPanel';
+import { Swatch } from './Swatch';
+import styles from '../styles/color-picker.module.scss';
 
 interface BoardThemePickerProps {
   lightSquare: string;
@@ -57,7 +58,7 @@ function rowsFromWidth(px: number): number {
 
 type ActiveTab = 'main' | 'custom';
 
-const BoardThemePicker = memo(function BoardThemePicker({
+export const BoardThemePicker = memo(function BoardThemePicker({
   lightSquare,
   darkSquare,
   onApply,
@@ -148,7 +149,10 @@ const BoardThemePicker = memo(function BoardThemePicker({
             t.dark.toLowerCase() === normalDark
         );
         if (builtInMatch) {
-          warning(`Bu rəng cütü artıq mövcuddur: "${builtInMatch.name}"`, 5000);
+          warning(
+            `This color pair already exists: "${builtInMatch.name}"`,
+            5000
+          );
           return;
         }
         const customMatch = customPresets.find(
@@ -157,7 +161,10 @@ const BoardThemePicker = memo(function BoardThemePicker({
             p.dark.toLowerCase() === normalDark
         );
         if (customMatch) {
-          warning(`Bu rəng cütü artıq mövcuddur: "${customMatch.name}"`, 5000);
+          warning(
+            `This color pair already exists: "${customMatch.name}"`,
+            5000
+          );
           return;
         }
       }
@@ -193,10 +200,6 @@ const BoardThemePicker = memo(function BoardThemePicker({
     });
   }, [mainPage, lightSquare, darkSquare]);
 
-  const currentPage = mainPage;
-  const setCurrentPage = setMainPage;
-  const totalPages = mainPages;
-
   const onTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartXRef.current = e.touches[0]?.clientX ?? null;
   }, []);
@@ -209,20 +212,20 @@ const BoardThemePicker = memo(function BoardThemePicker({
       touchStartXRef.current = null;
       const delta = endX - startX;
       if (Math.abs(delta) < 40) return;
-      if (delta < 0) setMainPage((p) => (p + 1) % totalPages);
-      else setMainPage((p) => (p - 1 + totalPages) % totalPages);
+      if (delta < 0) setMainPage((p) => (p + 1) % mainPages);
+      else setMainPage((p) => (p - 1 + mainPages) % mainPages);
     },
-    [totalPages]
+    [mainPages]
   );
 
   const gridStyle = { gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` };
 
   return (
-    <div ref={containerRef} className="flex h-full flex-col gap-4 select-none">
+    <div ref={containerRef} className={styles['pickerContainer']}>
       <div
         role="tablist"
         aria-label="Theme source"
-        className={`flex items-center rounded-lg border border-border/60 bg-surface p-0.5 ${saveTarget !== null ? 'hidden' : ''}`}
+        className={`${styles['tabList']} ${saveTarget !== null ? 'hidden' : ''}`}
       >
         {(
           [
@@ -248,13 +251,11 @@ const BoardThemePicker = memo(function BoardThemePicker({
                 setSaveTarget(null);
                 if (id === 'main') setMainPage(0);
               }}
-              className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                tab === id
-                  ? 'bg-accent text-bg shadow-sm'
-                  : 'text-text-secondary hover:bg-surface-elevated hover:text-text-primary'
+              className={`${styles['tabBtn']} ${
+                tab === id ? styles['tabBtnActive'] : styles['tabBtnInactive']
               }`}
             >
-              <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+              <Icon className={styles['tabIcon']} aria-hidden="true" />
               {label}
             </button>
           </Fragment>
@@ -263,7 +264,7 @@ const BoardThemePicker = memo(function BoardThemePicker({
 
       {tab === 'main' ? (
         <ul
-          className="grid flex-1 content-start gap-x-3 gap-y-4 touch-pan-y"
+          className={styles['gridContainer']}
           style={gridStyle}
           aria-label="Board themes"
           onTouchStart={onTouchStart}
@@ -272,10 +273,7 @@ const BoardThemePicker = memo(function BoardThemePicker({
           {mainSlice.map((tile) => {
             const customId = tile.custom;
             return (
-              <li
-                key={tile.key}
-                className="group relative flex flex-col items-center gap-1.5"
-              >
+              <li key={tile.key} className={`group ${styles['gridItem']}`}>
                 <Swatch
                   light={tile.light}
                   dark={tile.dark}
@@ -288,7 +286,7 @@ const BoardThemePicker = memo(function BoardThemePicker({
                 />
 
                 {customId !== undefined && (
-                  <div className="absolute -top-1.5 -right-1.5 z-10 hidden gap-0.5 group-hover:flex group-focus-within:flex">
+                  <div className={styles['customActions']}>
                     <button
                       type="button"
                       onClick={() => {
@@ -300,50 +298,46 @@ const BoardThemePicker = memo(function BoardThemePicker({
                           dark: tile.dark
                         });
                       }}
-                      className="rounded-md border border-border/60 bg-surface p-1 text-text-muted shadow-sm transition-colors hover:text-accent"
+                      className={`${styles['actionBtn']} ${styles['actionBtnEdit']}`}
                       aria-label={`Edit ${tile.name}`}
                     >
-                      <Pencil className="h-3 w-3" />
+                      <Pencil className={styles['actionIcon']} />
                     </button>
                     <button
                       type="button"
                       onClick={() => deletePreset(customId)}
-                      className="rounded-md border border-border/60 bg-surface p-1 text-text-muted shadow-sm transition-colors hover:text-error"
+                      className={`${styles['actionBtn']} ${styles['actionBtnDelete']}`}
                       aria-label={`Delete ${tile.name}`}
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Trash2 className={styles['actionIcon']} />
                     </button>
                   </div>
                 )}
 
-                <span className="w-full truncate text-center text-[11px] font-semibold text-text-secondary">
-                  {tile.name}
-                </span>
+                <span className={styles['itemLabel']}>{tile.name}</span>
               </li>
             );
           })}
 
           {showMainAddBtn && (
-            <li className="flex flex-col items-center gap-1.5">
+            <li className={styles['addBtnWrapper']}>
               <button
                 type="button"
                 onClick={handleStartAdd}
                 aria-label="Create a custom theme"
-                className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-dashed border-border/60 text-text-muted transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                className={styles['addBtn']}
               >
-                <Plus className="h-5 w-5" />
+                <Plus className={styles['addBtnIcon']} />
               </button>
-              <span className="text-[11px] font-semibold text-text-muted">
-                Add
-              </span>
+              <span className={styles['addBtnLabel']}>Add</span>
             </li>
           )}
         </ul>
       ) : (
         <div className="flex flex-1 flex-col gap-3">
           {saveTarget !== null && (
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-text-secondary">
+            <div className={styles['saveTargetHeader']}>
+              <span className={styles['saveTargetTitle']}>
                 {saveTarget.id !== undefined ? 'Edit theme' : 'New theme'}
               </span>
               <button
@@ -353,10 +347,10 @@ const BoardThemePicker = memo(function BoardThemePicker({
                   setMainPage(returnToPageRef.current);
                   setTab('main');
                 }}
-                className="rounded-md p-1.5 text-error transition-colors hover:bg-error/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error"
+                className={styles['closeBtn']}
                 aria-label="Close and return to presets"
               >
-                <X className="h-4 w-4" />
+                <X className={styles['closeIcon']} />
               </button>
             </div>
           )}
@@ -376,12 +370,12 @@ const BoardThemePicker = memo(function BoardThemePicker({
         </div>
       )}
 
-      {tab === 'main' && totalPages > 1 && (
-        <div className="mt-auto pt-1">
+      {tab === 'main' && mainPages > 1 && (
+        <div className={styles['paginationWrapper']}>
           <Pagination
-            page={currentPage}
-            pageCount={totalPages}
-            onChange={setCurrentPage}
+            page={mainPage}
+            pageCount={mainPages}
+            onChange={setMainPage}
             label="Board theme pages"
           />
         </div>
@@ -391,4 +385,3 @@ const BoardThemePicker = memo(function BoardThemePicker({
 });
 
 BoardThemePicker.displayName = 'BoardThemePicker';
-export default BoardThemePicker;

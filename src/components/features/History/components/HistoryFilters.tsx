@@ -9,11 +9,11 @@ import {
   Hourglass,
   MousePointer,
   Search
-} from 'lucide-react';
+} from '@/assets/icons';
 
 import { CustomSelect, DatePicker } from '@shared/ui';
+import uiStyles from '@/shared/styles/ui.module.scss';
 
-/** Active filter criteria for the FEN history list. */
 export interface HistoryFilterState {
   fenSearch?: string | undefined;
   status?: string | undefined;
@@ -23,14 +23,13 @@ export interface HistoryFilterState {
   dateTo?: number | undefined;
 }
 
-/** Props for the `HistoryFilters` filter bar. */
 interface HistoryFiltersProps {
   filters: HistoryFilterState;
   onFiltersChange: (filters: HistoryFilterState) => void;
   showStatus?: boolean;
 }
 
-const HistoryFilters = memo(function HistoryFilters({
+export const HistoryFilters = memo(function HistoryFilters({
   filters,
   onFiltersChange,
   showStatus = true
@@ -113,7 +112,6 @@ const HistoryFilters = memo(function HistoryFilters({
 
   return (
     <div className="flex flex-wrap items-center gap-2 mb-4">
-      {/* Search */}
       <div className="relative flex-1 min-w-48">
         <Search
           className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted pointer-events-none"
@@ -124,11 +122,10 @@ const HistoryFilters = memo(function HistoryFilters({
           placeholder="Search FEN..."
           value={filters.fenSearch ?? ''}
           onChange={(e) => handleFenSearch(e.target.value)}
-          className="w-full pl-9 pr-3 py-2 bg-surface border border-border rounded-lg text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors"
+          className={uiStyles['inputSearch']}
         />
       </div>
 
-      {/* Status — only when showing active tab */}
       {showStatus && (
         <CustomSelect
           value={filters.status ?? ''}
@@ -139,7 +136,6 @@ const HistoryFilters = memo(function HistoryFilters({
         />
       )}
 
-      {/* Source */}
       <CustomSelect
         value={filters.source ?? ''}
         onChange={handleSourceChange}
@@ -148,7 +144,6 @@ const HistoryFilters = memo(function HistoryFilters({
         label=""
       />
 
-      {/* Date From — dropdown anchored to left edge of trigger */}
       <DatePicker
         value={filters.dateFrom}
         onChange={(value) => onFiltersChange({ ...filters, dateFrom: value })}
@@ -157,7 +152,6 @@ const HistoryFilters = memo(function HistoryFilters({
         align="right"
       />
 
-      {/* Date To — dropdown anchored to right edge of trigger, opens leftward */}
       <DatePicker
         value={filters.dateTo}
         onChange={(value) => onFiltersChange({ ...filters, dateTo: value })}
@@ -170,4 +164,3 @@ const HistoryFilters = memo(function HistoryFilters({
 });
 
 HistoryFilters.displayName = 'HistoryFilters';
-export default HistoryFilters;

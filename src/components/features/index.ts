@@ -1,5 +1,6 @@
-export { BoardStylePanel } from './BoardStyle';
-export { DisplayOptions } from './DisplayOptions';
-export * from './Export';
+export { BoardStylePanel, DisplayOptions } from './BoardStyle';
+export type { BoardStylePanelProps } from './BoardStyle';
+export { ExportProgress } from './Export';
 export * from './Fen';
-export { FenToolbar } from './FenToolbar';
+export * from './ColorPicker';
+export * from './History';

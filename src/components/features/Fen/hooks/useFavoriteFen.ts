@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { isRecord, safeJSONParse, validateFEN } from '@utils';
-import type { NotificationType } from './FENInputField';
+import { isRecord, safeJSONParse, validateFEN } from '@/shared/utils';
+import type { NotificationType } from '../components/FENInputField';
 
-/** Options for `useFavoriteFen`. */
 interface UseFavoriteFenOptions {
   fen: string;
   onNotification?:
@@ -11,15 +10,6 @@ interface UseFavoriteFenOptions {
     | undefined;
 }
 
-/**
- * Manages the favorited state of the active FEN and provides a toggle.
- *
- * Persists favorites to `localStorage` under the `favoriteFens` key and
- * validates the FEN before toggling.
- *
- * @param options - Current FEN and optional notification callback.
- * @returns `isFavorite` flag and `toggleFavorite` handler.
- */
 export function useFavoriteFen({ fen, onNotification }: UseFavoriteFenOptions) {
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
 
