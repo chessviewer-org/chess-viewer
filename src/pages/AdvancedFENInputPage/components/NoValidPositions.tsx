@@ -1,10 +1,9 @@
-import { Eye } from 'lucide-react';
+import { Eye } from '@/assets/icons';
 
 interface NoValidPositionsProps {
   onGoToPositions: () => void;
 }
 
-/** Empty-state shown when no valid FENs exist in the preview/export tabs. */
 export default function NoValidPositions({
   onGoToPositions
 }: NoValidPositionsProps) {

@@ -1,8 +1,7 @@
 import React, { memo } from 'react';
 
-import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Pause, Play } from '@/assets/icons';
 
-/** Props for the batch position playback control bar. */
 interface PlaybackControlsProps {
   isPlaying: boolean;
   interval: number;
@@ -17,9 +16,6 @@ interface PlaybackControlsProps {
   onNext: () => void;
 }
 
-/**
- * Floating capsule bar for play/pause, interval selection, and prev/next navigation through batch positions.
- */
 const PlaybackControls = memo(function PlaybackControls({
   isPlaying,
   interval,
@@ -35,7 +31,6 @@ const PlaybackControls = memo(function PlaybackControls({
 }: PlaybackControlsProps): React.JSX.Element {
   return (
     <div className="w-full flex items-center justify-between bg-surface-elevated/80 backdrop-blur-md border border-border/40 rounded-full px-2 py-1.5 text-center select-none shadow-sm">
-      {/* Left: Position Indicator */}
       <div className="flex items-center justify-center min-w-16 pl-3">
         <span className="text-xs font-semibold text-text-secondary tabular-nums">
           {currentIndex + 1} <span className="opacity-50 mx-0.5">/</span>{' '}
@@ -43,7 +38,6 @@ const PlaybackControls = memo(function PlaybackControls({
         </span>
       </div>
 
-      {/* Center: Playback Controls */}
       <div className="flex items-center gap-1.5">
         <button
           type="button"
@@ -79,7 +73,6 @@ const PlaybackControls = memo(function PlaybackControls({
         </button>
       </div>
 
-      {/* Right: Interval Settings */}
       <div className="relative flex items-center justify-center min-w-16 pr-2">
         <button
           type="button"

@@ -1,13 +1,13 @@
 import { memo } from 'react';
 
-import { Archive, Check, Download, Lightbulb } from 'lucide-react';
+import { Archive, Check, Download, Lightbulb } from '@/assets/icons';
 
-import type { useAdvancedFEN } from '../hooks/useAdvancedFEN';
 import type {
   BoardSizePreset,
   ExportFormat,
-  ExportResolution
-} from '../hooks/useAdvancedFEN/useAdvancedFEN.types';
+  ExportResolution,
+  useAdvancedFEN
+} from '../hooks/useAdvancedFEN';
 
 type AdvancedFENReturn = ReturnType<typeof useAdvancedFEN>;
 
@@ -20,18 +20,11 @@ const FORMATS: { value: ExportFormat; label: string }[] = [
 const RESOLUTIONS: ExportResolution[] = [1, 2, 3, 4];
 const BOARD_PRESETS: Exclude<BoardSizePreset, 'custom'>[] = [4, 6, 8];
 
-/** Props for the export settings wizard panel (format, resolution, board size, naming, batch export). */
 interface WizardExportSettingsProps {
   state: AdvancedFENReturn['state'];
   handlers: AdvancedFENReturn['handlers'];
 }
 
-/**
- * Wizard step 2 — mirrors the single-position ExportStudio (ExportPage) export
- * settings: multi-select Format → Quality → Board Size (cm) → File Name. Below
- * the shared sections it keeps the batch-only extras (Chain Sync, Smart Naming,
- * parsed-name preview) and ends with the Download Active / Download All actions.
- */
 const WizardExportSettings = memo(function WizardExportSettings({
   state,
   handlers
@@ -51,7 +44,6 @@ const WizardExportSettings = memo(function WizardExportSettings({
 
   return (
     <div className="flex flex-col h-full animate-fadeIn gap-6">
-      {/* ── Format (multi-select, ExportPage parity) ──────────────────────── */}
       <div className="space-y-2.5">
         <h3 className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
           Format
@@ -86,7 +78,6 @@ const WizardExportSettings = memo(function WizardExportSettings({
         </div>
       </div>
 
-      {/* ── Quality ───────────────────────────────────────────────────────── */}
       <div className="space-y-2.5">
         <h3 className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
           Quality
@@ -105,7 +96,6 @@ const WizardExportSettings = memo(function WizardExportSettings({
         </div>
       </div>
 
-      {/* ── Board Size (cm presets + custom) ──────────────────────────────── */}
       <div className="space-y-2.5">
         <h3 className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
           Board Size
@@ -146,7 +136,6 @@ const WizardExportSettings = memo(function WizardExportSettings({
         )}
       </div>
 
-      {/* ── File Name (per-format, ExportPage parity) ─────────────────────── */}
       <div className="space-y-2.5">
         <h3 className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
           File Name
@@ -168,7 +157,7 @@ const WizardExportSettings = memo(function WizardExportSettings({
         <div className="mt-4 rounded-xl border border-border/40 bg-surface-elevated overflow-hidden shadow-sm relative">
           <div className="absolute top-0 left-0 w-1 h-full bg-accent"></div>
           <div className="p-4 flex gap-3.5">
-            <div className="flex-shrink-0 mt-0.5">
+            <div className="shrink-0 mt-0.5">
               <div className="bg-accent/10 p-1.5 rounded-lg">
                 <Lightbulb className="w-4 h-4 text-accent" />
               </div>
@@ -215,7 +204,6 @@ const WizardExportSettings = memo(function WizardExportSettings({
         </div>
       </div>
 
-      {/* ── Batch extras: Apply to all positions ──────── */}
       <div className="pt-2">
         <label className="flex items-center gap-2 cursor-pointer group w-fit">
           <div className="relative flex items-center justify-center">
@@ -237,7 +225,6 @@ const WizardExportSettings = memo(function WizardExportSettings({
         </label>
       </div>
 
-      {/* ── Download actions ──────────────────────────────────────────────── */}
       <div className="space-y-3 pt-4 border-t border-border/40">
         <button
           type="button"

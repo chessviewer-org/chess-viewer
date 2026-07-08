@@ -1,15 +1,15 @@
 import { useCallback } from 'react';
 
-import { Code2, Copy, Heart, Megaphone } from 'lucide-react';
+import { Code2, Copy, Heart, Megaphone } from '@/assets/icons';
 
-import { useNotifications } from '@hooks';
+import { useNotifications } from '@/shared/hooks';
 
 import { NotificationContainer } from '@shared/ui';
 import {
   CRYPTO_WALLET_ADDRESS,
   REPO_URL,
   SPONSORS_URL
-} from './aboutConstants';
+} from '../utils/aboutConstants';
 import {
   Callout,
   ExternalLinkButton,
@@ -18,13 +18,6 @@ import {
   SectionHeading
 } from './parts';
 
-/**
- * Donate section: how to support the project financially, mirroring the
- * Sponsorship section of the main repo README. Kept honest — sponsorship is a
- * voluntary donation, not payment for work, and nothing is locked behind it.
- * The only channels shown are the two that actually exist: GitHub Sponsors and
- * a single EVM wallet address (USDT / USDC / ETH on the same address).
- */
 export default function DonateSection() {
   const { notifications, success, error, removeNotification } =
     useNotifications();
@@ -41,7 +34,7 @@ export default function DonateSection() {
       <div className="space-y-3">
         <SectionHeading icon={Heart} title="Donate" />
         <Lead>
-          ChessVision is free and will stay free — no ads, no premium tier, no
+          ChessViewer is free and will stay free — no ads, no premium tier, no
           paywalled features. If it has saved you time and you want to chip in,
           that is genuinely appreciated. But it is never expected, and it
           changes nothing about what you can do with the tool.
@@ -50,7 +43,7 @@ export default function DonateSection() {
 
       <InfoCard title="Why donate?">
         <p>
-          Running ChessVision costs money — hosting, the database, the domain,
+          Running ChessViewer costs money — hosting, the database, the domain,
           dependency and security updates over time. Right now that comes out of
           pocket. A donation helps cover those costs and makes it easier to keep
           the project maintained and up to date.
@@ -124,7 +117,7 @@ export default function DonateSection() {
               className="mt-0.5 h-4 w-4 shrink-0 text-text-muted"
               aria-hidden="true"
             />
-            <span>Share ChessVision with people who make chess diagrams.</span>
+            <span>Share ChessViewer with people who make chess diagrams.</span>
           </li>
         </ul>
         <div className="pt-1">

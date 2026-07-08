@@ -1,15 +1,15 @@
 import { Fragment, type ReactNode, useEffect, useState } from 'react';
 
-import { ChevronLeft, ChevronRight, History } from 'lucide-react';
+import { ChevronLeft, ChevronRight, History } from '@/assets/icons';
 
 import changelogRaw from '../../../../CHANGELOG.md?raw';
-import { REPO_CHANGELOG_URL, REPO_URL } from './aboutConstants';
+import { REPO_CHANGELOG_URL, REPO_URL } from '../utils/aboutConstants';
 import {
   type ChangelogCategory,
   type ChangelogEntry,
   type ChangelogYear,
   parseChangelog
-} from './parseChangelog';
+} from '../utils/parseChangelog';
 import { Lead, SectionHeading } from './parts';
 
 const REPO_COMMITS_URL = `${REPO_URL}/commits`;
@@ -21,7 +21,6 @@ const CATEGORY_LABELS: Record<ChangelogCategory, string> = {
   Reverts: 'Reverts'
 };
 
-/** Render `` `code` `` and `_italic_` spans inside a changelog entry's text. */
 function renderInlineMarkdown(text: string): ReactNode[] {
   const parts = text.split(/(`[^`]+`|_[^_]+_)/g).filter(Boolean);
   return parts.map((part, i) => {
@@ -43,13 +42,6 @@ function renderInlineMarkdown(text: string): ReactNode[] {
   });
 }
 
-/**
- * One changelog line: a bullet, the scope, the description, the commit link,
- * then — only when the entry closes a PR/issue — a trailing `(closes #N)` in
- * the accent-warning colour. No card, no border, no background: a plain dense
- * list, matching lichess.org/changelog. Every part shares one font size so
- * nothing reads as visually demoted.
- */
 function EntryRow({ entry }: { entry: ChangelogEntry }) {
   return (
     <li className="flex items-start gap-2.5 py-1 text-base leading-relaxed text-text-secondary">
@@ -99,13 +91,6 @@ function totalEntriesInYear(year: ChangelogYear): number {
   );
 }
 
-/**
- * Changelog section: reads CHANGELOG.md directly (via a Vite `?raw` import) and
- * renders it as year → month → category → entry, mirroring the repo file
- * one-to-one — there is no separate data store to drift out of sync. One year
- * per page (newest first) so December 2025 never bleeds into the 2026 list;
- * plain bulleted lines (lichess.org/changelog style), no per-entry cards.
- */
 export default function ChangelogSection() {
   const [years, setYears] = useState<ChangelogYear[] | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
@@ -128,7 +113,7 @@ export default function ChangelogSection() {
       <div className="space-y-3">
         <SectionHeading icon={History} title="Changelog" />
         <Lead>
-          Every notable change to ChessVision, grouped by month, taken directly
+          Every notable change to ChessViewer, grouped by month, taken directly
           from{' '}
           <a
             href={REPO_CHANGELOG_URL}

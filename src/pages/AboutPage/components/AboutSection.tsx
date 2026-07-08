@@ -7,23 +7,18 @@ import {
   Package,
   Scale,
   Server
-} from 'lucide-react';
+} from '@/assets/icons';
 
-import { APP_VERSION, LICENSE_NAME, REPO_URL } from './aboutConstants';
+import { LICENSE_NAME, REPO_URL } from '../utils/aboutConstants';
 import { FactList, FactRow, InfoCard, Lead, SectionHeading } from './parts';
 
-/**
- * The main "About ChessVision" section. Long-form and written in plain language
- * for ordinary users (not developer jargon). Every claim is grounded in what
- * the app actually does — no marketing, no exaggeration, nothing unverifiable.
- */
 export default function AboutSection() {
   return (
     <div className="space-y-10 animate-pageEnter">
       <div className="space-y-3">
-        <SectionHeading icon={Info} title="About ChessVision" />
+        <SectionHeading icon={Info} title="About ChessViewer" />
         <Lead>
-          ChessVision is a free tool that lets you build chess positions and
+          ChessViewer is a free tool that lets you build chess positions and
           export them as clean, high-resolution images. Drag pieces onto the
           board, pick your style, and save. Nothing to install, no account
           needed — it runs entirely in your browser.
@@ -39,7 +34,7 @@ export default function AboutSection() {
         </p>
         <p>
           It is not a chess engine. There are no move suggestions, no analysis,
-          no opponent to play against. ChessVision does one thing — build
+          no opponent to play against. ChessViewer does one thing — build
           positions and export them — and tries to do it really well. If you
           want a diagram tool that gets out of your way, this is it.
         </p>
@@ -98,7 +93,7 @@ export default function AboutSection() {
             FEN is the standard shorthand chess players use to describe a
             position — a short line of text that says where every piece is. If
             you have one, paste it in and the board updates instantly.
-            ChessVision validates it as you type and tells you if something
+            ChessViewer validates it as you type and tells you if something
             looks wrong before you export.
           </li>
           <li>
@@ -131,7 +126,7 @@ export default function AboutSection() {
             <strong className="text-text-primary">
               Keep a history of what you have worked on.
             </strong>{' '}
-            ChessVision remembers your recent positions automatically. You can
+            ChessViewer remembers your recent positions automatically. You can
             mark favorites, search through your history, and come back to
             anything you were working on earlier.
           </li>
@@ -139,7 +134,7 @@ export default function AboutSection() {
             <strong className="text-text-primary">
               Search public chess databases.
             </strong>{' '}
-            Wondering if a position has been played before? ChessVision can look
+            Wondering if a position has been played before? ChessViewer can look
             it up in Lichess, PDB, and YACPDB and take you straight to the
             result. This only happens when you ask — it never runs in the
             background.
@@ -163,7 +158,7 @@ export default function AboutSection() {
         </p>
       </InfoCard>
 
-      <InfoCard title="What ChessVision stands for">
+      <InfoCard title="What ChessViewer stands for">
         <ul className="space-y-3">
           <li className="flex gap-3">
             <Package
@@ -221,7 +216,7 @@ export default function AboutSection() {
 
       <InfoCard title="A bit of background">
         <p>
-          ChessVision started as a personal tool — a faster, cleaner way to make
+          ChessViewer started as a personal tool — a faster, cleaner way to make
           chess diagrams without fighting with image editors or paying for
           software that does too much. It grew into something worth sharing, so
           it was open-sourced and made freely available to anyone who needs it.
@@ -230,7 +225,7 @@ export default function AboutSection() {
           The people who use it most are writers, coaches, and content creators
           — people who need a clean diagram quickly and do not want to think
           about DPI settings, board colors, or file formats. That is the use
-          case ChessVision is built around: fast, high-quality output with as
+          case ChessViewer is built around: fast, high-quality output with as
           little friction as possible.
         </p>
         <p>
@@ -245,7 +240,6 @@ export default function AboutSection() {
           At a glance
         </h3>
         <FactList>
-          <FactRow icon={Info} label="Version" value={APP_VERSION} />
           <FactRow icon={Scale} label="License" value={LICENSE_NAME} />
           <FactRow
             icon={Globe}

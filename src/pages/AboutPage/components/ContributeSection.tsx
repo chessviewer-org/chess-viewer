@@ -5,7 +5,7 @@ import {
   GitPullRequest,
   Languages,
   Scale
-} from 'lucide-react';
+} from '@/assets/icons';
 
 import {
   LICENSE_NAME,
@@ -14,20 +14,16 @@ import {
   REPO_ISSUES_URL,
   REPO_LICENSE_URL,
   REPO_URL
-} from './aboutConstants';
+} from '../utils/aboutConstants';
 import { ExternalLinkButton, InfoCard, Lead, SectionHeading } from './parts';
 
-/**
- * Contribute section: the source code, the license, and concrete ways to help.
- * This is distinct from the Donate section — code/issue contributions live here.
- */
 export default function ContributeSection() {
   return (
     <div className="space-y-8 animate-pageEnter">
       <div className="space-y-3">
         <SectionHeading icon={Code2} title="Contribute" />
         <Lead>
-          ChessVision is open source and built in public. The code is on GitHub
+          ChessViewer is open source and built in public. The code is on GitHub
           and anyone can read it, run it, and improve it. If you have ever
           wanted to contribute to a real, working tool that people actually use
           — this is a good place to start.
@@ -59,7 +55,7 @@ export default function ContributeSection() {
 
       <InfoCard title="License">
         <p>
-          ChessVision is licensed under the{' '}
+          ChessViewer is licensed under the{' '}
           <strong className="text-text-primary">{LICENSE_NAME}</strong>. In
           short, you are free to use, study, modify, and share it — but if you
           run a modified version, you must make your source available under the
@@ -120,7 +116,7 @@ export default function ContributeSection() {
               <strong className="text-text-primary">
                 Tell people about it.
               </strong>{' '}
-              If ChessVision has saved you time, mention it. Share it with a
+              If ChessViewer has saved you time, mention it. Share it with a
               coach, a chess blogger, a teacher who makes worksheets. Word of
               mouth is how small open-source tools grow.
             </span>

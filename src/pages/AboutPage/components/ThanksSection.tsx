@@ -1,10 +1,9 @@
 import { type ReactNode } from 'react';
 
-import { HeartHandshake } from 'lucide-react';
+import { HeartHandshake } from '@/assets/icons';
 
 import { Lead, SectionHeading } from './parts';
 
-/** An inline external link used inside the flowing acknowledgement prose. */
 function Ext({ href, children }: { href: string; children: ReactNode }) {
   return (
     <a
@@ -18,20 +17,13 @@ function Ext({ href, children }: { href: string; children: ReactNode }) {
   );
 }
 
-/**
- * Thanks / Acknowledgements section. Written as flowing prose with inline links
- * — not a "Built with X, Y, Z" badge list — framed around the idea that
- * ChessVision is built with open source and supports open source in return.
- * Every project named is a real dependency from package.json, a real piece of
- * infrastructure, or a real data source used by the app.
- */
 export default function ThanksSection() {
   return (
     <div className="space-y-8 animate-pageEnter">
       <div className="space-y-3">
         <SectionHeading icon={HeartHandshake} title="Thanks" />
         <Lead>
-          ChessVision is built with open source, and it tries to support open
+          ChessViewer is built with open source, and it tries to support open
           source in return. None of it would exist without the projects, tools,
           and communities below — thank you to everyone who builds and maintains
           them.
@@ -77,8 +69,8 @@ export default function ThanksSection() {
         <p>
           A special thanks goes to the open-source contributors who have helped
           shape the project at{' '}
-          <Ext href="https://github.com/chessvision-org/chess-vision">
-            chessvision-org/chess-vision
+          <Ext href="https://github.com/chessviewer-org/chess-viewer">
+            chessviewer-org/chess-viewer
           </Ext>
           , including <Ext href="https://github.com/vektorhub">vektorhub</Ext>,{' '}
           <Ext href="https://github.com/yu102118">yu102118</Ext>, and{' '}
@@ -88,7 +80,7 @@ export default function ThanksSection() {
 
         <p>
           Finally, thank you to everyone who reports bugs, suggests
-          improvements, contributes code, and simply uses ChessVision. The
+          improvements, contributes code, and simply uses ChessViewer. The
           project is better because of the community around it.
         </p>
       </div>

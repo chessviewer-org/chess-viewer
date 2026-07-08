@@ -1,14 +1,13 @@
 import { type ReactNode } from 'react';
 
-import { HelpCircle } from 'lucide-react';
+import { HelpCircle } from '@/assets/icons';
 
-import { CONTACT_EMAIL, REPO_ISSUES_URL } from './aboutConstants';
+import { CONTACT_EMAIL, REPO_ISSUES_URL } from '../utils/aboutConstants';
 import { FAQItem, Lead, SectionHeading } from './parts';
 
-/** A single frequently-asked question and its answer. */
 const FAQS: Array<{ q: string; a: ReactNode }> = [
   {
-    q: 'What is ChessVision for?',
+    q: 'What is ChessViewer for?',
     a: 'It is a diagram editor. You build a chess position, make it look the way you want, and export it as a high-quality image. That is it — no engine, no opponent, no analysis. Just a clean way to turn a position into a picture you can use anywhere.'
   },
   {
@@ -17,7 +16,7 @@ const FAQS: Array<{ q: string; a: ReactNode }> = [
   },
   {
     q: 'Is it really free?',
-    a: 'Yes, genuinely. Not "free with limits", not a trial, not ad-supported. Every feature is available to everyone at no cost. ChessVision is open source and the code is public on GitHub — you can run your own instance if you want.'
+    a: 'Yes, genuinely. Not "free with limits", not a trial, not ad-supported. Every feature is available to everyone at no cost. ChessViewer is open source and the code is public on GitHub — you can run your own instance if you want.'
   },
   {
     q: 'What export formats and sizes are available?',
@@ -25,7 +24,7 @@ const FAQS: Array<{ q: string; a: ReactNode }> = [
   },
   {
     q: 'How do I enter a position?',
-    a: 'Two ways: drag pieces from the palette onto the board, or paste a FEN string into the input field. FEN is the standard text format chess players use to describe positions — most chess sites and databases can give you one. ChessVision validates it as you type.'
+    a: 'Two ways: drag pieces from the palette onto the board, or paste a FEN string into the input field. FEN is the standard text format chess players use to describe positions — most chess sites and databases can give you one. ChessViewer validates it as you type.'
   },
   {
     q: 'Can I export several positions at once?',
@@ -37,7 +36,7 @@ const FAQS: Array<{ q: string; a: ReactNode }> = [
   },
   {
     q: 'Why is a very large export slow?',
-    a: 'High-resolution exports — especially at large physical sizes — require a lot of memory and processing. ChessVision offloads the heavy work to a background thread to keep the page responsive, but there is no way around the fact that a 1200 DPI image at A4 size is a large computation. If it is struggling, try a lower DPI preset or a smaller size.'
+    a: 'High-resolution exports — especially at large physical sizes — require a lot of memory and processing. ChessViewer offloads the heavy work to a background thread to keep the page responsive, but there is no way around the fact that a 1200 DPI image at A4 size is a large computation. If it is struggling, try a lower DPI preset or a smaller size.'
   },
   {
     q: 'Which browsers work?',
@@ -45,22 +44,21 @@ const FAQS: Array<{ q: string; a: ReactNode }> = [
   },
   {
     q: 'Can I install it like an app?',
-    a: 'Yes. ChessVision is a Progressive Web App. Most browsers will offer an "Install" or "Add to home screen" option, which lets you launch it in its own window without going through a browser tab. It also works offline once installed.'
+    a: 'Yes. ChessViewer is a Progressive Web App. Most browsers will offer an "Install" or "Add to home screen" option, which lets you launch it in its own window without going through a browser tab. It also works offline once installed.'
   },
   {
     q: 'What is a FEN string?',
-    a: 'FEN stands for Forsyth-Edwards Notation. It is a compact text format that describes a chess position — where every piece is, whose turn it is, and a few other details. It looks something like "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1". Every major chess site and database can export positions as FEN, and ChessVision can read them directly.'
+    a: 'FEN stands for Forsyth-Edwards Notation. It is a compact text format that describes a chess position — where every piece is, whose turn it is, and a few other details. It looks something like "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1". Every major chess site and database can export positions as FEN, and ChessViewer can read them directly.'
   }
 ];
 
-/** FAQ section: common questions about using ChessVision. */
 export default function FaqSection() {
   return (
     <div className="space-y-8 animate-pageEnter">
       <div className="space-y-3">
         <SectionHeading icon={HelpCircle} title="Frequently Asked Questions" />
         <Lead>
-          Answers to the most common questions about ChessVision. If your
+          Answers to the most common questions about ChessViewer. If your
           question is not here, ask in{' '}
           <a
             href={REPO_ISSUES_URL}

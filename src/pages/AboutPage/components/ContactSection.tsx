@@ -1,10 +1,10 @@
-import { Bug, Mail, MessageSquare, ShieldAlert } from 'lucide-react';
+import { Bug, Mail, MessageSquare, ShieldAlert } from '@/assets/icons';
 
 import {
   CONTACT_EMAIL,
   REPO_DISCUSSIONS_URL,
   REPO_ISSUES_URL
-} from './aboutConstants';
+} from '../utils/aboutConstants';
 import {
   ExternalLinkButton,
   InfoCard,
@@ -13,10 +13,6 @@ import {
   SectionHeading
 } from './parts';
 
-/**
- * Contact section: how to reach the project, routed by purpose so people land
- * in the right place (bug reports, questions, security, or general email).
- */
 export default function ContactSection() {
   return (
     <div className="space-y-8 animate-pageEnter">

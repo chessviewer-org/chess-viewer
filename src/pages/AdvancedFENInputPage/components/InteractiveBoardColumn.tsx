@@ -1,12 +1,11 @@
-import { memo, useMemo } from 'react';
+import { memo, type ReactNode, useMemo } from 'react';
 
 import { DisplayOptions } from '@/components/features';
 import BoardPreviewCanvas from '@/pages/ExportPage/components/BoardPreviewCanvas';
 import { ADVANCED_FEN_CONFIG } from '@constants';
 
-import styles from '../advanced-fen-layout.module.scss';
-import type { useAdvancedFEN } from '../hooks/useAdvancedFEN';
-import type { ExportFormat } from '../hooks/useAdvancedFEN/useAdvancedFEN.types';
+import styles from '../styles/advanced-fen-layout.module.scss';
+import type { ExportFormat, useAdvancedFEN } from '../hooks/useAdvancedFEN';
 import PlaybackControls from './PlaybackControls';
 
 const { INTERVAL_OPTIONS } = ADVANCED_FEN_CONFIG;
@@ -19,7 +18,6 @@ const FORMAT_LABEL: Record<ExportFormat, string> = {
 
 const FORMAT_ORDER: ExportFormat[] = ['jpeg', 'png', 'svg'];
 
-/** Joins formats as "jpg", "jpg and png", or "jpg, png and svg". */
 function formatFormats(formats: ExportFormat[]): string {
   const labels = FORMAT_ORDER.filter((f) => formats.includes(f)).map(
     (f) => FORMAT_LABEL[f]
@@ -29,6 +27,21 @@ function formatFormats(formats: ExportFormat[]): string {
   return `${labels.slice(0, -1).join(', ')} and ${labels[labels.length - 1]}`;
 }
 
+function SummaryBadge({
+  label,
+  children
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="px-2 py-1 rounded border border-border/40 bg-surface-elevated text-[10px] font-bold text-text-secondary flex items-center gap-1.5 shadow-sm">
+      <span className="uppercase tracking-wider opacity-60">{label}</span>
+      {children}
+    </div>
+  );
+}
+
 type AdvancedFENReturn = ReturnType<typeof useAdvancedFEN>;
 
 interface InteractiveBoardColumnProps {
@@ -36,14 +49,6 @@ interface InteractiveBoardColumnProps {
   handlers: AdvancedFENReturn['handlers'];
 }
 
-/**
- * Left column for the preview/export tabs: a read-only board preview whose
- * appearance is driven entirely by the Board Style tab (theme, piece set,
- * coordinates, frame, flip), the playback controls, and — because the board
- * cannot be resized here — a one-line summary of the active position's export
- * settings (size / quality / formats / file name) that updates as the user
- * steps through positions.
- */
 const InteractiveBoardColumn = memo(function InteractiveBoardColumn({
   state,
   handlers
@@ -69,13 +74,9 @@ const InteractiveBoardColumn = memo(function InteractiveBoardColumn({
     state.safeCurrentIndex
   ]);
 
-  // The user requested a single, slightly larger size across all tabs (no
-  // jumping). Width tracks the CONTENT container via a px container query
-  // (`.boardWidth`), not the viewport, so the board grows only when the content
-  // column is genuinely wide (side-by-side).
   return (
     <div
-      className={`w-full flex flex-col gap-3 animate-fadeIn mx-auto transition-all duration-300 ${styles.boardWidth}`}
+      className={`w-full flex flex-col gap-3 animate-fadeIn mx-auto transition-all duration-300 ${styles['boardWidth']}`}
     >
       <BoardPreviewCanvas
         fen={state.currentFen}
@@ -90,26 +91,22 @@ const InteractiveBoardColumn = memo(function InteractiveBoardColumn({
 
       {state.activeTab === 'export-settings' && (
         <div className="flex items-center justify-center gap-2 flex-wrap select-none mt-1 ml-[9%] w-[91%]">
-          <div className="px-2 py-1 rounded border border-border/40 bg-surface-elevated text-[10px] font-bold text-text-secondary flex items-center gap-1.5 shadow-sm">
-            <span className="uppercase tracking-wider opacity-60">Size</span>
+          <SummaryBadge label="Size">
             <span className="text-accent">{summaryParts.size}</span>
-          </div>
-          <div className="px-2 py-1 rounded border border-border/40 bg-surface-elevated text-[10px] font-bold text-text-secondary flex items-center gap-1.5 shadow-sm">
-            <span className="uppercase tracking-wider opacity-60">Quality</span>
+          </SummaryBadge>
+          <SummaryBadge label="Quality">
             <span className="text-accent">{summaryParts.quality}</span>
-          </div>
-          <div className="px-2 py-1 rounded border border-border/40 bg-surface-elevated text-[10px] font-bold text-text-secondary flex items-center gap-1.5 shadow-sm">
-            <span className="uppercase tracking-wider opacity-60">Format</span>
+          </SummaryBadge>
+          <SummaryBadge label="Format">
             <span className="text-accent uppercase tracking-wider">
               {summaryParts.formats}
             </span>
-          </div>
-          <div className="px-2 py-1 rounded border border-border/40 bg-surface-elevated text-[10px] font-bold text-text-secondary flex items-center gap-1.5 shadow-sm">
-            <span className="uppercase tracking-wider opacity-60">Name</span>
+          </SummaryBadge>
+          <SummaryBadge label="Name">
             <span className="text-text-primary font-mono lowercase">
               {summaryParts.name}
             </span>
-          </div>
+          </SummaryBadge>
         </div>
       )}
 

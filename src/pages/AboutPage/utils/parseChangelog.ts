@@ -1,9 +1,3 @@
-/**
- * Parses the repo's CHANGELOG.md into a render-friendly structure. CHANGELOG.md
- * is the single source of truth — this file has no separate data store, so the
- * About page's Changelog section can never drift from it.
- */
-
 export type ChangelogCategory =
   | 'Features'
   | 'Bug Fixes'
@@ -93,7 +87,6 @@ function parseEntry(line: string): ChangelogEntry {
   };
 }
 
-/** Parse the full CHANGELOG.md source into ordered month sections. */
 function parseMonths(source: string): ChangelogMonth[] {
   const lines = source.split('\n');
   const months: ChangelogMonth[] = [];
@@ -145,8 +138,6 @@ function parseMonths(source: string): ChangelogMonth[] {
       continue;
     }
 
-    // Plain prose under a month (e.g. the December 2025 initial-release
-    // paragraph) that isn't a bullet entry — collect it as the month's note.
     if (line.trim() && !line.startsWith('---') && !currentGroup) {
       noteLines.push(line.trim());
     }
@@ -156,12 +147,6 @@ function parseMonths(source: string): ChangelogMonth[] {
   return months;
 }
 
-/**
- * Parse CHANGELOG.md and group its months by year, newest year first (months
- * within a year keep the source's newest-first order). Each year is its own
- * page in the About Changelog section, so December 2025 never bleeds into the
- * 2026 listing.
- */
 export function parseChangelog(source: string): ChangelogYear[] {
   const months = parseMonths(source);
   const years: ChangelogYear[] = [];

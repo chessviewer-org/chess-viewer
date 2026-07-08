@@ -1,0 +1,89 @@
+@reference "../../../index.css";
+
+.heading {
+  @apply mb-2 flex items-center gap-2.5 font-display text-2xl font-bold text-text-primary sm:text-3xl;
+}
+
+.headingIcon {
+  @apply h-6 w-6 text-text-secondary sm:h-7 sm:w-7;
+}
+
+.lead {
+  @apply text-lg leading-relaxed text-text-secondary;
+}
+
+.infoCard {
+  @apply space-y-3;
+}
+
+.infoCardTitle {
+  @apply border-b border-border pb-2 text-xl font-bold text-text-primary;
+}
+
+.infoCardBody {
+  @apply space-y-3 text-base leading-relaxed text-text-secondary;
+}
+
+.callout {
+  @apply rounded-2xl border border-border bg-surface-elevated p-5 sm:p-6;
+}
+
+.factRow {
+  @apply flex items-center justify-between gap-4 px-6 py-4;
+}
+
+.factLabel {
+  @apply flex items-center gap-2.5 text-base text-text-secondary;
+}
+
+.factIcon {
+  @apply h-5 w-5 text-text-muted;
+}
+
+.factValue {
+  @apply min-w-0 wrap-break-word text-right text-base font-medium text-text-primary;
+}
+
+.factList {
+  @apply divide-y divide-border/60 rounded-2xl border border-border bg-surface-elevated;
+}
+
+.btn {
+  @apply inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg;
+}
+
+.btnPrimary {
+  @apply bg-accent text-bg hover:bg-accent-hover;
+}
+
+.btnNeutral {
+  @apply border border-border bg-surface text-text-primary hover:bg-surface-hover;
+}
+
+.faqItem {
+  @apply rounded-xl border border-border transition-colors duration-200;
+}
+
+.faqButton {
+  @apply flex w-full items-center justify-between px-5 py-4 text-left transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset rounded-xl;
+}
+
+.faqText {
+  @apply pr-4 text-lg font-semibold text-text-primary;
+}
+
+.faqIcon {
+  @apply h-5 w-5 shrink-0 text-text-muted transition-transform duration-200;
+}
+
+.faqIconOpen {
+  @apply rotate-180;
+}
+
+.faqBody {
+  @apply overflow-hidden animate-[fadeIn_0.2s_ease_both];
+}
+
+.faqBodyText {
+  @apply px-5 pb-4 text-base leading-relaxed text-text-secondary;
+}

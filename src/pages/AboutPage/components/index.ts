@@ -6,3 +6,4 @@ export { default as DonateSection } from './DonateSection';
 export { default as FaqSection } from './FaqSection';
 export { default as PrivacySection } from './PrivacySection';
 export { default as ThanksSection } from './ThanksSection';
+export * from './parts';

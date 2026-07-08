@@ -1,21 +1,14 @@
-import { Shield } from 'lucide-react';
+import { Shield } from '@/assets/icons';
 
 import { InfoCard, Lead, SectionHeading } from './parts';
 
-/**
- * Privacy section: a detailed, accurate description of what data ChessVision
- * does and does not handle, grounded in how the app is actually built —
- * browser-local storage, no tracking, owner-scoped optional cloud sync, and
- * an explicit position-database lookup. It is transparent about the two things
- * that DO leave the device: the FEN you search, and synced settings blobs.
- */
 export default function PrivacySection() {
   return (
     <div className="space-y-8 animate-pageEnter">
       <div className="space-y-3">
         <SectionHeading icon={Shield} title="Privacy" />
         <Lead>
-          ChessVision is built around a simple idea: your data is none of our
+          ChessViewer is built around a simple idea: your data is none of our
           business. Everything happens in your browser. There is no tracking, no
           analytics, and no ads — and if you never create an account, nothing
           about your positions ever leaves your device.
@@ -32,7 +25,7 @@ export default function PrivacySection() {
         </p>
         <p>
           If you never sign in and never run a position-database search, nothing
-          you do in ChessVision leaves your browser at all.
+          you do in ChessViewer leaves your browser at all.
         </p>
       </InfoCard>
 
@@ -41,7 +34,7 @@ export default function PrivacySection() {
           There are no third-party analytics scripts, no advertising cookies,
           and no tracking pixels. We do not know which positions you work on,
           how long you spend on the site, or what you export. The only storage
-          ChessVision uses is the functional kind — remembering your settings
+          ChessViewer uses is the functional kind — remembering your settings
           and history so you do not have to start from scratch every time.
         </p>
       </InfoCard>
