@@ -76,8 +76,14 @@ async function prerender() {
 
       await page.waitForSelector('html.app-ready', { timeout: 30_000 });
       await page.waitForSelector('nav', { timeout: 30_000 });
-      await page.waitForFunction(() => { const m = document.querySelector('main'); return m && m.children.length > 0; }, { timeout: 30_000 });
-      await new Promise(r => setTimeout(r, 500));
+      await page.waitForFunction(
+        () => {
+          const m = document.querySelector('main');
+          return m && m.children.length > 0;
+        },
+        { timeout: 30_000 }
+      );
+      await new Promise((r) => setTimeout(r, 500));
 
       let html = await page.content();
 
