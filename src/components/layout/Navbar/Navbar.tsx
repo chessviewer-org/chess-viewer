@@ -4,6 +4,7 @@ import { UserCircle, X } from '@/assets/icons';
 
 import { Logo } from '@/shared/ui';
 import { NavbarDesktopMenu, NavbarMobileMenu } from './NavbarMenu';
+import styles from './styles/navbar.module.scss';
 interface NavbarProps {
   rightSlot?: React.ReactNode;
   isMobileMenuOpen: boolean;
@@ -30,34 +31,30 @@ function Navbar({
   handleSignOut
 }: NavbarProps) {
   const toggleButtonClass = (isOpen: boolean) =>
-    `p-2 min-h-11 min-w-11 flex items-center justify-center rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-      isOpen
-        ? 'bg-surface-elevated text-accent'
-        : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover active:bg-surface-elevated'
+    `${styles['toggleBtn']} ${
+      isOpen ? styles['toggleBtnOpen'] : styles['toggleBtnClosed']
     }`;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 pt-[max(0px, env(safe-area-inset-top))] transition-all duration-300 animate-navbar-in">
-      <div className="relative z-50 bg-surface">
+    <nav className={styles['nav']}>
+      <div className={styles['navInner']}>
         <div className="page-container">
-          <div className="flex justify-between items-center py-3 min-h-12 sm:min-h-14 lg:min-h-16">
+          <div className={styles['navContainer']}>
             <button
               type="button"
               onClick={handleLogoClick}
               aria-label="ChessViewer home"
-              className="flex items-center gap-2 rounded-lg transition-colors duration-200 text-text-primary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className={styles['logoBtn']}
             >
-              <div className="flex items-center gap-2">
-                <Logo className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 object-contain" />
-                <div className="hidden lg:block">
-                  <span className="font-display font-bold text-xl xs:text-2xl sm:text-3xl leading-tight text-text-primary">
-                    ChessViewer
-                  </span>
+              <div className={styles['logoInner']}>
+                <Logo className={styles['logoImg'] ?? ''} />
+                <div className={styles['logoTextWrapper']}>
+                  <span className={styles['logoText']}>ChessViewer</span>
                 </div>
               </div>
             </button>
 
-            <div className="hidden lg:flex items-center gap-2">
+            <div className={styles['desktopMenuWrapper']}>
               {rightSlot}
               <NavbarDesktopMenu
                 isAuthenticated={isAuthenticated}
@@ -68,7 +65,7 @@ function Navbar({
               />
             </div>
 
-            <div className="flex lg:hidden items-center gap-2">
+            <div className={styles['mobileMenuWrapper']}>
               {rightSlot}
               <button
                 type="button"
@@ -79,9 +76,12 @@ function Navbar({
                 aria-expanded={isMobileMenuOpen}
               >
                 {isMobileMenuOpen ? (
-                  <X className="w-6 h-6" aria-hidden="true" />
+                  <X className={styles['toggleIcon']} aria-hidden="true" />
                 ) : (
-                  <UserCircle className="w-6 h-6" aria-hidden="true" />
+                  <UserCircle
+                    className={styles['toggleIcon']}
+                    aria-hidden="true"
+                  />
                 )}
               </button>
             </div>

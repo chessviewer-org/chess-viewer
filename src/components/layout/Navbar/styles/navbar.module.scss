@@ -1,0 +1,177 @@
+@reference "../../../../index.css";
+
+.nav {
+  @apply fixed top-0 left-0 right-0 z-50 pt-[max(0px,env(safe-area-inset-top))] transition-all duration-300;
+}
+
+.navInner {
+  @apply relative z-50 bg-surface;
+}
+
+.navContainer {
+  @apply flex justify-between items-center py-3 min-h-12 sm:min-h-14 lg:min-h-16;
+}
+
+.logoBtn {
+  @apply flex items-center gap-2 rounded-lg transition-colors duration-200 text-text-primary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent;
+}
+
+.logoInner {
+  @apply flex items-center gap-2;
+}
+
+.logoImg {
+  @apply w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 object-contain;
+}
+
+.logoTextWrapper {
+  @apply hidden lg:block;
+}
+
+.logoText {
+  @apply font-display font-bold text-xl xs:text-2xl sm:text-3xl leading-tight text-text-primary;
+}
+
+.desktopMenuWrapper {
+  @apply hidden lg:flex items-center gap-2;
+}
+
+.mobileMenuWrapper {
+  @apply flex lg:hidden items-center gap-2;
+}
+
+.toggleBtn {
+  @apply p-2 min-h-11 min-w-11 flex items-center justify-center rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent;
+}
+
+.toggleBtnOpen {
+  @apply bg-surface-elevated text-accent;
+}
+
+.toggleBtnClosed {
+  @apply text-text-secondary hover:text-text-primary hover:bg-surface-hover active:bg-surface-elevated;
+}
+
+.toggleIcon {
+  @apply w-6 h-6;
+}
+
+/* --- NavbarMenu --- */
+.menuItem {
+  @apply w-full rounded-lg px-2 py-2 text-sm font-medium text-text-primary hover:bg-surface-hover transition-colors flex items-center gap-2;
+}
+
+.menuItemDanger {
+  @apply w-full rounded-lg px-2 py-2 text-sm font-medium text-error hover:bg-error/10 active:bg-error/20 transition-colors flex items-center gap-2;
+}
+
+.profileHeader {
+  @apply flex items-center gap-3;
+}
+
+.profileInfo {
+  @apply min-w-0;
+}
+
+.profileName {
+  @apply text-base font-bold text-text-primary truncate;
+}
+
+.desktopDropdownWrapper {
+  @apply relative;
+}
+
+.desktopDropdownToggle {
+  @apply flex items-center justify-center p-1 rounded-full transition-colors hover:bg-surface-hover active:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent;
+}
+
+.desktopDropdownToggleActive {
+  @apply bg-surface-elevated ring-2 ring-accent;
+}
+
+.desktopDropdownPanel {
+  @apply absolute right-0 top-full mt-2 w-64 rounded-xl border border-border bg-surface-elevated shadow-xl p-2 z-50;
+}
+
+.mobileMenuContainer {
+  @apply fixed left-0 right-0 top-15 sm:top-16 z-40 lg:hidden origin-top border-b border-border bg-surface shadow-sm;
+}
+
+.mobileMenuContent {
+  @apply py-4 space-y-4;
+}
+
+.menuSection {
+  @apply space-y-1;
+}
+
+.menuDivider {
+  @apply h-px bg-border my-2;
+}
+$spring-enter: cubic-bezier(0.34, 1.56, 0.64, 1);
+$ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+$ease-exit: cubic-bezier(0.4, 0, 0.2, 1);
+
+.desktopDropdown {
+  transform-origin: top right;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.95) translate3d(0, -8px, 0);
+  transition:
+    opacity 0.18s $ease-exit,
+    transform 0.18s $ease-exit;
+}
+
+.desktopDropdown[data-state='open'] {
+  pointer-events: auto;
+  opacity: 1;
+  transform: scale(1) translate3d(0, 0, 0);
+  transition:
+    opacity 0.15s ease-out,
+    transform 0.24s $spring-enter;
+}
+
+.mobilePanel {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  border-bottom: 1px solid transparent;
+  pointer-events: none;
+  transition:
+    grid-template-rows 0.24s $ease-exit,
+    border-color 0.24s $ease-exit;
+}
+
+.mobilePanel[data-state='open'] {
+  grid-template-rows: 1fr;
+  border-bottom-color: rgb(var(--val-border) / 0.5);
+  pointer-events: auto;
+  transition:
+    grid-template-rows 0.28s $ease-enter,
+    border-color 0.28s $ease-enter;
+}
+
+.mobilePanel > * {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.mobileBackdrop {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.24s $ease-exit;
+}
+
+.mobileBackdrop[data-state='open'] {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.28s $ease-enter;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desktopDropdown,
+  .mobilePanel,
+  .mobileBackdrop {
+    transition-duration: 0.01ms !important;
+  }
+}
