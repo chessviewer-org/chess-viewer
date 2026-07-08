@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 
-import { Clock, ShieldCheck, ShieldX } from 'lucide-react';
+import { Clock, ShieldCheck, ShieldX } from '@/assets/icons';
 
-import { supabase } from '@/features/auth';
+import { supabase } from '@/auth';
 
-import { logger } from '@utils';
+import { logger } from '@/shared/utils';
 
-/** Formats an ISO timestamp to a readable date-time, or null when absent. */
 function formatDateTime(iso: string | null | undefined): string | null {
   if (!iso) return null;
   const ms = Date.parse(iso);
@@ -19,11 +18,6 @@ function formatDateTime(iso: string | null | undefined): string | null {
   });
 }
 
-/**
- * At-a-glance security status: whether two-factor is active (a verified TOTP
- * factor exists) and the last sign-in time. Read-only — probes MFA factors via
- * the singleton client on mount.
- */
 export function SecurityOverview({
   lastSignInAt
 }: {

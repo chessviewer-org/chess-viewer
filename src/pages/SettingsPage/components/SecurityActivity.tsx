@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react';
 
-import { History } from 'lucide-react';
+import { History } from '@/assets/icons';
 
-import {
-  type SecurityEvent,
-  securityEventsService
-} from '@/features/auth/services/securityEvents';
+import { type SecurityEvent, securityEventsService } from '@/auth';
 
-/** Human label for an audit `event_type`; unknown types fall back to themselves. */
 const EVENT_LABELS: Record<string, string> = {
   SECURITY_REFRESH: 'Security re-verified',
   RECOVERY_CODES_GENERATED: 'Recovery codes generated',
@@ -31,10 +27,6 @@ function formatEventTime(iso: string): string {
   });
 }
 
-/**
- * Recent security-audit events for the signed-in user (read-only). Re-fetches
- * whenever `refreshSignal` changes so callers can refresh after an action.
- */
 export function SecurityActivity({
   enabled,
   refreshSignal = 0

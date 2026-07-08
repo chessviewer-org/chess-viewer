@@ -4,3 +4,4 @@ export { default as AppearanceSection } from './AppearanceSection';
 export { default as BoardSection } from './BoardSection';
 export { default as DataManagement } from './DataManagement';
 export { default as SecuritySection } from './SecuritySection';
+export * from './parts';

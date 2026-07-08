@@ -1,15 +1,10 @@
 import { memo } from 'react';
 
-import { AnimatePresence, motion } from 'framer-motion';
-import { Check, Contrast, Monitor, Moon, Sparkles, Sun } from 'lucide-react';
+import { Check, Contrast, Monitor, Moon, Sparkles, Sun } from '@/assets/icons';
 
-import {
-  useContrastSetting,
-  useEffectiveReducedMotion,
-  useThemeMode
-} from '@hooks';
+import { useContrastSetting, useThemeMode } from '@/shared/hooks';
 
-import type { ContrastPreference, ThemeModePreference } from '@utils';
+import type { ContrastPreference, ThemeModePreference } from '@/shared/utils';
 import { CustomSelect } from '@shared/ui';
 import { SettingsBlock } from './parts';
 
@@ -20,11 +15,7 @@ const THEME_MODE_OPTIONS: Array<{
 }> = [
   { value: 'light', label: 'Light', icon: <Sun className="h-4 w-4" /> },
   { value: 'dark', label: 'Dark', icon: <Moon className="h-4 w-4" /> },
-  {
-    value: 'system',
-    label: 'System',
-    icon: <Monitor className="h-4 w-4" />
-  }
+  { value: 'system', label: 'System', icon: <Monitor className="h-4 w-4" /> }
 ];
 
 const CONTRAST_OPTIONS: ReadonlyArray<{
@@ -47,17 +38,14 @@ const CONTRAST_OPTIONS: ReadonlyArray<{
 const AppearanceSection = memo(function AppearanceSection() {
   const [themeMode, setThemeMode] = useThemeMode();
   const [contrast, setContrast] = useContrastSetting();
-  const reduceMotion = useEffectiveReducedMotion();
 
-  // The dark-mode recommendation note expands/collapses to follow the choice:
-  // shown unless the user has explicitly picked light.
   const showDarkHint = themeMode !== 'light';
 
   return (
     <div className="space-y-8 animate-pageEnter">
       <SettingsBlock
         title="Theme"
-        description="Personalise how ChessVision looks, saved on this device and synced when you sign in."
+        description="Personalise how ChessViewer looks, saved on this device and synced when you sign in."
       >
         <div className="max-w-xs space-y-2.5">
           <span className="block text-base font-bold text-text-primary">
@@ -69,41 +57,19 @@ const AppearanceSection = memo(function AppearanceSection() {
             options={THEME_MODE_OPTIONS}
           />
         </div>
-        <AnimatePresence initial={false}>
-          {showDarkHint && (
-            <motion.div
-              initial={
-                reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0, y: -4 }
-              }
-              animate={
-                reduceMotion
-                  ? { opacity: 1 }
-                  : { opacity: 1, height: 'auto', y: 0 }
-              }
-              exit={
-                reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0, y: -4 }
-              }
-              transition={
-                reduceMotion
-                  ? { duration: 0 }
-                  : { duration: 0.22, ease: [0.4, 0, 0.2, 1] }
-              }
-              className="overflow-hidden"
-            >
-              <p className="flex items-start gap-2 rounded-lg border border-accent/30 bg-accent/5 px-3 py-2 text-xs leading-relaxed text-text-secondary">
-                <Sparkles
-                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent"
-                  aria-hidden="true"
-                />
-                <span>
-                  ChessVision is better optimised for{' '}
-                  <span className="font-semibold text-accent">dark mode</span> —
-                  recommended.
-                </span>
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {showDarkHint && (
+          <p className="flex items-start gap-2 rounded-lg border border-accent/30 bg-accent/5 px-3 py-2 text-xs leading-relaxed text-text-secondary animate-[fadeIn_0.22s_ease_both]">
+            <Sparkles
+              className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent"
+              aria-hidden="true"
+            />
+            <span>
+              ChessViewer is better optimised for{' '}
+              <span className="font-semibold text-accent">dark mode</span> —
+              recommended.
+            </span>
+          </p>
+        )}
       </SettingsBlock>
 
       <SettingsBlock

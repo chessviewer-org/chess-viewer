@@ -1,0 +1,45 @@
+@reference "../../../index.css";
+
+.headingWrapper {
+  @apply space-y-2 border-b border-border pb-3;
+}
+
+.headingTitle {
+  @apply flex items-center gap-2.5 font-display text-2xl font-bold text-text-primary;
+}
+
+.headingIcon {
+  @apply h-6 w-6 text-text-secondary;
+}
+
+.headingDesc {
+  @apply text-base leading-relaxed text-text-secondary;
+}
+
+.blockSection {
+  @apply space-y-4;
+}
+
+.blockHeader {
+  @apply space-y-1 pb-2;
+}
+
+.blockTitleWrapper {
+  @apply flex items-end justify-between gap-3;
+}
+
+.blockTitle {
+  @apply text-lg font-bold text-text-primary;
+}
+
+.blockAction {
+  @apply shrink-0;
+}
+
+.blockDesc {
+  @apply text-sm leading-relaxed text-text-secondary;
+}
+
+.blockContent {
+  @apply space-y-4;
+}

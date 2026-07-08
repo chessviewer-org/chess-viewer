@@ -8,13 +8,12 @@ import {
   type LucideIcon,
   RotateCcw,
   Upload
-} from 'lucide-react';
+} from '@/assets/icons';
 
 import { useModal } from '@contexts';
 
-import { safeJSONParse } from '@utils';
+import { safeJSONParse, saveBlob } from '@/shared/utils';
 
-/** localStorage keys grouped by the user-facing data category they belong to. */
 const STORAGE_CATEGORIES = [
   {
     id: 'board',
@@ -54,7 +53,6 @@ const STORAGE_CATEGORIES = [
 
 const STORAGE_KEYS = STORAGE_CATEGORIES.flatMap((c) => c.keys);
 
-/** Total bytes held under a set of keys (UTF-16 string length ≈ bytes). */
 function bytesForKeys(keys: readonly string[]): number {
   let total = 0;
   for (const key of keys) {
@@ -64,7 +62,6 @@ function bytesForKeys(keys: readonly string[]): number {
   return total;
 }
 
-/** Formats a byte count as a compact human label. */
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -75,7 +72,6 @@ const DataManagement = memo(function DataManagement() {
   const { showConfirm, showAlert } = useModal();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState('');
-  // Per-category byte usage, held in state and recomputed after any mutation.
   const computeUsage = () =>
     STORAGE_CATEGORIES.map((cat) => ({
       ...cat,
@@ -110,14 +106,7 @@ const DataManagement = memo(function DataManagement() {
     const blob = new Blob([JSON.stringify(data, null, 2)], {
       type: 'application/json'
     });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'chess-vision-data.json';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    saveBlob(blob, 'chessviewer-data', 'json');
     setMessage('Data exported');
   }
 
@@ -241,7 +230,7 @@ const DataManagement = memo(function DataManagement() {
         <DataRow
           icon={RotateCcw}
           title="Reset All Data"
-          description="Clear all ChessVision data stored in this browser. This cannot be undone."
+          description="Clear all ChessViewer data stored in this browser. This cannot be undone."
           actionLabel="Reset"
           onAction={handleResetData}
           variant="danger"

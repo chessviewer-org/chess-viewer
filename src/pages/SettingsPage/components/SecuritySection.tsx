@@ -1,25 +1,20 @@
 import { memo, useState } from 'react';
 
-import { KeyRound, LogOut, RotateCcw, ShieldCheck } from 'lucide-react';
+import { KeyRound, LogOut, RotateCcw, ShieldCheck } from '@/assets/icons';
 
-import { supabase, TwoFactorSetup, useAuth } from '@/features/auth';
+import { supabase, TwoFactor, useAuth } from '@/auth';
 import { useModal } from '@contexts';
-import { useLocalStorage } from '@hooks';
+import { useLocalStorage } from '@/shared/hooks';
 
-import { logger } from '@utils';
+import { logger } from '@/shared/utils';
 import { Switch } from '@shared/ui';
 import { SettingsHeading } from './parts';
-import { SecurityActivity } from './security/SecurityActivity';
-import { SecurityOverview } from './security/SecurityOverview';
+import { SecurityActivity } from './SecurityActivity';
+import { SecurityOverview } from './SecurityOverview';
 
 const MIN_PASSWORD = 8;
 const MAX_PASSWORD = 128;
 
-/**
- * Security section: two-factor setup, an inline password change, a
- * password-reset email fallback, sign-out-everywhere, a recent security-events
- * log, and local security-behaviour toggles. Guests see a sign-in prompt.
- */
 const SecuritySection = memo(function SecuritySection() {
   const { user, isAuthenticated } = useAuth();
   const { showAlert, showConfirm } = useModal();
@@ -110,7 +105,6 @@ const SecuritySection = memo(function SecuritySection() {
     try {
       const { error } = await supabase.auth.signOut({ scope: 'global' });
       if (error) throw error;
-      // The auth listener clears local state and the app reverts to guest.
     } catch (error: unknown) {
       logger.warn('Global sign-out failed:', error);
       showAlert(
@@ -139,7 +133,7 @@ const SecuritySection = memo(function SecuritySection() {
                 Use a time-based one-time passcode (TOTP) from an authenticator
                 app as a second factor when you sign in.
               </p>
-              <TwoFactorSetup />
+              <TwoFactor />
             </div>
 
             <div className="p-5">

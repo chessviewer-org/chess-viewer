@@ -1,18 +1,19 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 
-import { LayoutGrid } from 'lucide-react';
+import { LayoutGrid } from '@/assets/icons';
 
-import MiniPreview from '@/components/board/MiniPreview';
+import { MiniPreview } from '@/components/board/MiniPreview';
 import {
   BoardThemePicker,
   PieceGridShared as PieceGrid
 } from '@/components/features/ColorPicker';
 import {
   useBoardPieceSet,
+  useDebouncedCommit,
   useLocalStorage,
   usePieceImages,
   usePieceSort
-} from '@hooks';
+} from '@/shared/hooks';
 import {
   BOARD_COLOR_KEYS,
   DEFAULT_DARK_SQUARE,
@@ -22,18 +23,10 @@ import {
   STARTING_FEN
 } from '@constants';
 
-import { sanitizeHexColor } from '@utils';
+import { sanitizeHexColor } from '@/shared/utils';
 import { CustomSelect } from '@shared/ui';
 import { SettingsBlock, SettingsHeading } from './parts';
 
-/**
- * Board Style section. Drives square colours and piece set globally — the same
- * storage keys used by the board editor, FEN history, and export pipeline.
- * A live MiniPreview reflects the current selection in real time.
- *
- * Colour changes update instant local state (smooth drag) then debounce the
- * write to localStorage to avoid hammering storage / cross-tab sync every frame.
- */
 const BoardSection = memo(function BoardSection() {
   const [storedLight, setStoredLight] = useLocalStorage<string>(
     BOARD_COLOR_KEYS.LIGHT,
@@ -50,13 +43,7 @@ const BoardSection = memo(function BoardSection() {
   useEffect(() => setLightSquare(storedLight), [storedLight]);
   useEffect(() => setDarkSquare(storedDark), [storedDark]);
 
-  const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(
-    () => () => {
-      if (persistTimer.current) clearTimeout(persistTimer.current);
-    },
-    []
-  );
+  const debouncedCommit = useDebouncedCommit(PERSIST_DEBOUNCE_MS);
 
   const [pieceStyle, setPieceStyle] = useBoardPieceSet();
   const { pieceImages, isLoading } = usePieceImages(pieceStyle);
@@ -68,13 +55,12 @@ const BoardSection = memo(function BoardSection() {
       const safeDark = sanitizeHexColor(dark, DEFAULT_DARK_SQUARE);
       setLightSquare(safeLight);
       setDarkSquare(safeDark);
-      if (persistTimer.current) clearTimeout(persistTimer.current);
-      persistTimer.current = setTimeout(() => {
+      debouncedCommit(() => {
         setStoredLight(safeLight);
         setStoredDark(safeDark);
-      }, PERSIST_DEBOUNCE_MS);
+      });
     },
-    [setStoredLight, setStoredDark]
+    [debouncedCommit, setStoredLight, setStoredDark]
   );
 
   return (

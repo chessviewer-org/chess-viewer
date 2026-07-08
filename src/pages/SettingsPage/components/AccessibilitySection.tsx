@@ -1,10 +1,13 @@
 import { memo } from 'react';
 
-import { Eye, Layers, Monitor, Sparkles, Zap } from 'lucide-react';
+import { Eye, Layers, Monitor, Sparkles, Zap } from '@/assets/icons';
 
-import { useColorVisionSetting, useReducedMotionSetting } from '@hooks';
+import { useColorVisionSetting, useReducedMotionSetting } from '@/shared/hooks';
 
-import type { ColorVisionPreference, ReducedMotionPreference } from '@utils';
+import type {
+  ColorVisionPreference,
+  ReducedMotionPreference
+} from '@/shared/utils';
 import { CustomSelect } from '@shared/ui';
 import { SettingsBlock, SettingsHeading } from './parts';
 
@@ -66,7 +69,7 @@ const AccessibilitySection = memo(function AccessibilitySection() {
       <SettingsHeading
         icon={Eye}
         title="Accessibility"
-        description="Adapt ChessVision to your visual needs. These settings are saved on this device and synced when signed in."
+        description="Adapt ChessViewer to your visual needs. These settings are saved on this device and synced when signed in."
       />
 
       <SettingsBlock
@@ -100,7 +103,7 @@ const AccessibilitySection = memo(function AccessibilitySection() {
 
       <SettingsBlock
         title="Reduced motion"
-        description="Replace animations and transitions with instant changes. ChessVision follows your operating-system preference by default — choose Reduce or Always full to override it just for this app."
+        description="Replace animations and transitions with instant changes. ChessViewer follows your operating-system preference by default — choose Reduce or Always full to override it just for this app."
       >
         <div className="space-y-3">
           <div className="max-w-xs">

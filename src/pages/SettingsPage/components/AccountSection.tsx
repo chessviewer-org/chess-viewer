@@ -1,18 +1,16 @@
 import { memo, useState } from 'react';
-
-import { LogIn, User as UserIcon, UserPlus } from 'lucide-react';
-
-import { MEMBERSHIP_TIERS, useAuth, useProfile } from '@/features/auth';
+import { LogIn, User as UserIcon, UserPlus } from '@/assets/icons';
+import { MEMBERSHIP_TIERS, useAuth } from '@/auth';
 import { useModal } from '@contexts';
-
-import { AccountActions } from './account/AccountActions';
-import { AccountDetails } from './account/AccountDetails';
-import { DeleteAccountModal } from './account/DeleteAccountModal';
-import { EmailCard } from './account/EmailCard';
-import { IdentityHeader } from './account/IdentityHeader';
 import { SettingsHeading } from './parts';
+import {
+  AccountActions,
+  AccountDetails,
+  DeleteAccountModal,
+  EmailCard,
+  IdentityHeader
+} from './AccountSectionParts';
 
-/** Formats an ISO timestamp to a readable date-time, or null when absent/invalid. */
 function formatDateTime(iso: string | undefined): string | null {
   if (!iso) return null;
   const ms = Date.parse(iso);
@@ -26,22 +24,20 @@ function formatDateTime(iso: string | undefined): string | null {
   });
 }
 
-/** Capitalizes a provider id (e.g. "google" → "Google", "email" → "Email"). */
 function formatProvider(provider: unknown): string | null {
   if (typeof provider !== 'string' || provider.length === 0) return null;
   return provider.charAt(0).toUpperCase() + provider.slice(1);
 }
 
-/**
- * Account section: an editable identity header (inline display-name edit + email
- * change), an amount-derived membership tier inside Account details, and the
- * account-level destructive actions. Email changes go through
- * supabase.auth.updateUser (which sends a confirmation email) and mirror onto
- * the relational profile row. Renders a guest prompt when no session exists.
- */
 const AccountSection = memo(function AccountSection() {
   const { user, isAuthenticated, signOut } = useAuth();
-  const { displayName, setDisplayName, membershipTier, loading } = useProfile();
+  const {
+    profile,
+    setDisplayName,
+    membershipTier,
+    isLoading: loading
+  } = useAuth();
+  const displayName = profile.displayName;
   const { openAuthModal, showAlert } = useModal();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -93,7 +89,7 @@ const AccountSection = memo(function AccountSection() {
             Cloud Synchronization
           </h3>
           <p className="mb-4 text-sm text-text-secondary leading-relaxed">
-            Create a ChessVision account to sync your boards, history, and
+            Create a ChessViewer account to sync your boards, history, and
             custom themes across all your devices. Your current local data will
             be automatically migrated to the cloud.
           </p>
@@ -122,4 +118,5 @@ const AccountSection = memo(function AccountSection() {
 });
 
 AccountSection.displayName = 'AccountSection';
+
 export default AccountSection;
