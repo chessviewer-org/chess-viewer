@@ -1,0 +1,248 @@
+@use '../../../../styles/variables' as v;
+@use '../../../../styles/mixins' as m;
+
+.editorRoot {
+  display: flex;
+  flex-direction: column;
+  gap: v.$gap-sm;
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.editorCommandbarTop {
+  display: block;
+  width: 100%;
+  flex-shrink: 0;
+  margin-bottom: 0.25rem;
+  padding-inline: 0.25rem;
+
+  @include m.editor-cmd-in-panel {
+    display: none;
+  }
+}
+
+.editorCommandbarSeparator {
+  height: 1px;
+  background: rgb(var(--val-border) / 0.6);
+  margin-top: 0.5rem;
+}
+
+.editorCommandbarPanel {
+  display: none;
+  flex-shrink: 0;
+
+  @include m.editor-cmd-in-panel {
+    display: block;
+  }
+}
+
+.editorMainRow {
+  display: flex;
+  flex-direction: column;
+  gap: v.$gap-sm;
+  align-items: center;
+  width: 100%;
+  min-height: 0;
+
+  @include m.editor-side-by-side {
+    flex-direction: row;
+
+    align-items: stretch;
+  }
+}
+
+.editorBoardCol {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  @include m.editor-side-by-side {
+    width: 52%;
+    max-width: 460px;
+
+    align-self: flex-start;
+  }
+
+  @include m.editor-desktop {
+    width: 54%;
+    max-width: 520px;
+  }
+}
+
+.editorBoardWrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  max-width: min(100%, 70vh, 520px);
+  margin: 0 auto;
+  min-width: 0;
+  --gutter-size: clamp(14px, 3vw, 24px);
+
+  @include m.editor-side-by-side {
+    max-width: 100%;
+  }
+
+  @include m.editor-desktop {
+    max-width: calc((100vh - 260px) * 0.93);
+  }
+}
+
+.editorBoardInner {
+  width: 100%;
+  padding-top: 3px;
+}
+
+.editorBoardContainer {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  container-type: inline-size;
+}
+
+.editorCoordsOverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.editorPanel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: min(100%, 70vh, 520px);
+  margin: 0 auto;
+  min-width: 0;
+
+  @include m.editor-side-by-side {
+    flex: 1;
+    width: 0;
+    max-width: none;
+    margin: 0;
+
+    height: 100%;
+    overflow: hidden;
+  }
+}
+
+.editorPaletteCard {
+  width: 100%;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(var(--val-border) / 0.4);
+  background-color: var(--color-surface-elevated);
+  padding: 0.5rem 0.625rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+
+  @include m.editor-single-col {
+    order: 1;
+  }
+}
+
+.editorDisplayOpts {
+  width: 100%;
+  flex-shrink: 0;
+  padding: 2px 0.25rem;
+
+  @include m.editor-single-col {
+    order: 3;
+  }
+
+  @include m.editor-side-by-side {
+    flex: 1;
+    min-height: 0;
+  }
+
+  @include m.editor-desktop {
+    flex: 1;
+  }
+}
+
+.editorDisplayOptsLabel {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.075em;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.375rem;
+}
+
+.editorDisplayOptsChecks {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+
+  @include m.editor-side-by-side {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 0.375rem;
+  }
+}
+
+.editorTrash {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+  flex-shrink: 0;
+  height: 2.5rem;
+
+  @include m.touch {
+    height: 2.75rem;
+  }
+
+  @include m.editor-single-col {
+    order: 2;
+  }
+}
+
+.editorDbSearch {
+  display: flex;
+  flex-direction: column;
+  gap: v.$gap-xs;
+  flex-shrink: 0;
+
+  @include m.editor-single-col {
+    order: 4;
+  }
+
+  @include m.editor-side-by-side {
+    display: none;
+  }
+
+  @include m.editor-desktop {
+    display: flex;
+  }
+}
+
+.editorDbRow {
+  display: none;
+
+  @include m.editor-side-by-side {
+    display: block;
+    width: 100%;
+    flex-shrink: 0;
+    margin-top: 0.5rem;
+  }
+
+  @include m.editor-desktop {
+    display: none;
+  }
+}

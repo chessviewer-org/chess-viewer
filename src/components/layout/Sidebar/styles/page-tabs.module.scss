@@ -1,0 +1,89 @@
+@reference "../../../../index.css";
+
+.tabsNav {
+  @apply mb-6 md:mb-0 w-full;
+}
+
+.tabsList {
+  @apply flex flex-col gap-0.5 w-full;
+}
+
+.groupContainer {
+  @apply mt-3 border-t border-border pt-3 w-full;
+}
+
+.groupContainerFirst {
+  @apply w-full;
+}
+
+.groupToggleBtn {
+  @apply relative flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset;
+}
+
+.groupToggleActive {
+  @apply text-accent;
+}
+
+.groupToggleInactive {
+  @apply text-text-secondary hover:bg-surface-hover hover:text-text-primary;
+}
+
+.groupToggleLabel {
+  @apply flex items-center gap-2.5;
+}
+
+.groupIcon {
+  @apply h-4 w-4 shrink-0;
+}
+
+.groupChevron {
+  @apply h-4 w-4 text-text-muted shrink-0;
+}
+
+.groupHeading {
+  @apply block px-3 pb-1.5 text-xs font-bold uppercase tracking-wider text-text-muted;
+}
+
+.groupItems {
+  @apply flex flex-col gap-0.5 w-full;
+}
+
+.groupItemsCollapsible {
+  @apply mt-1 flex flex-col gap-0.5 w-full;
+}
+
+.tabBtn {
+  @apply relative flex shrink-0 items-center gap-2 rounded-lg py-2 pr-3 text-left text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset w-full;
+}
+
+.tabBtnCollapsible {
+  @apply pl-8;
+}
+
+.tabBtnNormal {
+  @apply pl-3;
+}
+
+.tabBtnActive {
+  @apply bg-accent/10 text-accent;
+}
+
+.tabBtnInactive {
+  @apply text-text-secondary hover:bg-surface-hover hover:text-text-primary;
+}
+
+.tabIndicator {
+  @apply absolute inset-y-1.5 left-0 w-0.5 rounded-full transition-colors;
+}
+
+.tabIndicatorActive {
+  @apply bg-accent;
+}
+
+.tabIndicatorInactive {
+  @apply bg-transparent;
+}
+
+.tabIcon {
+  @apply h-4 w-4 shrink-0;
+}

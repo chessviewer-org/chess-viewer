@@ -1,18 +1,18 @@
 import { ChessBoard, isChessBoard } from '@app-types';
 
-import { parseFEN } from './fenParser';
+import { parseFEN } from '@chessviewer-org/chess-viewer';
 import { shouldForceCoordinateBorder } from './imageOptimizer';
 import {
   getPieceKey,
   imageToEmbeddableDataURL,
   waitForPieceImage
-} from './svgPieceLoader';
-import { sanitizeFileName, sanitizeInput } from './validation';
+} from './pieceUtils';
+import { sanitizeInput } from '@chessviewer-org/chess-viewer';
+import { saveBlob } from './saveBlob';
 
 const SVG_BOARD_PX = 800;
 const SVG_COORD_BORDER_RATIO = 0.05;
 
-/** Escapes a value for safe interpolation into a double-quoted XML attribute. */
 function escapeXmlAttr(value: string): string {
   return value
     .replace(/&/g, '&amp;')
@@ -21,7 +21,6 @@ function escapeXmlAttr(value: string): string {
     .replace(/>/g, '&gt;');
 }
 
-/** Board render settings for the SVG export path. */
 interface SVGExportConfig {
   boardSize: number;
   showCoords: boolean;
@@ -35,15 +34,6 @@ interface SVGExportConfig {
   exportQuality?: number;
 }
 
-/**
- * Generates an SVG string representing the chess board position.
- *
- * Piece images are embedded as base64 data URLs so the SVG is self-contained.
- *
- * @param config - Board render configuration
- * @returns SVG markup string
- * @throws If the FEN is invalid or the board cannot be parsed
- */
 export async function generateBoardSVG(
   config: SVGExportConfig
 ): Promise<string> {
@@ -99,9 +89,6 @@ export async function generateBoardSVG(
   );
 
   const fontSize = Math.round(Math.max(10, Math.min(480, borderPx * 0.72)));
-  // Match the in-app / canvas-export coordinate font (Inter) so SVG, PNG/JPEG,
-  // and the live board render coordinates in the same typeface. The system
-  // stack is the fallback for viewers without Inter installed.
   const fontFamily =
     "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif";
   const coordTextColor = '#000000';
@@ -139,8 +126,6 @@ export async function generateBoardSVG(
     );
   }
 
-  // stroke-alignment isn't in SVG 1.1, so shift the rect outward by half
-  // stroke-width to get an outset stroke (no overlap with the squares).
   const borderStroke = Math.max(1, Math.round(boardPx * 0.002));
   const bHalf = borderStroke / 2;
   parts.push(
@@ -232,33 +217,15 @@ export async function getSVGBlob(
   return new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
 }
 
-/**
- * Generates an SVG of the board position and triggers a browser download.
- *
- * @param config - Board render configuration
- * @param fileName - Base name for the downloaded file (without extension)
- * @param onProgress - Optional progress callback
- * @throws If rendering fails or required config fields are missing
- */
 export async function downloadSVG(
   config: SVGExportConfig,
   fileName: string,
   onProgress?: (progress: number, label?: string | null) => void
 ): Promise<void> {
   try {
-    const safeFileName = sanitizeFileName(fileName);
     const blob = await getSVGBlob(config, onProgress);
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${safeFileName}.svg`;
-    document.body.appendChild(link);
-    link.click();
+    saveBlob(blob, fileName, 'svg');
     onProgress?.(100, 'Done');
-    setTimeout(() => {
-      if (document.body.contains(link)) document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    }, 100);
   } catch (err: unknown) {
     throw new Error(
       `SVG export failed: ${err instanceof Error ? err.message : String(err)}`,

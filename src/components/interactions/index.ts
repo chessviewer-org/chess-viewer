@@ -1,6 +1,10 @@
-export { ChessEditor } from './ChessEditor';
-export { DraggablePiece } from './DraggablePiece';
-export { DroppableSquare } from './DroppableSquare';
-export { InteractiveBoard } from './InteractiveBoard';
-export { PiecePalette } from './PiecePalette';
-export { TrashZone } from './TrashZone';
+export { ChessEditor } from './Editor';
+export type { ChessEditorProps } from './Editor';
+export {
+  type BoardKeyboardApi,
+  InteractiveBoard,
+  DraggablePiece,
+  DroppableSquare,
+  TrashZone
+} from './Board';
+export { type PiecePaletteProps, PiecePalette } from './PiecePalette';

@@ -1,6 +1,5 @@
 import { memo, useEffect, useRef, useState } from 'react';
 
-// Removed unused imports
 import { BOARD_THEMES } from '@constants';
 
 import {
@@ -9,7 +8,7 @@ import {
   isLightSquare,
   logger,
   parseFEN
-} from '@utils';
+} from '@/shared/utils';
 
 const DEFAULT_LIGHT = BOARD_THEMES['classic']?.light ?? '#f0d9b5';
 const DEFAULT_DARK = BOARD_THEMES['classic']?.dark ?? '#b58863';
@@ -27,17 +26,6 @@ interface BoardPreviewCanvasProps {
   flipped?: boolean;
 }
 
-/**
- * Live board preview for the Export Studio.
- *
- * Layout: a fixed outer wrapper whose size never changes when coords toggle.
- * The gutter (rank left, file bottom) is always reserved as empty space inside
- * the wrapper. The board canvas fills the remaining area. Coordinates are
- * absolutely positioned into the gutter slots.
- *
- * "Board Frame" is an outline on the canvas wrapper — outside the pixels,
- * does not affect canvas size.
- */
 const BoardPreviewCanvas = memo(
   function BoardPreviewCanvas({
     fen,
@@ -54,7 +42,6 @@ const BoardPreviewCanvas = memo(
     const [hasError, setHasError] = useState(false);
     const [wrapperPx, setWrapperPx] = useState(0);
 
-    // Observe the outer wrapper width once — stable, no state churn.
     useEffect(() => {
       const el = wrapperRef.current;
       if (!el) return;
@@ -67,9 +54,7 @@ const BoardPreviewCanvas = memo(
       return () => obs.disconnect();
     }, []);
 
-    // gutter is always reserved regardless of showCoords.
     const gutter = wrapperPx > 0 ? Math.round(wrapperPx * GUTTER_RATIO) : 0;
-    // board fills everything except the left rank gutter and bottom file gutter.
     const boardPx = Math.max(0, wrapperPx - gutter);
     const cellSize = boardPx > 0 ? boardPx / 8 : 0;
 
@@ -156,9 +141,6 @@ const BoardPreviewCanvas = memo(
     ]);
 
     return (
-      // Outer wrapper: fills available width, height = width (square).
-      // The gutter space is always part of the layout — toggling coords never
-      // changes the wrapper size, so nothing shifts.
       <div
         ref={wrapperRef}
         style={
@@ -170,7 +152,6 @@ const BoardPreviewCanvas = memo(
           } as React.CSSProperties
         }
       >
-        {/* Board canvas — offset right by gutter, offset up from bottom by gutter */}
         <div
           style={{
             position: 'absolute',
@@ -205,7 +186,6 @@ const BoardPreviewCanvas = memo(
           )}
         </div>
 
-        {/* Rank labels — left gutter column, top-aligned with the board */}
         {showCoords && cellSize > 0 && (
           <div
             className="flex flex-col text-text-secondary font-bold select-none absolute"
@@ -232,7 +212,6 @@ const BoardPreviewCanvas = memo(
           </div>
         )}
 
-        {/* File labels — bottom gutter row, offset by left gutter to align with board */}
         {showCoords && cellSize > 0 && (
           <div
             className="flex flex-row text-text-secondary font-bold select-none absolute lowercase"

@@ -1,12 +1,12 @@
 # FAQ
 
-Common questions about ChessVision.
+Common questions about ChessViewer.
 
 ---
 
 ## General
 
-### What is ChessVision for?
+### What is ChessViewer for?
 
 It is a diagram editor. You set up a chess position, choose how the board and pieces look, and export a clean image. No engine, no analysis, no opponent — just a fast way to turn a position into a picture you can use anywhere.
 
@@ -34,7 +34,7 @@ FEN (Forsyth-Edwards Notation) encodes a chess position as a text string. It loo
 rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1
 ```
 
-Most chess sites and databases can export FEN. ChessVision reads it directly.
+Most chess sites and databases can export FEN. ChessViewer reads it directly.
 
 ### What are the six FEN fields?
 
@@ -47,7 +47,7 @@ Most chess sites and databases can export FEN. ChessVision reads it directly.
 
 ### Do I need all six fields?
 
-No. Only the piece placement field is required. ChessVision accepts partial FEN strings.
+No. Only the piece placement field is required. ChessViewer accepts partial FEN strings.
 
 ### What is the maximum FEN length?
 
@@ -122,7 +122,7 @@ Try a hard refresh (Ctrl+F5 or Cmd+Shift+R). If that does not help, try a differ
 
 ### The FEN I pasted is not loading.
 
-Check that the FEN is valid. ChessVision shows a validation error inline if something is wrong. The most common issues are extra spaces, wrong separators, or a string that is longer than 93 characters.
+Check that the FEN is valid. ChessViewer shows a validation error inline if something is wrong. The most common issues are extra spaces, wrong separators, or a string that is longer than 93 characters.
 
 ### I cannot copy the image to clipboard.
 

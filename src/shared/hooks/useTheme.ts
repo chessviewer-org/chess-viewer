@@ -1,209 +1,265 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import { logger } from '@utils';
+import { syncStorage } from '@/auth';
 import {
-  adjustBrightness,
-  generateComplementary,
-  getContrastRatio
-} from './theme/themeColorMath';
-import type { ThemeHistoryItem } from './theme/types';
-import { useThemePersistence } from './theme/useThemePersistence';
+  hydrateFromSync,
+  isThemeModePreference,
+  logger,
+  readThemeModePreference,
+  safeJSONParse,
+  sanitizeHexColor,
+  THEME_MODE_CHANGE_EVENT,
+  THEME_MODE_STORAGE_KEY,
+  type ThemeModePreference
+} from '@/shared/utils';
 
-/** Return type of `useTheme` — exposes the current colors, history, and all theme manipulation actions. */
 export interface UseThemeResult {
   lightSquare: string;
   darkSquare: string;
-  currentTheme: string;
-  themeHistory: ThemeHistoryItem[];
-  setLightSquare: React.Dispatch<React.SetStateAction<string>>;
-  setDarkSquare: React.Dispatch<React.SetStateAction<string>>;
-  applyTheme: (
-    themeKey: string,
-    themeData: { name?: string; light: string; dark: string }
-  ) => void;
-  applyCustomTheme: (light: string, dark: string, name?: string) => void;
-  resetTheme: () => void;
-  clearThemeHistory: () => void;
-  exportTheme: () => {
-    name: string;
-    light: string;
-    dark: string;
-    contrastRatio: string;
-    timestamp: number;
-  };
-  importTheme: (themeData: {
-    light: string;
-    dark: string;
-    name?: string;
-  }) => void;
-  getContrastRatio: (color1: string, color2: string) => string;
-  hasGoodContrast: () => boolean;
-  generateComplementary: (hex: string) => string;
-  adjustBrightness: (hex: string, percent: number) => string;
+  setLightSquare: (color: string) => void;
+  setDarkSquare: (color: string) => void;
 }
 
-function pushHistory(
-  setThemeHistory: React.Dispatch<React.SetStateAction<ThemeHistoryItem[]>>,
-  entry: ThemeHistoryItem
-) {
-  setThemeHistory((prev) => {
-    const updated = [
-      entry,
-      ...prev.filter((h) => h.light !== entry.light || h.dark !== entry.dark)
-    ].slice(0, 10);
-    try {
-      window.localStorage.setItem('theme-history', JSON.stringify(updated));
-    } catch (err: unknown) {
-      logger.error('Failed to save theme history:', err);
-    }
-    return updated;
-  });
-}
-
-/**
- * Manages board theme colors with persistence, history, and utility actions.
- *
- * Persists `lightSquare` and `darkSquare` to `localStorage` and exposes helpers
- * for applying presets, generating complementary colors, and exporting/importing themes.
- *
- * @param initialLight - Initial light square hex color
- * @param initialDark - Initial dark square hex color
- * @returns Theme state and all color manipulation actions
- */
+// Board square colors, persisted to localStorage + cloud, kept in sync across tabs.
 export function useTheme({
   initialLight = '#f0d9b5',
   initialDark = '#b58863'
-}: {
-  initialLight?: string;
-  initialDark?: string;
 } = {}): UseThemeResult {
   const [lightSquare, setLightSquare] = useState(initialLight);
   const [darkSquare, setDarkSquare] = useState(initialDark);
-  const [currentTheme, setCurrentTheme] = useState('custom');
-  const [themeHistory, setThemeHistory] = useState<ThemeHistoryItem[]>([]);
+  const [isHydrated, setIsHydrated] = useState(false);
 
-  useThemePersistence({
-    initialLight,
-    initialDark,
-    lightSquare,
-    darkSquare,
-    currentTheme,
-    setLightSquare,
-    setDarkSquare,
-    setCurrentTheme,
-    setThemeHistory
-  });
+  useEffect(() => {
+    const loadSavedTheme = async () => {
+      type SavedTheme = { light: string; dark: string };
+      try {
+        let saved: SavedTheme | null = null;
 
-  const applyTheme = useCallback(
-    (
-      themeKey: string,
-      themeData: { name?: string; light: string; dark: string }
-    ) => {
-      setLightSquare(themeData.light);
-      setDarkSquare(themeData.dark);
-      setCurrentTheme(themeKey);
-      pushHistory(setThemeHistory, {
-        id: Date.now(),
-        name: themeData.name || themeKey,
-        light: themeData.light,
-        dark: themeData.dark,
-        timestamp: Date.now()
-      });
-    },
-    []
-  );
+        const cloud = await syncStorage.get('chess-theme');
+        if (cloud && typeof cloud.value === 'string') {
+          saved = safeJSONParse<SavedTheme | null>(cloud.value, null);
+        }
+        if (!saved) {
+          const local = window.localStorage.getItem('chess-theme');
+          if (local) saved = safeJSONParse<SavedTheme | null>(local, null);
+        }
 
-  const applyCustomTheme = useCallback(
-    (light: string, dark: string, name = 'Custom') => {
-      setLightSquare(light);
-      setDarkSquare(dark);
-      setCurrentTheme(name);
-      pushHistory(setThemeHistory, {
-        id: Date.now(),
-        name,
-        light,
-        dark,
-        timestamp: Date.now()
-      });
-    },
-    []
-  );
+        if (saved) {
+          setLightSquare(sanitizeHexColor(saved.light, initialLight));
+          setDarkSquare(sanitizeHexColor(saved.dark, initialDark));
+        }
+      } catch (err) {
+        logger.error('Failed to load theme:', err);
+      } finally {
+        setIsHydrated(true);
+      }
+    };
 
-  const resetTheme = useCallback(() => {
-    setLightSquare(initialLight);
-    setDarkSquare(initialDark);
-    setCurrentTheme('brown');
+    loadSavedTheme();
   }, [initialLight, initialDark]);
 
-  const hasGoodContrast = useCallback(() => {
-    return parseFloat(getContrastRatio(lightSquare, darkSquare)) >= 1.5;
-  }, [lightSquare, darkSquare]);
+  useEffect(() => {
+    if (!isHydrated) return;
 
-  const clearThemeHistory = useCallback(() => {
-    setThemeHistory([]);
+    const timer = setTimeout(() => {
+      const data = JSON.stringify({ light: lightSquare, dark: darkSquare });
+      try {
+        window.localStorage.setItem('chess-theme', data);
+        void syncStorage.set('chess-theme', data);
+      } catch (err) {
+        logger.error('Failed to save theme:', err);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [lightSquare, darkSquare, isHydrated]);
+
+  return { lightSquare, darkSquare, setLightSquare, setDarkSquare };
+}
+
+// Reads the light/dark square colors from localStorage and keeps the given
+// setters in sync when another tab changes them or the tab becomes visible.
+export function useSyncedBoardColors(
+  setLightSquare: (color: string) => void,
+  setDarkSquare: (color: string) => void
+): void {
+  useEffect(() => {
+    const readFromStorage = () => {
+      const light = window.localStorage.getItem('chess-light-square');
+      const dark = window.localStorage.getItem('chess-dark-square');
+      if (light !== null) {
+        setLightSquare(
+          sanitizeHexColor(safeJSONParse(light, '#f0d9b5'), '#f0d9b5')
+        );
+      }
+      if (dark !== null) {
+        setDarkSquare(
+          sanitizeHexColor(safeJSONParse(dark, '#b58863'), '#b58863')
+        );
+      }
+    };
+
+    readFromStorage();
+    window.addEventListener('storage', readFromStorage);
+
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') readFromStorage();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+
+    return () => {
+      window.removeEventListener('storage', readFromStorage);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [setLightSquare, setDarkSquare]);
+}
+
+// Light / dark / system mode preference for the whole app.
+export function useThemeMode(): [
+  ThemeModePreference,
+  (next: ThemeModePreference) => void
+] {
+  const [preference, setPreference] = useState<ThemeModePreference>(() =>
+    readThemeModePreference()
+  );
+
+  useEffect(() => {
+    const sync = () => setPreference(readThemeModePreference());
+    window.addEventListener(THEME_MODE_CHANGE_EVENT, sync);
+    window.addEventListener('storage', sync);
+    return () => {
+      window.removeEventListener(THEME_MODE_CHANGE_EVENT, sync);
+      window.removeEventListener('storage', sync);
+    };
+  }, []);
+
+  const select = useCallback((next: ThemeModePreference) => {
+    setPreference(next);
     try {
-      window.localStorage.removeItem('theme-history');
-    } catch (err: unknown) {
-      logger.error('Failed to clear theme history:', err);
+      const value = JSON.stringify(next);
+      window.localStorage.setItem(THEME_MODE_STORAGE_KEY, value);
+      void syncStorage.set(THEME_MODE_STORAGE_KEY, value);
+      window.dispatchEvent(new Event(THEME_MODE_CHANGE_EVENT));
+    } catch (err) {
+      logger.error('Failed to save theme mode:', err);
     }
   }, []);
 
-  const exportTheme = useCallback(
-    () => ({
-      name: currentTheme,
-      light: lightSquare,
-      dark: darkSquare,
-      contrastRatio: getContrastRatio(lightSquare, darkSquare),
-      timestamp: Date.now()
-    }),
-    [currentTheme, lightSquare, darkSquare]
-  );
+  return [preference, select];
+}
 
-  const importTheme = useCallback(
-    (themeData: { light: string; dark: string; name?: string }) => {
-      if (!themeData || !themeData.light || !themeData.dark) {
-        throw new Error('Invalid theme data');
+// One-time hydration of the theme-mode preference from the cloud on a fresh
+// device. Mount once at the app level.
+export function useThemeModeSync(): void {
+  useEffect(() => {
+    let cancelled = false;
+    void hydrateFromSync(
+      THEME_MODE_STORAGE_KEY,
+      (decoded) => {
+        if (!isThemeModePreference(decoded)) return;
+        const current = window.localStorage.getItem(THEME_MODE_STORAGE_KEY);
+        const next = JSON.stringify(decoded);
+        if (current !== next) {
+          window.localStorage.setItem(THEME_MODE_STORAGE_KEY, next);
+          window.dispatchEvent(new Event(THEME_MODE_CHANGE_EVENT));
+        }
+      },
+      () => cancelled,
+      'theme mode'
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+}
+
+const CUSTOM_THEME_PRESETS_KEY = 'custom-theme-presets';
+
+export interface ThemePreset {
+  id: number;
+  name: string;
+  light: string;
+  dark: string;
+  timestamp: number;
+}
+
+export interface UseThemePresetsResult {
+  customPresets: ThemePreset[];
+  savePreset: (name: string, light: string, dark: string) => void;
+  deletePreset: (id: number) => void;
+  updatePreset: (
+    id: number,
+    updates: Partial<Pick<ThemePreset, 'name' | 'light' | 'dark'>>
+  ) => void;
+}
+
+// User-created custom board color presets, persisted locally + cloud.
+export function useThemePresets(): UseThemePresetsResult {
+  const [customPresets, setCustomPresets] = useState<ThemePreset[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const local = window.localStorage.getItem(CUSTOM_THEME_PRESETS_KEY);
+        const localPresets = local
+          ? safeJSONParse<ThemePreset[]>(local, [])
+          : [];
+        if (Array.isArray(localPresets)) setCustomPresets(localPresets);
+
+        const cloud = await syncStorage.get(CUSTOM_THEME_PRESETS_KEY);
+        if (cloud && typeof cloud.value === 'string') {
+          const cloudPresets = safeJSONParse<ThemePreset[]>(cloud.value, []);
+          if (
+            Array.isArray(cloudPresets) &&
+            JSON.stringify(cloudPresets) !== JSON.stringify(localPresets)
+          ) {
+            setCustomPresets(cloudPresets);
+            window.localStorage.setItem(
+              CUSTOM_THEME_PRESETS_KEY,
+              JSON.stringify(cloudPresets)
+            );
+          }
+        }
+      } catch (err) {
+        logger.error('Failed to load theme presets:', err);
       }
-      applyCustomTheme(
-        themeData.light,
-        themeData.dark,
-        themeData.name || 'Imported'
-      );
-    },
-    [applyCustomTheme]
-  );
+    };
 
-  return useMemo(
-    () => ({
-      lightSquare,
-      darkSquare,
-      currentTheme,
-      themeHistory,
-      setLightSquare,
-      setDarkSquare,
-      applyTheme,
-      applyCustomTheme,
-      resetTheme,
-      clearThemeHistory,
-      exportTheme,
-      importTheme,
-      getContrastRatio,
-      hasGoodContrast,
-      generateComplementary,
-      adjustBrightness
-    }),
-    [
-      lightSquare,
-      darkSquare,
-      currentTheme,
-      themeHistory,
-      applyTheme,
-      applyCustomTheme,
-      resetTheme,
-      clearThemeHistory,
-      exportTheme,
-      importTheme,
-      hasGoodContrast
-    ]
-  );
+    load();
+  }, []);
+
+  const persist = (presets: ThemePreset[]) => {
+    setCustomPresets(presets);
+    const data = JSON.stringify(presets);
+    try {
+      window.localStorage.setItem(CUSTOM_THEME_PRESETS_KEY, data);
+      void syncStorage.set(CUSTOM_THEME_PRESETS_KEY, data);
+    } catch (err) {
+      logger.error('Failed to save theme presets:', err);
+    }
+  };
+
+  const savePreset = (name: string, light: string, dark: string) => {
+    persist([
+      ...customPresets,
+      { id: Date.now(), name, light, dark, timestamp: Date.now() }
+    ]);
+  };
+
+  const updatePreset = (
+    id: number,
+    updates: Partial<Pick<ThemePreset, 'name' | 'light' | 'dark'>>
+  ) => {
+    persist(
+      customPresets.map((preset) =>
+        preset.id === id ? { ...preset, ...updates } : preset
+      )
+    );
+  };
+
+  const deletePreset = (id: number) => {
+    persist(customPresets.filter((preset) => preset.id !== id));
+  };
+
+  return { customPresets, savePreset, updatePreset, deletePreset };
 }

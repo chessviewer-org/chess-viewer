@@ -1,0 +1,69 @@
+@use '../../../styles/mixins' as m;
+
+$split: 720px;
+
+.previewLayout {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5rem;
+  height: 100%;
+
+  @include m.container-up($split) {
+    flex-direction: row;
+    gap: 2.5rem;
+    align-items: flex-start;
+    min-height: 100%;
+  }
+
+  @include m.viewport-up(1024px) {
+    height: 100%;
+    overflow: hidden;
+  }
+}
+
+.previewLeft {
+  width: 100%;
+  flex-shrink: 0;
+  order: 1;
+
+  @include m.container-up($split) {
+    width: 45%;
+    position: sticky;
+    top: 0;
+  }
+}
+
+.previewRight {
+  width: 100%;
+  order: 2;
+  min-height: 0;
+
+  @include m.container-up($split) {
+    width: 55%;
+    overflow-y: auto;
+  }
+
+  @include m.viewport-up(1024px) {
+    height: 100%;
+    overflow-y: auto;
+  }
+}
+
+.boardWidth {
+  max-width: 440px;
+
+  @include m.container-up($split) {
+    max-width: 500px;
+  }
+}
+
+.fenGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+
+  @include m.container-up($split) {
+    grid-template-columns: 1fr 1fr;
+  }
+}

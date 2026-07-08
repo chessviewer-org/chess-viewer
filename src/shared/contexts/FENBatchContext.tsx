@@ -1,15 +1,27 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState
+} from 'react';
 
 import { ADVANCED_FEN_CONFIG } from '@constants';
 
-import { safeJSONParse } from '@utils';
-import { FENBatchContext, FENBatchContextValue } from './FENBatchStore';
+import { safeJSONParse } from '@/shared/utils';
 
-/**
- * Provides FEN batch list state to the component subtree.
- *
- * Persists the batch list to `localStorage` on every change.
- */
+export interface FENBatchContextValue {
+  batchList: string[];
+  addToBatch: (fen: string) => 'added' | 'duplicate' | 'limit' | 'invalid';
+  removeFromBatch: (index: number) => void;
+  clearBatch: () => void;
+  updateBatchItem: (index: number, newFen: string) => boolean;
+}
+
+const FENBatchContext = createContext<FENBatchContextValue | null>(null);
+
 export function FENBatchProvider({ children }: { children: React.ReactNode }) {
   const [batchList, setBatchList] = useState<string[]>(() => {
     try {
@@ -83,4 +95,12 @@ export function FENBatchProvider({ children }: { children: React.ReactNode }) {
       {children}
     </FENBatchContext.Provider>
   );
+}
+
+export function useFENBatch(): FENBatchContextValue {
+  const context = useContext(FENBatchContext);
+  if (!context) {
+    throw new Error('useFENBatch must be used within FENBatchProvider');
+  }
+  return context;
 }

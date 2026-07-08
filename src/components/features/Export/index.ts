@@ -1,1 +1,1 @@
-export { default as ExportProgress } from './ExportProgress';
+export { ExportProgress } from './ExportProgress';

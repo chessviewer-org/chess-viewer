@@ -1,10 +1,9 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
-import { useFENHistory, useHomeExport, useNotifications } from '@hooks';
+import { useFENHistory, useHomeExport, useNotifications } from '@/shared/hooks';
 
 import { useHomeBoardState } from './useHomeBoardState';
 
-/** Aggregates board state, FEN history, export actions, and notifications for HomePage. */
 export const useHome = () => {
   const board = useHomeBoardState();
 
@@ -37,75 +36,47 @@ export const useHome = () => {
     notify: { success, error, info }
   });
 
-  const handleFlip = useCallback(() => {
+  function handleFlip() {
     board.setFlipped((prev) => !prev);
     success('Board flipped');
-  }, [board, success]);
+  }
 
-  const handleAddToFavorites = useCallback(() => {
-    addToFavoritesRef.current?.();
-  }, []);
+  function handleEditorFenChange(newFen: string) {
+    board.setFen(newFen);
+    notifyDragAction();
+  }
 
-  const handleEditorFenChange = useCallback(
-    (newFen: string) => {
-      board.setFen(newFen);
-      notifyDragAction();
-    },
-    [board, notifyDragAction]
-  );
+  function handleNotification(
+    message: string,
+    type: 'success' | 'error' | 'warning' | 'info'
+  ) {
+    if (type === 'success') success(message);
+    else if (type === 'error') error(message);
+    else if (type === 'warning') warning(message);
+    else info(message);
+  }
 
-  const handleNotification = useCallback(
-    (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
-      if (type === 'success') success(message);
-      else if (type === 'error') error(message);
-      else if (type === 'warning') warning(message);
-      else info(message);
-    },
-    [success, error, warning, info]
-  );
+  return {
+    ...board,
+    isFavorite,
+    setIsFavorite,
+    addToFavoritesRef,
+    exportState: exportApi.exportState,
+    notifications,
+    removeNotification,
 
-  return useMemo(
-    () => ({
-      ...board,
-      isFavorite,
-      setIsFavorite,
-      addToFavoritesRef,
-      exportState: exportApi.exportState,
-      notifications,
-      removeNotification,
+    saveManualFen,
+    saveExportFen,
+    addCurrentToFavorites,
 
-      saveManualFen,
-      saveExportFen,
-      addCurrentToFavorites,
-
-      handlePieceImagesChange: exportApi.handlePieceImagesChange,
-      handleDownloadPNG: exportApi.handleDownloadPNG,
-      handleDownloadJPEG: exportApi.handleDownloadJPEG,
-      handleCopyImage: exportApi.handleCopyImage,
-      handleFlip,
-      handleBatchExport: exportApi.handleBatchExport,
-      handleCancelExport: exportApi.handleCancelExport,
-      handlePause: exportApi.handlePause,
-      handleResume: exportApi.handleResume,
-      handleAddToFavorites,
-      handleEditorFenChange,
-      handleNotification,
-      toggleProgress: exportApi.toggleProgress,
-      getExportConfig: exportApi.getExportConfig
-    }),
-    [
-      board,
-      isFavorite,
-      exportApi,
-      notifications,
-      removeNotification,
-      saveManualFen,
-      saveExportFen,
-      addCurrentToFavorites,
-      handleFlip,
-      handleAddToFavorites,
-      handleEditorFenChange,
-      handleNotification
-    ]
-  );
+    handlePieceImagesChange: exportApi.handlePieceImagesChange,
+    handleFlip,
+    handleCancelExport: exportApi.handleCancelExport,
+    handlePause: exportApi.handlePause,
+    handleResume: exportApi.handleResume,
+    handleEditorFenChange,
+    handleNotification,
+    toggleProgress: exportApi.toggleProgress,
+    getExportConfig: exportApi.getExportConfig
+  };
 };

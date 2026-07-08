@@ -1,9 +1,13 @@
-import React, { memo } from 'react';
+import React, { memo, useRef } from 'react';
 
-import { Eye, Globe, List, Sliders } from 'lucide-react';
+import { Eye, Globe, List, Sliders } from '@/assets/icons';
 
 import { ExportProgress } from '@/components/features';
-import { type PageTabGroup, PageTabs } from '@/components/layout';
+import {
+  type PageTabGroup,
+  PageSidebarLayout,
+  PageTabs
+} from '@/components/layout';
 import {
   ADVANCED_FEN_BREADCRUMB_SCHEMA,
   ADVANCED_FEN_CONFIG,
@@ -12,7 +16,7 @@ import {
 } from '@constants';
 
 import { Seo } from '@shared/ui';
-import styles from './advanced-fen-layout.module.scss';
+import styles from './styles/advanced-fen-layout.module.scss';
 import InteractiveBoardColumn from './components/InteractiveBoardColumn';
 import NoValidPositions from './components/NoValidPositions';
 import PositionsTab from './components/PositionsTab';
@@ -25,12 +29,6 @@ import {
 
 const { TABS } = ADVANCED_FEN_CONFIG;
 
-/** Shared two-column layout for preview/export tabs.
- *  Reacts to the CONTENT container width (the `@container` region wrapper), NOT
- *  the viewport — the sidebar steals ~208–236px so a viewport `lg:` switches at
- *  the wrong moment. When the content container reaches ~768px (`@3xl`) the
- *  board (45%, sticky) and panel (55%) sit side-by-side; below that they stack
- *  vertically (board first, then panel). */
 function PreviewExportLayout({
   left,
   right
@@ -46,11 +44,11 @@ function PreviewExportLayout({
   );
 }
 
-/** Batch FEN studio page with positions list, visual setup wizard, and multi-format export. */
 const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
   props: AdvancedFENInitialProps
 ): React.JSX.Element {
   const { state, handlers } = useAdvancedFEN(props);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const groups: PageTabGroup[] = [
     {
@@ -75,7 +73,7 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
   return (
     <div
       data-page-scroll
-      className="bg-bg min-h-full lg:h-screen lg:max-h-screen lg:overflow-hidden animate-pageEnter"
+      className="bg-bg min-h-full lg:h-screen lg:max-h-screen lg:overflow-hidden"
     >
       <Seo
         {...getRouteSeo('/advanced-fen')}
@@ -83,27 +81,19 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
       />
       <h1 className="sr-only">Batch FEN Export — Chess Diagram Studio</h1>
 
-      <div className="page-container flex flex-col gap-6 py-6 sm:py-8 md:flex-row md:gap-8 lg:gap-10 lg:h-full lg:overflow-hidden">
-        {/* Sidebar: sticky left column on md+ */}
-        <div className="shrink-0 md:border-r md:border-border md:pr-8 md:w-52 lg:w-56 w-full lg:overflow-y-auto">
-          <div className="md:sticky md:top-8">
-            <PageTabs
-              groups={groups}
-              activeId={state.activeTab}
-              onSelect={handlers.setActiveTab}
-              ariaLabel="Advanced FEN sections"
-            />
-          </div>
-        </div>
-
-        {/* @container: preview/export layout reads THIS wrapper's width.
-            On desktop the column is pinned (overflow-y-auto + h-full) so the
-            board sticks to the top and only the right panel scrolls. */}
-        <div
-          role="region"
-          aria-label="Editor content"
-          className="@container min-w-0 flex-1 flex flex-col overflow-y-auto lg:overflow-hidden pr-2 pb-2 lg:h-full"
-        >
+      <PageSidebarLayout
+        contentRef={contentRef}
+        contentLabel="Editor content"
+        sidebar={
+          <PageTabs
+            groups={groups}
+            activeId={state.activeTab}
+            onSelect={handlers.setActiveTab}
+            ariaLabel="Advanced FEN sections"
+          />
+        }
+      >
+        <div className="@container flex flex-col h-full">
           {state.activeTab === TABS.POSITIONS && (
             <PositionsTab
               fens={state.fens}
@@ -153,7 +143,7 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
             </div>
           )}
         </div>
-      </div>
+      </PageSidebarLayout>
 
       {state.exportState.isExporting && (
         <ExportProgress

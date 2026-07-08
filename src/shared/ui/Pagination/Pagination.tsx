@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from '@/assets/icons';
 
 import { getSlots } from './getSlots';
 
@@ -26,27 +26,13 @@ const ARROW_CLASS =
   'focus-visible:ring-accent sm:inline-flex';
 
 export interface PaginationProps {
-  /** Active page index (0-based). */
   page: number;
-  /** Total number of pages. The component renders nothing when this is ≤ 1. */
   pageCount: number;
-  /** Called with the next page index. Edge steps wrap around. */
   onChange: (page: number) => void;
-  /** Accessible label for the surrounding nav landmark. */
   label?: string;
   className?: string;
 }
 
-/**
- * Compact, accessible page indicator: prev/next arrows (pointer + `sm` screens)
- * flanking a centred row of dots. The active dot widens into an accent pill; the
- * rest stay small. A sliding window caps the row at {@link MAX_VISIBLE_DOTS}
- * dots so even long lists never overflow narrow phone/tablet columns — the bug
- * the old per-call pagers hit was an unbounded dot row, not the pill itself.
- *
- * Stepping past either edge wraps, matching the swipe-to-page behaviour used by
- * the touch carousels that consume this component.
- */
 const Pagination = memo(function Pagination({
   page,
   pageCount,

@@ -28,8 +28,6 @@ coverage
 # Editor & AI tool directories
 .vscode
 .idea
-.claude
-.gemini
 
 # OS files
 .DS_Store

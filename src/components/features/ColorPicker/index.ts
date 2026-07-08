@@ -1,2 +1,2 @@
-export { default as BoardThemePicker } from './BoardThemePicker';
-export { PieceGridShared } from './PieceGridShared';
+export { BoardThemePicker } from './components/BoardThemePicker';
+export { PieceGridShared } from './components/PieceGridShared';

@@ -11,11 +11,6 @@ interface WizardVisualSetupProps {
   handlers: AdvancedFENReturn['handlers'];
 }
 
-/**
- * Board Style tab: theme + piece-set picker and the display-option toggles
- * (coordinates / board frame) that drive the read-only board preview. The
- * board itself is no longer an editor — all appearance is set from here.
- */
 const WizardVisualSetup = memo(function WizardVisualSetup({
   state,
   handlers

@@ -1,12 +1,11 @@
-import { drawCoordinates, getSquareBounds } from './coordinateCalculations';
-import { parseFEN } from './fenParser';
+import { getSquareBounds, parseFEN } from '@chessviewer-org/chess-viewer';
+import { drawCoordinates } from './coordinateCalculations';
 import {
   calculateRenderSurfaceSize,
   shouldForceCoordinateBorder
 } from './imageOptimizer';
-import { logger } from './logger';
 
-interface RenderConfig {
+export interface RenderConfig {
   boardSize: number;
   showCoords: boolean;
   lightSquare: string;
@@ -20,30 +19,11 @@ interface RenderConfig {
   showThinFrame?: boolean;
 }
 
-/**
- * Returns the image key for a FEN piece character.
- *
- * @param fenPiece - FEN piece character (e.g. 'P', 'k')
- * @returns Image key (e.g. 'wP', 'bk') or null if empty
- */
-function getPieceKey(fenPiece: string): string | null {
-  if (!fenPiece) return null;
-  const isWhite = fenPiece === fenPiece.toUpperCase();
-  const pieceType = fenPiece.toUpperCase();
-  return isWhite ? 'w' + pieceType : 'b' + pieceType;
-}
-
-/**
- * Renders a chess position to a high-resolution canvas element.
- *
- * @param config - Render configuration options
- * @returns Promise resolving to a high-quality canvas element
- */
 export async function createUltraQualityCanvas(
   config: RenderConfig
 ): Promise<HTMLCanvasElement> {
   const {
-    boardSize: boardSizeCm,
+    boardSize: bSize,
     showCoords,
     lightSquare,
     darkSquare,
@@ -56,98 +36,53 @@ export async function createUltraQualityCanvas(
     showThinFrame = false
   } = config;
 
-  const forceCoordBorder = shouldForceCoordinateBorder(exportQuality);
-  const effectiveCoordBorder =
-    showCoords && (forceCoordBorder || showCoordinateBorder);
-
-  if (!boardSizeCm || boardSizeCm < 1) {
-    throw new Error(`Invalid board size: ${boardSizeCm}cm (minimum 1cm)`);
-  }
-  if (!lightSquare || !darkSquare) {
-    throw new Error('Square colors are required');
-  }
-  if (!fen) {
-    throw new Error('FEN string is required');
+  if (
+    !bSize ||
+    bSize < 1 ||
+    !lightSquare ||
+    !darkSquare ||
+    !fen ||
+    !pieceImages ||
+    !Object.keys(pieceImages).length
+  ) {
+    throw new Error('Invalid render config');
   }
 
   const board = parseFEN(fen);
-  if (
-    !board ||
-    !Array.isArray(board) ||
-    board.length !== 8 ||
-    board.some((row) => !Array.isArray(row) || row.length !== 8)
-  ) {
-    throw new Error(
-      'Invalid FEN: Failed to parse board or board structure is incorrect'
-    );
-  }
-  if (!pieceImages || Object.keys(pieceImages).length === 0) {
-    throw new Error('Invalid board or piece images');
-  }
 
-  /**
-   * Resolves once a piece image has finished loading or timed out.
-   *
-   * @param img - The image element to wait for
-   * @returns Promise resolving when the image is ready
-   */
-  function waitForPieceImage(img: HTMLImageElement): Promise<void> {
-    if (!img || img.complete) {
-      return Promise.resolve();
-    }
+  await Promise.all(
+    Object.values(pieceImages).map(
+      (img) =>
+        new Promise<void>((res) => {
+          if (!img || img.complete) return res();
+          const t = setTimeout(done, 10000);
+          function done() {
+            clearTimeout(t);
+            img.onload = img.onerror = null;
+            res();
+          }
+          img.onload = img.onerror = done;
+        })
+    )
+  );
 
-    return new Promise((resolve) => {
-      const timeout = setTimeout(() => {
-        img.onload = null;
-        img.onerror = null;
-        resolve();
-      }, 10000);
-      img.onload = () => {
-        clearTimeout(timeout);
-        img.onload = null;
-        img.onerror = null;
-        resolve();
-      };
-      img.onerror = () => {
-        clearTimeout(timeout);
-        img.onload = null;
-        img.onerror = null;
-        resolve();
-      };
-    });
-  }
-
-  const imageKeys = Object.keys(pieceImages);
-  const imagePromises = imageKeys.map((key) => {
-    const img = pieceImages[key];
-    if (img) return waitForPieceImage(img);
-    return Promise.resolve();
-  });
-  await Promise.all(imagePromises);
-
-  const renderSize = calculateRenderSurfaceSize(
-    boardSizeCm,
+  const {
+    boardPixels: bPx,
+    borderSize: border,
+    shouldShowFrame: hasFrame,
+    frameThickness: frame,
+    canvasWidth: cW,
+    canvasHeight: cH
+  } = calculateRenderSurfaceSize(
+    bSize,
     showCoords,
     exportQuality,
     showThinFrame
   );
 
-  const {
-    boardPixels: finalBoardPixels,
-    borderSize,
-    shouldShowFrame,
-    frameThickness,
-    canvasWidth,
-    canvasHeight
-  } = renderSize;
-
   const canvas = document.createElement('canvas');
-  // Guard against a degenerate 0/negative surface: drawImage throws
-  // "width or height of 0" and aborts the whole export. A 1px floor keeps the
-  // pipeline alive so an upstream sizing fault surfaces as a tiny image rather
-  // than a hard crash.
-  canvas.width = Math.max(1, canvasWidth);
-  canvas.height = Math.max(1, canvasHeight);
+  canvas.width = Math.max(1, cW);
+  canvas.height = Math.max(1, cH);
 
   try {
     const ctx = canvas.getContext('2d', {
@@ -155,141 +90,94 @@ export async function createUltraQualityCanvas(
       desynchronized: false,
       willReadFrequently: false
     });
+    if (!ctx) throw new Error('No canvas context');
 
-    if (!ctx) {
-      throw new Error('Failed to get canvas context');
-    }
-
-    const squareSize = finalBoardPixels / 8;
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
 
-    const frameOffset = shouldShowFrame ? frameThickness : 0;
-    const boardX = borderSize + frameOffset;
-    const boardY = frameOffset;
+    const sq = bPx / 8;
+    const offset = hasFrame ? frame : 0;
+    const bX = border + offset,
+      bY = offset;
+    const yieldToMain = () => new Promise((res) => setTimeout(res, 0));
 
-    const yieldToMain = () => new Promise((resolve) => setTimeout(resolve, 0));
-
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    ctx.clearRect(0, 0, cW, cH);
     await yieldToMain();
 
-    if (shouldShowFrame) {
-      ctx.fillStyle = '#333333';
-      // Top and bottom bars span the full canvas width (corners included)
-      ctx.fillRect(0, 0, canvasWidth, frameThickness);
-      ctx.fillRect(
-        0,
-        canvasHeight - frameThickness,
-        canvasWidth,
-        frameThickness
-      );
-      // Left and right bars span the full canvas height
-      ctx.fillRect(0, 0, frameThickness, canvasHeight);
-      ctx.fillRect(
-        canvasWidth - frameThickness,
-        0,
-        frameThickness,
-        canvasHeight
-      );
+    if (hasFrame) {
+      ctx.fillStyle = '#333';
+      ctx.fillRect(0, 0, cW, frame);
+      ctx.fillRect(0, cH - frame, cW, frame);
+      ctx.fillRect(0, 0, frame, cH);
+      ctx.fillRect(cW - frame, 0, frame, cH);
     }
 
-    if (effectiveCoordBorder && (format === 'jpeg' || format === 'jpg')) {
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(frameOffset, frameOffset, borderSize, finalBoardPixels);
-      ctx.fillRect(
-        frameOffset,
-        frameOffset + finalBoardPixels,
-        borderSize + finalBoardPixels,
-        borderSize
-      );
+    if (
+      showCoords &&
+      (shouldForceCoordinateBorder(exportQuality) || showCoordinateBorder) &&
+      format.startsWith('jp')
+    ) {
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(offset, offset, border, bPx);
+      ctx.fillRect(offset, offset + bPx, border + bPx, border);
     }
 
-    // Draw border flush outside the board area — offset by half lineWidth so
-    // the stroke doesn't overlap the outermost squares (outset stroke).
-    const boardBorderWidth = Math.max(1, finalBoardPixels * 0.002);
-    const bHalf = boardBorderWidth / 2;
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = boardBorderWidth;
+    const bStroke = Math.max(1, bPx * 0.002);
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = bStroke;
     ctx.strokeRect(
-      boardX - bHalf,
-      boardY - bHalf,
-      finalBoardPixels + boardBorderWidth,
-      finalBoardPixels + boardBorderWidth
+      bX - bStroke / 2,
+      bY - bStroke / 2,
+      bPx + bStroke,
+      bPx + bStroke
     );
-
     await yieldToMain();
 
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
+        const vR = flipped ? 7 - row : row,
+          vC = flipped ? 7 - col : col;
         ctx.fillStyle = (row + col) % 2 === 0 ? lightSquare : darkSquare;
-        const drawRow = flipped ? 7 - row : row;
-        const drawCol = flipped ? 7 - col : col;
-        const bounds = getSquareBounds(
-          drawRow,
-          drawCol,
-          squareSize,
-          boardX,
-          boardY
-        );
-        ctx.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
-      }
-    }
+        const { x, y, width, height } = getSquareBounds(vR, vC, sq, bX, bY);
+        ctx.fillRect(x, y, width, height);
 
-    await yieldToMain();
-
-    for (let row = 0; row < 8; row++) {
-      for (let col = 0; col < 8; col++) {
-        const fenPiece = board[row]?.[col];
-        if (!fenPiece) continue;
-
-        const pieceKey = getPieceKey(fenPiece);
-        if (!pieceKey) continue;
-
-        const img = pieceImages[pieceKey];
-        if (!img || !img.complete || img.naturalWidth === 0) continue;
-
-        const drawRow = flipped ? 7 - row : row;
-        const drawCol = flipped ? 7 - col : col;
-        const bounds = getSquareBounds(
-          drawRow,
-          drawCol,
-          squareSize,
-          boardX,
-          boardY
-        );
-
-        const pieceSize = Math.min(bounds.width, bounds.height);
-        const px = bounds.centerX - pieceSize / 2;
-        const py = bounds.centerY - pieceSize / 2;
-
-        try {
-          ctx.drawImage(img, px, py, pieceSize, pieceSize);
-        } catch (err: unknown) {
-          logger.error(`Failed to draw piece ${pieceKey}:`, err);
+        const pieceChar = board[row]?.[col];
+        if (!pieceChar) continue;
+        const pKey =
+          pieceChar === pieceChar.toUpperCase()
+            ? `w${pieceChar.toUpperCase()}`
+            : `b${pieceChar.toUpperCase()}`;
+        const img = pieceImages[pKey];
+        if (img?.complete && img.naturalWidth > 0) {
+          const sz = Math.min(width, height);
+          ctx.drawImage(
+            img,
+            x + (width - sz) / 2,
+            y + (height - sz) / 2,
+            sz,
+            sz
+          );
         }
       }
       await yieldToMain();
     }
 
-    if (showCoords) {
+    if (showCoords)
       drawCoordinates(
         ctx,
-        squareSize,
-        borderSize + frameOffset,
+        sq,
+        border + offset,
         flipped,
-        finalBoardPixels,
+        bPx,
         true,
         false,
-        boardY,
-        frameOffset
+        bY,
+        offset
       );
-    }
-
     await yieldToMain();
     return canvas;
-  } catch (err: unknown) {
-    canvas.width = 0;
-    canvas.height = 0;
+  } catch (err) {
+    canvas.width = canvas.height = 0;
     throw err;
   }
 }

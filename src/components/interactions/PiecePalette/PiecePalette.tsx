@@ -1,10 +1,11 @@
 import { memo, useCallback } from 'react';
 
-import { getPieceImageKey, PALETTE_PIECES } from '@constants';
+import { PALETTE_PIECES } from '@constants';
 import type { PieceSymbol } from '@app-types';
+import { getPieceKey } from '@/shared/utils';
 
-import { DraggablePiece } from '../DraggablePiece';
-import styles from './piece-palette.module.scss';
+import { DraggablePiece } from '../Board/components/DraggablePiece';
+import styles from './styles/piece-palette.module.scss';
 
 export interface PiecePaletteProps {
   pieceImages: Record<string, HTMLImageElement | null>;
@@ -33,10 +34,9 @@ export const PiecePalette = memo(function PiecePalette({
   className = '',
   onKeyboardPick
 }: PiecePaletteProps) {
-  // Stacked view (yan-yana layout, ≥564px) — bordered piece buttons
   const renderStackedPiece = useCallback(
     (p: PalettePiece) => {
-      const imageKey = getPieceImageKey(p.piece);
+      const imageKey = getPieceKey(p.piece);
       const pieceImage = imageKey ? (pieceImages[imageKey] ?? null) : null;
       const disabled = isLoading || !pieceImage;
       return (
@@ -70,10 +70,9 @@ export const PiecePalette = memo(function PiecePalette({
     [pieceImages, isLoading, onKeyboardPick]
   );
 
-  // Flat view (tək sütun, <564px) — borderless, geniş touch target
   const renderFlatPiece = useCallback(
     (p: PalettePiece) => {
-      const imageKey = getPieceImageKey(p.piece);
+      const imageKey = getPieceKey(p.piece);
       const pieceImage = imageKey ? (pieceImages[imageKey] ?? null) : null;
       const disabled = isLoading || !pieceImage;
       return (
@@ -109,7 +108,6 @@ export const PiecePalette = memo(function PiecePalette({
 
   return (
     <div className={`${styles.root} ${className}`}>
-      {/* Yan-yana layout (≥564px): White + Black iki qrup bir sətirdə */}
       <div className={styles.stacked}>
         <div className={styles.stackedRow}>
           <div className={styles.stackedGroup}>
@@ -127,7 +125,6 @@ export const PiecePalette = memo(function PiecePalette({
         </div>
       </div>
 
-      {/* Tək sütun (<564px): board altında iki horizontal sıra */}
       <div className={styles.flat}>
         <div className={styles.flatGroup}>
           {WHITE_PIECES.map(renderFlatPiece)}
@@ -142,5 +139,3 @@ export const PiecePalette = memo(function PiecePalette({
 });
 
 PiecePalette.displayName = 'PiecePalette';
-
-export default PiecePalette;

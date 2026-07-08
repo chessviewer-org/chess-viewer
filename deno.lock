@@ -1,0 +1,56 @@
+{
+  "version": "5",
+  "remote": {
+    "https://esm.sh/@supabase/supabase-js@2.107.0": "8caa09b0223684d83cfa273de2946af25430d7ca8e5320b721226a0c7a8c6e98"
+  },
+  "workspace": {
+    "packageJson": {
+      "dependencies": [
+        "npm:@commitlint/cli@^21.1.0",
+        "npm:@commitlint/config-conventional@^21.0.2",
+        "npm:@dnd-kit/core@^6.3.1",
+        "npm:@eslint/js@^9.39.4",
+        "npm:@fontsource-variable/inter@^5.2.8",
+        "npm:@semantic-release/changelog@^6.0.3",
+        "npm:@semantic-release/commit-analyzer@^13.0.1",
+        "npm:@semantic-release/git@^10.0.1",
+        "npm:@semantic-release/github@^11.0.6",
+        "npm:@semantic-release/npm@^12.0.2",
+        "npm:@semantic-release/release-notes-generator@^14.1.0",
+        "npm:@supabase/supabase-js@^2.107.0",
+        "npm:@tailwindcss/postcss@^4.3.0",
+        "npm:@types/node@^25.9.1",
+        "npm:@types/react-dom@^19.2.3",
+        "npm:@types/react@^19.2.16",
+        "npm:@vitejs/plugin-react@6.0.2",
+        "npm:autoprefixer@^10.5.0",
+        "npm:danger@^13.0.7",
+        "npm:esbuild@~0.28.1",
+        "npm:eslint-plugin-react-hooks@^7.1.1",
+        "npm:eslint-plugin-react-refresh@~0.5.2",
+        "npm:eslint-plugin-react@^7.37.5",
+        "npm:eslint@^9.39.4",
+        "npm:framer-motion@^12.40.0",
+        "npm:globals@^17.6.0",
+        "npm:husky@^9.1.7",
+        "npm:jszip@^3.10.1",
+        "npm:lint-staged@^17.0.7",
+        "npm:lucide-react@^1.17.0",
+        "npm:postcss@^8.5.15",
+        "npm:prettier@^3.8.3",
+        "npm:puppeteer@^25.1.0",
+        "npm:qrcode.react@^4.2.0",
+        "npm:react-dom@^19.2.7",
+        "npm:react-router-dom@^7.16.0",
+        "npm:react@^19.2.7",
+        "npm:sass@^1.101.0",
+        "npm:semantic-release@^24.2.9",
+        "npm:tailwindcss@^4.3.0",
+        "npm:typescript-eslint@^8.60.1",
+        "npm:typescript@^6.0.3",
+        "npm:vite-plugin-pwa@1.3.0",
+        "npm:vite@^8.0.16"
+      ]
+    }
+  }
+}

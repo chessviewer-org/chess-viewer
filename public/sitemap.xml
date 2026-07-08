@@ -5,7 +5,6 @@
   xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 
-  <!-- Home — Chess Diagram Generator / FEN to Image -->
   <url>
     <loc>https://chessvision.org/</loc>
     <lastmod>2026-06-24</lastmod>
@@ -13,7 +12,6 @@
     <priority>1.0</priority>
   </url>
 
-  <!-- Export Chess Diagram Studio -->
   <url>
     <loc>https://chessvision.org/export</loc>
     <lastmod>2026-06-24</lastmod>
@@ -21,7 +19,6 @@
     <priority>0.85</priority>
   </url>
 
-  <!-- Advanced FEN Batch Export Studio -->
   <url>
     <loc>https://chessvision.org/advanced-fen</loc>
     <lastmod>2026-06-24</lastmod>
@@ -29,7 +26,6 @@
     <priority>0.9</priority>
   </url>
 
-  <!-- FEN Position History -->
   <url>
     <loc>https://chessvision.org/fen-history</loc>
     <lastmod>2026-06-24</lastmod>
@@ -37,14 +33,11 @@
     <priority>0.7</priority>
   </url>
 
-  <!-- About ChessVision -->
   <url>
     <loc>https://chessvision.org/about</loc>
     <lastmod>2026-06-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
-
-  <!-- NOTE: /settings and /auth/* are intentionally omitted (private, noindex). -->
 
 </urlset>

@@ -2,11 +2,11 @@
 
 The chess piece SVG sets in this directory are sourced from the
 [Lichess](https://lichess.org) project ([lichess-org/lila](https://github.com/lichess-org/lila),
-`public/piece/`). They are self-hosted here so ChessVision does not depend on
+`public/piece/`). They are self-hosted here so ChessViewer does not depend on
 the Lichess CDN at runtime. Each set remains the work of its original author
 under the license listed below.
 
-ChessVision is a free, non-commercial, open-source project (AGPLv3). Only sets
+ChessViewer is a free, non-commercial, open-source project (AGPLv3). Only sets
 with clear, verifiable licenses permitting redistribution are included.
 
 | Set (id)   | Author                                                                    | License                                                               |

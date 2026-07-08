@@ -1,6 +1,6 @@
-# Contributing to ChessVision
+# Contributing to ChessViewer
 
-Thanks for taking the time to contribute! ChessVision is an open-source project
+Thanks for taking the time to contribute! ChessViewer is an open-source project
 and contributions of all sizes are welcome — bug reports, fixes, features, and
 docs.
 
@@ -9,8 +9,8 @@ docs.
 ## Quick start
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/chess-vision.git
-cd chess-vision
+git clone https://github.com/YOUR_USERNAME/chess-viewer.git
+cd chess-viewer
 pnpm install        # also sets up Git hooks
 pnpm dev            # dev server at http://localhost:3000
 ```
@@ -103,9 +103,9 @@ well-described commit on `master`.
 
 ## Reporting bugs and requesting features
 
-Open an [issue](https://github.com/chessvision-org/chess-vision/issues) using
+Open an [issue](https://github.com/chessviewer-org/chess-viewer/issues) using
 the provided templates. For questions and ideas use
-[Discussions](https://github.com/chessvision-org/chess-vision/discussions).
+[Discussions](https://github.com/chessviewer-org/chess-viewer/discussions).
 
 ---
 

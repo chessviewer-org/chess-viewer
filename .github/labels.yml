@@ -1,9 +1,3 @@
-# Single source of truth for repository labels.
-# Synced to GitHub by .github/workflows/label-sync.yml on push to master.
-# Edit here — do not change labels via the GitHub UI.
-# Color palette mirrors freeCodeCamp's label system.
-
-# --- Type ---
 - name: Bug
   color: b60205
   description: Something is not working correctly
@@ -32,7 +26,6 @@
   color: b60205
   description: Security fix or vulnerability
 
-# --- Status ---
 - name: 'status: waiting triage'
   color: d93f0b
   description: Needs review to confirm validity and reproduction
@@ -64,7 +57,6 @@
   color: 000000
   description: Intentional — will not be addressed
 
-# --- Scope ---
 - name: 'scope: mobile'
   color: 4969c1
   description: Affects mobile and touch viewports
@@ -81,7 +73,6 @@
   color: b60205
   description: Introduces a breaking change — requires major version bump
 
-# --- Area ---
 - name: 'area: board'
   color: 59d683
   description: Board rendering and drag-and-drop
@@ -107,7 +98,6 @@
   color: 59d683
   description: CI pipelines, hooks, and tooling
 
-# --- Moderation ---
 - name: 'DO NOT MERGE!'
   color: b60205
   description: ''
@@ -124,7 +114,6 @@
   color: e99695
   description: Browser, device, or OS-specific issue
 
-# --- Contribution ---
 - name: 'first timers only'
   color: 5319e7
   description: Open for first-time contributors — no permission needed

@@ -50,5 +50,6 @@
     }
   },
   "include": ["src"],
+  "exclude": ["supabase", "node_modules", "dist", "build"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -1,4 +1,4 @@
-# ChessVision — Roadmap
+# ChessViewer — Roadmap
 
 What is built, what is next, and what is not planned. Milestone targets below are planning estimates, not hard commitments.
 
@@ -56,7 +56,7 @@ What is built, what is next, and what is not planned. Milestone targets below ar
 - Cloud sync of settings and history (row-level security, owner-scoped)
 - 90-day re-verification gate for privileged operations
 - Data migration from localStorage on first sign-in
-- Supporter/membership tiers via GitHub Sponsors
+- Supporter/membership tiers via direct donation
 
 ### Performance
 
@@ -97,19 +97,19 @@ What is built, what is next, and what is not planned. Milestone targets below ar
 ### Priority Items
 
 1. **Full keyboard control of the board** — arrow keys to move pieces, no mouse required
-2. **Annotations** — right-click square highlighting (red/yellow/green/blue) and arrow overlays ([#161](https://github.com/chessvision-org/chess-vision/issues/161))
-3. **AI position import** — Open Folder picks a board image and a vision model extracts the FEN directly onto the board ([#163](https://github.com/chessvision-org/chess-vision/issues/163))
+2. **Annotations** — right-click square highlighting (red/yellow/green/blue) and arrow overlays ([#161](https://github.com/chessviewer-org/chess-viewer/issues/161))
+3. **AI position import** — Open Folder picks a board image and a vision model extracts the FEN directly onto the board ([#163](https://github.com/chessviewer-org/chess-viewer/issues/163))
 4. **PGN import** — paste a PGN and step through positions
 5. **Direct game import** — paste a Lichess URL and extract positions
 
 ### Lower Priority
 
 - [ ] URL-based position sharing (`?fen=...`)
-- [ ] Custom & fairy piece sets — hybrid pieces, themed sets, user upload ([#162](https://github.com/chessvision-org/chess-vision/issues/162))
+- [ ] Custom & fairy piece sets — hybrid pieces, themed sets, user upload ([#162](https://github.com/chessviewer-org/chess-viewer/issues/162))
 - [ ] i18n / multi-language support
 - [ ] Full WCAG 2.1 AA compliance — canvas still has no DOM alternative for screen readers
 - [ ] Lichess browser extension (Phase 3 on the roadmap)
-- [ ] npm package release (`@chessvision-org/core`) for headless board rendering
+- [ ] npm package release (`@chessviewer-org/core`) for headless board rendering
 
 ---
 
@@ -132,7 +132,7 @@ What is built, what is next, and what is not planned. Milestone targets below ar
 
 ## Upcoming Work
 
-Active milestones tracked on the [project board](https://github.com/orgs/chessvision-org/projects/1):
+Active milestones tracked on the [project board](https://github.com/orgs/chessviewer-org/projects/1):
 
 | Milestone                  | Focus                                                        | Target   |
 | -------------------------- | ------------------------------------------------------------ | -------- |

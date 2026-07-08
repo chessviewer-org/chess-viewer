@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 
 import { ExportProgress, FenToolbar } from '@/components/features';
 import { ChessEditor } from '@/components/interactions';
@@ -16,73 +16,35 @@ import { useHome } from './hooks/useHome';
 
 const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
-/** Primary workspace combining the DnD board editor, control panel, and export studio trigger. */
 const HomePage: React.FC = () => {
-  const {
-    fen,
-    setFen,
-    pieceStyle,
-    showCoords,
-    setShowCoords,
-    showCoordinateBorder,
-    showThinFrame,
-    setShowThinFrame,
-    lightSquare,
-    darkSquare,
-    boardSize,
-    exportQuality,
-    flipped,
-    setIsFavorite,
-    addToFavoritesRef,
-    exportState,
-    notifications,
-    removeNotification,
-    fileName,
-    saveManualFen,
-    saveExportFen,
-    addCurrentToFavorites,
+  const home = useHome();
+  const [, setLocation] = useLocation();
 
-    handlePieceImagesChange,
-    handleCancelExport,
-    handlePause,
-    handleResume,
-    handleEditorFenChange,
-    handleFlip,
-    handleNotification,
-    toggleProgress,
-    getExportConfig
-  } = useHome();
-
-  const navigate = useNavigate();
   const handleDownloadClick = () => {
-    navigate('/export', {
-      state: {
-        fen,
-        pieceStyle,
-        showCoords,
-        showCoordinateBorder,
-        showThinFrame,
-        lightSquare,
-        darkSquare,
-        exportQuality,
-        boardSize,
-        flipped,
-        fileName
-      }
-    });
+    sessionStorage.setItem(
+      'cv_export_config',
+      JSON.stringify({
+        fen: home.fen,
+        pieceStyle: home.pieceStyle,
+        showCoords: home.showCoords,
+        showCoordinateBorder: home.showCoordinateBorder,
+        showThinFrame: home.showThinFrame,
+        lightSquare: home.lightSquare,
+        darkSquare: home.darkSquare,
+        exportQuality: home.exportQuality,
+        boardSize: home.boardSize,
+        flipped: home.flipped,
+        fileName: home.fileName
+      })
+    );
+    setLocation('/export');
   };
 
-  const isCustomFen = fen && fen !== STARTING_FEN;
-  // If user is viewing a custom FEN, append it to canonical URL and point to
-  // the Supabase Edge Function for dynamic OG image generation.
+  const isCustomFen = home.fen && home.fen !== STARTING_FEN;
   const dynamicParams = isCustomFen
-    ? `?fen=${encodeURIComponent(fen)}`
+    ? `?fen=${encodeURIComponent(home.fen)}`
     : undefined;
 
-  // Use VITE_SUPABASE_URL to construct the absolute URL to the Edge Function.
-  // We cannot use SITE_URL/api/og because Nginx does not proxy it by default.
-  // Dot notation so Vite inlines the value at build time — bracket notation is
-  // left untouched and resolves to undefined in production (see supabaseClient).
   const supabaseUrl =
     import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, '') ||
     'https://placeholder.supabase.co';
@@ -101,60 +63,60 @@ const HomePage: React.FC = () => {
       <h1 className="sr-only">
         Free Chess Diagram Generator — FEN to PNG, JPEG &amp; SVG
       </h1>
-      <div className="w-full bg-bg py-2 overflow-x-hidden min-h-full lg:h-full lg:overflow-hidden flex flex-col lg:justify-center animate-pageEnter">
-        <div className="flex flex-col gap-fluid-xs lg:gap-3 page-container pt-1.5 lg:pt-0">
+      <div className="page-container w-full bg-bg py-2 overflow-x-hidden min-h-full lg:h-full lg:overflow-hidden flex flex-col lg:justify-center">
+        <div className="flex flex-col gap-fluid-xs lg:gap-3 pt-1.5 lg:pt-0">
           <div className="min-w-0">
             <FenToolbar
-              fen={fen}
-              setFen={setFen}
-              addToFavoritesRef={addToFavoritesRef}
-              onFavoriteStatusChange={setIsFavorite}
-              saveManualFen={saveManualFen}
-              saveExportFen={saveExportFen}
-              addCurrentToFavorites={addCurrentToFavorites}
-              onNotification={handleNotification}
+              fen={home.fen}
+              setFen={home.setFen}
+              addToFavoritesRef={home.addToFavoritesRef}
+              onFavoriteStatusChange={home.setIsFavorite}
+              saveManualFen={home.saveManualFen}
+              saveExportFen={home.saveExportFen}
+              addCurrentToFavorites={home.addCurrentToFavorites}
+              onNotification={home.handleNotification}
             />
           </div>
           <div className="w-full">
             <div className="workspace-container bg-surface border border-border/40 rounded-xl p-fluid-xs sm:p-fluid-sm overflow-x-hidden lg:overflow-hidden">
               <ChessEditor
-                fen={fen}
-                onFenChange={handleEditorFenChange}
-                pieceStyle={pieceStyle}
-                showCoords={showCoords}
-                setShowCoords={setShowCoords}
-                showThinFrame={showThinFrame}
-                setShowThinFrame={setShowThinFrame}
-                exportQuality={exportQuality}
-                showCoordinateBorder={showCoordinateBorder}
-                lightSquare={lightSquare}
-                darkSquare={darkSquare}
-                flipped={flipped}
-                onFlip={handleFlip}
-                onNotify={handleNotification}
+                fen={home.fen}
+                onFenChange={home.handleEditorFenChange}
+                pieceStyle={home.pieceStyle}
+                showCoords={home.showCoords}
+                setShowCoords={home.setShowCoords}
+                showThinFrame={home.showThinFrame}
+                setShowThinFrame={home.setShowThinFrame}
+                exportQuality={home.exportQuality}
+                showCoordinateBorder={home.showCoordinateBorder}
+                lightSquare={home.lightSquare}
+                darkSquare={home.darkSquare}
+                flipped={home.flipped}
+                onFlip={home.handleFlip}
+                onNotify={home.handleNotification}
                 onDownload={handleDownloadClick}
-                onPieceImagesChange={handlePieceImagesChange}
+                onPieceImagesChange={home.handlePieceImagesChange}
               />
             </div>
           </div>
         </div>
 
         <NotificationContainer
-          notifications={notifications}
-          onRemove={removeNotification}
+          notifications={home.notifications}
+          onRemove={home.removeNotification}
         />
 
-        {exportState.showProgress && (
+        {home.exportState.showProgress && (
           <ExportProgress
-            isExporting={exportState.isExporting}
-            progress={exportState.exportProgress}
-            currentFormat={exportState.currentFormat || ''}
-            config={getExportConfig()}
-            isPaused={exportState.isPaused}
-            onClose={toggleProgress}
-            onPause={handlePause}
-            onResume={handleResume}
-            onCancel={handleCancelExport}
+            isExporting={home.exportState.isExporting}
+            progress={home.exportState.exportProgress}
+            currentFormat={home.exportState.currentFormat || ''}
+            config={home.getExportConfig()}
+            isPaused={home.exportState.isPaused}
+            onClose={home.toggleProgress}
+            onPause={home.handlePause}
+            onResume={home.handleResume}
+            onCancel={home.handleCancelExport}
           />
         )}
       </div>

@@ -2,32 +2,42 @@ import { useEffect, useRef, useState } from 'react';
 
 import { PIECE_MAP } from '@constants';
 
-import { logger, preloadPieceStyle } from '@utils';
+import { getCachedPieceStyle, logger, preloadPieceStyle } from '@/shared/utils';
 
-/**
- * Loads and caches all piece images for the given piece style.
- *
- * Cancels any in-flight load when the style changes to prevent stale updates.
- *
- * @param pieceStyle - Piece style identifier (e.g. `'cburnett'`, `'merida'`)
- * @returns Loaded image map, loading state, error message, and granular progress (0–100)
- */
 export function usePieceImages(pieceStyle: string): {
   pieceImages: Record<string, HTMLImageElement>;
   isLoading: boolean;
   error: string | null;
   loadProgress: number;
 } {
+  const cached = getCachedPieceStyle(pieceStyle, PIECE_MAP);
   const [pieceImages, setPieceImages] = useState<
     Record<string, HTMLImageElement>
-  >({});
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  >(cached ?? {});
+  const [isLoading, setIsLoading] = useState<boolean>(cached === null);
   const [error, setError] = useState<string | null>(null);
-  const [loadProgress, setLoadProgress] = useState(0);
+  const [loadProgress, setLoadProgress] = useState(cached ? 100 : 0);
   const currentStyleRef = useRef(pieceStyle);
+  // The style whose images are already reflected in state. Starts satisfied
+  // when the initial render seeded from cache, so the effect skips a redundant
+  // re-set on mount and only syncs when the style actually changes.
+  const syncedStyleRef = useRef(cached ? pieceStyle : null);
 
   useEffect(() => {
     currentStyleRef.current = pieceStyle;
+
+    const cachedForStyle = getCachedPieceStyle(pieceStyle, PIECE_MAP);
+    if (cachedForStyle) {
+      if (syncedStyleRef.current !== pieceStyle) {
+        syncedStyleRef.current = pieceStyle;
+        setPieceImages(cachedForStyle);
+        setError(null);
+        setLoadProgress(100);
+        setIsLoading(false);
+      }
+      return;
+    }
+
     const abortController = new AbortController();
 
     const loadPieces = async () => {
@@ -78,6 +88,7 @@ export function usePieceImages(pieceStyle: string): {
             }
           }
 
+          syncedStyleRef.current = styleToLoad;
           setPieceImages(images);
           setIsLoading(false);
           setLoadProgress(100);
@@ -101,7 +112,5 @@ export function usePieceImages(pieceStyle: string): {
     };
   }, [pieceStyle]);
 
-  // All four fields are state that change together, so memoizing the wrapper
-  // object would never preserve a stable reference — return it directly.
   return { pieceImages, isLoading, error, loadProgress };
 }

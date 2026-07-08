@@ -1,21 +1,21 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-
-import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
+import { useEffect, useMemo, useState } from 'react';
 
 import type { HistoryFilterState } from '@/components/features/History';
-import { useModal } from '@contexts';
-import { useFENHistory } from '@hooks';
+import {
+  useBoardPieceSet,
+  useEscapeKey,
+  useFENHistory,
+  useSyncedBoardColors
+} from '@/shared/hooks';
 import { ActiveHistoryEntry, HistoryFilters } from '@app-types';
 
-import { logger, safeJSONParse } from '@utils';
+import { logger } from '@/shared/utils';
 
-/** Union of available history tab identifiers. */
 export type TabType = 'active' | 'favorites' | 'archive';
 
-/** Manages tab state, filters, delete confirmation, and board theme sync for FENHistoryPage. */
 export const useFENHistoryPage = () => {
-  const navigate = useNavigate();
-  const { showConfirm } = useModal();
+  const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState<TabType>('active');
   const [filters, setFilters] = useState<HistoryFilterState>({});
   const [favoritesFilters, setFavoritesFilters] = useState<HistoryFilterState>(
@@ -33,7 +33,6 @@ export const useFENHistoryPage = () => {
     archive,
     isLoadingArchive,
     toggleFavorite,
-    clearHistory,
     loadArchiveData,
     reactivateArchivedEntry,
     deleteFromArchive,
@@ -56,67 +55,38 @@ export const useFENHistoryPage = () => {
     setArchiveFiltersHook(archiveFilters as HistoryFilters);
   }, [archiveFilters, setArchiveFiltersHook]);
 
-  const [lightSquare, setLightSquare] = useState<string>(() =>
-    safeJSONParse(localStorage.getItem('chess-light-square'), '#f0d9b5')
-  );
-  const [darkSquare, setDarkSquare] = useState<string>(() =>
-    safeJSONParse(localStorage.getItem('chess-dark-square'), '#b58863')
-  );
-  const [pieceStyle, setPieceStyle] = useState<string>(() =>
-    safeJSONParse(localStorage.getItem('chess-piece-style'), 'cburnett')
-  );
+  const [lightSquare, setLightSquare] = useState('#f0d9b5');
+  const [darkSquare, setDarkSquare] = useState('#b58863');
+  const [pieceStyle] = useBoardPieceSet();
 
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setLightSquare(
-        safeJSONParse(localStorage.getItem('chess-light-square'), '#f0d9b5')
-      );
-      setDarkSquare(
-        safeJSONParse(localStorage.getItem('chess-dark-square'), '#b58863')
-      );
-      setPieceStyle(
-        safeJSONParse(localStorage.getItem('chess-piece-style'), 'cburnett')
-      );
-    };
+  useSyncedBoardColors(setLightSquare, setDarkSquare);
 
-    handleStorageChange();
+  function handleBack() {
+    window.history.back();
+  }
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+  function handleLoad(fen: string) {
+    navigate('/', { state: { loadFEN: fen } });
+  }
 
-  const handleBack = useCallback(() => {
-    navigate(-1);
-  }, [navigate]);
-
-  const handleLoad = useCallback(
-    (fen: string) => {
-      navigate('/', { state: { loadFEN: fen } });
-    },
-    [navigate]
-  );
-
-  const handleDelete = useCallback(
-    async (id: number) => {
-      try {
-        if (activeTab === 'archive') {
-          if (doNotAskAgain) {
-            await deleteFromArchive(id);
-          } else {
-            setDeleteTargetId(id);
-            setShowDeleteModal(true);
-          }
+  async function handleDelete(id: number) {
+    try {
+      if (activeTab === 'archive') {
+        if (doNotAskAgain) {
+          await deleteFromArchive(id);
         } else {
-          await archiveHistoryEntries([id]);
+          setDeleteTargetId(id);
+          setShowDeleteModal(true);
         }
-      } catch (err: unknown) {
-        logger.error('Failed to delete:', err);
+      } else {
+        await archiveHistoryEntries([id]);
       }
-    },
-    [activeTab, deleteFromArchive, archiveHistoryEntries, doNotAskAgain]
-  );
+    } catch (err: unknown) {
+      logger.error('Failed to delete:', err);
+    }
+  }
 
-  const handleConfirmDelete = useCallback(async () => {
+  async function handleConfirmDelete() {
     if (!deleteTargetId) return;
 
     try {
@@ -126,55 +96,30 @@ export const useFENHistoryPage = () => {
     } catch (err: unknown) {
       logger.error('Failed to delete from archive:', err);
     }
-  }, [deleteTargetId, deleteFromArchive]);
+  }
 
-  const handleDoNotAskAgainChange = useCallback((checked: boolean) => {
+  function handleDoNotAskAgainChange(checked: boolean) {
     setDoNotAskAgain(checked);
     localStorage.setItem('fen-history-skip-delete-confirm', checked.toString());
-  }, []);
+  }
 
-  const handleToggleFavorite = useCallback(
-    async (id: number) => {
-      try {
-        await toggleFavorite(id);
-      } catch (err: unknown) {
-        logger.error('Failed to toggle favorite:', err);
-      }
-    },
-    [toggleFavorite]
-  );
-
-  const handleClearAll = useCallback(async () => {
-    const confirmed = await showConfirm(
-      'Clear History',
-      'Clear all FEN history? This cannot be undone.',
-      'danger'
-    );
-
-    if (confirmed) {
-      try {
-        await clearHistory();
-      } catch (err: unknown) {
-        logger.error('Failed to clear history:', err);
-      }
+  async function handleToggleFavorite(id: number) {
+    try {
+      await toggleFavorite(id);
+    } catch (err: unknown) {
+      logger.error('Failed to toggle favorite:', err);
     }
-  }, [clearHistory, showConfirm]);
+  }
 
-  const handleReactivate = useCallback(
-    async (id: number) => {
-      try {
-        await reactivateArchivedEntry(id);
-        setActiveTab('active');
-      } catch (err: unknown) {
-        logger.error('Failed to reactivate:', err);
-      }
-    },
-    [reactivateArchivedEntry]
-  );
+  async function handleReactivate(id: number) {
+    try {
+      await reactivateArchivedEntry(id);
+      setActiveTab('active');
+    } catch (err: unknown) {
+      logger.error('Failed to reactivate:', err);
+    }
+  }
 
-  // Stable memoized favorites — new array reference only when fenHistory changes.
-  // Without useMemo the IIFE produces a new array every render, which makes
-  // FENHistoryGrid's `useEffect([data])` reset pagination on every re-render.
   const favoritesData = useMemo(() => {
     const favorites = fenHistory.filter(
       (entry: ActiveHistoryEntry) => entry.isFavorite
@@ -232,34 +177,25 @@ export const useFENHistoryPage = () => {
         ? filteredFavorites
         : fenHistory;
 
-  const formatDate = useCallback((timestamp: number) => {
+  function formatDate(timestamp: number) {
     const date = new Date(timestamp);
     return date.toLocaleDateString('de-DE', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
     });
-  }, []);
+  }
 
-  const formatTime = useCallback((timestamp: number) => {
+  function formatTime(timestamp: number) {
     const date = new Date(timestamp);
     return date.toLocaleTimeString('de-DE', {
       hour: '2-digit',
       minute: '2-digit',
       hour12: false
     });
-  }, []);
+  }
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        handleBack();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleBack]);
+  useEscapeKey(handleBack);
 
   return {
     activeTab,
@@ -278,11 +214,9 @@ export const useFENHistoryPage = () => {
     lightSquare,
     darkSquare,
     pieceStyle,
-    handleBack,
     handleLoad,
     handleDelete,
     handleToggleFavorite,
-    handleClearAll,
     handleReactivate,
     currentData,
     fenHistory,

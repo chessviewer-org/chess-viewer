@@ -1,7 +1,3 @@
-# Auto-applies "area:" labels to PRs based on which files changed.
-# Consumed by actions/labeler in .github/workflows/labeler.yml.
-# Syntax reference: https://github.com/actions/labeler
-
 'area: board':
   - changed-files:
       - any-glob-to-any-file:
@@ -76,5 +72,4 @@ documentation:
       - any-glob-to-any-file:
           - '.github/**'
           - '.husky/**'
-          - 'dangerfile.js'
           - 'scripts/**'

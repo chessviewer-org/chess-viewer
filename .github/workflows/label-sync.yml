@@ -1,8 +1,5 @@
 name: Label Sync
 
-# Keeps the repository's labels in sync with .github/labels.yml.
-# Runs when the label definitions change on master, or on demand.
-
 on:
   push:
     branches: [master]

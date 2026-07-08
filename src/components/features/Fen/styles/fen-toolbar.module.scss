@@ -1,0 +1,120 @@
+@reference "../../../../index.css";
+
+/* --- FenToolbar --- */
+.toolbarContainer {
+  @apply bg-surface border border-border/40 rounded-xl px-fluid-sm py-2.5 sm:py-3;
+}
+
+.toolbarInner {
+  @apply space-y-2.5;
+}
+
+.toolbarHeader {
+  @apply flex items-center justify-between gap-2 min-w-0;
+}
+
+.toolbarLabel {
+  @apply text-fluid-sm font-semibold text-text-primary shrink-0;
+}
+
+.toolbarActions {
+  @apply flex items-center gap-1.5 shrink-0;
+}
+
+.actionBtn {
+  @apply flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-3 py-1 min-h-8 coarse:min-h-11 rounded-lg text-accent text-fluid-xs font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent;
+}
+
+.actionIcon {
+  @apply w-4 h-4 shrink-0;
+}
+
+.actionLabel {
+  @apply hidden xs:inline;
+}
+
+/* --- FENInputField --- */
+.inputContainer {
+  @apply space-y-2;
+}
+
+.inputWrapper {
+  @apply bg-surface/50 border rounded-lg overflow-hidden transition-all duration-300 ease-out;
+}
+
+.inputWrapperNormal {
+  @apply border-border;
+}
+
+.inputWrapperError {
+  @apply border-error/50;
+}
+
+.textareaWrapper {
+  @apply px-2 sm:px-3 py-1 sm:py-1.5;
+}
+
+.textareaField {
+  @apply w-full min-w-0 px-1 py-1 pb-3.5 sm:pb-1 bg-surface/50 text-text-primary font-mono text-sm sm:text-[14px] leading-tight resize-none whitespace-pre overflow-x-auto overflow-y-hidden focus-visible:outline-none focus:outline-none outline-none transition duration-200 ease-out border-0;
+}
+
+.textareaFieldError {
+  @apply text-error;
+}
+
+.errorContainer {
+  @apply grid transition-all duration-300 ease-out;
+}
+
+.errorContainerHidden {
+  @apply grid-rows-[0fr] opacity-0;
+}
+
+.errorContainerVisible {
+  @apply grid-rows-[1fr] opacity-100;
+}
+
+.errorContent {
+  @apply overflow-hidden;
+}
+
+.errorMessage {
+  @apply flex items-center gap-2 text-error text-xs mt-1;
+}
+
+.errorIcon {
+  @apply w-3.5 h-3.5 shrink-0;
+}
+
+/* --- FENInputToolbar --- */
+.inputToolbarContainer {
+  @apply flex flex-nowrap sm:flex-wrap items-center justify-start gap-1.5 sm:gap-2 px-1.5 sm:px-2 py-0.5 bg-surface-elevated border-b border-border overflow-x-auto;
+}
+
+.btnGroup {
+  @apply flex items-center gap-1;
+}
+
+.toolbarBtnBase {
+  @apply flex items-center gap-1 px-1.5 sm:px-2 py-1 rounded-md transition duration-150 ease-out active:scale-95 text-[11px] sm:text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-[1.75rem] coarse:min-h-[2.75rem];
+}
+
+.toolbarBtnNeutral {
+  @apply bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-text-primary;
+}
+
+.toolbarBtnFavoriteActive {
+  @apply bg-accent/20 text-accent border border-accent/30;
+}
+
+.toolbarBtnClear {
+  @apply bg-surface hover:bg-surface-hover border border-border/50 text-text-secondary hover:text-error hover:border-error/40;
+}
+
+.toolbarBtnIcon {
+  @apply w-3.5 h-3.5;
+}
+
+.groupDivider {
+  @apply self-stretch w-px bg-white/20 my-0.5 shrink-0;
+}

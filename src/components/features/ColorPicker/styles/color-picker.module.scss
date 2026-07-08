@@ -1,0 +1,162 @@
+@reference "../../../../index.css";
+
+.panelContainer {
+  @apply flex h-full flex-col gap-2;
+}
+
+.squareGrid {
+  @apply grid grid-cols-2 gap-2;
+}
+
+.squareBtn {
+  @apply flex items-center gap-2 rounded-lg border px-2 py-1.5 text-left transition-colors;
+}
+
+.squareBtnActive {
+  @apply border-accent bg-accent/10;
+}
+
+.squareBtnInactive {
+  @apply border-border/60 hover:bg-surface;
+}
+
+.squareColorPreview {
+  @apply h-5 w-5 shrink-0 rounded-md border border-border/40;
+}
+
+.squareInfo {
+  @apply min-w-0;
+}
+
+.squareLabel {
+  @apply block text-xs font-semibold text-text-primary;
+}
+
+.squareHex {
+  @apply block font-mono text-xs uppercase text-text-secondary;
+}
+
+.sectionHeading {
+  @apply text-[10px] font-bold uppercase tracking-wider text-text-muted;
+}
+
+.saturationFieldLive {
+  @apply flex-1 min-h-[4.5rem] w-full cursor-crosshair touch-none overflow-hidden rounded-lg shadow-[inset_0_0_0_1px_rgba(128,128,128,0.25)];
+}
+
+.saturationFieldSave {
+  @apply h-28 w-full cursor-crosshair touch-none overflow-hidden rounded-lg shadow-[inset_0_0_0_1px_rgba(128,128,128,0.25)];
+}
+
+.hueContainer {
+  @apply mt-1 flex flex-col gap-1;
+}
+
+.hueInput {
+  @apply h-2 w-full cursor-pointer appearance-none rounded-full;
+}
+
+.saveContainer {
+  @apply mt-2 flex items-center gap-2;
+}
+
+.saveInput {
+  @apply min-w-0 flex-1 rounded-lg border border-border/60 bg-surface px-2 py-1.5 text-xs text-text-primary placeholder:text-text-muted outline-none;
+}
+
+.saveBtn {
+  @apply shrink-0 rounded-lg bg-accent px-3 py-1.5 text-xs font-bold text-bg transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent;
+}
+
+/* --- BoardThemePicker --- */
+.pickerContainer {
+  @apply flex h-full flex-col gap-4 select-none;
+}
+
+.tabList {
+  @apply flex items-center rounded-lg border border-border/60 bg-surface p-0.5;
+}
+
+.tabBtn {
+  @apply flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent;
+}
+
+.tabBtnActive {
+  @apply bg-accent text-bg shadow-sm;
+}
+
+.tabBtnInactive {
+  @apply text-text-secondary hover:bg-surface-elevated hover:text-text-primary;
+}
+
+.tabIcon {
+  @apply h-3.5 w-3.5;
+}
+
+.gridContainer {
+  @apply grid flex-1 content-start gap-x-3 gap-y-4 touch-pan-y;
+}
+
+.gridItem {
+  @applyrelative flex flex-col items-center gap-1.5;
+}
+
+.customActions {
+  @apply absolute -top-1.5 -right-1.5 z-10 hidden gap-0.5 group-hover:flex group-focus-within:flex;
+}
+
+.actionBtn {
+  @apply rounded-md border border-border/60 bg-surface p-1 text-text-muted shadow-sm transition-colors;
+}
+
+.actionBtnEdit {
+  @apply hover:text-accent;
+}
+
+.actionBtnDelete {
+  @apply hover:text-error;
+}
+
+.actionIcon {
+  @apply h-3 w-3;
+}
+
+.itemLabel {
+  @apply w-full truncate text-center text-[11px] font-semibold text-text-secondary;
+}
+
+.addBtnWrapper {
+  @apply flex flex-col items-center gap-1.5;
+}
+
+.addBtn {
+  @apply flex h-11 w-11 items-center justify-center rounded-full border-2 border-dashed border-border/60 text-text-muted transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent;
+}
+
+.addBtnIcon {
+  @apply h-5 w-5;
+}
+
+.addBtnLabel {
+  @apply text-[11px] font-semibold text-text-muted;
+}
+
+.saveTargetHeader {
+  @apply flex items-center justify-between;
+}
+
+.saveTargetTitle {
+  @apply text-xs font-semibold text-text-secondary;
+}
+
+.closeBtn {
+  @apply rounded-md p-1.5 text-error transition-colors hover:bg-error/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error;
+}
+
+.closeIcon {
+  @apply h-4 w-4;
+}
+
+.paginationWrapper {
+  @apply mt-auto pt-1;
+}

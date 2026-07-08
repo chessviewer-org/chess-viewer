@@ -1,0 +1,28 @@
+@layer components {
+  .main-content-offset {
+    margin-top: calc(var(--navbar-height) + max(0px, env(safe-area-inset-top)));
+  }
+
+  @media (min-width: 640px) {
+    :root {
+      --navbar-height: 5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    :root {
+      --navbar-height: 5.5rem;
+    }
+  }
+
+  .page-container {
+    width: 100%;
+    padding-inline: 3%;
+    box-sizing: border-box;
+  }
+
+  @media (min-width: 1024px) {
+    .page-container {
+      padding-inline: 6%;
+    }
+  }
+}
