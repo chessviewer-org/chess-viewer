@@ -1,42 +1,26 @@
 import { useCallback, useEffect, useState } from 'react';
 
-/** Minimum horizontal travel (px) to count a touch drag as a swipe. */
 const SWIPE_THRESHOLD = 40;
 
-export interface PagedCarousel {
-  /** Current page index (0-based). */
+export interface PaginationState {
   page: number;
-  /** Total number of pages (always ≥ 1). */
   pageCount: number;
-  /** Jump to a specific page (clamped to range). */
   goTo: (page: number) => void;
-  /** Advance one page, wrapping from the last back to the first. */
   next: () => void;
-  /** Go back one page, wrapping from the first to the last. */
   prev: () => void;
-  /** Touch handlers to spread onto the swipeable element. */
   swipeHandlers: {
     onTouchStart: (e: React.TouchEvent) => void;
     onTouchEnd: (e: React.TouchEvent) => void;
   };
 }
 
-/**
- * Circular paging for a grid/carousel: arrow-key + button navigation on
- * desktop, touch-swipe on mobile/tablet, and wrap-around at both ends so a
- * second swipe past the edge loops back to the start (or end).
- *
- * `pageCount` is derived from `itemCount` / `perPage`; the page index is clamped
- * whenever those shrink so it never points past the last page.
- */
-export function usePagedCarousel(
+export function usePagination(
   itemCount: number,
   perPage: number
-): PagedCarousel {
+): PaginationState {
   const pageCount = Math.max(1, Math.ceil(itemCount / Math.max(1, perPage)));
   const [page, setPage] = useState(0);
 
-  // Clamp when the page count shrinks (e.g. perPage grows on resize).
   useEffect(() => {
     setPage((p) => Math.min(p, pageCount - 1));
   }, [pageCount]);
@@ -48,7 +32,6 @@ export function usePagedCarousel(
     [pageCount]
   );
 
-  // Wrap-around so swiping/arrowing past an edge loops (circular).
   const next = useCallback(() => {
     setPage((p) => (p + 1) % pageCount);
   }, [pageCount]);
@@ -70,7 +53,6 @@ export function usePagedCarousel(
       const delta = endX - touchStartX;
       setTouchStartX(null);
       if (Math.abs(delta) < SWIPE_THRESHOLD) return;
-      // Swipe left → next page; swipe right → previous page. Both wrap.
       if (delta < 0) next();
       else prev();
     },

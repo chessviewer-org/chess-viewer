@@ -1,29 +1,49 @@
-export { useBoardPieceSet } from './useBoardPieceSet';
-export { useChessBoard } from './useChessBoard';
-export { useColorVision, useColorVisionSetting } from './useColorVision';
-export { useContrast, useContrastSetting } from './useContrast';
-export type { ProviderState } from './useDatabaseSearch';
-export { useDatabaseSearch } from './useDatabaseSearch';
-export { useDebouncedFENValidation } from './useDebouncedFENValidation';
-export { useEditorKeyboard } from './useEditorKeyboard';
-export { useFENHistory } from './useFENHistory';
-export { useFocusTrap } from './useFocusTrap';
-export { useHomeExport } from './useHomeExport';
-export { useInteractiveBoard } from './useInteractiveBoard';
-export { useListboxKeyboard } from './useListboxKeyboard';
-export { useLocalStorage } from './useLocalStorage';
-export { useNotifications } from './useNotifications';
-export { useOutsideClick } from './useOutsideClick';
-export { usePagedCarousel } from './usePagedCarousel';
-export { usePageScrollKeys } from './usePageScrollKeys';
-export { usePieceImages } from './usePieceImages';
-export { usePieceSort } from './usePieceSort';
-export { usePrefetchRoute } from './usePrefetchRoute';
 export {
+  useColorVision,
+  useColorVisionSetting,
+  useContrast,
+  useContrastSetting,
   useEffectiveReducedMotion,
   useReducedMotionPreference,
   useReducedMotionSetting
-} from './useReducedMotionPreference';
-export { useTheme } from './useTheme';
-export { useThemeMode, useThemeModeSync } from './useThemeMode';
-export { useThemePresets } from './useThemePresets';
+} from './useA11y';
+export { useChessBoard } from './useChessBoard';
+export {
+  useCopyToClipboard,
+  useFocusTrap,
+  useOutsideClick,
+  useScrollLock
+} from './useDOM';
+export type { ProviderState } from './useDatabaseSearch';
+export { useDatabaseSearch } from './useDatabaseSearch';
+export type { DragContextValue, DragSession } from './useDragDrop';
+export {
+  DragCtx,
+  useDragContext,
+  useDraggable,
+  useDroppable
+} from './useDragDrop';
+export { useFENHistory } from './useFENHistory';
+export { useFenValidation } from './useFenValidation';
+export { useHomeExport } from './useHomeExport';
+export { useInteractiveBoard } from './useInteractiveBoard';
+export {
+  useEditorKeyboard,
+  useEscapeKey,
+  useListboxKeyboard,
+  usePageScrollKeys
+} from './useKeyboard';
+export { useDebouncedCommit, useLocalStorage } from './useLocalStorage';
+export { useNotifications } from './useNotifications';
+export { usePagination } from './usePagination';
+export { useBoardPieceSet, usePieceSort } from './usePiece';
+export { usePieceImages } from './usePieceImages';
+export { usePrefetchRoute } from './usePrefetchRoute';
+export { useSearchParams } from './useSearchParams';
+export {
+  useSyncedBoardColors,
+  useTheme,
+  useThemeMode,
+  useThemeModeSync,
+  useThemePresets
+} from './useTheme';

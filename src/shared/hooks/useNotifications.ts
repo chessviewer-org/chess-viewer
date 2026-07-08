@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { SYNC_TRUNCATED_EVENT, type SyncTruncatedDetail } from '@constants';
 
-/** A single in-app notification message. */
 export interface Notification {
   id: number;
   message: string;
@@ -10,13 +9,6 @@ export interface Notification {
   duration: number;
 }
 
-/**
- * Manages a stack of in-app notifications with auto-dismiss support.
- * Ensures a maximum of one notification is shown at a time by clearing the stack
- * before adding a new one.
- *
- * @returns Object with the notification list and methods to add or remove them
- */
 export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const timeoutRefs = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
@@ -28,14 +20,14 @@ export function useNotifications() {
     };
   }, []);
 
-  const removeNotification = useCallback((id: number): void => {
+  function removeNotification(id: number): void {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
     const timeout = timeoutRefs.current[id];
     if (timeout) {
       clearTimeout(timeout);
       delete timeoutRefs.current[id];
     }
-  }, []);
+  }
 
   const addNotification = useCallback(
     (
@@ -43,81 +35,50 @@ export function useNotifications() {
       type: Notification['type'] = 'info',
       duration = 5000
     ): void => {
-      // Cancel any pending auto-dismiss timers from the previous toast, but do
-      // NOT clear the list first. Setting [] and then [notification] in the same
-      // tick makes AnimatePresence (mode="wait") exit-animate the old toast and
-      // re-enter, producing a ~0.1s close-then-reopen flicker. Replacing the
-      // array in a single update with a fresh keyed id is one clean swap.
       Object.values(timeoutRefs.current).forEach(clearTimeout);
       timeoutRefs.current = {};
 
       const id = Date.now() + Math.random();
-      const notification: Notification = {
-        id,
-        message,
-        type,
-        duration
-      };
-      setNotifications([notification]);
+      setNotifications([{ id, message, type, duration }]);
       if (duration > 0) {
-        timeoutRefs.current[id] = setTimeout(() => {
-          removeNotification(id);
-        }, duration);
+        timeoutRefs.current[id] = setTimeout(
+          () => removeNotification(id),
+          duration
+        );
       }
     },
-    [removeNotification]
+    []
   );
 
-  const success = useCallback(
-    (message: string, duration = 5000): void => {
-      addNotification(message, 'success', duration);
-    },
-    [addNotification]
-  );
+  function success(message: string, duration = 5000): void {
+    addNotification(message, 'success', duration);
+  }
 
-  const error = useCallback(
-    (message: string, duration = 5000): void => {
-      addNotification(message, 'error', duration);
-    },
-    [addNotification]
-  );
+  function error(message: string, duration = 5000): void {
+    addNotification(message, 'error', duration);
+  }
 
-  const info = useCallback(
-    (message: string, duration = 5000): void => {
-      addNotification(message, 'info', duration);
-    },
-    [addNotification]
-  );
+  function info(message: string, duration = 5000): void {
+    addNotification(message, 'info', duration);
+  }
 
-  const warning = useCallback(
-    (message: string, duration = 5000): void => {
-      addNotification(message, 'warning', duration);
-    },
-    [addNotification]
-  );
+  function warning(message: string, duration = 5000): void {
+    addNotification(message, 'warning', duration);
+  }
 
-  // Surface cloud-sync truncation: when history/archive outgrows the per-value
-  // server cap, the newest entries still sync and the full list stays local, but
-  // the user should know older entries aren't reaching the cloud.
   useEffect(() => {
     const onTruncated = (event: Event): void => {
       const { dataset } = (event as CustomEvent<SyncTruncatedDetail>).detail;
       const label = dataset === 'archive' ? 'archive' : 'history';
-      warning(`Cloud full — only recent ${label} synced.`, 7000);
+      addNotification(
+        `Cloud full — only recent ${label} synced.`,
+        'warning',
+        7000
+      );
     };
     window.addEventListener(SYNC_TRUNCATED_EVENT, onTruncated);
     return () => window.removeEventListener(SYNC_TRUNCATED_EVENT, onTruncated);
-  }, [warning]);
+  }, [addNotification]);
 
-  return useMemo(
-    () => ({
-      notifications,
-      success,
-      error,
-      info,
-      warning,
-      removeNotification
-    }),
-    [notifications, success, error, info, warning, removeNotification]
-  );
+  return { notifications, success, error, info, warning, removeNotification };
 }

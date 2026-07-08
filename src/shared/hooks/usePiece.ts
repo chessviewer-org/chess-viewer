@@ -1,15 +1,27 @@
-import { useCallback, useEffect, useRef } from 'react';
-
-import { syncStorage } from '@/features/auth/services/syncStorage';
-import { PIECE_SETS } from '@constants';
-
-import { hydrateFromSync, logger } from '@utils';
+import { useCallback, useMemo, useRef, useEffect } from 'react';
+import type { PieceSort } from '@/shared/utils';
+import {
+  AVAILABLE_PIECE_SETS,
+  hydrateFromSync,
+  sortPieceSets
+} from '@/shared/utils';
+import { syncStorage } from '@/auth';
 import { useLocalStorage } from './useLocalStorage';
+import { logger } from '@/shared/utils';
+
+export function usePieceSort() {
+  const [pieceSort, setPieceSort] = useLocalStorage<PieceSort>(
+    'cv_piece_sort',
+    'popular'
+  );
+  const sortedPieceSets = useMemo(() => sortPieceSets(pieceSort), [pieceSort]);
+  return { pieceSort, setPieceSort, sortedPieceSets };
+}
 
 const PIECE_STYLE_KEY = 'chess-piece-style';
 const DEFAULT_PIECE_STYLE = 'cburnett';
 
-const VALID_PIECE_IDS = new Set(PIECE_SETS.map((p) => p.id));
+const VALID_PIECE_IDS = new Set(AVAILABLE_PIECE_SETS.map((p) => p.id));
 
 function normalizePieceId(value: unknown): string {
   return typeof value === 'string' && VALID_PIECE_IDS.has(value)
@@ -17,10 +29,6 @@ function normalizePieceId(value: unknown): string {
     : DEFAULT_PIECE_STYLE;
 }
 
-/**
- * Board piece-set preference wired to the same localStorage key the board reads.
- * Layers best-effort cloud sync on top; local storage stays authoritative.
- */
 export function useBoardPieceSet(): [string, (id: string) => void] {
   const [pieceStyle, setPieceStyle] = useLocalStorage<string>(
     PIECE_STYLE_KEY,

@@ -1,20 +1,19 @@
-import { useCallback, useEffect, useReducer, useRef } from 'react';
-
+import { useEffect, useRef, useState } from 'react';
 import {
+  ExportConfig,
   cancelExport,
   copyToClipboard,
   downloadJPEG,
   downloadPNG,
-  type ExportConfig,
   logger,
   pauseExport,
   resumeExport,
   shouldForceCoordinateBorder,
   validateFEN
-} from '@utils';
+} from '@/shared/utils';
+import { runFormatExport } from '@/pages/AdvancedFENInputPage/utils/advancedExportHelpers';
 
-/** Tracks the lifecycle of an in-progress export operation. */
-interface ExportState {
+export interface ExportState {
   isExporting: boolean;
   exportProgress: number;
   currentFormat: string | null;
@@ -22,56 +21,11 @@ interface ExportState {
   showProgress: boolean;
 }
 
-/** Optional per-batch overrides that take precedence over saved board settings. */
 interface BatchExportOverrides {
   boardSize?: number;
   exportQuality?: number;
 }
 
-type ExportAction =
-  | { type: 'START_EXPORT'; format: string }
-  | { type: 'UPDATE_PROGRESS'; progress: number }
-  | { type: 'PAUSE' }
-  | { type: 'RESUME' }
-  | { type: 'COMPLETE' }
-  | { type: 'TOGGLE_PROGRESS' };
-
-const exportReducer = (
-  state: ExportState,
-  action: ExportAction
-): ExportState => {
-  switch (action.type) {
-    case 'START_EXPORT':
-      return {
-        ...state,
-        isExporting: true,
-        currentFormat: action.format,
-        exportProgress: 0,
-        isPaused: false,
-        showProgress: true
-      };
-    case 'UPDATE_PROGRESS':
-      return { ...state, exportProgress: action.progress };
-    case 'PAUSE':
-      return { ...state, isPaused: true };
-    case 'RESUME':
-      return { ...state, isPaused: false };
-    case 'COMPLETE':
-      return {
-        ...state,
-        isExporting: false,
-        currentFormat: null,
-        exportProgress: 0,
-        isPaused: false
-      };
-    case 'TOGGLE_PROGRESS':
-      return { ...state, showProgress: !state.showProgress };
-    default:
-      return state;
-  }
-};
-
-/** Input options for the useHomeExport hook. */
 interface UseHomeExportOptions {
   fen: string;
   fileName: string;
@@ -91,24 +45,8 @@ interface UseHomeExportOptions {
   };
 }
 
-/** Manages PNG/JPEG/batch export lifecycle including progress tracking, pause/resume, and cancellation. */
 export function useHomeExport(opts: UseHomeExportOptions) {
-  const {
-    fen,
-    fileName,
-    boardSize,
-    exportQuality,
-    showCoords,
-    showCoordinateBorder,
-    showThinFrame,
-    lightSquare,
-    darkSquare,
-    flipped,
-    saveExportFen,
-    notify
-  } = opts;
-
-  const [exportState, dispatchExport] = useReducer(exportReducer, {
+  const [exportState, setExportState] = useState<ExportState>({
     isExporting: false,
     exportProgress: 0,
     currentFormat: null,
@@ -125,201 +63,176 @@ export function useHomeExport(opts: UseHomeExportOptions) {
     };
   }, []);
 
-  const scheduleComplete = useCallback(() => {
+  const handlePieceImagesChange = (
+    images: Record<string, HTMLImageElement>
+  ) => {
+    pieceImagesRef.current = images;
+  };
+
+  const getExportConfig = (overrides?: BatchExportOverrides): ExportConfig => {
+    const quality = overrides?.exportQuality ?? opts.exportQuality;
+    const size = overrides?.boardSize ?? opts.boardSize;
+    const border =
+      shouldForceCoordinateBorder(quality) || opts.showCoordinateBorder;
+
+    return {
+      boardSize: size,
+      showCoords: opts.showCoords,
+      showCoordinateBorder: border,
+      showThinFrame: opts.showThinFrame,
+      lightSquare: opts.lightSquare,
+      darkSquare: opts.darkSquare,
+      flipped: opts.flipped,
+      fen: opts.fen,
+      pieceImages: pieceImagesRef.current,
+      exportQuality: quality
+    };
+  };
+
+  const finishExport = () => {
     if (completeTimerRef.current) clearTimeout(completeTimerRef.current);
+
     completeTimerRef.current = setTimeout(() => {
-      dispatchExport({ type: 'COMPLETE' });
+      setExportState((prev) => ({
+        ...prev,
+        isExporting: false,
+        currentFormat: null,
+        exportProgress: 0,
+        isPaused: false
+      }));
       completeTimerRef.current = null;
     }, 300);
-  }, []);
+  };
 
-  const handlePieceImagesChange = useCallback(
-    (images: Record<string, HTMLImageElement>) => {
-      pieceImagesRef.current = images;
-    },
-    []
-  );
+  const notifyError = (err: unknown, label: string) => {
+    const error = err as Error;
+    if (error?.message === 'Export cancelled') {
+      opts.notify.info('Export cancelled');
+    } else {
+      logger.error(`${label} export failed:`, err);
+      opts.notify.error(`${label} export failed`);
+    }
+  };
 
-  const getExportConfig = useCallback(
-    (overrides?: BatchExportOverrides): ExportConfig => {
-      const effectiveExportQuality = overrides?.exportQuality ?? exportQuality;
-      const effectiveBoardSize = overrides?.boardSize ?? boardSize;
-      const forceCoordBorder = shouldForceCoordinateBorder(
-        effectiveExportQuality
-      );
-      const effectiveCoordBorder = forceCoordBorder || showCoordinateBorder;
-
-      return {
-        boardSize: effectiveBoardSize,
-        showCoords,
-        showCoordinateBorder: effectiveCoordBorder,
-        showThinFrame,
-        lightSquare,
-        darkSquare,
-        flipped,
-        fen,
-        pieceImages: pieceImagesRef.current,
-        exportQuality: effectiveExportQuality
-      };
-    },
-    [
-      boardSize,
-      showCoords,
-      showCoordinateBorder,
-      showThinFrame,
-      lightSquare,
-      darkSquare,
-      flipped,
-      fen,
-      exportQuality
-    ]
-  );
-
-  const runExport = useCallback(
-    async (
-      format: 'png' | 'jpeg',
-      runner: (
-        cfg: ExportConfig,
-        name: string,
-        cb: (p: number) => void
-      ) => Promise<void>,
-      label: string
-    ) => {
-      if (!validateFEN(fen)) {
-        notify.error('Invalid FEN — cannot export');
-        return;
-      }
-      dispatchExport({ type: 'START_EXPORT', format });
-      saveExportFen(fen);
-
-      try {
-        await runner(getExportConfig(), fileName, (progress: number) =>
-          dispatchExport({ type: 'UPDATE_PROGRESS', progress })
-        );
-        notify.success(`${label} exported successfully`);
-      } catch (err: unknown) {
-        if (err instanceof Error && err.message === 'Export cancelled') {
-          notify.info('Export cancelled');
-        } else {
-          logger.error(`${label} export failed:`, err);
-          notify.error(`${label} export failed`);
-        }
-      } finally {
-        scheduleComplete();
-      }
-    },
-    [fen, fileName, getExportConfig, saveExportFen, scheduleComplete, notify]
-  );
-
-  const handleDownloadPNG = useCallback(
-    () => runExport('png', downloadPNG, 'PNG'),
-    [runExport]
-  );
-
-  const handleDownloadJPEG = useCallback(
-    () => runExport('jpeg', downloadJPEG, 'JPEG'),
-    [runExport]
-  );
-
-  const handleCopyImage = useCallback(async () => {
-    if (!validateFEN(fen)) {
-      notify.error('Invalid FEN — cannot export');
+  const runExport = async (
+    format: 'png' | 'jpeg',
+    runner: (
+      config: ExportConfig,
+      filename: string,
+      cb: (p: number) => void
+    ) => Promise<void>,
+    label: string
+  ) => {
+    if (!validateFEN(opts.fen)) {
+      opts.notify.error('Invalid FEN — cannot export');
       return;
     }
+
+    setExportState((prev) => ({
+      ...prev,
+      isExporting: true,
+      currentFormat: format,
+      exportProgress: 0,
+      isPaused: false
+    }));
+    opts.saveExportFen(opts.fen);
+
+    try {
+      const config = getExportConfig();
+      await runner(config, opts.fileName, (progress) => {
+        setExportState((prev) => ({ ...prev, exportProgress: progress }));
+      });
+      opts.notify.success(`${label} downloaded`);
+    } catch (err) {
+      notifyError(err, label);
+    } finally {
+      finishExport();
+    }
+  };
+
+  const handleDownloadPNG = () => runExport('png', downloadPNG, 'PNG');
+  const handleDownloadJPEG = () => runExport('jpeg', downloadJPEG, 'JPEG');
+
+  const handleCopyImage = async () => {
+    if (!validateFEN(opts.fen)) {
+      opts.notify.error('Invalid FEN — cannot copy');
+      return;
+    }
+
     try {
       await copyToClipboard(getExportConfig());
-      saveExportFen(fen);
-      notify.success('Image copied to clipboard');
-    } catch (err: unknown) {
-      logger.error('Copy to clipboard failed:', err);
-      notify.error('Copy failed');
+      opts.saveExportFen(opts.fen);
+      opts.notify.success('Image copied');
+    } catch (err) {
+      logger.error('Copy failed:', err);
+      opts.notify.error('Copy failed');
     }
-  }, [getExportConfig, fen, saveExportFen, notify]);
+  };
 
-  const handleBatchExport = useCallback(
-    async (
-      formats: string[],
-      customFileNames?: string | string[],
-      overrides?: BatchExportOverrides
-    ) => {
-      const firstFormat = formats[0] ?? 'png';
-      dispatchExport({ type: 'START_EXPORT', format: firstFormat });
-      saveExportFen(fen);
+  const handleBatchExport = async (
+    formats: string[],
+    customFileNames?: string | string[],
+    overrides?: BatchExportOverrides
+  ) => {
+    setExportState((prev) => ({
+      ...prev,
+      isExporting: true,
+      currentFormat: formats[0] ?? 'png'
+    }));
+    opts.saveExportFen(opts.fen);
 
-      try {
-        const total = formats.length;
-        for (let i = 0; i < total; i++) {
-          const format = formats[i];
-          if (!format) continue;
+    try {
+      for (let i = 0; i < formats.length; i++) {
+        const format = formats[i];
+        if (!format) continue;
 
-          const currentFileName = Array.isArray(customFileNames)
-            ? customFileNames[i] || fileName
-            : customFileNames || fileName;
+        const currentFileName = Array.isArray(customFileNames)
+          ? customFileNames[i] || opts.fileName
+          : customFileNames || opts.fileName;
 
-          const baseProgress = (i / total) * 100;
-          const updateProgress = (p: number) =>
-            dispatchExport({
-              type: 'UPDATE_PROGRESS',
-              progress: baseProgress + p / total
-            });
+        const config = getExportConfig(overrides);
 
-          dispatchExport({ type: 'START_EXPORT', format });
-
-          if (format === 'png') {
-            await downloadPNG(
-              getExportConfig(overrides),
-              currentFileName,
-              updateProgress
-            );
-          } else if (format === 'jpeg') {
-            await downloadJPEG(
-              getExportConfig(overrides),
-              currentFileName,
-              updateProgress
-            );
-          } else if (format === 'svg') {
-            const { downloadSVG } = await import('@utils/svgExporter');
-            await downloadSVG(
-              getExportConfig(overrides),
-              currentFileName,
-              updateProgress
-            );
-          }
-        }
-        notify.success(`Exported ${formats.length} formats successfully`);
-      } catch (err: unknown) {
-        if (err instanceof Error && err.message === 'Export cancelled') {
-          notify.info('Export cancelled');
-        } else {
-          logger.error('Batch export failed:', err);
-          notify.error('Batch export failed');
-        }
-      } finally {
-        scheduleComplete();
+        await runFormatExport(format, config, currentFileName, (p) => {
+          setExportState((prev) => ({
+            ...prev,
+            currentFormat: format,
+            exportProgress: (i / formats.length) * 100 + p / formats.length
+          }));
+        });
       }
-    },
-    [getExportConfig, fileName, fen, saveExportFen, scheduleComplete, notify]
-  );
+      opts.notify.success(`${formats.length} formats downloaded`);
+    } catch (err) {
+      notifyError(err, 'Batch export');
+    } finally {
+      finishExport();
+    }
+  };
 
-  const handleCancelExport = useCallback(() => {
+  const handleCancelExport = () => {
     cancelExport();
-    dispatchExport({ type: 'COMPLETE' });
-    notify.info('Export cancelled');
-  }, [notify]);
+    setExportState((prev) => ({
+      ...prev,
+      isExporting: false,
+      currentFormat: null,
+      exportProgress: 0,
+      isPaused: false
+    }));
+    opts.notify.info('Export cancelled');
+  };
 
-  const handlePause = useCallback(() => {
+  const handlePause = () => {
     pauseExport();
-    dispatchExport({ type: 'PAUSE' });
-  }, []);
+    setExportState((prev) => ({ ...prev, isPaused: true }));
+  };
 
-  const handleResume = useCallback(() => {
+  const handleResume = () => {
     resumeExport();
-    dispatchExport({ type: 'RESUME' });
-  }, []);
+    setExportState((prev) => ({ ...prev, isPaused: false }));
+  };
 
-  const toggleProgress = useCallback(() => {
-    dispatchExport({ type: 'TOGGLE_PROGRESS' });
-  }, []);
+  const toggleProgress = () => {
+    setExportState((prev) => ({ ...prev, showProgress: !prev.showProgress }));
+  };
 
   return {
     exportState,

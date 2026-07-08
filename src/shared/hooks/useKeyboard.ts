@@ -1,45 +1,161 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  isTextEntryTarget,
+  ownsArrowKeys,
+  getPageViewportHeight,
+  canPageScroll,
+  pageScrollBy,
+  pageScrollToY,
+  getPageScrollMax
+} from '@/shared/utils';
 
-/**
- * Keyboard interaction model for an ARIA single-select listbox / combobox
- * (WCAG Authoring Practices "Select-Only Combobox" + "Listbox" patterns).
- *
- * Owns the *active* (highlighted) option index — distinct from the *selected*
- * value — plus type-ahead, and produces a single `onKeyDown` handler the
- * trigger/listbox can spread. The consumer keeps ownership of open state and
- * the selected value; this hook only computes the active index and emits
- * `onSelect`/`onOpen`/`onClose` intents so it stays presentation-agnostic and
- * reusable across `CustomSelect`, `SearchableSelect`, and similar menus.
- *
- * It does not render anything and holds no DOM refs for the options, so it adds
- * no per-option React state churn.
- */
+export function useEscapeKey(onEscape: () => void): void {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onEscape();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onEscape]);
+}
+
+export interface PageScrollKeysOptions {
+  enabled?: boolean;
+  scrollStep?: number;
+}
+
+export function usePageScrollKeys(options: PageScrollKeysOptions = {}): void {
+  const { enabled = true, scrollStep = 80 } = options;
+
+  useEffect(() => {
+    if (!enabled) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.defaultPrevented) return;
+      if (isTextEntryTarget(e.target) || ownsArrowKeys(e.target)) return;
+
+      const viewport = getPageViewportHeight();
+      switch (e.key) {
+        case 'ArrowDown':
+          if (!canPageScroll(1)) return;
+          e.preventDefault();
+          pageScrollBy(scrollStep);
+          break;
+        case 'ArrowUp':
+          if (!canPageScroll(-1)) return;
+          e.preventDefault();
+          pageScrollBy(-scrollStep);
+          break;
+        case 'PageDown':
+          if (!canPageScroll(1)) return;
+          e.preventDefault();
+          pageScrollBy(viewport * 0.9);
+          break;
+        case 'PageUp':
+          if (!canPageScroll(-1)) return;
+          e.preventDefault();
+          pageScrollBy(-viewport * 0.9);
+          break;
+        case 'Home':
+          if (!canPageScroll(-1)) return;
+          e.preventDefault();
+          pageScrollToY(0);
+          break;
+        case 'End':
+          if (!canPageScroll(1)) return;
+          e.preventDefault();
+          pageScrollToY(getPageScrollMax());
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [enabled, scrollStep]);
+}
+
+export interface EditorKeyboardActions {
+  onFlip?: (() => void) | undefined;
+  onUndo?: (() => void) | undefined;
+  onRedo?: (() => void) | undefined;
+  onDelete?: (() => void) | undefined;
+  onEscape?: (() => void) | undefined;
+}
+
+export interface EditorKeyboardOptions {
+  enabled?: boolean;
+}
+
+export function useEditorKeyboard(
+  actions: EditorKeyboardActions,
+  options: EditorKeyboardOptions = {}
+): void {
+  const { enabled = true } = options;
+
+  const actionsRef = useRef(actions);
+  useEffect(() => {
+    actionsRef.current = actions;
+  }, [actions]);
+
+  useEffect(() => {
+    if (!enabled) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isTextEntryTarget(e.target)) return;
+
+      const mod = e.ctrlKey || e.metaKey;
+      const a = actionsRef.current;
+
+      if (mod && (e.key === 'z' || e.key === 'Z')) {
+        e.preventDefault();
+        if (e.shiftKey) a.onRedo?.();
+        else a.onUndo?.();
+        return;
+      }
+      if (mod && (e.key === 'y' || e.key === 'Y')) {
+        e.preventDefault();
+        a.onRedo?.();
+        return;
+      }
+
+      if (!mod && !e.altKey) {
+        if (e.key === 'f' || e.key === 'F') {
+          e.preventDefault();
+          a.onFlip?.();
+          return;
+        }
+        if (e.key === 'Delete' || e.key === 'Backspace') {
+          e.preventDefault();
+          a.onDelete?.();
+          return;
+        }
+        if (e.key === 'Escape') {
+          a.onEscape?.();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [enabled]);
+}
+
 export interface UseListboxKeyboardParams {
-  /** Whether the popup is currently open. */
   isOpen: boolean;
-  /** Number of selectable options currently rendered. */
   optionCount: number;
-  /** Index of the currently selected option, or -1 when none. */
   selectedIndex: number;
-  /** Open the popup (optionally seeding the active index). */
   onOpen: () => void;
-  /** Close the popup. */
   onClose: () => void;
-  /** Commit the option at `index` as the new selection. */
   onSelect: (index: number) => void;
-  /**
-   * Resolve a printable label for `index`, used for type-ahead matching.
-   * Omit to disable type-ahead (e.g. when a text search input already filters).
-   */
   getOptionLabel?: (index: number) => string;
 }
 
 export interface UseListboxKeyboard {
-  /** Index of the visually highlighted option, or -1 when none. */
   activeIndex: number;
-  /** Imperatively set the active index (e.g. on pointer hover). */
   setActiveIndex: (index: number) => void;
-  /** Spread onto the focusable trigger (or the search input). */
   onKeyDown: (event: React.KeyboardEvent) => void;
 }
 
@@ -67,18 +183,15 @@ export function useListboxKeyboard({
     timer: null
   });
 
-  // Reset / seed the active option whenever the popup opens or closes.
   useEffect(() => {
     if (isOpen) {
       setActiveIndex(selectedIndex >= 0 ? selectedIndex : 0);
     } else {
       setActiveIndex(-1);
     }
-    // selectedIndex intentionally read only at open time, not a live dep.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
-  // Keep the active index in range when the option list shrinks (e.g. filter).
   useEffect(() => {
     setActiveIndex((current) =>
       current < 0 ? current : clampIndex(current, optionCount)
@@ -108,7 +221,6 @@ export function useListboxKeyboard({
       }, TYPEAHEAD_RESET_MS);
 
       const start = activeIndex < 0 ? 0 : activeIndex;
-      // Search from the option after the active one, wrapping around.
       for (let offset = 0; offset < optionCount; offset += 1) {
         const index =
           (start + (state.query.length > 1 ? 0 : 1) + offset) % optionCount;
@@ -164,8 +276,6 @@ export function useListboxKeyboard({
         case 'Enter':
         case ' ':
         case 'Spacebar':
-          // Space only commits when not typing in a search field; the caller
-          // omits getOptionLabel for searchable variants, so guard on that.
           if (key !== 'Enter' && getOptionLabel === undefined) {
             return;
           }
