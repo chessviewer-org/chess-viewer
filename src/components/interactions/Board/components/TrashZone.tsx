@@ -1,44 +1,26 @@
 import { memo } from 'react';
 
-import { useDndContext, useDroppable } from '@dnd-kit/core';
-
 import type { ChessDragData } from '@constants';
+import { useDragContext, useDroppable } from '@/shared/hooks';
 
-/** Props for the `TrashZone` drop-to-delete target. */
 interface TrashZoneProps {
   id?: string;
   className?: string;
   minimal?: boolean;
 }
 
-/**
- * A drop zone that removes a piece from the board.
- *
- * Drop ID: `"trash"` — handled by `ChessEditor.handleDragEnd`.
- *
- * This component does NOT call `handlePieceRemove` directly. Removal is
- * centralised in `ChessEditor.handleDragEnd`, which checks `over.id === 'trash'`
- * and skips palette pieces (`isFromPalette`).
- *
- * The zone arms itself (`canDrop = true`) only while a board piece is being
- * dragged — palette drags leave it fully idle. This check uses `useDndContext`
- * to read the active drag's data without prop-threading.
- */
-const TrashZone = memo(function TrashZone({
+export const TrashZone = memo(function TrashZone({
   id = 'trash',
   className = '',
   minimal = false
 }: TrashZoneProps) {
-  const { active } = useDndContext();
-  const dragData = active?.data.current as ChessDragData | undefined;
-  // Arm the zone only for board pieces (not palette drags).
+  const { active } = useDragContext();
+  const dragData = active as ChessDragData | null;
   const canDrop = !!active && !dragData?.isFromPalette;
 
-  const { setNodeRef, isOver } = useDroppable({
-    id
-  });
+  const { setNodeRef, isOver } = useDroppable({ id, data: {} });
 
-  const active_ = isOver && canDrop;
+  const isActive = isOver && canDrop;
 
   if (minimal) {
     return (
@@ -46,7 +28,7 @@ const TrashZone = memo(function TrashZone({
         ref={setNodeRef}
         className={`
           transition-all duration-200
-          ${active_ ? 'bg-error/20 border-error' : canDrop ? 'bg-surface-elevated/50 border-border/50' : 'bg-transparent border-transparent'}
+          ${isActive ? 'bg-error/20 border-error' : canDrop ? 'bg-surface-elevated/50 border-border/50' : 'bg-transparent border-transparent'}
           ${className}
         `}
       />
@@ -61,7 +43,7 @@ const TrashZone = memo(function TrashZone({
         rounded-lg border-2 overflow-hidden
         transition-[background-color,color,box-shadow,flex-grow,transform] duration-200 ease-out
         ${
-          active_
+          isActive
             ? 'marching-ants border-transparent grow bg-error/30 text-error shadow-lg shadow-error/30'
             : canDrop
               ? 'border-dashed border-warning/40 hover:border-warning/60 bg-surface-elevated/50 text-text-muted hover:text-warning'
@@ -85,11 +67,10 @@ const TrashZone = memo(function TrashZone({
         />
       </svg>
       <span className="text-sm font-semibold truncate transition-colors duration-200">
-        {active_ ? 'Release to remove' : 'Drop to remove'}
+        {isActive ? 'Release to remove' : 'Drop to remove'}
       </span>
     </div>
   );
 });
 
 TrashZone.displayName = 'TrashZone';
-export default TrashZone;

@@ -2,17 +2,14 @@ import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import type { PieceSymbol } from '@app-types';
 
-import { describeBoardPosition } from '@utils';
-import { DroppableSquare } from '../DroppableSquare';
-import { useBoardKeyboard } from './useBoardKeyboard';
+import { describeBoardPosition } from '@/shared/utils';
+import { DroppableSquare } from './DroppableSquare';
+import { useBoardKeyboard } from '../hooks/useBoardKeyboard';
 
-/** Imperative keyboard handle the board exposes to its host (palette wiring). */
 export interface BoardKeyboardApi {
-  /** Carry a palette piece on the keyboard cursor and focus the grid. */
   pickUpFromPalette: (piece: PieceSymbol) => void;
 }
 
-/** Props for the `InteractiveBoard` DnD board grid. */
 interface InteractiveBoardProps {
   board: (PieceSymbol | '')[][];
   lightSquare: string;
@@ -20,10 +17,6 @@ interface InteractiveBoardProps {
   pieceImages: Record<string, HTMLImageElement | null>;
   isLoading: boolean;
   flipped: boolean;
-  /**
-   * Called by the keyboard layer (`useBoardKeyboard`) when a piece is placed via
-   * keyboard navigation. DnD drops are handled centrally in `ChessEditor`.
-   */
   onPieceDrop?: (
     piece: PieceSymbol,
     fromRow: number | undefined,
@@ -32,17 +25,13 @@ interface InteractiveBoardProps {
     toCol: number,
     isFromPalette: boolean
   ) => void;
-  /** Click-to-select a square (enables keyboard delete). */
   onSquareSelect?: ((row: number, col: number) => void) | undefined;
-  /** Currently selected square as `[row, col]`, or null when none. */
   selectedSquare?: readonly [number, number] | null | undefined;
-  /** Remove the piece on a square (keyboard Delete/Backspace on the grid). */
   onPieceRemove?: ((row: number, col: number) => void) | undefined;
-  /** Receives the board's imperative keyboard API once (palette → board). */
   onKeyboardApi?: ((api: BoardKeyboardApi) => void) | undefined;
 }
 
-const InteractiveBoard = memo(function InteractiveBoard({
+export const InteractiveBoard = memo(function InteractiveBoard({
   board,
   lightSquare,
   darkSquare,
@@ -71,8 +60,6 @@ const InteractiveBoard = memo(function InteractiveBoard({
     ...(onPieceRemove ? { onPieceRemove } : {})
   });
 
-  // Publish the imperative API to the host so the palette can hand a freshly
-  // chosen piece to the keyboard cursor and we can focus the grid for placement.
   useEffect(() => {
     if (!onKeyboardApi) return;
     onKeyboardApi({
@@ -99,8 +86,6 @@ const InteractiveBoard = memo(function InteractiveBoard({
         const isSelected =
           selectedSquare?.[0] === actualRow &&
           selectedSquare?.[1] === actualCol;
-        // Paint the cursor ring only when a keyboard cursor exists (it is null
-        // at rest and through pointer/programmatic focus — see useBoardKeyboard).
         const isCursor =
           cursor !== null &&
           cursor.row === actualRow &&
@@ -145,8 +130,6 @@ const InteractiveBoard = memo(function InteractiveBoard({
     [board, flipped]
   );
 
-  // Stable callback ref — just stores the node in boardRef (no DnD connector
-  // to merge; @dnd-kit's DroppableSquare children register themselves).
   const setRef = useCallback((node: HTMLDivElement | null) => {
     boardRef.current = node;
   }, []);
@@ -156,23 +139,17 @@ const InteractiveBoard = memo(function InteractiveBoard({
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {boardDescription}
       </div>
-      {/* Action announcer — narrates cursor moves, pickups, placements, and
-          removals so a keyboard/SR user can drive the board without sight. */}
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {announcement}
       </div>
       <div
         ref={setRef}
         role="grid"
-        // Single tab stop with a roving cursor (aria-activedescendant) instead
-        // of 64 tab stops — keyboard users land here once, then arrow around.
         tabIndex={0}
         aria-label="Chess board, edit mode. Use arrow keys to move, Enter or Space to pick up and place a piece, Delete to remove, Escape to cancel."
         {...(activeDescendantId
           ? { 'aria-activedescendant': activeDescendantId }
           : {})}
-        // Tell the app-wide page scroller to keep its hands off the arrow keys
-        // while this grid owns focus (see usePageScrollKeys / ownsArrowKeys).
         data-arrow-keys="self"
         onKeyDown={onKeyDown}
         onBlur={onBlur}
@@ -194,4 +171,3 @@ const InteractiveBoard = memo(function InteractiveBoard({
 });
 
 InteractiveBoard.displayName = 'InteractiveBoard';
-export default InteractiveBoard;

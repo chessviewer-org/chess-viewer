@@ -1,16 +1,8 @@
-import { useCallback, useState } from 'react';
-
-import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
-import {
-  MouseSensor,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors
-} from '@dnd-kit/core';
-
+import { useCallback } from 'react';
 import type { ChessDragData } from '@constants';
 import type { PieceSymbol } from '@app-types';
+import { useDragContext } from '@/shared/hooks';
+import { DragProvider } from '../components/DragProvider';
 
 interface UseDragStateParams {
   handlePieceDrop: (
@@ -28,44 +20,17 @@ export function useDragState({
   handlePieceDrop,
   handlePieceRemove
 }: UseDragStateParams) {
-  // PointerSensor handles both mouse and stylus; MouseSensor is the fine-pointer
-  // fallback. TouchSensor handles touch-only devices with a short delay so a tap
-  // doesn't accidentally start a drag (tolerance lets the finger settle 8px).
-  // All three sensors are registered so @dnd-kit picks the right one per event.
-  const pointerSensor = useSensor(PointerSensor, {
-    activationConstraint: { distance: 4 }
-  });
-  const mouseSensor = useSensor(MouseSensor, {
-    activationConstraint: { distance: 4 }
-  });
-  const touchSensor = useSensor(TouchSensor, {
-    activationConstraint: { delay: 200, tolerance: 8 }
-  });
-  const sensors = useSensors(pointerSensor, mouseSensor, touchSensor);
+  const { active: activeDragData } = useDragContext();
 
-  const [activeDragData, setActiveDragData] = useState<ChessDragData | null>(
-    null
-  );
+  const onDragEnd = useCallback(
+    (
+      dragData: ChessDragData,
+      targetId: string | null,
+      targetData: Record<string, unknown> | null
+    ) => {
+      if (!targetId) return;
 
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    const data = event.active.data.current as ChessDragData | undefined;
-    if (data) {
-      setActiveDragData(data);
-    }
-  }, []);
-
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      setActiveDragData(null);
-      const { active, over } = event;
-      if (!over) return;
-
-      const dragData = active.data.current as ChessDragData | undefined;
-      if (!dragData) return;
-
-      const overId = String(over.id);
-
-      if (overId === 'trash') {
+      if (targetId === 'trash') {
         if (
           !dragData.isFromPalette &&
           dragData.fromRow !== undefined &&
@@ -76,16 +41,13 @@ export function useDragState({
         return;
       }
 
-      const overData = over.data.current as
-        | { row: number; col: number }
-        | undefined;
-      if (overData && typeof overData.row === 'number') {
+      if (targetData && typeof targetData['row'] === 'number') {
         handlePieceDrop(
           dragData.piece,
           dragData.fromRow,
           dragData.fromCol,
-          overData.row,
-          overData.col,
+          targetData['row'] as number,
+          targetData['col'] as number,
           dragData.isFromPalette
         );
       }
@@ -93,15 +55,5 @@ export function useDragState({
     [handlePieceDrop, handlePieceRemove]
   );
 
-  const handleDragCancel = useCallback(() => {
-    setActiveDragData(null);
-  }, []);
-
-  return {
-    sensors,
-    activeDragData,
-    handleDragStart,
-    handleDragEnd,
-    handleDragCancel
-  };
+  return { activeDragData, DragProvider, onDragEnd };
 }

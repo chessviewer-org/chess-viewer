@@ -1,2 +1,2 @@
-export type { ChessEditorProps } from './ChessEditor';
-export { ChessEditor } from './ChessEditor';
+export type { ChessEditorProps } from './components/ChessEditor';
+export { ChessEditor } from './components/ChessEditor';

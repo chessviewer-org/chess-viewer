@@ -1,15 +1,12 @@
 import { memo, useCallback, useRef } from 'react';
 
-import { useDroppable } from '@dnd-kit/core';
-
 import type { PieceSymbol } from '@app-types';
-
-import { pieceToName } from '@utils';
-import { DraggablePiece } from '../DraggablePiece';
+import { pieceToName } from '@/shared/utils';
+import { useDroppable } from '@/shared/hooks';
+import { DraggablePiece } from './DraggablePiece';
 
 const FILES = 'abcdefgh';
 
-/** Props for the `DroppableSquare` memo'd drop target cell. */
 interface DroppableSquareProps {
   row: number;
   col: number;
@@ -18,27 +15,15 @@ interface DroppableSquareProps {
   lightColor: string;
   darkColor: string;
   pieceImage: HTMLImageElement | null;
-  /** Select this square (click). Enables keyboard delete of its piece. */
   onSelect?: ((row: number, col: number) => void) | undefined;
-  /** Whether this square is the active selection (keyboard target). */
   isSelected?: boolean;
-  /** Whether the roving keyboard cursor is currently on this square. */
   isCursor?: boolean;
-  /** Whether this square holds the piece that was picked up for keyboard move. */
   isHeldSource?: boolean;
   isLoading: boolean;
+  cellSize?: number;
 }
 
-/**
- * A single board square that accepts drops via @dnd-kit's `useDroppable`.
- *
- * Drop ID: `sq-{row}-{col}`  — parsed by `ChessEditor.handleDragEnd`.
- * Drop data: `{ row, col }` — passed as `over.data.current` in `handleDragEnd`.
- *
- * All drop logic (piece placement, trash removal) is centralised in
- * `ChessEditor.handleDragEnd`; this component only signals hover state.
- */
-const DroppableSquare = memo(
+export const DroppableSquare = memo(
   function DroppableSquare({
     row,
     col,
@@ -51,11 +36,10 @@ const DroppableSquare = memo(
     isSelected = false,
     isCursor = false,
     isHeldSource = false,
-    isLoading
+    isLoading,
+    cellSize = 64
   }: DroppableSquareProps) {
     const bgColor = isLight ? lightColor : darkColor;
-    // Stagger delay only on the initial piece reveal (isLoading→false).
-    // Once pieces are loaded the ref stays false so drag/drop remounts animate instantly.
     const wasLoadingRef = useRef(isLoading);
     const initialDelay =
       wasLoadingRef.current && !isLoading ? `${(row * 8 + col) * 6}ms` : '0ms';
@@ -76,18 +60,9 @@ const DroppableSquare = memo(
 
     const { setNodeRef, isOver } = useDroppable({
       id: `sq-${row}-${col}`,
-      // `data` carries grid coordinates so ChessEditor.handleDragEnd knows
-      // which square was targeted without parsing the id string.
       data: { row, col }
     });
 
-    // Ring precedence: pointer drag-over → keyboard cursor → keyboard
-    // selection → held source → none. Rendered as a separate absolutely
-    // positioned `inset:0` overlay (below) rather than a box-shadow on the
-    // square itself: an `inset` box-shadow shares edge pixels with the
-    // gap-filling `outline`, which paints *over* the right/bottom edges and
-    // eats the ring asymmetrically. A dedicated overlay with `inset:0` is
-    // symmetric on all four sides and immune to the gap-fill.
     const ringShadow = isOver
       ? 'inset 0 0 0 3px rgba(255, 255, 255, 0.5)'
       : isCursor
@@ -113,17 +88,12 @@ const DroppableSquare = memo(
           contain: 'layout style',
           minWidth: 0,
           minHeight: 0,
-          // Fills subpixel rounding gaps in CSS Grid that appear as thin lines.
-          // Kept on the square (not over a ring) — the ring lives in its own
-          // overlay so this no longer corrupts it on the right/bottom edges.
           outline: `0.5px solid ${bgColor}`
         }}
         data-row={row}
         data-col={col}
       >
         {piece && pieceImage && !isLoading && (
-          // `key` on the piece char remounts this wrapper when the piece on the
-          // square changes, re-firing the `animate-piece-in` keyframe.
           <div
             key={piece}
             className="w-full h-full flex items-center justify-center animate-piece-in"
@@ -139,18 +109,12 @@ const DroppableSquare = memo(
               row={row}
               col={col}
               isFromPalette={false}
-              // Fill the (integer-pixel) square edge-to-edge. The Lichess SVGs
-              // carry their own internal margin so 100% looks right AND keeps
-              // the image box pixel-aligned.
               size="100%"
+              cellSize={cellSize}
             />
           </div>
         )}
         {ringShadow && (
-          // Selection/cursor/drag-over ring as a symmetric `inset:0` overlay.
-          // Decoupled from the square's gap-fill `outline` so the right/bottom
-          // edges are never clipped or overpainted — the ring is equal on all
-          // four sides. Non-interactive so it never blocks clicks/drops.
           <div
             aria-hidden="true"
             style={{
@@ -165,9 +129,6 @@ const DroppableSquare = memo(
       </div>
     );
   },
-  // Manual comparator: re-render only when visible or interactive state changes.
-  // `onDrop` is intentionally omitted — drops are handled by ChessEditor,
-  // not by this component, so callback identity changes don't trigger repaints.
   (prevProps, nextProps) => {
     return (
       prevProps.piece === nextProps.piece &&
@@ -181,10 +142,10 @@ const DroppableSquare = memo(
       prevProps.isSelected === nextProps.isSelected &&
       prevProps.isCursor === nextProps.isCursor &&
       prevProps.isHeldSource === nextProps.isHeldSource &&
-      prevProps.pieceImage === nextProps.pieceImage
+      prevProps.pieceImage === nextProps.pieceImage &&
+      prevProps.cellSize === nextProps.cellSize
     );
   }
 );
 
 DroppableSquare.displayName = 'DroppableSquare';
-export default DroppableSquare;

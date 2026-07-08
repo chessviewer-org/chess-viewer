@@ -1,20 +1,9 @@
-@use '../../../styles/variables' as v;
-@use '../../../styles/mixins' as m;
-
-// =============================================================================
-// PiecePalette — CSS Module
-//
-// Layout modes:
-//   < 564px  flat    : two horizontal rows below the board (large touch targets)
-//   >= 564px stacked : two labeled groups (White / Black) inside the right panel
-// =============================================================================
+@use '../../../../styles/variables' as v;
+@use '../../../../styles/mixins' as m;
 
 .root {
   width: 100%;
 }
-
-// -- Stacked view: all breakpoints (mobile shows groups top-to-bottom,
-//    desktop shows white/black side-by-side inside .stackedRow) ---------------
 
 .stacked {
   display: flex;
@@ -42,7 +31,6 @@
   padding-bottom: 0.25rem;
 }
 
-// Two groups stacked (tablet) or side-by-side (desktop)
 .stackedRow {
   display: flex;
   flex-direction: column;
@@ -62,13 +50,11 @@
   gap: clamp(0.1rem, 0.3vw, 0.2rem);
   padding: clamp(0.2rem, 0.3vw, 0.3rem);
   border-radius: 0.5rem;
-  border: 1px solid rgb(255 255 255 / 0.1);
-  background: rgb(0 0 0 / 0.2);
+  border: 1px solid rgb(var(--val-border) / 0.5);
+  background: rgb(var(--val-surface-elevated) / 0.6);
   min-width: 0;
   flex: 1;
 }
-
-// -- Flat view: hidden everywhere (replaced by stacked on all breakpoints) ----
 
 .flat {
   display: none;
@@ -87,8 +73,6 @@
   height: 1px;
   background: rgb(var(--val-accent) / 0.8);
 }
-
-// -- Piece button: stacked variant --------------------------------------------
 
 .stackedPieceBtn {
   position: relative;
@@ -124,8 +108,6 @@
     box-shadow: 0 0 0 2px var(--color-accent);
   }
 }
-
-// -- Piece button: flat variant -----------------------------------------------
 
 .flatPieceBtn {
   position: relative;

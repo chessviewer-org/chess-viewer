@@ -1,13 +1,5 @@
-@use '../../../styles/variables' as v;
-@use '../../../styles/mixins' as m;
-
-// =============================================================================
-// DatabaseSearchPanel — CSS Module
-//
-// Grid layout:
-//   < 394px  1-column, 4 rows  — each provider gets its own row
-//   >= 394px 2-column, 2 rows  — always 2×2, never 4 in one row
-// =============================================================================
+@use '../../../../styles/variables' as v;
+@use '../../../../styles/mixins' as m;
 
 .panel {
   display: flex;
@@ -32,7 +24,6 @@
   margin-bottom: 0.25rem;
 }
 
-// Provider grid
 .grid {
   display: grid;
   min-height: 0;
@@ -43,8 +34,6 @@
     grid-template-columns: 1fr 1fr;
   }
 }
-
-// -- Provider cell ------------------------------------------------------------
 
 .providerRow {
   display: flex;

@@ -9,50 +9,28 @@ import {
 } from 'react';
 
 import {
-  DndContext,
-  DragOverlay,
-  type Modifier,
-  pointerWithin
-} from '@dnd-kit/core';
-
-import {
   useDatabaseSearch,
   useEditorKeyboard,
   useInteractiveBoard,
   usePieceImages
-} from '@hooks';
+} from '@/shared/hooks';
 import type { PieceSymbol } from '@app-types';
 
 import { Checkbox } from '@shared/ui';
-import { type BoardKeyboardApi, InteractiveBoard } from '../InteractiveBoard';
-import { PiecePalette } from '../PiecePalette';
-import { TrashZone } from '../TrashZone';
-import styles from './chess-editor.module.scss';
-import CommandBar from './parts/CommandBar';
-import DatabaseSearchPanel from './parts/DatabaseSearchPanel';
-import { DragGhost } from './parts/DragGhost';
-import ShareDialog from './parts/ShareDialog';
-import { useDragState } from './useDragState';
-import { useEditorBoardSize } from './useEditorBoardSize';
-import { useShareBoard } from './useShareBoard';
+import {
+  type BoardKeyboardApi,
+  InteractiveBoard
+} from '../../Board/components/InteractiveBoard';
+import { PiecePalette } from '../../PiecePalette/PiecePalette';
+import { TrashZone } from '../../Board/components/TrashZone';
+import { CommandBar } from './CommandBar';
+import { DatabaseSearchPanel } from './DatabaseSearchPanel';
+import styles from '../styles/chess-editor.module.scss';
+import { useDragState } from '../hooks/useDragState';
+import { useEditorBoardSize } from '../hooks/useEditorBoardSize';
+import { useShareBoard } from '../hooks/useShareBoard';
+import { ShareDialog } from './ShareDialog';
 
-// Centers the DragOverlay ghost on the pointer — fixes the offset when
-// dragging from PiecePalette where the drag starts from the element corner.
-const snapCenterToCursor: Modifier = ({
-  activatorEvent,
-  draggingNodeRect,
-  transform
-}) => {
-  if (!draggingNodeRect || !activatorEvent) return transform;
-  const e = activatorEvent as PointerEvent;
-  const offsetX =
-    e.clientX - (draggingNodeRect.left + draggingNodeRect.width / 2);
-  const offsetY =
-    e.clientY - (draggingNodeRect.top + draggingNodeRect.height / 2);
-  return { ...transform, x: transform.x + offsetX, y: transform.y + offsetY };
-};
-
-/** Props for the `ChessEditor` interactive board wrapper. */
 export interface ChessEditorProps {
   fen: string;
   onFenChange: (fen: string) => void;
@@ -100,9 +78,6 @@ export const ChessEditor = memo(function ChessEditor({
   className = ''
 }: ChessEditorProps) {
   const { pieceImages, isLoading } = usePieceImages(pieceStyle);
-  // `cellSize` is measured from the real board element (boardElementRef) so the
-  // drag ghost matches the on-board pieces even when CSS max-width clamps the
-  // board below the editor-container width on large screens.
   const { boardSize, cellSize, containerRef, boardElementRef } =
     useEditorBoardSize();
 
@@ -117,13 +92,10 @@ export const ChessEditor = memo(function ChessEditor({
     canRedo
   } = useInteractiveBoard(fen, onFenChange);
 
-  const {
-    sensors,
-    activeDragData,
-    handleDragStart,
-    handleDragEnd,
-    handleDragCancel
-  } = useDragState({ handlePieceDrop, handlePieceRemove });
+  const { DragProvider: Provider, onDragEnd } = useDragState({
+    handlePieceDrop,
+    handlePieceRemove
+  });
 
   const [selectedSquare, setSelectedSquare] = useState<
     readonly [number, number] | null
@@ -183,11 +155,6 @@ export const ChessEditor = memo(function ChessEditor({
     yacpdb: yacpdbState
   } = useDatabaseSearch(fen);
 
-  // PDB/YACPDB are slow problem databases (their matrix search can take ~30-40s).
-  // Warn the user the first time they trigger EITHER slow lookup so the long
-  // "Searching…" state reads as expected, not broken. Shown ONCE per session
-  // (a ref, not state — no re-render) regardless of which of the two they press
-  // or how many times. Stable identity keeps the memo'd panel from re-rendering.
   const slowSearchNotified = useRef(false);
   const notifySlowSearch = useCallback(() => {
     if (slowSearchNotified.current) return;
@@ -211,18 +178,12 @@ export const ChessEditor = memo(function ChessEditor({
     ...(onNotify ? { onNotify } : {})
   });
 
-  const boardTotalH = boardSize;
-
   const ranks = flipped
     ? ['1', '2', '3', '4', '5', '6', '7', '8']
     : ['8', '7', '6', '5', '4', '3', '2', '1'];
   const files = flipped
     ? ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a']
     : ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-
-  const handleOpenFolder = useCallback(() => {
-    onNotify?.('Coming soon — stay tuned!', 'info');
-  }, [onNotify]);
 
   const commandBarProps = {
     onUndo: undo,
@@ -232,29 +193,16 @@ export const ChessEditor = memo(function ChessEditor({
     onFlip: onFlip ?? (() => {}),
     onCopyImage: handleCopyFen,
     onShare: handleShare,
-    onOpenFolder: handleOpenFolder,
     onDownload
   };
 
   return (
-    <DndContext
-      sensors={sensors}
-      // `pointerWithin` targets the square the cursor is actually inside, not the
-      // one the ghost rect overlaps most. The default (`rectIntersection`) lets a
-      // ghost that is even slightly larger/offset than the cell claim a neighbour
-      // square — dropping on e4 would commit to f4. Chess needs cursor-accurate
-      // collision, so this strategy is mandatory.
-      collisionDetection={pointerWithin}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-      onDragCancel={handleDragCancel}
-    >
+    <Provider onDragEnd={onDragEnd}>
       <div
         ref={containerRef}
         className={`${styles.editorRoot} ${className}`}
         onClick={clearSelection}
       >
-        {/* CommandBar: full-width above board+panel on mobile and tablet */}
         <div className={styles.editorCommandbarTop}>
           <div className="flex items-center justify-end w-full">
             <CommandBar {...commandBarProps} />
@@ -263,12 +211,10 @@ export const ChessEditor = memo(function ChessEditor({
         </div>
 
         <div className={styles.editorMainRow}>
-          {/* ── Board column ── */}
           <div className={styles.editorBoardCol}>
             <div className={styles.editorBoardWrap}>
               <div className={styles.editorBoardInner}>
                 <div className="relative w-full aspect-square">
-                  {/* Coordinates gutters always take up 5% space. Board always takes 95% space. */}
                   <div
                     ref={boardElementRef}
                     className={styles.editorBoardContainer}
@@ -297,14 +243,6 @@ export const ChessEditor = memo(function ChessEditor({
                       <div
                         className="absolute pointer-events-none box-border"
                         style={{
-                          // Board frame drawn OUTWARD on all four edges INCLUDING
-                          // the top a8–h8 edge. The overlay is a real element
-                          // pushed 2.5px beyond every board edge, so the frame
-                          // owns its own space and never depends on a coordinate
-                          // gutter being present — that's why it now also shows
-                          // above the top rank, where there is no gutter. It
-                          // never eats playable square area. From the board
-                          // outward: 0.5px crisp black, then 2px default frame.
                           inset: '-2.5px',
                           border: `2px solid ${darkSquare}`,
                           boxShadow: 'inset 0 0 0 0.5px rgba(0,0,0,0.9)',
@@ -348,18 +286,11 @@ export const ChessEditor = memo(function ChessEditor({
             </div>
           </div>
 
-          {/* ── Right panel ── */}
           <div
             className={styles.editorPanel}
             style={
               {
-                '--board-h': `${boardTotalH}px`,
-                // Coords occupy 5% of the board wrapper below the squares.
-                // Pad the panel bottom by the same amount so trash aligns with
-                // the bottom of the board squares, not the coord row.
-                // cellSize×8 = real rendered board width (= height, aspect 1:1).
-                // Coord gutters are 5% of that, so pad the panel bottom by 5%
-                // to align trash with the board squares, not the coord row.
+                '--board-h': `${boardSize}px`,
                 paddingBottom: showCoords ? `${cellSize * 8 * 0.05}px` : '0'
               } as CSSProperties
             }
@@ -412,7 +343,6 @@ export const ChessEditor = memo(function ChessEditor({
           </div>
         </div>
 
-        {/* Tablet-only: DB search full-width below the board+panel row */}
         <div className={styles.editorDbRow}>
           <DatabaseSearchPanel
             lichess={lichessState}
@@ -431,19 +361,7 @@ export const ChessEditor = memo(function ChessEditor({
           onCopyLink={() => void copyLink()}
         />
       </div>
-
-      <DragOverlay dropAnimation={null} modifiers={[snapCenterToCursor]}>
-        {activeDragData ? (
-          <DragGhost
-            {...(activeDragData.pieceKey != null
-              ? { pieceKey: activeDragData.pieceKey }
-              : {})}
-            pieceImages={pieceImages}
-            cellSize={cellSize}
-          />
-        ) : null}
-      </DragOverlay>
-    </DndContext>
+    </Provider>
   );
 });
 

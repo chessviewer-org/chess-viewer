@@ -1,22 +1,7 @@
 import { memo } from 'react';
 
-import {
-  Copy,
-  Download,
-  FolderOpen,
-  Redo2,
-  Repeat2,
-  Share2,
-  Undo2
-} from 'lucide-react';
+import { Copy, Download, Redo2, Repeat2, Share2, Undo2 } from '@/assets/icons';
 
-/**
- * ChessVision Command Bar.
- *
- * A compact header row for the board's primary actions.
- * Left: Undo · Redo · Flip
- * Right: Copy · Share | Open · Export
- */
 interface CommandBarProps {
   onUndo: () => void;
   onRedo: () => void;
@@ -25,11 +10,9 @@ interface CommandBarProps {
   onFlip?: () => void;
   onCopyImage: () => void;
   onShare: () => void;
-  onOpenFolder?: () => void;
   onDownload?: (() => void) | undefined;
 }
 
-/** Shared icon-button shell — consistent hit-area, focus ring, transitions. */
 const iconButton =
   'p-1.5 rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent';
 
@@ -37,7 +20,7 @@ const Divider = () => (
   <span className="self-stretch w-px bg-white/20 mx-1" aria-hidden="true" />
 );
 
-const CommandBar = memo(function CommandBar({
+export const CommandBar = memo(function CommandBar({
   onUndo,
   onRedo,
   canUndo,
@@ -45,12 +28,10 @@ const CommandBar = memo(function CommandBar({
   onFlip,
   onCopyImage,
   onShare,
-  onOpenFolder,
   onDownload
 }: CommandBarProps) {
   return (
     <div className="flex items-center justify-between w-full">
-      {/* Left side: History & View */}
       <div className="flex items-center gap-1">
         <button
           type="button"
@@ -86,7 +67,6 @@ const CommandBar = memo(function CommandBar({
         </button>
       </div>
 
-      {/* Right side: Export & Share */}
       <div className="flex items-center gap-1">
         <button
           type="button"
@@ -111,17 +91,8 @@ const CommandBar = memo(function CommandBar({
 
         <button
           type="button"
-          onClick={onOpenFolder}
-          className={`${iconButton} text-text-secondary hover:text-text-primary hover:bg-surface-hover`}
-          title="Open (coming soon)"
-          aria-label="Open a board (coming soon)"
-        >
-          <FolderOpen className="w-5 h-5" />
-        </button>
-        <button
-          type="button"
           onClick={onDownload}
-          className={`${iconButton} text-accent hover:text-text-primary-hover hover:bg-accent/10`}
+          className={`${iconButton} text-accent hover:text-text-primary hover:bg-accent/10`}
           title="Download / Export"
           aria-label="Download or export board"
         >
@@ -133,5 +104,3 @@ const CommandBar = memo(function CommandBar({
 });
 
 CommandBar.displayName = 'CommandBar';
-
-export default CommandBar;

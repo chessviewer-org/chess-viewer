@@ -8,22 +8,18 @@ import {
   Library,
   Loader2,
   Search
-} from 'lucide-react';
+} from '@/assets/icons';
 
-import type { ProviderState } from '@hooks';
+import type { ProviderState } from '@/shared/hooks';
 
-import styles from '../database-search.module.scss';
+import styles from '../styles/database-search.module.scss';
 
 interface DatabaseSearchPanelProps {
   lichess: ProviderState;
   chessdb: ProviderState;
   pdb: ProviderState;
   yacpdb: ProviderState;
-  /**
-   * Fired when a SLOW provider (PDB/YACPDB) search is triggered, so the caller
-   * can warn the user the lookup may take a while. Not fired for the fast
-   * providers (Lichess/ChessDB). Must be referentially stable (panel is memo'd).
-   */
+
   onSlowSearch?: () => void;
   className?: string;
 }
@@ -33,7 +29,7 @@ const SearchActionButton = memo(function SearchActionButton({
   onBeforeSearch
 }: {
   state: ProviderState;
-  /** Runs before this provider's `search()` (e.g. a slow-lookup warning). */
+
   onBeforeSearch?: () => void;
 }) {
   const { status, url } = state;
@@ -99,7 +95,7 @@ const ProviderRow = memo(function ProviderRow({
 }: {
   state: ProviderState;
   Icon: React.ElementType;
-  /** Forwarded to the button; set only for slow providers (PDB/YACPDB). */
+
   onBeforeSearch?: () => void;
 }) {
   const found = state.status === 'found';
@@ -125,7 +121,7 @@ const ProviderRow = memo(function ProviderRow({
   );
 });
 
-const DatabaseSearchPanel = memo(function DatabaseSearchPanel({
+export const DatabaseSearchPanel = memo(function DatabaseSearchPanel({
   lichess,
   chessdb,
   pdb,
@@ -133,7 +129,6 @@ const DatabaseSearchPanel = memo(function DatabaseSearchPanel({
   onSlowSearch,
   className = ''
 }: DatabaseSearchPanelProps) {
-  // Only PDB/YACPDB are slow problem databases — warn before those lookups.
   const slow = onSlowSearch ? { onBeforeSearch: onSlowSearch } : {};
   return (
     <div className={`${styles.panel} ${className}`}>
@@ -149,5 +144,3 @@ const DatabaseSearchPanel = memo(function DatabaseSearchPanel({
 });
 
 DatabaseSearchPanel.displayName = 'DatabaseSearchPanel';
-
-export default DatabaseSearchPanel;
