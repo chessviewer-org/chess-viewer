@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react';
+import { Check } from '@/assets/icons';
 
 import type {
   BoardSizePreset,
@@ -38,9 +38,7 @@ export default function ExportSettingsStep({
 
   return (
     <div className="flex h-full flex-col overflow-y-auto p-4 @3xl:p-5 gap-6">
-      {/* ── Settings ──────────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-6">
-        {/* Format */}
         <div className="space-y-2.5">
           <h3 className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
             Format
@@ -79,7 +77,6 @@ export default function ExportSettingsStep({
           </div>
         </div>
 
-        {/* Quality */}
         <div className="space-y-2.5">
           <h3 className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
             Quality
@@ -98,7 +95,6 @@ export default function ExportSettingsStep({
           </div>
         </div>
 
-        {/* Board Size */}
         <div className="space-y-2.5">
           <h3 className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
             Board Size
@@ -139,7 +135,6 @@ export default function ExportSettingsStep({
           )}
         </div>
 
-        {/* File Name */}
         <div className="space-y-2.5">
           <h3 className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
             File Name
@@ -170,7 +165,6 @@ export default function ExportSettingsStep({
           </div>
         </div>
 
-        {/* Download Action */}
         <div className="mt-4">
           <button
             type="button"

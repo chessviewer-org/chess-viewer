@@ -1,12 +1,11 @@
 import { memo, useEffect, useRef, useState } from 'react';
 
-import { usePieceImages } from '@hooks';
+import { usePieceImages } from '@/shared/hooks';
 import { BaseHistoryEntry } from '@app-types';
 
 import { TabType } from '../hooks/useFENHistoryPage';
 import { FENHistoryGridItem } from './FENHistoryGridItem';
 
-/** Props for the responsive FEN history grid. */
 interface FENHistoryGridProps {
   data: BaseHistoryEntry[];
   activeTab: TabType;
@@ -21,23 +20,8 @@ interface FENHistoryGridProps {
   handleToggleFavorite: (id: number) => void;
 }
 
-/**
- * How many cards to mount initially, and how many more to reveal each time the
- * scroll sentinel comes into view. Each card mounts a live `<canvas>`, so the
- * grid windows the list — only the cards scrolled into view ever mount, which
- * bounds canvas/GPU memory regardless of how large the history is. The grid
- * still flows in the page's own single scroll region (no inner scrollbar), so
- * the responsive multi-column layout and single-surface scroll are preserved.
- */
 const PAGE_SIZE = 24;
 
-/**
- * Responsive grid of FEN history cards with scroll-driven windowing. Renders a
- * capped page of cards and grows it as the user scrolls (via an
- * `IntersectionObserver` sentinel) so only visible cards mount a canvas.
- * `usePieceImages` is hoisted here and the loaded images are passed to every
- * card, instead of each card running its own preload hook.
- */
 export const FENHistoryGrid = memo(function FENHistoryGrid({
   data,
   activeTab,
@@ -55,8 +39,6 @@ export const FENHistoryGrid = memo(function FENHistoryGrid({
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  // Reset the window whenever the list itself changes (tab switch, filter,
-  // delete) so we don't keep a stale-large window mounted against a smaller list.
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
   }, [data]);

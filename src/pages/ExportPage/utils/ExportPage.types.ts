@@ -1,10 +1,8 @@
-/** Optional overrides applied per batch export run, bypassing saved defaults. */
 export interface BatchExportOverrides {
   boardSize?: number;
   exportQuality?: number;
 }
 
-/** Slice of HomePage state passed down to ExportStudio for live preview and batch export. */
 export interface HomeStateForExport {
   fen: string;
   pieceStyle: string;

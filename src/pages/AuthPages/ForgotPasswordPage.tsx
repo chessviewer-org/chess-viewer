@@ -1,17 +1,14 @@
 import { type FormEvent, useState } from 'react';
 
-import { Loader2, MailCheck } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Loader2, MailCheck } from '@/assets/icons';
+import { Link } from 'wouter';
 
-import { getAuthErrorMessage } from '@/features/auth/components/authErrors';
-import { supabase } from '@/features/auth/services/supabaseClient';
+import { getAuthErrorMessage } from '@/auth';
+import { supabase } from '@/auth';
 
-import { AuthPage } from '../AuthPage';
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-const fieldClass =
-  'w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors duration-200';
+import { AuthPage } from './AuthPage';
+import { EMAIL_PATTERN } from './utils/authUtils';
+import styles from './styles/auth-forms.module.scss';
 
 export function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -64,7 +61,7 @@ export function ForgotPasswordPage() {
             If an account exists for that address, we sent a reset link.
           </p>
           <Link
-            to="/auth/sign-in"
+            href="/auth/sign-in"
             className="mt-6 inline-block text-sm font-medium text-accent transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             Back to Sign In
@@ -97,7 +94,7 @@ export function ForgotPasswordPage() {
             id="forgot-email"
             type="email"
             autoComplete="email"
-            className={fieldClass}
+            className={styles['fieldClass']}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             aria-invalid={emailError ? true : undefined}
@@ -113,7 +110,7 @@ export function ForgotPasswordPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-bg shadow-md transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50"
+          className={styles['submitButtonClass']}
         >
           {isSubmitting && (
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -124,7 +121,7 @@ export function ForgotPasswordPage() {
 
       <p className="mt-6 text-center text-sm text-text-secondary">
         <Link
-          to="/auth/sign-in"
+          href="/auth/sign-in"
           className="font-medium text-accent transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           Back to Sign In

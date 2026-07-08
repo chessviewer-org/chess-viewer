@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo } from 'react';
 
 import {
   CalendarDays,
@@ -8,14 +8,14 @@ import {
   Inbox,
   Star,
   Trash2
-} from 'lucide-react';
+} from '@/assets/icons';
 
 import { MiniPreview } from '@/components/board';
 import { StatusBadge } from '@/components/features/History';
+import { useCopyToClipboard } from '@/shared/hooks';
 
 import { TabType } from '../hooks/useFENHistoryPage';
 
-/** Shape of a single FEN history record rendered by this component. */
 interface FENHistoryEntry {
   id: number;
   fen: string;
@@ -27,7 +27,6 @@ interface FENHistoryEntry {
   source?: string;
 }
 
-/** Props for the individual board-preview card in the history grid. */
 interface FENHistoryGridItemProps {
   entry: FENHistoryEntry;
   index: number;
@@ -44,7 +43,6 @@ interface FENHistoryGridItemProps {
   handleToggleFavorite: (id: number) => void;
 }
 
-/** Board-preview card with load, favorite, archive/delete actions for a single FEN entry. */
 export const FENHistoryGridItem: React.FC<FENHistoryGridItemProps> = memo(
   ({
     entry,
@@ -62,21 +60,14 @@ export const FENHistoryGridItem: React.FC<FENHistoryGridItemProps> = memo(
     handleToggleFavorite
   }) => {
     const timestamp = entry.createdAt ?? entry.timestamp ?? entry.archivedAt;
-    const [copied, setCopied] = useState(false);
-
-    const handleCopy = useCallback(() => {
-      void navigator.clipboard.writeText(entry.fen).then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1500);
-      });
-    }, [entry.fen]);
+    const [copied, copyFen] = useCopyToClipboard();
+    const handleCopy = () => copyFen(entry.fen);
 
     return (
       <div
         className="bg-surface border border-border rounded-xl overflow-hidden hover:shadow-lg hover:shadow-accent/5 hover:border-border transition-[box-shadow,border-color] duration-200 group flex flex-col min-h-50 animate-cardReveal"
         style={{ animationDelay: `${Math.min(index * 0.05, 0.3)}s` }}
       >
-        {/* Board fills edge-to-edge, square aspect, high-res render */}
         <div className="w-full shrink-0 border-b border-border/30 overflow-hidden">
           <MiniPreview
             fen={entry.fen}
@@ -89,7 +80,6 @@ export const FENHistoryGridItem: React.FC<FENHistoryGridItemProps> = memo(
         </div>
 
         <div className="p-3 flex flex-col flex-1 min-h-0">
-          {/* FEN: single line with truncate + inline copy button */}
           <div className="flex items-center gap-1.5 mb-2 min-w-0">
             <code className="font-mono text-[11px] leading-none text-text-secondary truncate flex-1 min-w-0">
               {entry.fen}

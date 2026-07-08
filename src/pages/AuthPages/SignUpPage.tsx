@@ -1,20 +1,17 @@
 import { type FormEvent, useMemo, useState } from 'react';
 
-import { Eye, EyeOff, Loader2, MailCheck } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Eye, EyeOff, Loader2, MailCheck } from '@/assets/icons';
+import { Link } from 'wouter';
 
-import { getAuthErrorMessage } from '@/features/auth/components/authErrors';
-import { supabase } from '@/features/auth/services/supabaseClient';
+import { getAuthErrorMessage } from '@/auth';
+import { supabase } from '@/auth';
 
-import { AuthPage } from '../AuthPage';
+import { AuthPage } from './AuthPage';
+import { EMAIL_PATTERN } from './utils/authUtils';
+import styles from './styles/auth-forms.module.scss';
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 8;
 
-const fieldClass =
-  'w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors duration-200';
-
-/** Each rule has a label shown as a hint when not yet met. */
 interface StrengthRule {
   label: string;
   test: (v: string) => boolean;
@@ -30,7 +27,6 @@ const RULES: StrengthRule[] = [
   { label: 'Special character (!@#…)', test: (v) => /[^A-Za-z0-9]/.test(v) }
 ];
 
-/** Segment colours for scores 1–4 (index = score - 1). */
 const BAR_COLORS = [
   'bg-red-500',
   'bg-orange-400',
@@ -73,7 +69,6 @@ function StrengthMeter({ value }: StrengthMeterProps) {
 
   return (
     <div className="mt-2 flex flex-col gap-1.5">
-      {/* 4-segment bar */}
       <div
         className="flex gap-0.5"
         role="meter"
@@ -92,7 +87,6 @@ function StrengthMeter({ value }: StrengthMeterProps) {
         ))}
       </div>
 
-      {/* Label + failed hints */}
       <div className="flex items-start justify-between gap-2">
         {labelText && (
           <span className={`text-xs font-semibold ${labelColor}`}>
@@ -169,8 +163,6 @@ export function SignUpPage() {
         return;
       }
 
-      // Supabase returns identities: [] when email confirmation is disabled AND
-      // the email is already registered — no error is thrown, so we detect it here.
       if (
         data.user &&
         Array.isArray(data.user.identities) &&
@@ -200,7 +192,7 @@ export function SignUpPage() {
             We sent a confirmation link to finish setting up your account.
           </p>
           <Link
-            to="/auth/sign-in"
+            href="/auth/sign-in"
             className="mt-6 inline-block text-sm font-medium text-accent transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             Back to Sign In
@@ -239,7 +231,7 @@ export function SignUpPage() {
             name="email"
             type="email"
             autoComplete="email"
-            className={fieldClass}
+            className={styles['fieldClass']}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             aria-invalid={emailError ? true : undefined}
@@ -265,7 +257,7 @@ export function SignUpPage() {
               name="password"
               type={showPassword ? 'text' : 'password'}
               autoComplete="new-password"
-              className={`${fieldClass} pr-10`}
+              className={`${styles['fieldClass']} pr-10`}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               aria-invalid={passwordError ? true : undefined}
@@ -309,7 +301,7 @@ export function SignUpPage() {
               name="confirm-password"
               type={showConfirm ? 'text' : 'password'}
               autoComplete="new-password"
-              className={`${fieldClass} pr-10`}
+              className={`${styles['fieldClass']} pr-10`}
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               aria-invalid={confirmError ? true : undefined}
@@ -342,7 +334,7 @@ export function SignUpPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-bg shadow-md transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50"
+          className={styles['submitButtonClass']}
         >
           {isSubmitting && (
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -354,7 +346,7 @@ export function SignUpPage() {
       <p className="mt-6 text-center text-sm text-text-secondary">
         Already have an account?{' '}
         <Link
-          to="/auth/sign-in"
+          href="/auth/sign-in"
           className="font-medium text-accent transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           Sign in

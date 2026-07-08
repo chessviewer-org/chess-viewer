@@ -1,50 +1,53 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { type FormEvent, useState } from 'react';
 
-import { KeyRound, Loader2, ShieldAlert } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { KeyRound, Loader2, ShieldAlert } from '@/assets/icons';
+import { Link, useLocation } from 'wouter';
 
-import { supabase } from '@/features/auth/services/supabaseClient';
-
-import { logger } from '@utils';
-import { AuthPage } from '../AuthPage';
+import { supabase } from '@/auth';
+import { logger } from '@/shared/utils';
+import { AuthPage } from './AuthPage';
+import styles from './styles/auth-forms.module.scss';
 
 type MfaMode = 'totp' | 'backup';
 
+// -----------------------------------------------------------------------------
+// MfaChallengePage
+// Shown as a full route (/auth/mfa) after sign-in when the user has 2FA enabled.
+// -----------------------------------------------------------------------------
 export function MfaChallengePage() {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const [code, setCode] = useState('');
   const [mode, setMode] = useState<MfaMode>('totp');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSuccess = () => navigate('/');
+  // --------------------------------------------------------------------------
+  // Handlers
+  // --------------------------------------------------------------------------
 
   const handleVerifyTotp = async () => {
-    const { data: factors, error: factorsError } =
+    const { data: factorsRes, error: factorsError } =
       await supabase.auth.mfa.listFactors();
     if (factorsError) throw factorsError;
 
-    const totpFactor = factors.totp.find((f) => f.status === 'verified');
-    if (!totpFactor) {
-      setError('No verified TOTP factor found.');
-      return;
-    }
+    const totpFactor = (factorsRes?.totp ?? []).find(
+      (f: any) => f.status === 'verified'
+    );
+    if (!totpFactor) throw new Error('No verified TOTP factor found.');
 
     const { data: challenge, error: challengeError } =
       await supabase.auth.mfa.challenge({ factorId: totpFactor.id });
     if (challengeError) throw challengeError;
+    if (!challenge) throw new Error('Challenge failed.');
 
     const { error: verifyError } = await supabase.auth.mfa.verify({
       factorId: totpFactor.id,
       challengeId: challenge.id,
       code: code.trim()
     });
-
-    if (verifyError) {
-      setError('Invalid verification code.');
-    } else {
-      handleSuccess();
-    }
+    if (verifyError) throw new Error('Invalid verification code.');
   };
 
   const handleVerifyBackup = async () => {
@@ -52,12 +55,8 @@ export function MfaChallengePage() {
       'verify_recovery_code',
       { code: code.trim().toUpperCase() }
     );
-
-    if (verifyError || !isValid) {
-      setError('Invalid or already used backup code.');
-    } else {
-      handleSuccess();
-    }
+    if (verifyError || !isValid)
+      throw new Error('Invalid or already used backup code.');
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -70,6 +69,7 @@ export function MfaChallengePage() {
       } else {
         await handleVerifyBackup();
       }
+      navigate('/');
     } catch (err: unknown) {
       logger.error('MFA verification error:', err);
       setError(err instanceof Error ? err.message : 'Verification failed.');
@@ -80,9 +80,13 @@ export function MfaChallengePage() {
 
   const isTotp = mode === 'totp';
 
+  // --------------------------------------------------------------------------
+  // Render – standalone page (no AuthPage sidebar wrapper)
+  // --------------------------------------------------------------------------
   return (
     <AuthPage>
       <div className="flex flex-col gap-6">
+        {/* Header */}
         <div className="flex flex-col items-center gap-3 text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10">
             {isTotp ? (
@@ -101,12 +105,14 @@ export function MfaChallengePage() {
           </p>
         </div>
 
+        {/* Error */}
         {error && (
           <div className="rounded-lg border border-error/20 bg-error/10 p-3 text-center text-sm font-medium text-error">
             {error}
           </div>
         )}
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <label htmlFor="mfa-code" className="sr-only">
             {isTotp ? 'Authenticator code' : 'Backup recovery code'}
@@ -128,7 +134,7 @@ export function MfaChallengePage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-bg shadow-md transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50"
+            className={styles['submitButtonClass']}
           >
             {isSubmitting && (
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -137,6 +143,7 @@ export function MfaChallengePage() {
           </button>
         </form>
 
+        {/* Mode switch + back link */}
         <div className="flex flex-col items-center gap-3">
           <button
             type="button"
@@ -151,7 +158,7 @@ export function MfaChallengePage() {
           </button>
 
           <Link
-            to="/auth/sign-in"
+            href="/auth/sign-in"
             className="text-xs text-text-secondary transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             Back to Sign In

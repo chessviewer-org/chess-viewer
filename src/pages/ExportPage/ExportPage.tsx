@@ -1,13 +1,21 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, Download, LayoutGrid } from 'lucide-react';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, Download, LayoutGrid } from '@/assets/icons';
+import { Link } from 'wouter';
 
-import { type PageTabGroup, PageTabs } from '@/components/layout';
-import { useHomeExport, useNotifications, usePieceImages } from '@hooks';
+import {
+  type PageTabGroup,
+  PageSidebarLayout,
+  PageTabs
+} from '@/components/layout';
+import {
+  useHomeExport,
+  useNotifications,
+  usePieceImages,
+  useSearchParams
+} from '@/shared/hooks';
 
-import { safeJSONParse } from '@utils';
+import { safeJSONParse } from '@/shared/utils';
 import {
   EXPORT_BREADCRUMB_SCHEMA,
   EXPORT_HOWTO_SCHEMA,
@@ -19,7 +27,7 @@ import ExportSettingsStep from './components/ExportSettingsStep';
 import {
   type BatchExportOverrides,
   type HomeStateForExport
-} from './ExportPage.types';
+} from './utils/ExportPage.types';
 import { useExportWizard } from './hooks/useExportWizard';
 
 const TABS: PageTabGroup[] = [
@@ -48,22 +56,7 @@ export interface ExportPageConfig {
 const SESSION_KEY = 'cv_export_config';
 
 const ExportPage = () => {
-  const location = useLocation();
-  const routerState = location.state as ExportPageConfig | null;
-
-  // Persist to sessionStorage so a hard refresh keeps the config.
-  // Runs in an effect (not during render) to comply with React's render-purity rule.
-  useEffect(() => {
-    if (!routerState) return;
-    try {
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify(routerState));
-    } catch {
-      // sessionStorage unavailable — no-op
-    }
-  }, [routerState]);
-
   const initialState: ExportPageConfig | null =
-    routerState ??
     safeJSONParse<ExportPageConfig | null>(
       sessionStorage.getItem(SESSION_KEY),
       null
@@ -92,7 +85,7 @@ const ExportPage = () => {
             </p>
           </div>
           <Link
-            to="/"
+            href="/"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-accent text-bg hover:bg-accent-hover transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -147,37 +140,21 @@ const ExportPageInner = ({ config }: { config: ExportPageConfig }) => {
 
   const { success, error, info } = useNotifications();
 
-  // Local state for the export page, initialized from the config passed via router state.
-  const [fen] = useState(config.fen); // FEN is read-only here
-  const [flipped] = useState(config.flipped); // Flipped is read-only here
-  const [pieceStyle, setPieceStyle] = useState(config.pieceStyle);
-  const [showCoords, setShowCoords] = useState(config.showCoords);
-  const [showCoordinateBorder, setShowCoordinateBorder] = useState(
-    config.showCoordinateBorder
-  );
-  const [showThinFrame, setShowThinFrame] = useState(config.showThinFrame);
-  const [lightSquare, setLightSquare] = useState(config.lightSquare);
-  const [darkSquare, setDarkSquare] = useState(config.darkSquare);
-  const [exportQuality, setExportQuality] = useState(config.exportQuality);
-  const [boardSize, setBoardSize] = useState(config.boardSize);
+  const [boardConfig, setBoardConfig] = useState(config);
+  const updateConfig = <K extends keyof ExportPageConfig>(
+    key: K,
+    value: ExportPageConfig[K]
+  ) => setBoardConfig((prev) => ({ ...prev, [key]: value }));
 
-  // Initialize the export API
   const exportApi = useHomeExport({
-    fen,
+    ...boardConfig,
     fileName: config.fileName,
-    boardSize,
-    exportQuality,
-    showCoords,
-    showCoordinateBorder,
-    showThinFrame,
-    lightSquare,
-    darkSquare,
-    flipped,
     saveExportFen: () => {},
     notify: { success, error, info }
   });
 
-  const { pieceImages, isLoading } = usePieceImages(pieceStyle);
+  const { pieceImages, isLoading } = usePieceImages(boardConfig.pieceStyle);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isLoading && pieceImages) {
@@ -186,24 +163,15 @@ const ExportPageInner = ({ config }: { config: ExportPageConfig }) => {
   }, [pieceImages, isLoading, exportApi]);
 
   const homeState: HomeStateForExport = {
-    fen,
-    flipped,
-    pieceStyle,
-    setPieceStyle,
-    showCoords,
-    setShowCoords,
-    showCoordinateBorder,
-    setShowCoordinateBorder,
-    showThinFrame,
-    setShowThinFrame,
-    lightSquare,
-    setLightSquare,
-    darkSquare,
-    setDarkSquare,
-    exportQuality,
-    setExportQuality,
-    boardSize,
-    setBoardSize,
+    ...boardConfig,
+    setPieceStyle: (v) => updateConfig('pieceStyle', v),
+    setShowCoords: (v) => updateConfig('showCoords', v),
+    setShowCoordinateBorder: (v) => updateConfig('showCoordinateBorder', v),
+    setShowThinFrame: (v) => updateConfig('showThinFrame', v),
+    setLightSquare: (v) => updateConfig('lightSquare', v),
+    setDarkSquare: (v) => updateConfig('darkSquare', v),
+    setExportQuality: (v) => updateConfig('exportQuality', v),
+    setBoardSize: (v) => updateConfig('boardSize', v),
     handleBatchExport: exportApi.handleBatchExport
   };
 
@@ -216,64 +184,38 @@ const ExportPageInner = ({ config }: { config: ExportPageConfig }) => {
       boardSize: wizard.activeBoardSize,
       exportQuality: wizard.resolution
     };
-    setBoardSize(wizard.activeBoardSize);
-    setExportQuality(wizard.resolution);
+    updateConfig('boardSize', wizard.activeBoardSize);
+    updateConfig('exportQuality', wizard.resolution);
     void exportApi.handleBatchExport(selectedFormats, names, overrides);
   }, [exportApi, wizard]);
 
   return (
     <div className="flex flex-col bg-bg min-h-full lg:h-full lg:overflow-hidden">
-      <div className="page-container flex flex-col gap-6 py-6 sm:py-10 md:flex-row md:gap-8 lg:gap-10 h-full">
-        {/* ── Sidebar ───────────────────────────────────────────────────────── */}
-        <div className="shrink-0 mb-6 md:mb-0 md:border-r md:border-border md:pr-8 md:w-52 lg:w-56">
-          <div className="md:sticky md:top-10 flex flex-col gap-6">
-            <PageTabs
-              groups={TABS}
-              activeId={activeTab}
-              onSelect={(id) =>
-                setActiveTab(id as 'board-style' | 'export-settings')
-              }
-              ariaLabel="Export Studio sections"
-            />
+      <PageSidebarLayout
+        contentRef={contentRef}
+        contentLabel="Export Studio"
+        sidebar={
+          <PageTabs
+            groups={TABS}
+            activeId={activeTab}
+            onSelect={(id) =>
+              setActiveTab(id as 'board-style' | 'export-settings')
+            }
+            ariaLabel="Export Studio sections"
+          />
+        }
+      >
+        {activeTab === 'board-style' && (
+          <div className="workspace-container h-full animate-page-enter">
+            <BoardStyleStep homeState={homeState} />
           </div>
-        </div>
-
-        {/* ── Content area ──────────────────────────────────────────────────── */}
-        {/* `@container` makes the steps below react to THIS wrapper's width, not
-            the viewport. The sidebar eats ~208–236px, so a viewport `lg:` would
-            fire while the content is still narrow. Container queries inside the
-            steps (`@3xl:` ≈ 768px content width) switch board↔panel at the point
-            the content can actually hold both side by side. */}
-        <div className="@container min-w-0 flex-1">
-          <AnimatePresence mode="wait" initial={false}>
-            {activeTab === 'board-style' && (
-              <motion.div
-                key="board-style"
-                initial={{ opacity: 0, x: 12 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -12 }}
-                transition={{ duration: 0.18, ease: 'easeOut' }}
-                className="h-full"
-              >
-                <BoardStyleStep homeState={homeState} />
-              </motion.div>
-            )}
-
-            {activeTab === 'export-settings' && (
-              <motion.div
-                key="export-settings"
-                initial={{ opacity: 0, x: 12 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -12 }}
-                transition={{ duration: 0.18, ease: 'easeOut' }}
-                className="h-full"
-              >
-                <ExportSettingsStep wizard={wizard} onExport={handleFinish} />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
+        )}
+        {activeTab === 'export-settings' && (
+          <div className="h-full animate-page-enter">
+            <ExportSettingsStep wizard={wizard} onExport={handleFinish} />
+          </div>
+        )}
+      </PageSidebarLayout>
     </div>
   );
 };

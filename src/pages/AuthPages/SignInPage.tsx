@@ -1,29 +1,22 @@
 import { type FormEvent, useState } from 'react';
 
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff, Loader2 } from '@/assets/icons';
+import { Link, useLocation } from 'wouter';
 
-import { getAuthErrorMessage } from '@/features/auth/components/authErrors';
-import { supabase } from '@/features/auth/services/supabaseClient';
+import { getAuthErrorMessage } from '@/auth';
+import { supabase } from '@/auth';
 
-import { AuthPage } from '../AuthPage';
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-const fieldClass =
-  'w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-colors duration-200';
+import { AuthPage } from './AuthPage';
+import { EMAIL_PATTERN } from './utils/authUtils';
+import styles from './styles/auth-forms.module.scss';
 
 export function SignInPage() {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  // Server/sign-in errors (wrong credentials, network, anything from Supabase)
-  // belong at the form level, NOT under the password field — otherwise a network
-  // or server failure reads as "your password is wrong" even when it's correct
-  // (the original symptom in #134, which traced back to the missing Supabase env).
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -61,9 +54,6 @@ export function SignInPage() {
       });
 
       if (signInError) {
-        // A failed sign-in is a form-level outcome (wrong credentials are about
-        // the email+password pair, not the password alone; network/server
-        // failures aren't about the inputs at all).
         setFormError(getAuthErrorMessage(signInError));
         return;
       }
@@ -125,7 +115,7 @@ export function SignInPage() {
             name="email"
             type="email"
             autoComplete="email"
-            className={fieldClass}
+            className={styles['fieldClass']}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             aria-invalid={emailError ? true : undefined}
@@ -151,7 +141,7 @@ export function SignInPage() {
               name="password"
               type={showPassword ? 'text' : 'password'}
               autoComplete="current-password"
-              className={`${fieldClass} pr-10`}
+              className={`${styles['fieldClass']} pr-10`}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               aria-invalid={passwordError ? true : undefined}
@@ -181,7 +171,7 @@ export function SignInPage() {
 
         <div className="flex justify-end">
           <Link
-            to="/auth/forgot-password"
+            href="/auth/forgot-password"
             className="text-xs font-medium text-accent transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             Forgot password?
@@ -191,7 +181,7 @@ export function SignInPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-bg shadow-md transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50"
+          className={styles['submitButtonClass']}
         >
           {isSubmitting && (
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -203,7 +193,7 @@ export function SignInPage() {
       <p className="mt-6 text-center text-sm text-text-secondary">
         New here?{' '}
         <Link
-          to="/auth/sign-up"
+          href="/auth/sign-up"
           className="font-medium text-accent transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           Create an account
