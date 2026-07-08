@@ -1,4 +1,4 @@
-# ChessVision — privacy-first chess diagram tool
+# ChessViewer — privacy-first chess diagram tool
 # https://chessvision.org
 
 User-agent: *
