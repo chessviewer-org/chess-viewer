@@ -1,0 +1,102 @@
+@layer base {
+  * {
+    @apply m-0 p-0 box-border;
+  }
+
+  html {
+    @apply w-full;
+    min-height: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+
+    font-size: clamp(15px, 0.35vw + 13.6px, 17.5px);
+
+    scroll-behavior: auto;
+    font-synthesis: none;
+  }
+
+  body {
+    @apply w-full;
+    min-height: 100%;
+    overflow-x: hidden;
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100vw;
+    @apply antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-family: var(--font-ui);
+    background-color: var(--color-bg);
+    background-image: linear-gradient(
+      135deg,
+      var(--color-bg-gradient-start),
+      var(--color-bg-gradient-end)
+    );
+    background-attachment: fixed;
+    color: var(--color-text-primary);
+    transition: color 0.2s var(--animation-curve);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-ui);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+
+  code,
+  pre,
+  kbd,
+  samp {
+    font-family: var(--font-data);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  #root {
+    @apply overflow-x-hidden w-full max-w-full;
+    contain: layout style;
+  }
+
+  button {
+    @apply select-none;
+    touch-action: manipulation;
+    transition:
+      background-color var(--animation-duration) var(--animation-curve),
+      color var(--animation-duration) var(--animation-curve),
+      border-color var(--animation-duration) var(--animation-curve),
+      box-shadow var(--animation-duration) var(--animation-curve);
+  }
+
+  canvas {
+    @apply max-w-full h-auto block;
+    contain: strict;
+  }
+
+  img {
+    content-visibility: auto;
+  }
+
+  ::selection {
+    background: color-mix(
+      in srgb,
+      var(--color-accent),
+      transparent calc(100% - 0.3 * 100%)
+    );
+    color: var(--color-text-primary);
+  }
+
+  ::-moz-selection {
+    background: color-mix(
+      in srgb,
+      var(--color-accent),
+      transparent calc(100% - 0.3 * 100%)
+    );
+    color: var(--color-text-primary);
+  }
+}
