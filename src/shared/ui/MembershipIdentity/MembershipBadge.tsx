@@ -2,7 +2,7 @@ import type { MembershipTier, MembershipTone } from '@/auth';
 
 import { Crown, Gem, Heart, ShieldAlert, Sparkles } from '@/assets/icons';
 
-const DONATE_URL = 'https://github.com/sponsors/chessviewer-org';
+const DONATE_URL = 'https://github.com/chessviewer-org/chess-viewer';
 
 const TONE_BADGE: Record<MembershipTone, string> = {
   muted: 'border-border bg-surface text-text-secondary',

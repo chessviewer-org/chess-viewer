@@ -56,7 +56,7 @@ What is built, what is next, and what is not planned. Milestone targets below ar
 - Cloud sync of settings and history (row-level security, owner-scoped)
 - 90-day re-verification gate for privileged operations
 - Data migration from localStorage on first sign-in
-- Supporter/membership tiers via GitHub Sponsors
+- Supporter/membership tiers via direct donation
 
 ### Performance
 

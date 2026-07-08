@@ -7,8 +7,6 @@ export const REPO_LICENSE_URL = `${REPO_URL}/blob/master/LICENSE`;
 export const REPO_CONTRIBUTING_URL = `${REPO_URL}/blob/master/CONTRIBUTING.md`;
 export const REPO_CHANGELOG_URL = `${REPO_URL}/blob/master/CHANGELOG.md`;
 
-export const SPONSORS_URL = 'https://github.com/sponsors/chessviewer-org';
-
 export const CRYPTO_WALLET_ADDRESS =
   '0x31eB555dAAC8253FF9835448bFA1542BFA969aDb';
 

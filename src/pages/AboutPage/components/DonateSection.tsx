@@ -5,11 +5,7 @@ import { Code2, Copy, Heart, Megaphone } from '@/assets/icons';
 import { useNotifications } from '@/shared/hooks';
 
 import { NotificationContainer } from '@shared/ui';
-import {
-  CRYPTO_WALLET_ADDRESS,
-  REPO_URL,
-  SPONSORS_URL
-} from '../utils/aboutConstants';
+import { CRYPTO_WALLET_ADDRESS, REPO_URL } from '../utils/aboutConstants';
 import {
   Callout,
   ExternalLinkButton,
@@ -34,50 +30,46 @@ export default function DonateSection() {
       <div className="space-y-3">
         <SectionHeading icon={Heart} title="Donate" />
         <Lead>
-          ChessViewer is free and will stay free — no ads, no premium tier, no
-          paywalled features. If it has saved you time and you want to chip in,
-          that is genuinely appreciated. But it is never expected, and it
-          changes nothing about what you can do with the tool.
+          First, the important part: ChessViewer is completely free and will
+          always stay that way. No ads on the site, no &quot;Premium&quot;
+          subscription, no hidden feature locked behind a paywall. If this tool
+          has saved you time and you would like to support the project, we would
+          genuinely appreciate it. But it is never required or expected.
         </Lead>
       </div>
 
-      <InfoCard title="Why donate?">
+      <InfoCard title="Why do we take donations?">
         <p>
-          Running ChessViewer costs money — hosting, the database, the domain,
-          dependency and security updates over time. Right now that comes out of
-          pocket. A donation helps cover those costs and makes it easier to keep
-          the project maintained and up to date.
-        </p>
-        <p>
-          There are no perks attached. No supporter badge, no early access, no
-          extra features. Every feature is free for everyone. If you donate, it
-          is because you find the tool useful and want to see it stick around —
-          not because you are buying something.
+          To be upfront, right now we are only paying the domain cost out of
+          pocket, and running everything else on free tiers. But as the project
+          grows and more people use it, our database&apos;s free tier is bound
+          to fill up eventually and we will have to move to a paid plan. Any
+          small donation you make helps cover both our current domain cost and
+          those database and server costs that are coming down the road.
         </p>
       </InfoCard>
 
-      <InfoCard title="GitHub Sponsors">
+      <InfoCard title="Sponsor badge">
         <p>
-          The easiest way to donate is through GitHub Sponsors. You can do a
-          one-time contribution or set up a small monthly amount — whatever
-          feels right.
+          Supporting us financially does not unlock some hidden premium feature
+          — every feature is already completely free for everyone. If you
+          donate, it is simply because you find the project useful.
         </p>
-        <div className="pt-1">
-          <ExternalLinkButton
-            href={SPONSORS_URL}
-            icon={Heart}
-            variant="primary"
-          >
-            Sponsor on GitHub
-          </ExternalLinkButton>
-        </div>
+        <p>
+          That said, to not leave your support unacknowledged, we add a 1-month
+          Sponsor Badge to your account. There are 4 different badge tiers
+          depending on how much you give. Keep in mind this is not a social
+          platform, so no one but you will ever see this badge — it is just our
+          personal, visual way of saying &quot;thank you&quot; when you log in,
+          for helping keep the project running.
+        </p>
       </InfoCard>
 
       <InfoCard title="Crypto (USDT / USDC / ETH)">
         <p>
-          You can send USDT, USDC, or ETH to the single EVM wallet address below
-          — the same address works for all three. Always double-check the
-          address before sending.
+          If you would rather support us with crypto, you can send USDT, USDC,
+          or ETH to the single EVM wallet address below — the same address works
+          for all three. Just double-check the address before you send anything.
         </p>
         <Callout>
           <div className="flex items-stretch gap-2">
