@@ -32,26 +32,31 @@ export default function ThanksSection() {
 
       <div className="space-y-5 text-base leading-relaxed text-text-secondary">
         <p>
-          The interface is a <Ext href="https://react.dev">React</Ext>{' '}
-          application written in{' '}
-          <Ext href="https://www.typescriptlang.org">TypeScript</Ext>, built by{' '}
-          <Ext href="https://vitejs.dev">Vite</Ext> and styled with{' '}
-          <Ext href="https://tailwindcss.com">Tailwind CSS</Ext>. Navigation
-          between pages is handled by{' '}
-          <Ext href="https://reactrouter.com">React Router</Ext>, the motion and
-          page transitions come from{' '}
-          <Ext href="https://www.framer.com/motion/">Framer Motion</Ext>, and
-          the interactive board editor is powered by{' '}
-          <Ext href="https://dndkit.com/">dnd-kit</Ext>.
+          The interface is a <Ext href="https://preactjs.com">Preact</Ext> app
+          written in <Ext href="https://www.typescriptlang.org">TypeScript</Ext>
+          , built with <Ext href="https://vitejs.dev">Vite</Ext>, and styled
+          with <Ext href="https://tailwindcss.com">Tailwind CSS</Ext>. Fast
+          navigation between pages is handled by{' '}
+          <Ext href="https://github.com/molefrog/wouter">wouter</Ext>, and the
+          page transitions are hand-written in plain CSS. The board&apos;s
+          interactivity — grabbing a piece and dropping it wherever you want —
+          runs on our own custom drag-and-drop system built on the{' '}
+          <Ext href="https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events">
+            Pointer Events API
+          </Ext>
+          .
         </p>
         <p>
-          Large lists (such as a long FEN history) stay smooth thanks to{' '}
-          <Ext href="https://github.com/bvaughn/react-window">react-window</Ext>
-          , the icons throughout the app come from{' '}
-          <Ext href="https://lucide.dev">Lucide</Ext>, and the two-factor setup
-          QR codes are rendered with{' '}
-          <Ext href="https://github.com/zpao/qrcode.react">qrcode.react</Ext>.
-          Optional accounts and cloud sync are built on{' '}
+          For long lists (like your FEN history) to scroll smoothly without
+          freezing the browser, we use our own custom system built on{' '}
+          <Ext href="https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API">
+            IntersectionObserver
+          </Ext>
+          , the icons around the site come from{' '}
+          <Ext href="https://lucide.dev">Lucide</Ext>, and the QR codes for
+          Two-Factor Authentication (2FA) are rendered with{' '}
+          <Ext href="https://github.com/nuintun/uqr">uqr</Ext>. All account
+          handling, auth, and cloud sync are entrusted to{' '}
           <Ext href="https://supabase.com">Supabase</Ext>.
         </p>
         <p>

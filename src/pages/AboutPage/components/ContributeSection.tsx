@@ -23,25 +23,27 @@ export default function ContributeSection() {
       <div className="space-y-3">
         <SectionHeading icon={Code2} title="Contribute" />
         <Lead>
-          ChessViewer is open source and built in public. The code is on GitHub
-          and anyone can read it, run it, and improve it. If you have ever
-          wanted to contribute to a real, working tool that people actually use
-          — this is a good place to start.
+          ChessViewer is fully open source and develops out in the open. The
+          code lives on GitHub — anyone can read it, run it on their own
+          machine, and make it better. If you have ever wanted to contribute to
+          a real, working project that people actually use, this is a great
+          place to start.
         </Lead>
       </div>
 
-      <InfoCard title="The source code">
+      <InfoCard title="The tech (source code)">
         <p>
-          The full application is public on GitHub. It is a React 19 and
-          TypeScript app, built with Vite and Tailwind CSS, with a Supabase
-          backend for auth and optional sync. The codebase is reasonably well
-          documented and has a CLAUDE.md that explains how everything fits
-          together.
+          The project&apos;s architecture is simple and modern: it is built with
+          Preact and TypeScript, bundled with Vite, and styled with Tailwind
+          CSS. Backend work like auth and sync is handled by Supabase. The
+          codebase is documented clearly enough that finding your way around
+          should not take long.
         </p>
         <p>
-          You can clone it, run it locally with a single command, and poke
-          around. No secrets needed for the core features — only the cloud sync
-          and auth require Supabase credentials, and those are optional.
+          You can clone it and run it locally with a single command. None of the
+          core features, like the chess board itself, need any hidden API key.
+          Supabase keys are only needed for auth and cloud features — and even
+          those are optional anyway.
         </p>
         <div className="flex flex-wrap items-center gap-3 pt-1">
           <ExternalLinkButton href={REPO_URL} icon={Code2} variant="primary">

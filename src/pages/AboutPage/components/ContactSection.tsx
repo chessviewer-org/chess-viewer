@@ -19,18 +19,20 @@ export default function ContactSection() {
       <div className="space-y-3">
         <SectionHeading icon={Mail} title="Contact" />
         <Lead>
-          Use whichever channel makes sense for what you need. GitHub is best
-          for bugs, ideas, and questions that others might benefit from seeing.
-          Email is for private matters.
+          When you want to tell us something about the project, picking the
+          right channel makes life easier for both of us. Short version: use
+          GitHub for anything technical that other people could benefit from
+          reading, and email for things that are just about you personally.
         </Lead>
       </div>
 
-      <InfoCard title="Found a bug or have a feature idea?">
+      <InfoCard title="Found a bug or have a new idea?">
         <p>
-          Open a GitHub issue. That is where bugs get tracked and fixed, and
-          where feature requests get discussed. If it is a bug, include your
-          browser, what you were doing, and what went wrong — the more specific,
-          the faster it gets fixed.
+          Something not working, or a nice idea popped into your head like
+          &quot;it&apos;d be great if it also did X&quot;? The best place for
+          that is opening a GitHub issue. If you&apos;re reporting a bug, please
+          write down which browser you&apos;re using and walk through how the
+          bug happened. The more detail you give us, the faster we can fix it.
         </p>
         <div className="pt-1">
           <ExternalLinkButton
@@ -43,12 +45,13 @@ export default function ContactSection() {
         </div>
       </InfoCard>
 
-      <InfoCard title="Have a question or want to share feedback?">
+      <InfoCard title="Got a question or want to discuss something?">
         <p>
-          GitHub Discussions is the right place for questions that are not
-          strictly bugs — &quot;how do I do X&quot;, &quot;would it make sense
-          to add Y&quot;, or just general feedback. It is a public thread, so
-          the answer helps anyone who searches for the same thing later.
+          For general questions and thoughts that aren&apos;t really bugs —
+          things like &quot;how do I do this?&quot; or &quot;what if we added a
+          feature like that?&quot; — GitHub Discussions is the better fit. Think
+          of it as an open forum: the question you ask and the answer you get
+          will help someone else running into the same thing later.
         </p>
         <div className="pt-1">
           <ExternalLinkButton href={REPO_DISCUSSIONS_URL} icon={MessageSquare}>
@@ -57,11 +60,11 @@ export default function ContactSection() {
         </div>
       </InfoCard>
 
-      <InfoCard title="Email">
+      <InfoCard title="For personal matters (email)">
         <p>
-          For anything private — account help, deletion requests, or something
-          you would rather not post publicly — email us directly. We aim to
-          reply within a few days.
+          If something only concerns you — an account issue, a deletion request,
+          or anything personal you would rather not post publicly — you can
+          email us directly. We try to read and reply as quickly as we can.
         </p>
         <div className="flex flex-wrap items-center gap-3 pt-1">
           <MailButton email={CONTACT_EMAIL} icon={Mail}>
@@ -70,12 +73,13 @@ export default function ContactSection() {
         </div>
       </InfoCard>
 
-      <InfoCard title="Found a security vulnerability?">
+      <InfoCard title="Found a serious security issue?">
         <p>
-          Please do not post it publicly. Security issues should be reported
-          privately so they can be fixed before anyone is exposed. Email us with
-          the details — we take security reports seriously and will respond
-          quickly.
+          If you have found a serious security vulnerability, please do not post
+          it publicly anywhere, GitHub included. We need to fix the problem
+          before anyone can take advantage of it. Send security reports straight
+          to our email — we take these very seriously and will act on them as
+          fast as possible.
         </p>
         <div className="flex flex-wrap items-center gap-3 pt-1">
           <MailButton

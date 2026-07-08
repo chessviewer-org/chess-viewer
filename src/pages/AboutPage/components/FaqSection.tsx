@@ -7,48 +7,48 @@ import { FAQItem, Lead, SectionHeading } from './parts';
 
 const FAQS: Array<{ q: string; a: ReactNode }> = [
   {
-    q: 'What is ChessViewer for?',
-    a: 'It is a diagram editor. You build a chess position, make it look the way you want, and export it as a high-quality image. That is it — no engine, no opponent, no analysis. Just a clean way to turn a position into a picture you can use anywhere.'
+    q: 'What does ChessViewer actually do?',
+    a: "It's simply a diagram editor. You build a chess position, style it how you like, and download it as a high-quality image for print or screen. That means there's no opponent to play against, no AI suggesting moves, no analysis engine inside. It's purely built to turn chess positions into clean, sharp images."
   },
   {
-    q: 'Do I need an account?',
-    a: 'No. Every feature works without one. Your positions, history, and settings are saved in your browser on this device. An account is only useful if you want to sync that data across multiple devices — and even then it is completely optional.'
+    q: 'Do I need to sign up to use it?',
+    a: 'Not at all. Every feature works perfectly without an account. The positions you build, your search history, and your style settings are saved right on your own device (in your browser). You only need an account if you want that same data to follow you across devices — say, both your computer and your phone.'
   },
   {
-    q: 'Is it really free?',
-    a: 'Yes, genuinely. Not "free with limits", not a trial, not ad-supported. Every feature is available to everyone at no cost. ChessViewer is open source and the code is public on GitHub — you can run your own instance if you want.'
+    q: 'Is it really completely free?',
+    a: 'Yes, all the way through. No "trial version", no "Premium feature", no ads cluttering the screen. Every single feature is completely free for everyone. ChessViewer is open source and all the code is on GitHub.'
   },
   {
-    q: 'What export formats and sizes are available?',
-    a: 'PNG, JPEG, and SVG. For PNG and JPEG you set the physical size in centimetres and pick a quality preset — from 300 DPI up to 1200 DPI — so you can produce a diagram that is sharp in print, not just on screen. You can also copy directly to clipboard.'
+    q: 'What formats and sizes can I download images in?',
+    a: 'PNG, JPEG, and SVG. For PNG and JPEG you can even set the physical size in centimeters and push the quality up to 1200 DPI, print-shop level. That way your diagram looks sharp as glass whether it’s on screen or printed on paper. You can also copy it straight to the clipboard instead of downloading.'
   },
   {
-    q: 'How do I enter a position?',
-    a: 'Two ways: drag pieces from the palette onto the board, or paste a FEN string into the input field. FEN is the standard text format chess players use to describe positions — most chess sites and databases can give you one. ChessViewer validates it as you type.'
+    q: 'How do I add a position to the board?',
+    a: 'Two really easy ways: either grab pieces from the palette and drag them onto the board, or paste a FEN string you already have into the box on screen. The moment you paste it, ChessViewer checks it and places it on the board without any errors.'
   },
   {
-    q: 'Can I export several positions at once?',
-    a: 'Yes. The Advanced FEN page lets you paste in multiple FEN strings and export them all together. You get a single ZIP file with every diagram inside, named and ready to use.'
+    q: 'Can I download several different positions at once (bulk export)?',
+    a: "Yes! Head to the Advanced FEN page for that. Paste in a bunch of different FEN strings, hit the button, and the system neatly names each one and hands you back a single ZIP file. A must-have if you're writing a book or a course."
   },
   {
-    q: 'Can I use the diagrams in commercial work?',
-    a: 'Yes. The images you generate are yours. Use them in books, articles, courses, videos, client work — whatever you need. There are no licensing restrictions on the output.'
+    q: 'Can I use the images I make for commercial work?',
+    a: 'Of course. Those images are entirely yours. Use them freely in your book, your article, a paid course, YouTube videos, or client work. We place no license or copyright restriction on the output whatsoever.'
   },
   {
-    q: 'Why is a very large export slow?',
-    a: 'High-resolution exports — especially at large physical sizes — require a lot of memory and processing. ChessViewer offloads the heavy work to a background thread to keep the page responsive, but there is no way around the fact that a 1200 DPI image at A4 size is a large computation. If it is struggling, try a lower DPI preset or a smaller size.'
+    q: 'Why does the site slow down on very large images?',
+    a: "Producing an A4-size image at 1200 DPI is a heavy computation that demands a lot from your computer's memory (RAM) and processor. We run that heavy work in the background so the site doesn't freeze, but computations that big still take a bit of time regardless. If your browser is struggling, try dropping the DPI or the size a notch."
   },
   {
-    q: 'Which browsers work?',
-    a: 'Chrome, Edge, Firefox, and Safari — current versions. Everything works in all four. The one exception is very large canvas sizes, which Safari caps lower than other browsers due to a platform limit. If you are exporting for print, Chrome or Edge will give you the most headroom.'
+    q: 'Which browsers does it support?',
+    a: "It works flawlessly on Chrome, Edge, Firefox, and Safari. There's one small exception: because of Safari's own internal limits, exporting very large (high-DPI) images can sometimes be an issue there. So for heavy print jobs, using Chrome or Edge will give you more headroom."
   },
   {
-    q: 'Can I install it like an app?',
-    a: 'Yes. ChessViewer is a Progressive Web App. Most browsers will offer an "Install" or "Add to home screen" option, which lets you launch it in its own window without going through a browser tab. It also works offline once installed.'
+    q: 'Can I install ChessViewer as an app on my computer or phone?',
+    a: 'Yes, because ChessViewer is also a PWA (Progressive Web App). Your browser will automatically offer you an "Install" or "Add to home screen" option. Do that, and it opens as a fully standalone app — and it’ll keep working perfectly even offline.'
   },
   {
     q: 'What is a FEN string?',
-    a: 'FEN stands for Forsyth-Edwards Notation. It is a compact text format that describes a chess position — where every piece is, whose turn it is, and a few other details. It looks something like "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1". Every major chess site and database can export positions as FEN, and ChessViewer can read them directly.'
+    a: 'FEN (Forsyth-Edwards Notation) is the standard format that packs any chess position into a single short line of text that computers and programs can understand. It records where every piece sits, whose turn it is, and a few other small details. A move looks something like this: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1". Every chess site and database out there supports the FEN format.'
   }
 ];
 

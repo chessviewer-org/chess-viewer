@@ -1,7 +1,7 @@
 @reference "../../../index.css";
 
 .heading {
-  @apply mb-2 flex items-center gap-2.5 font-display text-2xl font-bold text-text-primary sm:text-3xl;
+  @apply mb-2 flex items-center gap-2.5 font-display text-[1.375rem] font-bold text-text-primary sm:text-[1.75rem];
 }
 
 .headingIcon {
@@ -9,7 +9,7 @@
 }
 
 .lead {
-  @apply text-lg leading-relaxed text-text-secondary;
+  @apply text-[1rem] leading-relaxed text-text-secondary;
 }
 
 .infoCard {
@@ -17,11 +17,11 @@
 }
 
 .infoCardTitle {
-  @apply border-b border-border pb-2 text-xl font-bold text-text-primary;
+  @apply border-b border-border pb-2 text-[1.125rem] font-bold text-text-primary;
 }
 
 .infoCardBody {
-  @apply space-y-3 text-base leading-relaxed text-text-secondary;
+  @apply space-y-3 text-[0.875rem] leading-relaxed text-text-secondary;
 }
 
 .callout {
@@ -69,7 +69,7 @@
 }
 
 .faqText {
-  @apply pr-4 text-lg font-semibold text-text-primary;
+  @apply pr-4 text-[1rem] font-semibold text-text-primary;
 }
 
 .faqIcon {
@@ -85,5 +85,5 @@
 }
 
 .faqBodyText {
-  @apply px-5 pb-4 text-base leading-relaxed text-text-secondary;
+  @apply px-5 pb-4 text-[0.875rem] leading-relaxed text-text-secondary;
 }
