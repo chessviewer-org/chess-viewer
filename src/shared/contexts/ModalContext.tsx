@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, {
   createContext,
   useCallback,
@@ -17,7 +18,6 @@ interface ModalState {
   onCancel: () => void;
 }
 
-/** Imperative modal API exposed via `useModal`. */
 interface ModalContextType {
   showAlert: (
     title: string,
@@ -34,10 +34,6 @@ interface ModalContextType {
 
 const ModalContext = createContext<ModalContextType | undefined>(undefined);
 
-/**
- * Mounts the singleton `Modal` component and exposes `showAlert`/`showConfirm`
- * as promise-based imperatives through `ModalContext`.
- */
 export function ModalProvider({
   children,
   openAuthModal
@@ -57,19 +53,17 @@ export function ModalProvider({
   const showAlert = useCallback(
     (title: string, message: string, type: ModalType = 'info') => {
       return new Promise<void>((resolve) => {
+        const close = () => {
+          setModalState((prev) => ({ ...prev, isOpen: false }));
+          resolve();
+        };
         setModalState({
           isOpen: true,
           title,
           message,
           type,
-          onConfirm: () => {
-            setModalState((prev) => ({ ...prev, isOpen: false }));
-            resolve();
-          },
-          onCancel: () => {
-            setModalState((prev) => ({ ...prev, isOpen: false }));
-            resolve();
-          }
+          onConfirm: close,
+          onCancel: close
         });
       });
     },
@@ -118,12 +112,6 @@ export function ModalProvider({
   );
 }
 
-/**
- * Provides imperative modal actions (`showAlert`, `showConfirm`).
- *
- * @throws If used outside of `<ModalProvider>`
- */
-// eslint-disable-next-line react-refresh/only-export-components
 export function useModal() {
   const context = useContext(ModalContext);
   if (!context) {

@@ -1,35 +1,5 @@
-import { PieceSymbol } from './chess';
-
-export * from './chess';
-export * from './history';
-
-export type BoardMatrix = PieceSymbol[][];
-
-export type FENString = string;
-
-export interface ValidationResult {
-  isValid: boolean;
-  errorMessage: string | null;
-}
-
-interface ThemeConfig {
-  name: string;
-  light: string;
-  dark: string;
-}
-
-export type BoardThemes = Record<string, ThemeConfig>;
-
-type ExportMode = 'print' | 'social';
-
-export interface QualityPreset {
-  value: number;
-  label: string;
-  description: string;
-  mode: ExportMode;
-  forceCoordinateBorder: boolean;
-  estimatedSize: string;
-}
+export * from '@chessviewer-org/chess-viewer';
+import type { BoardMatrix } from '@chessviewer-org/chess-viewer';
 
 interface AdvancedFenIntervalOption {
   value: number;
@@ -52,7 +22,11 @@ export interface AdvancedFenConfig {
   };
 }
 
-export interface PieceSet {
-  id: string;
-  name: string;
+export type ChessBoard = BoardMatrix;
+export function isChessBoard(b: unknown): b is ChessBoard {
+  return (
+    Array.isArray(b) &&
+    b.length === 8 &&
+    b.every((row) => Array.isArray(row) && row.length === 8)
+  );
 }

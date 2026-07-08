@@ -1,54 +1,28 @@
-/**
- * Centralised SEO metadata. Single source of truth for the canonical origin,
- * social-preview defaults, and per-route descriptions so the `<Seo>` component
- * and the static `index.html` fallbacks never drift apart.
- *
- * Keep descriptions ~150–160 chars (Google's snippet budget) and unique per
- * route — duplicate descriptions are an SEO regression.
- */
-
-/** Canonical production origin. No trailing slash. */
 export const SITE_URL = 'https://chessvision.org';
 
-/** Site / brand name used in titles and Open Graph `og:site_name`. */
-export const SITE_NAME = 'ChessVision';
+export const SITE_NAME = 'ChessViewer';
 
-/** Default social-preview image (1200×630), self-hosted to satisfy CSP `img-src 'self'`. */
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 
-/** Title separator (e.g. 'About • ChessVision'). */
 export const TITLE_SEPARATOR = ' • ';
 
-/** Default site-wide description (home / fallback). */
 export const DEFAULT_DESCRIPTION =
   'Free chess diagram generator — convert FEN to PNG, JPEG, or SVG in seconds. Professional-quality chess diagrams for books, articles, and social media. No sign-up required.';
 
-/**
- * Metadata describing a single page for the `<Seo>` component.
- */
 export interface SeoMeta {
-  /** Page name shown in the tab title as `{name} • ChessVision`. Omit for home. */
   name?: string;
-  /** Unique meta description for this page. Falls back to {@link DEFAULT_DESCRIPTION}. */
   description?: string;
-  /** Path-only canonical (e.g. '/about'). Combined with {@link SITE_URL}. */
   path?: string;
-  /** Override the social-preview image. Defaults to {@link DEFAULT_OG_IMAGE}. */
   image?: string;
-  /** When true, emit `robots: noindex, nofollow` (private pages like settings). */
   noindex?: boolean;
-  /** JSON-LD structured data for rich snippets. */
   schema?: Record<string, unknown> | Record<string, unknown>[];
 }
 
-/**
- * Base Organization schema for JSON-LD.
- */
 export const ORGANIZATION_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   '@id': `${SITE_URL}/#organization`,
-  name: 'ChessVision',
+  name: 'ChessViewer',
   alternateName: 'chessvision.org',
   url: `${SITE_URL}/`,
   logo: {
@@ -58,20 +32,17 @@ export const ORGANIZATION_SCHEMA = {
     height: 512
   },
   sameAs: [
-    'https://github.com/chessvision-org/chess-vision',
+    'https://github.com/chessviewer-org/chess-viewer',
     'https://chessvision.org'
   ]
 };
 
-/**
- * Base WebSite schema for JSON-LD — enables Google Sitelinks Search Box.
- */
 export const WEBSITE_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   '@id': `${SITE_URL}/#website`,
   url: `${SITE_URL}/`,
-  name: 'ChessVision — Chess Diagram Generator',
+  name: 'ChessViewer — Chess Diagram Generator',
   description: DEFAULT_DESCRIPTION,
   publisher: { '@id': `${SITE_URL}/#organization` },
   inLanguage: 'en',
@@ -85,14 +56,11 @@ export const WEBSITE_SCHEMA = {
   }
 };
 
-/**
- * Base SoftwareApplication schema for the main tools.
- */
 export const SOFTWARE_APP_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
   '@id': `${SITE_URL}/#app`,
-  name: 'ChessVision',
+  name: 'ChessViewer',
   alternateName: [
     'Chess Diagram Generator',
     'FEN to Image Converter',
@@ -126,10 +94,6 @@ export const SOFTWARE_APP_SCHEMA = {
   publisher: { '@id': `${SITE_URL}/#organization` }
 };
 
-/**
- * FAQ schema for the home page — targets "People also ask" rich results
- * for high-value chess diagram / FEN queries.
- */
 export const HOME_FAQ_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -139,7 +103,7 @@ export const HOME_FAQ_SCHEMA = {
       name: 'How do I convert FEN to PNG?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Paste your FEN string into ChessVision, customize the board style and size, then click Export to download a high-resolution PNG. No sign-up required — completely free at chessvision.org.'
+        text: 'Paste your FEN string into ChessViewer, customize the board style and size, then click Export to download a high-resolution PNG. No sign-up required — completely free at chessvision.org.'
       }
     },
     {
@@ -147,7 +111,7 @@ export const HOME_FAQ_SCHEMA = {
       name: 'What is the best free chess diagram generator?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'ChessVision (chessvision.org) is a free, open-source chess diagram generator that exports print-ready PNG, JPEG, and SVG diagrams from FEN notation. It supports custom board colors, piece styles, coordinate labels, and batch export — with no tracking or sign-up required.'
+        text: 'ChessViewer (chessvision.org) is a free, open-source chess diagram generator that exports print-ready PNG, JPEG, and SVG diagrams from FEN notation. It supports custom board colors, piece styles, coordinate labels, and batch export — with no tracking or sign-up required.'
       }
     },
     {
@@ -155,7 +119,7 @@ export const HOME_FAQ_SCHEMA = {
       name: 'How do I make a chess diagram from a FEN string?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Enter your FEN string in the input field on ChessVision. The board will render instantly. You can then adjust colors, piece style, board size, and coordinates before exporting as PNG, JPEG, or SVG.'
+        text: 'Enter your FEN string in the input field on ChessViewer. The board will render instantly. You can then adjust colors, piece style, board size, and coordinates before exporting as PNG, JPEG, or SVG.'
       }
     },
     {
@@ -163,30 +127,27 @@ export const HOME_FAQ_SCHEMA = {
       name: 'Can I export chess diagrams in SVG format?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes. ChessVision exports chess diagrams as scalable SVG vectors — perfect for web use, print at any resolution, and embedding in documents. PNG and JPEG export with custom DPI are also supported.'
+        text: 'Yes. ChessViewer exports chess diagrams as scalable SVG vectors — perfect for web use, print at any resolution, and embedding in documents. PNG and JPEG export with custom DPI are also supported.'
       }
     },
     {
       '@type': 'Question',
-      name: 'Is ChessVision free to use?',
+      name: 'Is ChessViewer free to use?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Yes, ChessVision is forever free and open-source. All features — including high-resolution export, batch processing, and cloud sync — are free with no paywalls. Visit chessvision.org to get started.'
+        text: 'Yes, ChessViewer is forever free and open-source. All features — including high-resolution export, batch processing, and cloud sync — are free with no paywalls. Visit chessvision.org to get started.'
       }
     }
   ]
 };
 
-/**
- * HowTo schema for the Export page — targets "how to export chess diagram" rich results.
- */
 export const EXPORT_HOWTO_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'HowTo',
   '@id': `${SITE_URL}/export#howto`,
   name: 'How to Export a Chess Diagram',
   description:
-    'Convert a FEN position to a high-resolution PNG, JPEG, or SVG chess diagram using ChessVision.',
+    'Convert a FEN position to a high-resolution PNG, JPEG, or SVG chess diagram using ChessViewer.',
   step: [
     {
       '@type': 'HowToStep',
@@ -211,9 +172,6 @@ export const EXPORT_HOWTO_SCHEMA = {
   ]
 };
 
-/**
- * BreadcrumbList schema for /export.
- */
 export const EXPORT_BREADCRUMB_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
@@ -222,7 +180,7 @@ export const EXPORT_BREADCRUMB_SCHEMA = {
     {
       '@type': 'ListItem',
       position: 1,
-      name: 'ChessVision',
+      name: 'ChessViewer',
       item: `${SITE_URL}/`
     },
     {
@@ -234,9 +192,6 @@ export const EXPORT_BREADCRUMB_SCHEMA = {
   ]
 };
 
-/**
- * BreadcrumbList schema for /advanced-fen.
- */
 export const ADVANCED_FEN_BREADCRUMB_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
@@ -245,7 +200,7 @@ export const ADVANCED_FEN_BREADCRUMB_SCHEMA = {
     {
       '@type': 'ListItem',
       position: 1,
-      name: 'ChessVision',
+      name: 'ChessViewer',
       item: `${SITE_URL}/`
     },
     {
@@ -257,11 +212,6 @@ export const ADVANCED_FEN_BREADCRUMB_SCHEMA = {
   ]
 };
 
-/**
- * Per-route SEO copy, keyed by route path. Consumed by the page components and
- * mirrored by the prerender + sitemap config. `/settings` is intentionally
- * `noindex` (private, user-specific) and excluded from the sitemap.
- */
 const ROUTE_SEO: Record<string, SeoMeta> = {
   '/': {
     path: '/',
@@ -280,10 +230,10 @@ const ROUTE_SEO: Record<string, SeoMeta> = {
       'Export your chess diagram as a print-ready PNG, JPEG, or SVG. Choose DPI, board size, transparent background, and download instantly — no watermarks, completely free.'
   },
   '/about': {
-    name: 'About ChessVision',
+    name: 'About ChessViewer',
     path: '/about',
     description:
-      'ChessVision is a free, open-source chess diagram generator at chessvision.org. No tracking, no paywalls — professional FEN-to-image export for players, coaches, and authors.'
+      'ChessViewer is a free, open-source chess diagram generator at chessvision.org. No tracking, no paywalls — professional FEN-to-image export for players, coaches, and authors.'
   },
   '/fen-history': {
     name: 'FEN Position History',
@@ -294,42 +244,37 @@ const ROUTE_SEO: Record<string, SeoMeta> = {
   '/settings': {
     name: 'Settings',
     path: '/settings',
-    description: 'Configure your ChessVision preferences, theme, and account.',
+    description: 'Configure your ChessViewer preferences, theme, and account.',
     noindex: true
   },
   '/auth/sign-in': {
     name: 'Sign In',
     path: '/auth/sign-in',
     description:
-      'Sign in to your ChessVision account to sync boards and settings across all your devices.',
+      'Sign in to your ChessViewer account to sync boards and settings across all your devices.',
     noindex: true
   },
   '/auth/sign-up': {
     name: 'Create Account',
     path: '/auth/sign-up',
     description:
-      'Create a free ChessVision account to save and sync your chess diagrams across devices.',
+      'Create a free ChessViewer account to save and sync your chess diagrams across devices.',
     noindex: true
   },
   '/auth/forgot-password': {
     name: 'Reset Password',
     path: '/auth/forgot-password',
-    description: 'Reset your ChessVision account password.',
+    description: 'Reset your ChessViewer account password.',
     noindex: true
   },
   '/auth/mfa': {
     name: 'Two-Factor Verification',
     path: '/auth/mfa',
     description:
-      'Complete two-factor authentication to access your ChessVision account.',
+      'Complete two-factor authentication to access your ChessViewer account.',
     noindex: true
   }
 };
 
-/**
- * Returns the SEO metadata for a known route, falling back to the home/default
- * entry for unknown paths. Always returns a definite {@link SeoMeta} so callers
- * can spread it without tripping `noUncheckedIndexedAccess`.
- */
 export const getRouteSeo = (path: string): SeoMeta =>
   ROUTE_SEO[path] ?? { path, description: DEFAULT_DESCRIPTION };
