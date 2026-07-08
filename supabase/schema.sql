@@ -1,8 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
--- ---------------------------------------------------------------------------
--- Shared trigger: stamp updated_at on every UPDATE.
--- ---------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.handle_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -13,9 +10,6 @@ $$ LANGUAGE plpgsql
    SECURITY DEFINER
    SET search_path = public, pg_temp;
 
--- ---------------------------------------------------------------------------
--- Constant-time string compare (used for defensive equality checks).
--- ---------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.constant_time_eq(a TEXT, b TEXT)
 RETURNS BOOLEAN AS $$
 DECLARE
@@ -26,11 +20,9 @@ DECLARE
 BEGIN
     len_a := length(a);
     len_b := length(b);
-    -- Always iterate max(len_a, len_b) to avoid early exit (timing side-channel).
     FOR i IN 1..GREATEST(len_a, len_b) LOOP
         IF i > len_a OR i > len_b OR substr(a, i, 1) != substr(b, i, 1) THEN
             result := FALSE;
-            -- Do NOT exit early — always complete the loop.
         END IF;
     END LOOP;
     RETURN result AND (len_a = len_b);
@@ -40,13 +32,6 @@ $$ LANGUAGE plpgsql
    SECURITY DEFINER
    SET search_path = public, pg_temp;
 
--- ---------------------------------------------------------------------------
--- ISSUE #1 — Array element-length validators.
--- CHECK constraints can only cap array LENGTH, not the size of each element.
--- These IMMUTABLE helpers cap both, blocking oversized-string payloads.
--- ---------------------------------------------------------------------------
-
--- fen_list: <=500 entries, each non-empty and <=100 chars (a standard FEN ~70).
 CREATE OR REPLACE FUNCTION public.validate_fen_list(arr TEXT[])
 RETURNS BOOLEAN AS $$
 DECLARE
@@ -59,7 +44,6 @@ BEGIN
         RETURN FALSE;
     END IF;
     FOREACH el IN ARRAY arr LOOP
-        -- NULL element or out-of-range length is rejected.
         IF el IS NULL OR char_length(el) = 0 OR char_length(el) > 100 THEN
             RETURN FALSE;
         END IF;
@@ -70,8 +54,6 @@ $$ LANGUAGE plpgsql
    IMMUTABLE
    SET search_path = public, pg_temp;
 
--- backup_codes: <=10 entries, each a bcrypt hash (60 chars) — cap at 255 to be
--- safe while still blocking massive strings. Empty array is valid (none issued).
 CREATE OR REPLACE FUNCTION public.validate_backup_codes(arr TEXT[])
 RETURNS BOOLEAN AS $$
 DECLARE
@@ -94,9 +76,6 @@ $$ LANGUAGE plpgsql
    IMMUTABLE
    SET search_path = public, pg_temp;
 
--- ===========================================================================
--- TABLE: profiles
--- ===========================================================================
 CREATE TABLE IF NOT EXISTS public.profiles (
     id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id      UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -108,10 +87,6 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     UNIQUE (user_id)
 );
 
--- Additive: supporter status as an expiring timestamp. A profile is a current
--- supporter iff supporter_until > now() (derived at render — self-expiring, no
--- cron). NULL = never/expired. Display-only badge for voluntary donors; not an
--- access boundary.
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS supporter_until TIMESTAMPTZ;
 
 CREATE INDEX IF NOT EXISTS idx_profiles_user_id ON public.profiles(user_id);
@@ -134,22 +109,17 @@ CREATE POLICY "Users can update own profile"
     ON public.profiles FOR UPDATE
     USING (auth.uid() = user_id)
     WITH CHECK (auth.uid() = user_id);
--- Profiles are removed via CASCADE when the auth.users row is deleted.
 
 DROP TRIGGER IF EXISTS set_profiles_updated_at ON public.profiles;
 CREATE TRIGGER set_profiles_updated_at
     BEFORE UPDATE ON public.profiles
     FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
--- ===========================================================================
--- TABLE: fen_batches
--- ===========================================================================
 CREATE TABLE IF NOT EXISTS public.fen_batches (
     id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id     UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     name        TEXT        NOT NULL DEFAULT 'Untitled Batch'
                             CHECK (char_length(name) <= 255),
-    -- ISSUE #1: validate both array length AND each element's length.
     fen_list    TEXT[]      NOT NULL DEFAULT '{}'
                             CHECK (public.validate_fen_list(fen_list)),
     description TEXT        CHECK (description IS NULL OR char_length(description) <= 1000),
@@ -188,17 +158,10 @@ CREATE TRIGGER set_fen_batches_updated_at
     BEFORE UPDATE ON public.fen_batches
     FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
--- ===========================================================================
--- TABLE: user_security  (SELECT-only for users; writes via functions only)
--- ===========================================================================
--- Rate-limit counters (refresh_count, failed_backup_attempts, …) have moved to
--- the generic rate_limit_ledger. This table now holds only durable security
--- state: the 90-day verification timestamp and the backup-code hashes.
 CREATE TABLE IF NOT EXISTS public.user_security (
     id                     UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id                UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     last_verified_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    -- ISSUE #1: validate both array length AND each element's length.
     backup_codes           TEXT[]      NOT NULL DEFAULT '{}'
                            CHECK (public.validate_backup_codes(backup_codes)),
     created_at             TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -206,8 +169,6 @@ CREATE TABLE IF NOT EXISTS public.user_security (
     UNIQUE (user_id)
 );
 
--- Migration: shed the legacy counter columns from already-provisioned tables
--- (CREATE TABLE IF NOT EXISTS is a no-op when the table already exists).
 ALTER TABLE public.user_security DROP COLUMN IF EXISTS last_refresh_attempt;
 ALTER TABLE public.user_security DROP COLUMN IF EXISTS refresh_count;
 ALTER TABLE public.user_security DROP COLUMN IF EXISTS failed_backup_attempts;
@@ -215,10 +176,6 @@ ALTER TABLE public.user_security DROP COLUMN IF EXISTS last_backup_attempt;
 
 CREATE INDEX IF NOT EXISTS idx_user_security_user_id ON public.user_security(user_id);
 
--- NOTE: ENABLE (not FORCE) — the SECURITY DEFINER functions run as the table
--- owner and MUST be able to write this table. FORCE would apply RLS to the
--- owner too and, with no write policy present, block those functions entirely.
--- Client write access is instead blocked by the REVOKE below + absent policies.
 ALTER TABLE public.user_security ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Users can view own security data" ON public.user_security;
@@ -226,10 +183,6 @@ CREATE POLICY "Users can view own security data"
     ON public.user_security FOR SELECT
     USING (auth.uid() = user_id);
 
--- ISSUE #2: NO INSERT/UPDATE/DELETE policies — intentional default-deny.
--- All mutations occur inside the SECURITY DEFINER functions below, which run
--- with FORCE RLS bypassed by virtue of being the table owner's definer context.
--- Revoke direct DML grants from client roles as belt-and-suspenders.
 REVOKE INSERT, UPDATE, DELETE ON public.user_security FROM anon, authenticated;
 
 DROP TRIGGER IF EXISTS set_user_security_updated_at ON public.user_security;
@@ -237,9 +190,6 @@ CREATE TRIGGER set_user_security_updated_at
     BEFORE UPDATE ON public.user_security
     FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
--- ===========================================================================
--- TABLE: security_events  (SELECT-only for users; appended by functions only)
--- ===========================================================================
 CREATE TABLE IF NOT EXISTS public.security_events (
     id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id     UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -265,8 +215,6 @@ CREATE INDEX IF NOT EXISTS idx_security_events_user_id ON public.security_events
 CREATE INDEX IF NOT EXISTS idx_security_events_type    ON public.security_events(event_type);
 CREATE INDEX IF NOT EXISTS idx_security_events_created ON public.security_events(created_at DESC);
 
--- NOTE: ENABLE (not FORCE) — same rationale as user_security: the audit-log
--- INSERTs happen inside SECURITY DEFINER functions running as the owner.
 ALTER TABLE public.security_events ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Users can view own security events" ON public.security_events;
@@ -274,13 +222,8 @@ CREATE POLICY "Users can view own security events"
     ON public.security_events FOR SELECT
     USING (auth.uid() = user_id);
 
--- ISSUE #2: NO write policies — events are an append-only audit log written
--- only by the SECURITY DEFINER functions. Block direct client DML.
 REVOKE INSERT, UPDATE, DELETE ON public.security_events FROM anon, authenticated;
 
--- ===========================================================================
--- TABLE: user_data  (KV store; owner-scoped CRUD via RLS)
--- ===========================================================================
 CREATE TABLE IF NOT EXISTS public.user_data (
     id         UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id    UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -322,16 +265,6 @@ CREATE TRIGGER set_user_data_updated_at
     BEFORE UPDATE ON public.user_data
     FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
--- ===========================================================================
--- TABLE: rate_limit_ledger  (generic, action-agnostic rate limiting)
---
--- Eliminates: rate limits previously lived as columns ON user_security, so they
--- could only cover refresh + backup-code and were entangled with security state.
--- This ledger rate-limits ANY action by (user_id, action) with a rolling window,
--- requires no schema change to add a new limited action, and is written only by
--- the SECURITY DEFINER check_rate_limit() function (closed-door, like the other
--- security tables). Users may SELECT their own rows for transparency.
--- ===========================================================================
 CREATE TABLE IF NOT EXISTS public.rate_limit_ledger (
     id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id      UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -352,7 +285,6 @@ CREATE POLICY "Users can view own rate limits"
     ON public.rate_limit_ledger FOR SELECT
     USING (auth.uid() = user_id);
 
--- Closed-door: no write policies. Only check_rate_limit() (definer) writes.
 REVOKE INSERT, UPDATE, DELETE ON public.rate_limit_ledger FROM anon, authenticated;
 
 DROP TRIGGER IF EXISTS set_rate_limit_updated_at ON public.rate_limit_ledger;
@@ -360,16 +292,6 @@ CREATE TRIGGER set_rate_limit_updated_at
     BEFORE UPDATE ON public.rate_limit_ledger
     FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
--- ---------------------------------------------------------------------------
--- check_rate_limit(action, max_attempts, window) -> BOOLEAN
---
--- Atomically records one attempt of `action` for the current user and returns
--- TRUE if still within budget, FALSE if the limit is exceeded. Uses an UPSERT
--- with a row lock so concurrent calls cannot race past the cap. The window is
--- rolling: once it elapses, the counter resets to 1 on the next attempt.
--- Returns FALSE (caller decides whether to RAISE) rather than throwing, so it
--- composes with different error messages per call site.
--- ---------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.check_rate_limit(
     p_action       TEXT,
     p_max_attempts INT,
@@ -385,7 +307,6 @@ BEGIN
         RAISE EXCEPTION 'Not authenticated';
     END IF;
 
-    -- Lock (or create) the user's ledger row for this action.
     INSERT INTO public.rate_limit_ledger (user_id, action, window_start, attempt_count)
     VALUES (auth.uid(), p_action, NOW(), 0)
     ON CONFLICT (user_id, action) DO NOTHING;
@@ -397,7 +318,6 @@ BEGIN
 
     window_expired := (ledger.window_start < (NOW() - p_window));
 
-    -- Reset the window or increment within it — single source of truth.
     IF window_expired THEN
         new_count := 1;
         UPDATE public.rate_limit_ledger
@@ -419,14 +339,6 @@ $$ LANGUAGE plpgsql
    SECURITY DEFINER
    SET search_path = public, pg_temp;
 
--- ---------------------------------------------------------------------------
--- is_rate_limited(action, max_attempts, window) -> BOOLEAN  (read-only peek)
---
--- Returns TRUE if the current user is ALREADY over budget for `action` within
--- the window, WITHOUT recording an attempt. Use this to gate at the top of a
--- handler when you only want to COUNT certain outcomes (e.g. failures) via a
--- separate check_rate_limit() call. Does not lock or mutate.
--- ---------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.is_rate_limited(
     p_action       TEXT,
     p_max_attempts INT,
@@ -448,7 +360,6 @@ BEGIN
         RETURN FALSE;
     END IF;
 
-    -- Outside the window → not limited (counter is stale and will reset).
     IF ledger.window_start < (NOW() - p_window) THEN
         RETURN FALSE;
     END IF;
@@ -459,16 +370,6 @@ $$ LANGUAGE plpgsql
    SECURITY DEFINER
    SET search_path = public, pg_temp;
 
--- ===========================================================================
--- TABLE: auth_audit_log  (append-only, retained security audit trail)
---
--- Eliminates: security_events grows unbounded (cost/DoS) and is co-mingled with
--- app-level events. auth_audit_log is a hardened, prune-able audit stream for
--- authentication-critical actions, written only by definer functions and
--- pruned by prune_auth_audit_log() (schedule via pg_cron — see manual actions).
--- Closed-door: SELECT-own only; no client writes; no client deletes (so users
--- cannot erase their own trail).
--- ===========================================================================
 CREATE TABLE IF NOT EXISTS public.auth_audit_log (
     id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id     UUID        REFERENCES auth.users(id) ON DELETE SET NULL,
@@ -488,12 +389,8 @@ CREATE POLICY "Users can view own audit log"
     ON public.auth_audit_log FOR SELECT
     USING (auth.uid() = user_id);
 
--- Closed-door append-only: no INSERT/UPDATE/DELETE for clients.
 REVOKE INSERT, UPDATE, DELETE ON public.auth_audit_log FROM anon, authenticated;
 
--- ---------------------------------------------------------------------------
--- record_audit(action, succeeded, metadata) — definer-only audit append.
--- ---------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.record_audit(
     p_action    TEXT,
     p_succeeded BOOLEAN,
@@ -508,10 +405,6 @@ $$ LANGUAGE plpgsql
    SECURITY DEFINER
    SET search_path = public, pg_temp;
 
--- ---------------------------------------------------------------------------
--- prune_auth_audit_log(retain) — delete audit rows older than `retain`.
--- Schedule via pg_cron (manual action). Default retention: 180 days.
--- ---------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.prune_auth_audit_log(retain INTERVAL DEFAULT INTERVAL '180 days')
 RETURNS INT AS $$
 DECLARE
@@ -526,14 +419,6 @@ $$ LANGUAGE plpgsql
    SECURITY DEFINER
    SET search_path = public, pg_temp;
 
--- ===========================================================================
--- TABLE: trusted_devices  (known-device tracking for the 90-day gate)
---
--- Eliminates: every session re-runs the full security gate regardless of device
--- familiarity, and unknown-device access is invisible. A device is identified
--- by an opaque token the FRONTEND generates and stores (see manual actions);
--- only its bcrypt hash is persisted here. Closed-door writes via definer funcs.
--- ===========================================================================
 CREATE TABLE IF NOT EXISTS public.trusted_devices (
     id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id       UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -553,7 +438,6 @@ CREATE POLICY "Users can view own devices"
     ON public.trusted_devices FOR SELECT
     USING (auth.uid() = user_id);
 
--- Users MAY revoke (delete) their own devices; all other writes go via functions.
 DROP POLICY IF EXISTS "Users can revoke own devices" ON public.trusted_devices;
 CREATE POLICY "Users can revoke own devices"
     ON public.trusted_devices FOR DELETE
@@ -561,10 +445,6 @@ CREATE POLICY "Users can revoke own devices"
 
 REVOKE INSERT, UPDATE ON public.trusted_devices FROM anon, authenticated;
 
--- ---------------------------------------------------------------------------
--- register_trusted_device(token, label) — record/refresh a device (definer).
--- Stores only bcrypt(token); requires aal2 when MFA is enabled.
--- ---------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.register_trusted_device(p_token TEXT, p_label TEXT DEFAULT NULL)
 RETURNS VOID AS $$
 DECLARE
@@ -591,10 +471,6 @@ $$ LANGUAGE plpgsql
    SECURITY DEFINER
    SET search_path = public, pg_temp;
 
--- ---------------------------------------------------------------------------
--- is_device_trusted(token) -> BOOLEAN — does this token match a known device?
--- Scans the user's devices with bcrypt compare; refreshes last_seen on a hit.
--- ---------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.is_device_trusted(p_token TEXT)
 RETURNS BOOLEAN AS $$
 DECLARE
@@ -613,8 +489,6 @@ BEGIN
             UPDATE public.trusted_devices
             SET last_seen_at = NOW()
             WHERE id = rec.id;
-            -- Keep scanning is unnecessary here (no secret position to hide:
-            -- the token is the caller's own), so exit on first match.
             EXIT;
         END IF;
     END LOOP;
@@ -625,9 +499,6 @@ $$ LANGUAGE plpgsql
    SECURITY DEFINER
    SET search_path = public, pg_temp;
 
--- ===========================================================================
--- FUNCTION: is_mfa_enabled — does the caller have a verified TOTP factor?
--- ===========================================================================
 CREATE OR REPLACE FUNCTION public.is_mfa_enabled()
 RETURNS BOOLEAN AS $$
 BEGIN
@@ -641,14 +512,6 @@ $$ LANGUAGE plpgsql
    SECURITY DEFINER
    SET search_path = auth, public, pg_temp;
 
--- ===========================================================================
--- FUNCTION: refresh_security_session — re-verify the 90-day security gate.
---
--- Rate limiting now delegates to the generic rate_limit_ledger via
--- check_rate_limit() (5 refreshes per rolling hour), so the counter logic lives
--- in one audited place. Writes a SECURITY_REFRESH event AND an auth_audit_log
--- entry for the retained trail.
--- ===========================================================================
 CREATE OR REPLACE FUNCTION public.refresh_security_session()
 RETURNS BOOLEAN AS $$
 DECLARE
@@ -659,25 +522,21 @@ BEGIN
         RAISE EXCEPTION 'Not authenticated';
     END IF;
 
-    -- Ensure a security row exists (used as the durable verification record).
     IF NOT EXISTS (SELECT 1 FROM public.user_security WHERE user_id = auth.uid()) THEN
         RAISE EXCEPTION 'User security record not found';
     END IF;
 
-    -- 1. Rate limiting: max 5 refreshes per rolling hour (ledger-backed).
     IF NOT public.check_rate_limit('security_refresh', 5, INTERVAL '1 hour') THEN
         PERFORM public.record_audit('security_refresh', FALSE,
                                     jsonb_build_object('reason', 'rate_limited'));
         RAISE EXCEPTION 'Rate limit exceeded. Try again in an hour.';
     END IF;
 
-    -- 2. Session freshness: the JWT must be < 10 minutes old.
     iat_val := (auth.jwt() ->> 'iat')::NUMERIC;
     IF iat_val IS NULL OR (extract(epoch FROM NOW()) - iat_val) > 600 THEN
         RAISE EXCEPTION 'Session too old. Please re-authenticate.';
     END IF;
 
-    -- 3. MFA enforcement — if MFA is enabled, aal2 is ALWAYS required.
     mfa_enabled := public.is_mfa_enabled();
     IF mfa_enabled AND (auth.jwt() ->> 'aal') != 'aal2' THEN
         RAISE EXCEPTION 'MFA verification required.';
@@ -703,10 +562,6 @@ $$ LANGUAGE plpgsql
    SECURITY DEFINER
    SET search_path = public, pg_temp;
 
--- ===========================================================================
--- FUNCTION: generate_recovery_codes — issue 10 single-use backup codes.
--- Returns the PLAINTEXT codes to the caller once; only bcrypt hashes persist.
--- ===========================================================================
 CREATE OR REPLACE FUNCTION public.generate_recovery_codes()
 RETURNS TEXT[] AS $$
 DECLARE
@@ -724,7 +579,6 @@ BEGIN
         RAISE EXCEPTION 'MFA verification required to generate codes.';
     END IF;
 
-    -- Ensure the row exists (defensive: handle_new_user normally creates it).
     INSERT INTO public.user_security (user_id)
     VALUES (auth.uid())
     ON CONFLICT (user_id) DO NOTHING;
@@ -732,7 +586,6 @@ BEGIN
     FOR i IN 1..10 LOOP
         code         := upper(encode(gen_random_bytes(8), 'hex'));
         plain_codes  := array_append(plain_codes, code);
-        -- bcrypt cost factor 12 — resists offline brute-force.
         hashed       := crypt(code, gen_salt('bf', 12));
         hashed_codes := array_append(hashed_codes, hashed);
     END LOOP;
@@ -751,15 +604,6 @@ $$ LANGUAGE plpgsql
    SECURITY DEFINER
    SET search_path = public, pg_temp;
 
--- ===========================================================================
--- FUNCTION: verify_recovery_code — consume one backup code (single-use).
---
--- Rate limiting (max 3 FAILED attempts per rolling 30 min) is ledger-backed:
--- is_rate_limited() gates at the top WITHOUT counting, and only genuine misses
--- are recorded via check_rate_limit('backup_code_fail', …). A success resets the
--- failure counter by deleting the ledger row. Iterates ALL stored hashes
--- (constant work) so the matched code's position can't leak via timing.
--- ===========================================================================
 CREATE OR REPLACE FUNCTION public.verify_recovery_code(code TEXT)
 RETURNS BOOLEAN AS $$
 DECLARE
@@ -776,12 +620,10 @@ BEGIN
         RAISE EXCEPTION 'Not authenticated';
     END IF;
 
-    -- Reject oversized input early (defence in depth; codes are 16 hex chars).
     IF code IS NULL OR char_length(code) > 64 THEN
         RAISE EXCEPTION 'Invalid recovery code.';
     END IF;
 
-    -- Gate on prior failures WITHOUT counting this attempt yet.
     IF public.is_rate_limited('backup_code_fail', 3, INTERVAL '30 minutes') THEN
         RAISE EXCEPTION 'Too many failed attempts. Try again in 30 minutes.';
     END IF;
@@ -799,7 +641,6 @@ BEGIN
     stored_hashes := curr_security.backup_codes;
 
     IF stored_hashes IS NULL OR array_length(stored_hashes, 1) IS NULL THEN
-        -- No codes issued — record a failed attempt to rate-limit probing.
         PERFORM public.check_rate_limit('backup_code_fail', 3, INTERVAL '30 minutes');
         INSERT INTO public.security_events (user_id, event_type)
         VALUES (auth.uid(), 'RECOVERY_CODE_FAILURE');
@@ -808,7 +649,6 @@ BEGIN
         RETURN FALSE;
     END IF;
 
-    -- Constant-time-ish scan: check every hash, never exit early.
     FOR i IN 1..array_length(stored_hashes, 1) LOOP
         cmp := (stored_hashes[i] = crypt(norm_code, stored_hashes[i]));
         IF cmp AND matched_index IS NULL THEN
@@ -818,7 +658,6 @@ BEGIN
     END LOOP;
 
     IF matched THEN
-        -- Rebuild the hash array excluding the consumed code.
         FOR i IN 1..array_length(stored_hashes, 1) LOOP
             IF i != matched_index THEN
                 new_hashes := array_append(new_hashes, stored_hashes[i]);
@@ -831,7 +670,6 @@ BEGIN
             updated_at       = NOW()
         WHERE user_id = auth.uid();
 
-        -- Success clears the failure counter for this action.
         DELETE FROM public.rate_limit_ledger
         WHERE user_id = auth.uid() AND action = 'backup_code_fail';
 
@@ -841,7 +679,6 @@ BEGIN
 
         RETURN TRUE;
     ELSE
-        -- Record this failure against the rolling window.
         PERFORM public.check_rate_limit('backup_code_fail', 3, INTERVAL '30 minutes');
         INSERT INTO public.security_events (user_id, event_type)
         VALUES (auth.uid(), 'RECOVERY_CODE_FAILURE');
@@ -854,19 +691,9 @@ $$ LANGUAGE plpgsql
    SECURITY DEFINER
    SET search_path = public, pg_temp;
 
--- ===========================================================================
--- FUNCTION + TRIGGER: handle_new_user — provision profile + security row.
---
--- ISSUE #3 — email can be NULL (e.g. phone/OAuth signups). The profiles.email
--- CHECK now permits NULL, and we insert NULL (not '') so we never write an
--- empty-string email that downstream "email present" checks would misread.
--- display_name falls back to a generated handle when no email local-part exists.
--- ===========================================================================
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- display_name defaults to 'User' for every new signup (the app's unified
-    -- profile model lets the user rename it later). email still stored as-is.
     INSERT INTO public.profiles (user_id, email, display_name)
     VALUES (new.id, NULLIF(new.email, ''), 'User')  -- new.email may be NULL — allowed.
     ON CONFLICT (user_id) DO NOTHING;
@@ -886,17 +713,6 @@ CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
--- ===========================================================================
--- FUNCTION: set_supporter_status — set/clear the caller's supporter window.
---
--- months > 0  → supporter_until = NOW() + months (extends a voluntary-donation
---               period; the badge shows until it lapses, then auto-reverts since
---               status is derived from supporter_until > now()).
--- months <= 0 → clears supporter_until (NULL).
---
--- Display-only badge, not an entitlement gate. Kept as an RPC so the +interval
--- math stays server-side and atomic; RLS already lets users update own profile.
--- ===========================================================================
 CREATE OR REPLACE FUNCTION public.set_supporter_status(months INT DEFAULT 1)
 RETURNS TIMESTAMPTZ AS $$
 DECLARE
@@ -906,7 +722,6 @@ BEGIN
         RAISE EXCEPTION 'Not authenticated';
     END IF;
 
-    -- Defensive: ensure a profile row exists (handle_new_user normally creates it).
     INSERT INTO public.profiles (user_id, display_name)
     VALUES (auth.uid(), 'User')
     ON CONFLICT (user_id) DO NOTHING;
@@ -927,32 +742,6 @@ $$ LANGUAGE plpgsql
    SECURITY DEFINER
    SET search_path = public, pg_temp;
 
--- ===========================================================================
--- TABLE: db_search_cache  (PDB/YACPDB lookup cache for the edge proxy)
---
--- The `chess-database-search` Edge Function checks this table before calling
--- the external problem databases, so identical positions are not re-fetched and
--- PDB/YACPDB server limits are respected. Keyed by the board-placement field of
--- the FEN so castling/clock differences collapse to one entry. `checked_at`
--- drives TTL eviction (see prune_db_search_cache).
---
--- ACCESS MODEL (public read, server-only write):
---   * SELECT — open to everyone. The table holds only public chess-position
---     metadata (no user/sensitive data), so public read powers the client
---     status bar with zero privacy exposure.
---   * INSERT/UPDATE/DELETE — denied to anon/authenticated (no write policy =
---     default-deny under RLS). Writes happen only via the Edge Function's
---     service-role key, which bypasses RLS by design.
---   * The service_role INSERT policy below is belt-and-suspenders only:
---     service_role already bypasses RLS, so the policy documents intent but is
---     not the actual enforcer. The real write barrier is the ABSENCE of any
---     anon/authenticated write policy + table GRANTs limited to SELECT.
--- ===========================================================================
--- `providers` holds the per-provider problem-DB result pair the edge function
--- now writes (issue #158): { pdb:{found,url}, yacpdb:{found,url} }. Only PDB and
--- YACPDB are cached (board-keyed + slow); Lichess/ChessDB key on the full FEN
--- and always run live. The legacy scalar columns (`database`, `url`) are kept
--- for backward-compatibility / older rows and are no longer written.
 CREATE TABLE IF NOT EXISTS public.db_search_cache (
     fen_board   TEXT        PRIMARY KEY CHECK (char_length(fen_board) <= 100),
     found       BOOLEAN     NOT NULL DEFAULT FALSE,
@@ -962,7 +751,6 @@ CREATE TABLE IF NOT EXISTS public.db_search_cache (
     checked_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Additive migration for existing deployments (no-op on a fresh create above).
 ALTER TABLE public.db_search_cache
     ADD COLUMN IF NOT EXISTS providers JSONB;
 
@@ -971,13 +759,9 @@ CREATE INDEX IF NOT EXISTS idx_db_search_cache_checked
 
 ALTER TABLE public.db_search_cache ENABLE ROW LEVEL SECURITY;
 
--- Table-level grants must permit what the RLS policies allow: SELECT only for
--- clients (no INSERT/UPDATE/DELETE grant), so the public-read policy can take
--- effect while writes stay impossible for non-service roles.
 REVOKE ALL ON public.db_search_cache FROM anon, authenticated;
 GRANT SELECT ON public.db_search_cache TO anon, authenticated;
 
--- Public read: anyone may view cached results (public chess data only).
 DROP POLICY IF EXISTS "Allow public read access" ON public.db_search_cache;
 CREATE POLICY "Allow public read access"
     ON public.db_search_cache
@@ -985,7 +769,6 @@ CREATE POLICY "Allow public read access"
     TO public
     USING (true);
 
--- Server-only write (belt-and-suspenders; service_role already bypasses RLS).
 DROP POLICY IF EXISTS "Allow service_role to insert cache" ON public.db_search_cache;
 CREATE POLICY "Allow service_role to insert cache"
     ON public.db_search_cache
@@ -993,7 +776,6 @@ CREATE POLICY "Allow service_role to insert cache"
     TO service_role
     WITH CHECK (true);
 
--- Evict cache rows older than `retain` (default 7 days). Schedule via pg_cron.
 CREATE OR REPLACE FUNCTION public.prune_db_search_cache(retain INTERVAL DEFAULT INTERVAL '7 days')
 RETURNS INT AS $$
 DECLARE
@@ -1011,15 +793,6 @@ $$ LANGUAGE plpgsql
 REVOKE EXECUTE ON FUNCTION public.prune_db_search_cache(INTERVAL)
     FROM PUBLIC, anon, authenticated;
 
--- ===========================================================================
--- Execution grants.
---
--- Client-callable RPCs: callable by `authenticated` only (anon revoked; each
--- function re-checks auth.uid() internally).
--- Internal helpers (check_rate_limit, is_rate_limited, record_audit,
--- prune_auth_audit_log): NOT client-callable — they are invoked only from
--- inside other SECURITY DEFINER functions, so EXECUTE is revoked from clients.
--- ===========================================================================
 REVOKE EXECUTE ON FUNCTION public.refresh_security_session()                       FROM PUBLIC, anon;
 REVOKE EXECUTE ON FUNCTION public.generate_recovery_codes()                        FROM PUBLIC, anon;
 REVOKE EXECUTE ON FUNCTION public.verify_recovery_code(TEXT)                       FROM PUBLIC, anon;
@@ -1031,20 +804,15 @@ GRANT  EXECUTE ON FUNCTION public.verify_recovery_code(TEXT)                    
 GRANT  EXECUTE ON FUNCTION public.register_trusted_device(TEXT, TEXT)              TO authenticated;
 GRANT  EXECUTE ON FUNCTION public.is_device_trusted(TEXT)                          TO authenticated;
 
--- Internal-only helpers: deny direct client EXECUTE.
 REVOKE EXECUTE ON FUNCTION public.check_rate_limit(TEXT, INT, INTERVAL)            FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.is_rate_limited(TEXT, INT, INTERVAL)             FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.record_audit(TEXT, BOOLEAN, JSONB)              FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.prune_auth_audit_log(INTERVAL)                  FROM PUBLIC, anon, authenticated;
 
--- is_mfa_enabled: SECURITY DEFINER reading auth.mfa_factors — internal use only.
 REVOKE EXECUTE ON FUNCTION public.is_mfa_enabled()                                 FROM PUBLIC, anon, authenticated;
 GRANT  EXECUTE ON FUNCTION public.is_mfa_enabled()                                 TO authenticated;
 
--- set_supporter_status: authenticated-only; anon must be explicitly denied.
 REVOKE EXECUTE ON FUNCTION public.set_supporter_status(INT)                        FROM PUBLIC, anon;
--- FUNCTION: delete_own_account — PERMANENTLY remove the caller's account and data.
--- Cascade handles profiles, user_data, batches, etc.
 CREATE OR REPLACE FUNCTION public.delete_own_account()
 RETURNS void AS $$
 DECLARE
@@ -1056,10 +824,8 @@ BEGIN
         RAISE EXCEPTION 'Not authenticated';
     END IF;
 
-    -- Record audit before deletion (user_id will become NULL via SET NULL in log)
     PERFORM public.record_audit('account_deleted_self', true, jsonb_build_object('user_id', v_user_id));
 
-    -- The big red button. Cascade deletes all public.* data.
     DELETE FROM auth.users WHERE id = v_user_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = auth, public;
@@ -1069,13 +835,6 @@ GRANT  EXECUTE ON FUNCTION public.delete_own_account()                          
 
 GRANT  EXECUTE ON FUNCTION public.set_supporter_status(INT)                        TO authenticated;
 
--- ===========================================================================
--- BACKFILL: provision profile + security rows for any auth.users rows that
--- were created before the on_auth_user_created trigger was installed (i.e.
--- when schema had not yet been applied to the project).
--- Safe to re-run: ON CONFLICT DO NOTHING makes it idempotent.
--- Run once after applying this schema to an existing project.
--- ===========================================================================
 INSERT INTO public.profiles (user_id, email, display_name)
 SELECT id, NULLIF(email, ''), 'User'
 FROM auth.users
