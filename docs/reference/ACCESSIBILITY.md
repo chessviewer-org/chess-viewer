@@ -1,6 +1,6 @@
 # Accessibility
 
-Current accessibility status of ChessVision. This document is honest about what exists and what does not.
+Current accessibility status of ChessViewer. This document is honest about what exists and what does not.
 
 ---
 

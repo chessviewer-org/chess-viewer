@@ -1,10 +1,10 @@
-# ChessVision — Documentation
+# ChessViewer — Documentation
 
-Technical documentation for ChessVision v6.1.0.
+Technical documentation for ChessViewer v6.1.0.
 
-- Source: [github.com/chessvision-org/chess-vision](https://github.com/chessvision-org/chess-vision)
+- Source: [github.com/chessviewer-org/chess-viewer](https://github.com/chessviewer-org/chess-viewer)
 - Demo: [chessvision.org](https://chessvision.org)
-- Issues: [GitHub Issues](https://github.com/chessvision-org/chess-vision/issues)
+- Issues: [GitHub Issues](https://github.com/chessviewer-org/chess-viewer/issues)
 
 ---
 

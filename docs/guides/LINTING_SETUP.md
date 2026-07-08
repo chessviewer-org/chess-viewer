@@ -1,6 +1,6 @@
 # Code Quality Setup
 
-ESLint, Prettier, Husky, and Commitlint configuration reference for ChessVision.
+ESLint, Prettier, Husky, and Commitlint configuration reference for ChessViewer.
 
 All tools are already installed and configured in the repository. This document explains what each tool does and how to use it.
 

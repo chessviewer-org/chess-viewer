@@ -1,15 +1,15 @@
-# ChessVision
+# ChessViewer
 
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg?style=flat-square)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](CONTRIBUTING.md)
 
-ChessVision is a browser-based chess diagram editor. Set up any position, choose how the board looks, and export a sharp image at the resolution you need — for print, a blog post, or a video thumbnail. No installation, no account required.
+ChessViewer is a browser-based chess diagram editor. Set up any position, choose how the board looks, and export a sharp image at the resolution you need — for print, a blog post, or a video thumbnail. No installation, no account required.
 
-**[chessvision.org](https://chessvision.org)** · [Report a bug](https://github.com/chessvision-org/chess-vision/issues) · [Request a feature](https://github.com/chessvision-org/chess-vision/issues)
+**[chessvision.org](https://chessvision.org)** · [Report a bug](https://github.com/chessviewer-org/chess-viewer/issues) · [Request a feature](https://github.com/chessviewer-org/chess-viewer/issues)
 
 ---
 
-![ChessVision screenshot](docs/assets/screenshot.png)
+![ChessViewer screenshot](docs/assets/screenshot-home.png)
 
 ---
 
@@ -18,8 +18,8 @@ ChessVision is a browser-based chess diagram editor. Set up any position, choose
 **Requirements:** Node.js 22 or later, pnpm 10 or later.
 
 ```bash
-git clone https://github.com/chessvision-org/chess-vision.git
-cd chess-vision
+git clone https://github.com/chessviewer-org/chess-viewer.git
+cd chess-viewer
 pnpm install
 pnpm dev
 ```
@@ -83,7 +83,9 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
 ## Tech stack
 
-React 19, TypeScript, Vite, Tailwind CSS 4, React Router 7, @dnd-kit, Framer Motion, Supabase.
+Preact 10, TypeScript 6, Vite 8, Tailwind CSS 4, wouter, fflate, vite-plugin-pwa.
+
+Supabase is used for auth and cloud sync via a custom hand-written client (`src/auth/Supabase.ts`) — the `@supabase/supabase-js` SDK is not installed. Icons are Lucide SVG paths embedded directly in `src/assets/icons/` (ISC License) — `lucide-react` is not installed. Page transition animations are CSS-based — `framer-motion` is not installed.
 
 ---
 

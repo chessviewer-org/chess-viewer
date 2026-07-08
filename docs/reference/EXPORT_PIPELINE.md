@@ -1,6 +1,6 @@
 # Export Pipeline
 
-Technical reference for the ChessVision export system.
+Technical reference for the ChessViewer export system.
 
 ---
 

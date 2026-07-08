@@ -1,6 +1,6 @@
 # FEN Notation
 
-Reference for Forsyth-Edwards Notation (FEN) and its implementation in ChessVision.
+Reference for Forsyth-Edwards Notation (FEN) and its implementation in ChessViewer.
 
 ---
 
@@ -53,7 +53,7 @@ rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 | 5     | Halfmove clock                | `0`, `5`                                      |
 | 6     | Fullmove number               | `1`, `20`                                     |
 
-ChessVision accepts FEN strings with 1–6 fields. A position-only FEN (field 1 only) is valid for display purposes.
+ChessViewer accepts FEN strings with 1–6 fields. A position-only FEN (field 1 only) is valid for display purposes.
 
 **Maximum length enforced before parsing: 93 characters.**
 

@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-ChessVision is a web application — only the code running at [chessvision.org](https://chessvision.org) is actively maintained. There are no versioned releases; the `master` branch is always the current production deployment. Self-hosted deployments should track `master`.
+ChessViewer is a web application — only the code running at [chessvision.org](https://chessvision.org) is actively maintained. There are no versioned releases; the `master` branch is always the current production deployment. Self-hosted deployments should track `master`.
 
 ---
 
@@ -46,7 +46,7 @@ Do not open a public GitHub issue for security vulnerabilities.
 
 ### Option 1: GitHub Security Advisory (preferred)
 
-1. Go to the [Security tab](https://github.com/chessvision-org/chess-vision/security).
+1. Go to the [Security tab](https://github.com/chessviewer-org/chess-viewer/security).
 2. Click "Report a vulnerability".
 3. Fill in the advisory form.
 

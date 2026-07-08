@@ -1,6 +1,6 @@
 # Architectural Decision Records
 
-Records of key architectural and technical decisions made during ChessVision's development.
+Records of key architectural and technical decisions made during ChessViewer's development.
 
 ---
 
@@ -173,7 +173,7 @@ Records of key architectural and technical decisions made during ChessVision's d
 
 **Original decision:** SemVer 2.0.0 with semantic-release automation.
 
-**Superseded by:** ChessVision ships as a web app with no npm publish or extension store submission. Automated tagging added noise without value — a patch commit every few hours would produce a new tag with no meaningful signal. The project now follows a rolling-release model: `master` is always production, changes are documented in `CHANGELOG.md` by month, and GitHub milestones group open work by theme rather than version.
+**Superseded by:** ChessViewer ships as a web app with no npm publish or extension store submission. Automated tagging added noise without value — a patch commit every few hours would produce a new tag with no meaningful signal. The project now follows a rolling-release model: `master` is always production, changes are documented in `CHANGELOG.md` by month, and GitHub milestones group open work by theme rather than version.
 
 ---
 

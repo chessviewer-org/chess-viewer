@@ -16,7 +16,9 @@
 
 ## Overview
 
-ChessVision is a React single-page application. It parses FEN notation, renders chess positions on an HTML5 Canvas, and exports high-resolution raster or vector images. Optional user authentication enables cloud sync via Supabase with row-level security.
+ChessViewer is a **PWA** (Progressive Web App) built with Preact. It runs entirely in the browser — there is no server-side rendering. A service worker (via `vite-plugin-pwa`) enables offline use. URL-based navigation is handled client-side by **wouter**; the server serves the same `index.html` for every path.
+
+It parses FEN notation, renders chess positions on an HTML5 Canvas, and exports high-resolution raster or vector images. Optional user authentication enables cloud sync via a custom Supabase client with row-level security.
 
 **Core principles:**
 
@@ -31,19 +33,32 @@ ChessVision is a React single-page application. It parses FEN notation, renders 
 
 ## Technology Stack
 
-| Category        | Library / Tool                | Version |
-| --------------- | ----------------------------- | ------- |
-| UI framework    | React                         | 19.x    |
-| Language        | TypeScript                    | 6.x     |
-| Build tool      | Vite                          | 8.x     |
-| Styling         | Tailwind CSS                  | 4.x     |
-| Routing         | React Router DOM              | 7.x     |
-| Drag and drop   | @dnd-kit                      | 6.x     |
-| Animations      | Framer Motion                 | 12.x    |
-| Virtual lists   | IntersectionObserver (native) | —       |
-| Icons           | Lucide React                  | latest  |
-| Backend / Auth  | Supabase                      | 2.x     |
-| Package manager | pnpm                          | 10.x    |
+| Category        | Library / Tool                                               | Version |
+| --------------- | ------------------------------------------------------------ | ------- |
+| UI framework    | Preact (via `@preact/preset-vite`)                           | 10.x    |
+| Language        | TypeScript                                                   | 6.x     |
+| Build tool      | Vite                                                         | 8.x     |
+| Styling         | Tailwind CSS                                                 | 4.x     |
+| Routing         | wouter                                                       | 3.x     |
+| Drag and drop   | Custom hooks (`useDragDrop`) — no library                    | —       |
+| Page animations | CSS keyframes + custom `usePageTransition`                   | —       |
+| Icons           | Embedded Lucide SVG paths (`src/assets/icons/`) — no package | —       |
+| ZIP export      | fflate                                                       | 0.8.x   |
+| QR codes        | uqr                                                          | 0.1.x   |
+| Fonts           | @fontsource-variable/inter                                   | 5.x     |
+| Backend / Auth  | Custom Supabase client (`src/auth/Supabase.ts`)              | —       |
+| PWA             | vite-plugin-pwa (Workbox service worker)                     | 1.3.x   |
+| Package manager | pnpm                                                         | 10.x    |
+
+> **Preact instead of React** — `@preact/preset-vite` aliases `react` and `react-dom` to Preact at build time. All source code uses the React API; Preact provides it with a smaller runtime. `preact` and `@types/react` coexist in `package.json` for this reason.
+
+> **Icon system — embedded SVG paths, not a package** — `lucide-react` is not installed. Instead, the SVG path data for only the icons we actually use is copied into `src/assets/icons/index.tsx`. The `createLucideIcon` helper in `src/assets/icons/createIcon.tsx` turns each path list into a React component with the same API as the original Lucide package. Attribution: icon paths originate from the [Lucide](https://lucide.dev) project (ISC License).
+
+> **Supabase client — custom implementation, not `@supabase/supabase-js`** — `src/auth/Supabase.ts` contains a hand-written HTTP client (~940 lines) that covers only the Supabase APIs we use: Auth (sign-in/sign-up/MFA/session management), PostgREST queries, and RPC calls. This avoids the full SDK bundle weight. The `supabase` singleton exported from that file is the only approved entry point for all Supabase access.
+
+> **Page animations — custom CSS, not Framer Motion** — `framer-motion` is not installed. The enter/exit animation system works with CSS `@keyframes` defined in `src/styles/animations.css` and a `usePageTransition` hook that keeps both pages in the DOM simultaneously for 180 ms. The animation class names (`animate-page-enter`, `page-transition-exit`) intentionally mirror the naming style from Framer Motion's AnimatePresence for familiarity.
+
+> **Chess domain logic — private package** — `@chessviewer-org/chess-viewer` provides `ChessBoard`, `PieceSymbol`, `validateFEN`, `parseFEN`, `boardToFEN`, and related types. It is a private package not published to npm.
 
 ---
 
@@ -52,128 +67,132 @@ ChessVision is a React single-page application. It parses FEN notation, renders 
 ```
 src/
 ├── App.tsx                        # Root component — theme bootstrap, context providers
-├── index.tsx                      # Application entry point, SW registration
-├── index.css                      # Global styles, Tailwind CSS variables, focus ring system
+├── index.tsx                      # Application entry point
+├── index.css                      # Global styles (imports from src/styles/)
+│
+├── auth/                          # Authentication — self-contained module
+│   ├── AuthContext.tsx            # Session state, AuthProvider, useAuth()
+│   ├── SecurityLock.tsx           # Fail-closed 90-day re-verification gate UI
+│   ├── TwoFactor.tsx              # Two-factor setup/management UI
+│   ├── TwoFactorSteps.tsx         # Step-by-step 2FA flow components
+│   ├── Supabase.ts                # Singleton Supabase client + type exports
+│   ├── syncStorage.ts             # KV interface to user_data (RLS owner-scoped)
+│   ├── dataMigration.ts           # localStorage → Supabase migration on first login
+│   ├── membership.ts              # Supporter tier logic + getMembershipTier()
+│   ├── profile.ts                 # profileService (get/updateDisplayName/setSupporter)
+│   ├── securityEvents.ts          # securityEventsService.recent()
+│   └── index.ts                   # Barrel re-exports
 │
 ├── shared/
-│   ├── types/                     # Canonical TS models — import via @app-types
-│   │   ├── chess.ts               # PieceSymbol, ChessBoard, BoardMatrix
-│   │   ├── history.ts             # FENHistoryEntry
-│   │   └── index.ts               # QualityPreset, BoardThemes, ValidationResult
+│   ├── types/
+│   │   └── index.ts               # ChessBoard, isChessBoard, AdvancedFenConfig — import via @app-types
 │   ├── constants/
 │   │   ├── chessConstants.ts      # PIECE_SETS, BOARD_THEMES, QUALITY_PRESETS
 │   │   ├── dragDropConstants.ts   # ChessDragData, PALETTE_PIECES, getPieceImageKey
+│   │   ├── syncConstants.ts       # Storage key constants
 │   │   └── seoConstants.ts        # getRouteSeo, structured data schemas
 │   ├── hooks/                     # Cross-page reusable hooks
+│   │   ├── useA11y.ts             # CVD, contrast, reduced-motion — deferred cloud hydration
 │   │   ├── useChessBoard.ts       # FEN → 8×8 board array (memoized)
-│   │   ├── useDebouncedFENValidation.ts
+│   │   ├── useDatabaseSearch.ts   # Lichess/PDB/YACPDB position lookup
+│   │   ├── useDOM.ts              # Small DOM utilities (useOutsideClick, useFocusTrap…)
+│   │   ├── useDragDrop.ts         # Custom drag-and-drop (no @dnd-kit)
 │   │   ├── useFENHistory.ts       # History CRUD + localStorage persistence
-│   │   ├── useInteractiveBoard.ts # DnD board state + undo/redo + FEN generation
+│   │   ├── useFenValidation.ts    # Debounced FEN validation
+│   │   ├── useHomeExport.ts       # Export orchestration for HomePage
+│   │   ├── useInteractiveBoard.ts # Board state + undo/redo + FEN generation
+│   │   ├── useKeyboard.ts         # useEscapeKey, usePageScrollKeys, useEditorKeyboard, useListboxKeyboard
 │   │   ├── useLocalStorage.ts     # Debounced localStorage read/write
 │   │   ├── useNotifications.ts    # Toast notification system
+│   │   ├── usePagination.ts       # Generic pagination logic
+│   │   ├── usePiece.ts            # Piece-related helpers
 │   │   ├── usePieceImages.ts      # Piece SVG → HTMLImageElement loading
-│   │   ├── useTheme.ts            # Active light/dark square colours
-│   │   ├── useThemePresets.ts     # Saved theme preset management
-│   │   ├── useColorVision.ts      # CVD filter preference (deferred cloud hydration)
-│   │   ├── useContrast.ts         # High-contrast preference (deferred cloud hydration)
-│   │   └── useReducedMotionPreference.ts
+│   │   ├── usePrefetchRoute.ts    # Hover-prefetch for page chunks
+│   │   ├── useSearchParams.ts     # URL search param read/write
+│   │   ├── useTheme.ts            # Board colour theme (light/dark squares + presets)
+│   │   └── index.ts               # Barrel re-exports (@hooks alias)
 │   ├── utils/
-│   │   ├── fenParser.ts           # validateFEN, parseFENToMatrix — MAX_FEN_LENGTH=93
-│   │   ├── fenParser.test.ts      # node:test unit tests (co-located)
-│   │   ├── canvasRenderer.ts      # createUltraQualityCanvas() — off-screen draw
+│   │   ├── a11yUtils.ts           # applyColorVision, applyContrast, applyReducedMotion
+│   │   ├── archiveManager.ts      # ZIP batch compilation (fflate)
 │   │   ├── canvasExporter.ts      # downloadPNG/JPEG, copyToClipboard — export orchestrator
-│   │   ├── exportRaster.ts        # createRasterBlob() — worker-first, canvas fallback
-│   │   ├── exportState.ts         # Cancel/pause/resume state machine + validateExportConfig
-│   │   ├── imageOptimizer.ts      # calculateRenderSurfaceSize, getMaxCanvasSize (Safari cap)
-│   │   ├── workerRasterExport.ts  # startSvgRasterWorkerTask() — queues SVG→raster to Worker
-│   │   ├── svgExporter.ts         # generateBoardSVG(), downloadSVG()
-│   │   ├── svgPieceLoader.ts      # imageToEmbeddableDataURL() — blob → base64 for SVG embed
-│   │   ├── dpiEncoder.ts          # changeDPI() — injects DPI metadata into PNG/JPEG
-│   │   ├── archiveManager.ts      # ZIP batch compilation
-│   │   ├── boardUtils.ts          # boardToFEN(), coordinate helpers
-│   │   ├── colorConversions.ts    # HEX↔RGB↔HSV — single source for all colour math
+│   │   ├── canvasRenderer.ts      # createUltraQualityCanvas() — off-screen draw
 │   │   ├── coordinateCalculations.ts # Square bounds, coordinate label drawing
+│   │   ├── databaseSearch.ts      # Database search API calls
+│   │   ├── exportRaster.ts        # createRasterBlob() — worker-first, canvas fallback
+│   │   ├── exportState.ts         # Cancel/pause/resume state machine
 │   │   ├── historyUtils.ts        # FEN history filter/sort utilities
+│   │   ├── imageOptimizer.ts      # calculateRenderSurfaceSize, getMaxCanvasSize (Safari cap)
 │   │   ├── logger.ts              # Structured logger (logger.warn/error/info)
-│   │   ├── pieceImageCache.ts     # SVG → 256px HTMLImageElement cache (blob URL, max 36)
-│   │   ├── themeCustomization.ts  # Theme preset helpers
-│   │   ├── validation.ts          # safeJSONParse, sanitizeInput/HexColor/FileName
+│   │   ├── pageScroll.ts          # getPageViewportHeight, canPageScroll, pageScrollBy…
+│   │   ├── pieceUtils.ts          # Piece image helpers
+│   │   ├── saveBlob.ts            # File download via <a download>
+│   │   ├── svgExporter.ts         # generateBoardSVG(), downloadSVG()
+│   │   ├── svgRasterWorker.ts     # Web Worker: SVG Blob → PNG/JPEG via OffscreenCanvas
+│   │   ├── syncHydration.ts       # hydrateFromSync() — deferred cloud→localStorage hydration
+│   │   ├── themeMode.ts           # readThemeModePreference, applyThemeMode
+│   │   ├── workerRasterExport.ts  # startSvgRasterWorkerTask() — queues SVG→raster to Worker
 │   │   └── index.ts               # Barrel re-exports (@utils alias)
 │   ├── ui/                        # Reusable UI primitives
-│   │   ├── Checkbox/
-│   │   ├── CustomSelect/          # Accessible listbox with keyboard navigation
-│   │   ├── DatePicker/
-│   │   ├── ErrorBoundary/
-│   │   ├── Modal/ ModalShell/
-│   │   ├── NotificationContainer/
-│   │   ├── Seo/
-│   │   └── Switch/
-│   └── workers/
-│       └── svgRasterWorker.ts     # Web Worker: SVG Blob → PNG/JPEG via OffscreenCanvas
+│   │   ├── Checkbox.tsx
+│   │   ├── CustomSelect.tsx       # Accessible listbox with keyboard navigation
+│   │   ├── DatePicker.tsx
+│   │   ├── ErrorBoundary.tsx
+│   │   ├── Logo.tsx
+│   │   ├── MembershipIdentity/    # Supporter badge components
+│   │   ├── Modal/                 # Modal + ModalShell
+│   │   ├── NotificationContainer.tsx
+│   │   ├── Pagination/
+│   │   ├── Seo.tsx
+│   │   ├── Switch.tsx
+│   │   └── index.ts
+│   └── contexts/
+│       ├── FENBatchContext.tsx    # FEN batch list (add/remove/clear, localStorage)
+│       ├── ModalContext.tsx       # Global alert/confirm modal
+│       └── index.ts
 │
 ├── components/
 │   ├── board/
-│   │   └── MiniPreview/           # Thumbnail board for history cards
+│   │   └── MiniPreview.tsx        # Thumbnail board for history cards
 │   ├── features/
-│   │   ├── ClipboardHistory/
-│   │   ├── ColorPicker/           # HSV/HEX picker — views/ and parts/
-│   │   ├── ControlPanel/          # FEN input + board action buttons
-│   │   ├── DisplayOptions/        # Coordinate visibility, flip, thin frame toggles
-│   │   ├── Export/ExportProgress/ # Export progress overlay
-│   │   ├── Fen/FENInputField/     # FEN text input with validation feedback
+│   │   ├── BoardStylePanel.tsx    # Board style controls wrapper
+│   │   ├── ColorPicker/           # HSV/HEX picker
+│   │   ├── ExportProgress.tsx     # Export progress overlay
+│   │   ├── Fen/                   # FENInputField with validation feedback
 │   │   └── History/               # HistoryFilters, StatusBadge, ConfirmationModal
 │   ├── interactions/
-│   │   ├── ChessEditor/           # Master DnD editor — DndContext, sensors, DragOverlay
-│   │   │   ├── CommandBar.tsx     # Icon toolbar (undo/redo/flip/copy/share/download)
-│   │   │   ├── DatabaseSearchPanel.tsx
-│   │   │   └── ShareDialog.tsx
-│   │   ├── DraggablePiece/        # Draggable piece wrapper (memo'd)
-│   │   ├── DroppableSquare/       # Drop target per square (memo'd, custom comparator)
+│   │   ├── Editor/                # Master editor — ChessEditor, CommandBar, DatabaseSearch, ShareDialog
+│   │   ├── DraggablePiece.tsx     # Draggable piece wrapper (memo'd)
+│   │   ├── DroppableSquare.tsx    # Drop target per square (memo'd)
+│   │   ├── DragProvider.tsx       # Drag context wrapper
 │   │   ├── InteractiveBoard/      # 8×8 grid of DroppableSquares
 │   │   ├── PiecePalette/          # Off-board piece picker
-│   │   └── TrashZone/             # Drop-to-delete zone
+│   │   └── TrashZone.tsx          # Drop-to-delete zone
 │   └── layout/
 │       └── Navbar/                # App shell nav (desktop dropdown, mobile menu)
-│
-├── contexts/
-│   ├── FENBatchContext.tsx        # FEN batch list (add/remove/clear, localStorage)
-│   ├── FENBatchStore.ts
-│   ├── useFENBatch.ts
-│   ├── ModalContext.tsx           # Global alert/confirm modal
-│   ├── ThemeSettingsContext.tsx   # recentColors, playSound()
-│   └── index.ts
-│
-├── features/
-│   └── auth/
-│       ├── components/            # AuthModal, SignIn, SignUp, MfaVerification,
-│       │                          #   SecurityLockModal, TwoFactorSetup
-│       ├── hooks/
-│       │   ├── useAuth.tsx        # Session state, signIn/signUp/signOut
-│       │   ├── useSecurityCheck.ts # Fail-closed 90-day re-verification gate
-│       │   ├── useSupabaseSync.ts # Cloud sync orchestrator
-│       │   └── ProfileContext.tsx # Display name, supporter tier
-│       ├── services/
-│       │   ├── supabaseClient.ts  # Singleton Supabase client
-│       │   ├── syncStorage.ts     # KV interface to user_data (RLS owner-scoped)
-│       │   ├── dataMigration.ts   # localStorage → Supabase migration on first login
-│       │   └── membership.ts      # Supporter tier logic
-│       └── types/index.ts
 │
 ├── pages/
 │   ├── HomePage/                  # Primary board workspace
 │   ├── ExportPage/                # Full-screen export studio (board style + settings)
 │   ├── AdvancedFENInputPage/      # Batch FEN studio — up to 10 positions
 │   ├── FENHistoryPage/            # FEN history browser with filters
-│   ├── settings/                  # Settings tabs (appearance, board, account, security)
-│   ├── about/                     # About sections (FAQ, Privacy, Contribute, Donate)
-│   ├── AboutPage.tsx
-│   ├── SettingsPage.tsx
+│   ├── SettingsPage/              # Settings tabs (appearance, board, account, security)
+│   ├── AboutPage/                 # About sections (FAQ, Privacy, Contribute, Donate)
+│   ├── AuthPage/                  # Sign in, sign up, forgot password, MFA pages
 │   └── NotFoundPage.tsx
 │
-└── routes/
-    ├── Router.tsx                 # All pages lazy() + Suspense, AnimatePresence transitions
-    ├── lazyPages.ts               # Lazy import factories (reused for hover prefetch)
-    └── prefetchRegistry.ts        # Route → import factory map for usePrefetchRoute
+├── routes/
+│   ├── Router.tsx                 # All pages lazy() + Suspense, page transition animations
+│   ├── lazyPages.ts               # Lazy import factories + prefetch registry
+│   └── usePageTransition.ts       # Two-page simultaneous render for enter/exit animations
+│
+└── styles/
+    ├── animations.css             # @keyframes definitions + .animate-* utility classes
+    ├── base.css                   # HTML/body/element resets (@layer base)
+    ├── components.css             # Shared layout classes (page-container, main-content-offset)
+    ├── theme.css                  # @theme variables, CSS custom properties, color tokens
+    ├── utilities.css              # Scrollbar, marching-ants, safe-area, print styles
+    ├── _variables.scss            # SCSS breakpoint + spacing variables
+    └── _mixins.scss               # SCSS mixins (viewport-up/down, touch, hover-capable…)
 ```
 
 ---
@@ -191,30 +210,37 @@ Defined in `tsconfig.json` and `vite.config.js`:
 @hooks/*      → src/shared/hooks/*
 @utils        → src/shared/utils
 @utils/*      → src/shared/utils/*
-@contexts/*   → src/contexts/*
+@contexts     → src/shared/contexts
+@contexts/*   → src/shared/contexts/*
 @constants    → src/shared/constants
 @constants/*  → src/shared/constants/*
 @app-types    → src/shared/types
 @app-types/*  → src/shared/types/*
 ```
 
-Convention: use `@/x` for app-structure paths (`@/components`, `@/features`). Use bare form `@x` for shared-layer barrels (`@utils`, `@hooks`, `@constants`, `@app-types`).
+Convention: use `@/x` for app-structure paths (`@/components`, `@/auth`). Use bare form `@x` for shared-layer barrels (`@utils`, `@hooks`, `@constants`, `@app-types`).
 
 ---
 
 ## Routing
 
-All routes in `src/routes/Router.tsx`. Every page is `lazy()`-loaded in a `<Suspense>` boundary. Page transitions use `AnimatePresence` from Framer Motion.
+Routing is handled by **wouter** (not React Router). All routes are in `src/routes/Router.tsx`. Every page is `lazy()`-loaded in a `<Suspense>` boundary.
 
-| Path            | Component              |
-| --------------- | ---------------------- |
-| `/`             | `HomePage`             |
-| `/export`       | `ExportPage`           |
-| `/about`        | `AboutPage`            |
-| `/settings`     | `SettingsPage`         |
-| `/fen-history`  | `FENHistoryPage`       |
-| `/advanced-fen` | `AdvancedFENInputPage` |
-| `*`             | `NotFoundPage`         |
+Page transitions use a custom `usePageTransition` hook — no Framer Motion. Both the entering and exiting pages are held in the DOM simultaneously for 180 ms while CSS animations run (`animate-page-enter` / `page-transition-exit`).
+
+| Path                    | Component              |
+| ----------------------- | ---------------------- |
+| `/`                     | `HomePage`             |
+| `/export`               | `ExportPage`           |
+| `/about`                | `AboutPage`            |
+| `/settings`             | `SettingsPage`         |
+| `/fen-history`          | `FENHistoryPage`       |
+| `/advanced-fen`         | `AdvancedFENInputPage` |
+| `/auth/sign-in`         | `SignInPage`           |
+| `/auth/sign-up`         | `SignUpPage`           |
+| `/auth/forgot-password` | `ForgotPasswordPage`   |
+| `/auth/mfa`             | `MfaChallengePage`     |
+| `*`                     | `NotFoundPage`         |
 
 `usePrefetchRoute` prefetches a page chunk on link hover/focus, so click-time navigation is instant.
 
@@ -222,18 +248,18 @@ All routes in `src/routes/Router.tsx`. Every page is `lazy()`-loaded in a `<Susp
 
 ## State Management
 
-| Layer            | Tool         | Examples                                    |
-| ---------------- | ------------ | ------------------------------------------- |
-| Component state  | `useState`   | Modal open/close, form values               |
-| Derived state    | `useMemo`    | Parsed FEN → board array                    |
-| Cross-tree state | Context API  | Theme settings, FEN batch list, modal state |
-| Persistence      | localStorage | FEN history, theme preferences, settings    |
-| Drag state       | @dnd-kit     | Active piece, drag origin, drag overlay     |
-| Cloud sync       | Supabase     | KV via `syncStorage.ts` (RLS owner-scoped)  |
+| Layer            | Tool                   | Examples                                   |
+| ---------------- | ---------------------- | ------------------------------------------ |
+| Component state  | `useState`             | Modal open/close, form values              |
+| Derived state    | `useMemo`              | Parsed FEN → board array                   |
+| Cross-tree state | Context API            | FEN batch list, modal state                |
+| Persistence      | localStorage           | FEN history, theme preferences, settings   |
+| Drag state       | `useDragDrop` (custom) | Active piece, drag origin                  |
+| Cloud sync       | Supabase               | KV via `syncStorage.ts` (RLS owner-scoped) |
 
 Context providers persist to localStorage via `useEffect`. All hydration uses `safeJSONParse`.
 
-Drag state lives exclusively in `useInteractiveBoard.ts` and `@dnd-kit` monitors (`useDraggable`, `useDroppable`). It must not be mirrored into React state — doing so causes 64-square cascade re-renders through the memoized `DroppableSquare` grid.
+Drag state lives exclusively in `useInteractiveBoard.ts` and the custom `useDragDrop` hook. It must not be mirrored into React state — doing so causes 64-square cascade re-renders through the memoized `DroppableSquare` grid.
 
 ---
 
@@ -241,7 +267,7 @@ Drag state lives exclusively in `useInteractiveBoard.ts` and `@dnd-kit` monitors
 
 ### Display Board
 
-The interactive board is rendered as a `@dnd-kit` grid of `DroppableSquare` components, each containing a `DraggablePiece`. The squares are filled with Tailwind colour utilities backed by CSS custom properties. Piece images are loaded from Lichess CDN, rasterized to 256 px blob URLs by `pieceImageCache.ts`, and passed down as a stable `Record<string, HTMLImageElement>`.
+The interactive board is rendered as a grid of `DroppableSquare` components, each containing a `DraggablePiece`. Squares use Tailwind CSS utilities backed by CSS custom properties. Piece images are loaded from Lichess CDN, rasterized to 256 px blob URLs, and passed down as a stable `Record<string, HTMLImageElement>`.
 
 ### Export Canvas
 
@@ -263,9 +289,9 @@ See [EXPORT_PIPELINE.md](../reference/EXPORT_PIPELINE.md) for the full technical
 2. Configures format (PNG/JPEG/SVG), quality preset (1×–4×), board size (4/6/8 cm), and filename
 3. `handleBatchExport` in `useHomeExport` triggers `canvasExporter.ts`
 4. For PNG/JPEG: `createRasterBlob()` attempts the SVG→Worker path first; falls back to main-thread canvas if pieces are blob URLs
-5. For SVG: `downloadSVG()` in `svgExporter.ts` embeds piece images as base64 data URLs via `svgPieceLoader.ts`
-6. DPI metadata injected by `dpiEncoder.ts`; file downloaded via `<a download>`
-7. Batch export iterates the FEN list and packages outputs via `archiveManager.ts`
+5. For SVG: `downloadSVG()` in `svgExporter.ts` embeds piece images as base64 data URLs
+6. File downloaded via `<a download>`
+7. Batch export iterates the FEN list and packages outputs via `archiveManager.ts` (fflate)
 
 ---
 
@@ -273,13 +299,22 @@ See [EXPORT_PIPELINE.md](../reference/EXPORT_PIPELINE.md) for the full technical
 
 Authentication is entirely optional. The app is fully functional without an account.
 
-**Services:** All Supabase access goes through the singleton at `src/features/auth/services/supabaseClient.ts`. `syncStorage.ts` is the only approved KV interface for `user_data`.
+All auth logic is in `src/auth/` — a self-contained module. Nothing outside this folder touches Supabase directly.
 
-**Security gate:** `useSecurityCheck` is fail-closed — `isLocked` defaults to `true` and only unlocks on positive server confirmation via the `refresh_security_session` RPC.
+**Services:**
+
+- `Supabase.ts` — singleton Supabase client
+- `syncStorage.ts` — the only approved KV interface for `user_data` table
+- `profile.ts` — display name and supporter tier operations
+- `dataMigration.ts` — one-time localStorage → Supabase migration on first login
+- `membership.ts` — supporter tier logic (`getMembershipTier`)
+- `securityEvents.ts` — recent login event log
+
+**Security gate:** `SecurityLock.tsx` / `useSecurityCheck` is fail-closed — `isLocked` defaults to `true` and only unlocks on positive server confirmation via the `refresh_security_session` RPC.
 
 **Cloud sync:** `syncStorage.set(key, value)` upserts into `user_data`. Each row is owner-scoped by Supabase RLS: `auth.uid() = user_id`. No user can read another user's rows. The local localStorage copy is the source of truth; cloud is best-effort sync on top.
 
-**Accessibility preferences** (`useColorVision`, `useContrast`, `useReducedMotionPreference`) hydrate from cloud on an idle callback after first paint — they do not block initial render.
+**Accessibility preferences** (`useColorVision`, `useContrast`, `useReducedMotionPreference` — all in `useA11y.ts`) hydrate from cloud on an idle callback after first paint — they do not block initial render.
 
 ---
 
