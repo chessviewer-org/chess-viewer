@@ -1,97 +1,56 @@
 import { ReactNode, Suspense } from 'react';
+import { Route, Switch } from 'wouter';
 
 import {
-  AnimatePresence,
-  motion,
-  type Transition,
-  type Variants
-} from 'framer-motion';
-import { Route, Routes, useLocation } from 'react-router-dom';
-
-import {
-  AboutPage,
-  AdvancedFENInputPage,
-  ExportPage,
-  FENHistoryPage,
-  ForgotPasswordPage,
   HomePage,
-  MfaChallengePage,
-  NotFoundPage,
+  AboutPage,
+  ExportPage,
   SettingsPage,
+  FENHistoryPage,
+  AdvancedFENInputPage,
+  NotFoundPage,
   SignInPage,
-  SignUpPage
+  SignUpPage,
+  ForgotPasswordPage,
+  MfaChallengePage
 } from '@/routes/lazyPages';
-import { useEffectiveReducedMotion } from '@hooks';
 
-const EXPO_OUT = [0.16, 1, 0.3, 1] as [number, number, number, number];
+import { usePageTransition } from './usePageTransition';
 
-/**
- * Page-transition variants. The full motion slides + fades + softly scales the
- * incoming page (and pushes the outgoing one the other way) over ~0.4s with an
- * expo-out ease, so the route change reads as a deliberate transition rather
- * than an instant swap. The reduced-motion variant collapses to a quick fade.
- */
-const pageVariants: Variants = {
-  initial: { opacity: 0, y: 24, scale: 0.98 },
-  animate: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.42, ease: EXPO_OUT } as Transition
-  },
-  exit: {
-    opacity: 0,
-    y: -18,
-    scale: 0.985,
-    transition: { duration: 0.26, ease: [0.4, 0, 1, 1] } as Transition
-  }
-};
+function PageLoader() {
+  return (
+    <div
+      className="flex items-center justify-center min-h-[70vh] animate-loader-in"
+      role="status"
+      aria-label="Loading page"
+    >
+      <div className="relative w-16 h-16">
+        <LoadingLogo />
+      </div>
+    </div>
+  );
+}
 
-const reducedVariants: Variants = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1, transition: { duration: 0.15 } as Transition },
-  exit: { opacity: 0, transition: { duration: 0.1 } as Transition }
-};
-
-/**
- * Suspense fallback shown while a lazy page chunk loads.
- *
- * Uses `min-h-[70vh]` to reserve vertical space so the swap to real page
- * content does not cause layout shift (CLS), and fades in via framer-motion
- * for a minimalist appearance.
- */
-/**
- * Lichess-style brand loader: our own ChessVision logo silhouette sits faint in
- * the background while an accent-coloured copy "fills up" from the bottom (the
- * knight's base) to the top on a loop, via an animated clip rectangle.
- *
- * The logo paths are kept identical to src/assets/logo.svg — only the fill
- * source changes (faint base layer + accent layer clipped by the rising rect).
- */
-function BrandLoaderLogo() {
+function LoadingLogo() {
   return (
     <svg
       viewBox="0 0 45 45"
       className="w-full h-full"
       role="img"
-      aria-label="ChessVision"
+      aria-label="ChessViewer"
     >
+      <style>{`
+        @keyframes cv-fill {
+          0%   { y: 45px; height: 0; }
+          70%  { y: 0;    height: 45px; }
+          100% { y: 0;    height: 45px; }
+        }
+        .cv-fill-rect { animation: cv-fill 0.9s ease-in-out infinite; animation-delay: 0.3s; }
+      `}</style>
+
       <defs>
         <clipPath id="cv-loader-fill" clipPathUnits="userSpaceOnUse">
-          {/* Rises from the bottom (y=45) upward, then resets — Lichess style. */}
-          <motion.rect
-            x="0"
-            width="45"
-            initial={{ y: 45, height: 0 }}
-            animate={{ y: [45, 0, 0], height: [0, 45, 45] }}
-            transition={{
-              duration: 0.9,
-              times: [0, 0.7, 1],
-              ease: 'easeInOut',
-              repeat: Infinity,
-              repeatDelay: 0.3
-            }}
-          />
+          <rect x="0" width="45" y="45" height="0" className="cv-fill-rect" />
         </clipPath>
         <g id="cv-loader-logo">
           <path
@@ -111,13 +70,11 @@ function BrandLoaderLogo() {
         </g>
       </defs>
 
-      {/* Faint, unfilled silhouette (the "empty" logo). */}
       <use
         href="#cv-loader-logo"
         className="text-accent/15"
         fill="currentColor"
       />
-      {/* Accent fill, revealed bottom-up by the animated clip. */}
       <use
         href="#cv-loader-logo"
         className="text-accent"
@@ -128,142 +85,110 @@ function BrandLoaderLogo() {
   );
 }
 
-function PageLoader() {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.15, ease: 'easeOut' }}
-      className="flex items-center justify-center min-h-[70vh]"
-      role="status"
-      aria-label="Loading page"
-    >
-      <div className="relative w-16 h-16">
-        <BrandLoaderLogo />
-      </div>
-    </motion.div>
-  );
-}
-
-interface AnimatedPageProps {
+function AnimatedPage({
+  children,
+  phase
+}: {
   children: ReactNode;
-  reduced: boolean;
+  phase: 'entering' | 'exiting';
+}) {
+  const className =
+    phase === 'exiting' ? 'page-transition-exit' : 'animate-page-enter';
+  return <div className={className}>{children}</div>;
 }
 
-function AnimatedPage({ children, reduced }: AnimatedPageProps) {
+function AllRoutes({
+  location,
+  phase
+}: {
+  location: { pathname: string };
+  phase: 'entering' | 'exiting';
+}) {
   return (
-    <motion.div
-      variants={reduced ? reducedVariants : pageVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      className="h-full"
-    >
-      {children}
-    </motion.div>
+    <Switch location={location.pathname}>
+      <Route path="/">
+        <AnimatedPage phase={phase}>
+          <HomePage />
+        </AnimatedPage>
+      </Route>
+      <Route path="/export">
+        <AnimatedPage phase={phase}>
+          <ExportPage />
+        </AnimatedPage>
+      </Route>
+      <Route path="/about">
+        <AnimatedPage phase={phase}>
+          <AboutPage />
+        </AnimatedPage>
+      </Route>
+      <Route path="/settings">
+        <AnimatedPage phase={phase}>
+          <SettingsPage />
+        </AnimatedPage>
+      </Route>
+      <Route path="/fen-history">
+        <AnimatedPage phase={phase}>
+          <FENHistoryPage />
+        </AnimatedPage>
+      </Route>
+      <Route path="/advanced-fen">
+        <AnimatedPage phase={phase}>
+          <AdvancedFENInputPage />
+        </AnimatedPage>
+      </Route>
+
+      <Route path="/auth/sign-in">
+        <AnimatedPage phase={phase}>
+          <SignInPage />
+        </AnimatedPage>
+      </Route>
+      <Route path="/auth/sign-up">
+        <AnimatedPage phase={phase}>
+          <SignUpPage />
+        </AnimatedPage>
+      </Route>
+      <Route path="/auth/forgot-password">
+        <AnimatedPage phase={phase}>
+          <ForgotPasswordPage />
+        </AnimatedPage>
+      </Route>
+      <Route path="/auth/mfa">
+        <AnimatedPage phase={phase}>
+          <MfaChallengePage />
+        </AnimatedPage>
+      </Route>
+
+      <Route path="*">
+        <AnimatedPage phase={phase}>
+          <NotFoundPage />
+        </AnimatedPage>
+      </Route>
+    </Switch>
   );
 }
 
-/**
- * Defines all client-side routes wrapped in a Suspense boundary.
- */
 function AppRoutes() {
-  const location = useLocation();
-  const reduced = useEffectiveReducedMotion();
+  const { current, previous } = usePageTransition();
+
   return (
     <Suspense fallback={<PageLoader />}>
-      <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          <Route
-            path="/"
-            element={
-              <AnimatedPage reduced={reduced}>
-                <HomePage />
-              </AnimatedPage>
-            }
-          />
-          <Route
-            path="/export"
-            element={
-              <AnimatedPage reduced={reduced}>
-                <ExportPage />
-              </AnimatedPage>
-            }
-          />
-          <Route
-            path="/about"
-            element={
-              <AnimatedPage reduced={reduced}>
-                <AboutPage />
-              </AnimatedPage>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <AnimatedPage reduced={reduced}>
-                <SettingsPage />
-              </AnimatedPage>
-            }
-          />
-          <Route
-            path="/fen-history"
-            element={
-              <AnimatedPage reduced={reduced}>
-                <FENHistoryPage />
-              </AnimatedPage>
-            }
-          />
-          <Route
-            path="/advanced-fen"
-            element={
-              <AnimatedPage reduced={reduced}>
-                <AdvancedFENInputPage />
-              </AnimatedPage>
-            }
-          />
-          <Route
-            path="/auth/sign-in"
-            element={
-              <AnimatedPage reduced={reduced}>
-                <SignInPage />
-              </AnimatedPage>
-            }
-          />
-          <Route
-            path="/auth/sign-up"
-            element={
-              <AnimatedPage reduced={reduced}>
-                <SignUpPage />
-              </AnimatedPage>
-            }
-          />
-          <Route
-            path="/auth/forgot-password"
-            element={
-              <AnimatedPage reduced={reduced}>
-                <ForgotPasswordPage />
-              </AnimatedPage>
-            }
-          />
-          <Route
-            path="/auth/mfa"
-            element={
-              <AnimatedPage reduced={reduced}>
-                <MfaChallengePage />
-              </AnimatedPage>
-            }
-          />
-          <Route
-            path="*"
-            element={
-              <AnimatedPage reduced={reduced}>
-                <NotFoundPage />
-              </AnimatedPage>
-            }
-          />
-        </Routes>
-      </AnimatePresence>
+      <div className="page-transition-stack">
+        {previous && (
+          <div
+            key={previous.location.pathname}
+            className="page-transition-slot page-transition-slot--exiting"
+          >
+            <AllRoutes location={previous.location} phase="exiting" />
+          </div>
+        )}
+
+        <div
+          key={current.location.pathname}
+          className="page-transition-slot page-transition-slot--entering"
+        >
+          <AllRoutes location={current.location} phase="entering" />
+        </div>
+      </div>
     </Suspense>
   );
 }

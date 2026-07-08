@@ -1,56 +1,41 @@
 import { lazy } from 'react';
 
-import { prefetchByPath } from './prefetchRegistry';
-
-/**
- * Single source of truth for lazily-loaded page chunks.
- *
- * Each page is paired with the raw dynamic-import factory so the SAME factory
- * can be reused for hover/focus prefetching (see `prefetchByPath` and
- * `usePrefetchRoute`). Calling the factory ahead of navigation warms Vite's
- * module cache; the click-time import then resolves instantly.
- */
-
-const homeImport = () => import('@/pages/HomePage/HomePage');
-const aboutImport = () => import('@/pages/AboutPage/AboutPage');
-const exportImport = () => import('@/pages/ExportPage/ExportPage');
-const settingsImport = () => import('@/pages/SettingsPage/SettingsPage');
-const fenHistoryImport = () => import('@/pages/FENHistoryPage/FENHistoryPage');
-const advancedFenImport = () =>
+const loadHomePage = () => import('@/pages/HomePage/HomePage');
+const loadAboutPage = () => import('@/pages/AboutPage/AboutPage');
+const loadExportPage = () => import('@/pages/ExportPage/ExportPage');
+const loadSettingsPage = () => import('@/pages/SettingsPage/SettingsPage');
+const loadFENHistoryPage = () =>
+  import('@/pages/FENHistoryPage/FENHistoryPage');
+const loadAdvancedFENPage = () =>
   import('@/pages/AdvancedFENInputPage/AdvancedFENInputPage');
-const notFoundImport = () => import('@/pages/NotFoundPage/NotFoundPage');
-const signInImport = () => import('@/pages/AuthPage/pages/SignInPage');
-const signUpImport = () => import('@/pages/AuthPage/pages/SignUpPage');
-const forgotPasswordImport = () =>
-  import('@/pages/AuthPage/pages/ForgotPasswordPage');
-const mfaChallengeImport = () =>
-  import('@/pages/AuthPage/pages/MfaChallengePage');
+const loadNotFoundPage = () => import('@/pages/NotFoundPage');
+const loadSignInPage = () => import('@/pages/AuthPages/SignInPage');
+const loadSignUpPage = () => import('@/pages/AuthPages/SignUpPage');
+const loadForgotPasswordPage = () =>
+  import('@/pages/AuthPages/ForgotPasswordPage');
+const loadMfaChallengePage = () => import('@/pages/AuthPages/MfaChallengePage');
 
-export const HomePage = lazy(homeImport);
-export const AboutPage = lazy(aboutImport);
-export const ExportPage = lazy(exportImport);
-export const SettingsPage = lazy(settingsImport);
-export const FENHistoryPage = lazy(fenHistoryImport);
-export const AdvancedFENInputPage = lazy(advancedFenImport);
-export const NotFoundPage = lazy(notFoundImport);
-export const SignInPage = lazy(signInImport);
-export const SignUpPage = lazy(signUpImport);
-export const ForgotPasswordPage = lazy(forgotPasswordImport);
-export const MfaChallengePage = lazy(mfaChallengeImport);
+export const HomePage = lazy(loadHomePage);
+export const AboutPage = lazy(loadAboutPage);
+export const ExportPage = lazy(loadExportPage);
+export const SettingsPage = lazy(loadSettingsPage);
+export const FENHistoryPage = lazy(loadFENHistoryPage);
+export const AdvancedFENInputPage = lazy(loadAdvancedFENPage);
+export const NotFoundPage = lazy(loadNotFoundPage);
+export const SignInPage = lazy(loadSignInPage);
+export const SignUpPage = lazy(loadSignUpPage);
+export const ForgotPasswordPage = lazy(loadForgotPasswordPage);
+export const MfaChallengePage = lazy(loadMfaChallengePage);
 
-/**
- * Maps a route pathname to its chunk-prefetch factory. Query strings are
- * ignored by the prefetch hook, so `/settings?tab=data` resolves to `/settings`.
- */
-Object.assign(prefetchByPath, {
-  '/': homeImport,
-  '/about': aboutImport,
-  '/export': exportImport,
-  '/settings': settingsImport,
-  '/fen-history': fenHistoryImport,
-  '/advanced-fen': advancedFenImport,
-  '/auth/sign-in': signInImport,
-  '/auth/sign-up': signUpImport,
-  '/auth/forgot-password': forgotPasswordImport,
-  '/auth/mfa': mfaChallengeImport
-});
+export const prefetchByPath: Record<string, () => Promise<unknown>> = {
+  '/': loadHomePage,
+  '/about': loadAboutPage,
+  '/export': loadExportPage,
+  '/settings': loadSettingsPage,
+  '/fen-history': loadFENHistoryPage,
+  '/advanced-fen': loadAdvancedFENPage,
+  '/auth/sign-in': loadSignInPage,
+  '/auth/sign-up': loadSignUpPage,
+  '/auth/forgot-password': loadForgotPasswordPage,
+  '/auth/mfa': loadMfaChallengePage
+};
