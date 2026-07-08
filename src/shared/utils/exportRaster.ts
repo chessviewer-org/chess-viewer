@@ -96,7 +96,6 @@ async function createCanvasRasterBlob(
       checkCancellation();
       return await canvasToBlob(jpegCanvas, 'image/jpeg', 0.92);
     } finally {
-      // Release on every exit — draw/pause/cancel can throw before the blob call.
       jpegCanvas.width = 0;
       jpegCanvas.height = 0;
     }
@@ -113,10 +112,6 @@ async function createWorkerRasterBlob(
 ): Promise<Blob | null> {
   if (!isSvgRasterWorkerSupported()) return null;
 
-  // When piece images are stored as blob: URLs (the hi-res rasterisation path
-  // in pieceImageCache), the SVG they get embedded into as data:image/png will
-  // contain large base64 chunks that Chromium's worker-side createImageBitmap
-  // cannot decode. Detect this and fall through to the canvas path instead.
   const pieceValues = Object.values(config.pieceImages);
   const hasBlobPieces = pieceValues.some((img) => {
     const src = img?.currentSrc || img?.src || '';
@@ -160,7 +155,6 @@ async function createWorkerRasterBlob(
 
   if (!task) return null;
 
-  // Register the cancel handle so cancelExport() can stop this worker task.
   setActiveRasterTask(task.cancel);
 
   try {
@@ -170,18 +164,6 @@ async function createWorkerRasterBlob(
   }
 }
 
-/**
- * Produces a rasterized `Blob` of the board position in the requested format.
- *
- * Attempts the SVG→Worker raster path first for performance; falls back to
- * the main-thread canvas renderer if the worker is unsupported or fails.
- *
- * @param config - Board render configuration
- * @param format - Target raster format (`'png'` or `'jpeg'`)
- * @param onProgress - Optional progress callback
- * @returns Rasterized image blob
- * @throws If both the worker path and canvas fallback fail, or if the export is cancelled
- */
 export async function createRasterBlob(
   config: ExportConfig,
   format: 'png' | 'jpeg',

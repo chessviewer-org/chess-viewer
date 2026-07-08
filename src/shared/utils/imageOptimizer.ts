@@ -1,21 +1,11 @@
 import { QUALITY_PRESETS } from '@constants';
 
-import { getCoordinateParams } from './coordinateCalculations';
+import { getCoordinateParams } from '@chessviewer-org/chess-viewer';
 import { logger } from './logger';
 
 const CM_PER_INCH = 2.54;
 const PRINT_DPI = 300;
 
-/**
- * Converts physical board size + quality multiplier into board pixels.
- *
- * Formula: pixels = (cm / 2.54) * baseDpi * multiplier
- *
- * @param boardSizeCm - Physical board size in centimetres
- * @param qualityMultiplier - The export quality multiplier
- * @param baseDpi - The base dots per inch (default 300)
- * @returns Calculated board pixels
- */
 function calculateBoardPixels(
   boardSizeCm: number,
   qualityMultiplier: number,
@@ -26,11 +16,6 @@ function calculateBoardPixels(
 
 let _cachedMaxCanvasSize: number | null = null;
 
-/**
- * Returns the maximum canvas dimension supported by the current browser.
- *
- * @returns Max canvas size in pixels
- */
 export function getMaxCanvasSize(): number {
   if (_cachedMaxCanvasSize !== null) return _cachedMaxCanvasSize;
   try {
@@ -51,58 +36,24 @@ export function getMaxCanvasSize(): number {
   return _cachedMaxCanvasSize;
 }
 
-/**
- * Returns the export mode ('print' or 'social') for a given quality multiplier.
- *
- * @param quality - Export quality value
- * @returns The export mode string
- */
+function findQualityPreset(quality: number) {
+  return QUALITY_PRESETS.find((preset) => preset.value === quality);
+}
+
 export function getExportMode(quality: number): string {
-  for (let i = 0; i < QUALITY_PRESETS.length; i++) {
-    const preset = QUALITY_PRESETS[i];
-    if (preset && preset.value === quality) {
-      return preset.mode;
-    }
-  }
-  return 'print';
+  return findQualityPreset(quality)?.mode ?? 'print';
 }
 
-/**
- * Checks if the quality preset forces a coordinate border.
- *
- * @param quality - The quality multiplier
- * @returns True if the coordinate border should be forced
- */
 export function shouldForceCoordinateBorder(quality: number): boolean {
-  for (let i = 0; i < QUALITY_PRESETS.length; i++) {
-    const preset = QUALITY_PRESETS[i];
-    if (preset && preset.value === quality) {
-      return !!preset.forceCoordinateBorder;
-    }
-  }
-  return false;
+  return !!findQualityPreset(quality)?.forceCoordinateBorder;
 }
 
-/**
- * Formats a byte count into a human-readable string.
- *
- * @param bytes - The byte count
- * @returns Formatted size string
- */
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return Math.round(bytes) + ' B';
   if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
   return (bytes / 1024 / 1024).toFixed(1) + ' MB';
 }
 
-/**
- * Calculates the final canvas dimensions for an export operation.
- *
- * @param boardSizeCm - Physical board size in centimetres
- * @param showCoords - Whether to include coordinate border
- * @param exportQuality - Quality multiplier
- * @returns Export size details including width, height, scaleFactor, etc.
- */
 function calculateExportSize(
   boardSizeCm: number,
   showCoords: boolean,
@@ -162,15 +113,6 @@ export interface RenderSurfaceSize {
   scaleFactor: number;
 }
 
-/**
- * Calculates the final raster surface dimensions including optional frame.
- *
- * @param boardSizeCm - Physical board size in centimetres
- * @param showCoords - Whether to include coordinate labels
- * @param exportQuality - Export quality multiplier
- * @param showThinFrame - Whether to include a thin outer frame
- * @returns Object with detailed surface measurements
- */
 export function calculateRenderSurfaceSize(
   boardSizeCm: number,
   showCoords: boolean,
@@ -220,14 +162,6 @@ export interface FileSizeEstimates {
   jpegBytes: number;
 }
 
-/**
- * Estimates PNG and JPEG file sizes for given canvas dimensions.
- *
- * @param width - Canvas width in pixels
- * @param height - Canvas height in pixels
- * @param exportQuality - The quality multiplier
- * @returns Object containing formatted and raw byte estimates
- */
 export function estimateFileSizes(
   width: number,
   height: number,

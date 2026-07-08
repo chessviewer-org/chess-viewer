@@ -1,11 +1,5 @@
 export {};
 
-/**
- * Worker that rasterizes SVG markup into PNG/JPEG blobs using OffscreenCanvas.
- */
-/// <reference lib="webworker" />
-
-/** Minimal worker global scope interface — avoids requiring `lib: webworker` in tsconfig. */
 interface WorkerScope {
   onmessage: ((ev: MessageEvent) => unknown) | null;
   postMessage(message: unknown): void;
@@ -92,8 +86,6 @@ workerContext.onmessage = async (event: MessageEvent) => {
       }
     });
   } finally {
-    // Release decoded bitmap and GPU canvas memory on every exit path —
-    // Safari/iOS does not GC OffscreenCanvas on reference drop (Rule 9).
     bitmap?.close();
     if (canvas) {
       canvas.width = 0;

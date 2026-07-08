@@ -1,23 +1,8 @@
-import { syncStorage } from '@/features/auth/services/syncStorage';
+import { syncStorage } from '@/auth';
 
 import { logger } from './logger';
-import { safeJSONParse } from './validation';
+import { safeJSONParse } from '@chessviewer-org/chess-viewer';
 
-/**
- * Shared best-effort cloud-hydrate body for a single settings key. Reads the
- * cloud `syncStorage` value, JSON-parses it, and hands the raw decoded value to
- * `apply`, which decides whether/how to adopt it locally. Local storage stays
- * the synchronous source of truth; this only fills in a freshly signed-in
- * device's cloud preference. Never throws — failures are logged.
- *
- * Each call-site owns its own effect, guard (mount-once / ref), and write-back
- * semantics; this only removes the duplicated read-parse-catch scaffolding.
- *
- * @param key - The synced storage key.
- * @param apply - Receives the decoded value; applies it if it should win.
- * @param isCancelled - Returns true once the caller has unmounted.
- * @param label - Human label used in the error log line.
- */
 export async function hydrateFromSync(
   key: string,
   apply: (decoded: unknown) => void,

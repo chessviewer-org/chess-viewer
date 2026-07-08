@@ -1,5 +1,5 @@
 import { createUltraQualityCanvas } from './canvasRenderer';
-import { changeDPI } from './dpiEncoder';
+import { changeDPI } from '@chessviewer-org/chess-viewer';
 import { createRasterBlob } from './exportRaster';
 import {
   cancelExport,
@@ -14,15 +14,13 @@ import {
   waitWhilePaused
 } from './exportState';
 import { FileSizeEstimates } from './imageOptimizer';
-import { sanitizeFileName } from './validation';
+import { saveBlob } from './saveBlob';
 
-/** Callback invoked at each stage of an export operation with a 0–100 progress value. */
 export type ProgressCallback = (
   progress: number,
   label?: string | null
 ) => void;
 
-/** Board state and render settings required for any export operation. */
 export interface ExportConfig {
   boardSize: number;
   showCoords: boolean;
@@ -36,7 +34,6 @@ export interface ExportConfig {
   showCoordinateBorder?: boolean;
 }
 
-/** Resolved metadata describing a planned export: dimensions, DPI, memory footprint, and file-size estimates. */
 export interface ExportInfo {
   canvasWidth: number;
   canvasHeight: number;
@@ -60,23 +57,6 @@ export interface ExportInfo {
 }
 
 export { cancelExport, getExportInfo, pauseExport, resumeExport };
-
-function triggerDownload(
-  blob: Blob,
-  fileName: string,
-  extension: string
-): void {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `${fileName}.${extension}`;
-  document.body.appendChild(link);
-  link.click();
-  setTimeout(() => {
-    if (document.body.contains(link)) document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  }, 100);
-}
 
 export async function getRasterBlob(
   config: ExportConfig,
@@ -111,8 +91,7 @@ async function downloadRaster(
 ): Promise<void> {
   try {
     const finalBlob = await getRasterBlob(config, format, onProgress);
-    const safeFileName = sanitizeFileName(fileName);
-    triggerDownload(finalBlob, safeFileName, extension);
+    saveBlob(finalBlob, fileName, extension);
     setProgress(onProgress, 100, 'Done');
   } catch (error: unknown) {
     if (error instanceof Error && error.message === 'Export cancelled') {
@@ -125,14 +104,6 @@ async function downloadRaster(
   }
 }
 
-/**
- * Exports the board position as a PNG file and triggers a browser download.
- *
- * @param config - Board render configuration
- * @param fileName - Base name for the downloaded file (without extension)
- * @param onProgress - Optional progress callback
- * @throws If rendering or encoding fails, or if the export is cancelled
- */
 export function downloadPNG(
   config: ExportConfig,
   fileName: string,
@@ -141,14 +112,6 @@ export function downloadPNG(
   return downloadRaster(config, fileName, 'png', 'png', onProgress);
 }
 
-/**
- * Exports the board position as a JPEG file and triggers a browser download.
- *
- * @param config - Board render configuration
- * @param fileName - Base name for the downloaded file (without extension)
- * @param onProgress - Optional progress callback
- * @throws If rendering or encoding fails, or if the export is cancelled
- */
 export function downloadJPEG(
   config: ExportConfig,
   fileName: string,
@@ -157,13 +120,6 @@ export function downloadJPEG(
   return downloadRaster(config, fileName, 'jpeg', 'jpg', onProgress);
 }
 
-/**
- * Renders the board and copies it as a PNG image to the system clipboard.
- *
- * @param config - Board render configuration
- * @returns `true` on success
- * @throws If the Clipboard API is unavailable, the export is cancelled, or rendering fails
- */
 export async function copyToClipboard(config: ExportConfig): Promise<boolean> {
   resetExportState();
   let canvas: HTMLCanvasElement | null = null;

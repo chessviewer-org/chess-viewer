@@ -1,4 +1,122 @@
+import { PIECE_SET_POPULARITY, PIECE_SETS as ALL_PIECE_SETS } from '@constants';
+import type { PieceSet } from '@app-types';
 import { logger } from './logger';
+
+export type PieceSort = 'popular' | 'name';
+
+const MISSING_ARTWORK_IDS = new Set(['alpha', 'reillycraig', 'riohacha']);
+
+export const AVAILABLE_PIECE_SETS: PieceSet[] = ALL_PIECE_SETS.filter(
+  (set) => !MISSING_ARTWORK_IDS.has(set.id)
+);
+
+const POPULARITY_RANK = new Map(
+  PIECE_SET_POPULARITY.map((id, index) => [id, index])
+);
+
+export function sortPieceSets(sort: PieceSort): PieceSet[] {
+  const copy = [...AVAILABLE_PIECE_SETS];
+  if (sort === 'name') {
+    return copy.sort((a, b) => a.name.localeCompare(b.name));
+  }
+  return copy.sort((a, b) => {
+    const ra = POPULARITY_RANK.get(a.id) ?? Number.MAX_SAFE_INTEGER;
+    const rb = POPULARITY_RANK.get(b.id) ?? Number.MAX_SAFE_INTEGER;
+    if (ra !== rb) return ra - rb;
+    return a.name.localeCompare(b.name);
+  });
+}
+
+function evictOldest(cache: Map<string, unknown>, maxSize: number): void {
+  while (cache.size > maxSize) {
+    const oldestKey = cache.keys().next().value;
+    if (oldestKey === undefined) break;
+    cache.delete(oldestKey);
+  }
+}
+
+const MAX_CACHED_IMAGES = 36;
+const pieceCache = new Map<string, HTMLImageElement>();
+
+function piecePath(style: string, piece: string): string {
+  return `/piece/${style}/${piece}.svg`;
+}
+
+export async function preloadPieceStyle(
+  style: string,
+  pieceMap: Record<string, string>,
+  onProgress?: (progress: number) => void,
+  signal?: AbortSignal
+): Promise<Record<string, HTMLImageElement>> {
+  const pieces = Object.keys(pieceMap);
+  const total = pieces.length;
+  let loadedCount = 0;
+  const result: Record<string, HTMLImageElement> = {};
+
+  const promises = pieces.map(async (piece) => {
+    const key = `${style}_${piece}`;
+
+    const finishOne = (img?: HTMLImageElement) => {
+      loadedCount++;
+      if (img) result[piece] = img;
+      if (onProgress && !signal?.aborted) {
+        onProgress(Math.round((loadedCount / total) * 100));
+      }
+    };
+
+    const cached = pieceCache.get(key);
+    if (cached) {
+      finishOne(cached);
+      return;
+    }
+
+    await new Promise<void>((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        img.onload = null;
+        img.onerror = null;
+        pieceCache.set(key, img);
+        evictOldest(pieceCache, MAX_CACHED_IMAGES);
+        finishOne(img);
+        resolve();
+      };
+      img.onerror = () => {
+        img.onload = null;
+        img.onerror = null;
+        logger.error(`Failed to load piece image: ${piece} for style ${style}`);
+        finishOne();
+        resolve();
+      };
+      img.src = piecePath(style, piece);
+    });
+  });
+
+  await Promise.all(promises);
+  return result;
+}
+
+export function setCachedPieces(
+  style: string,
+  pieces: Record<string, HTMLImageElement>
+): void {
+  Object.entries(pieces).forEach(([key, img]) => {
+    pieceCache.set(`${style}_${key}`, img);
+  });
+  evictOldest(pieceCache, MAX_CACHED_IMAGES);
+}
+
+export function getCachedPieceStyle(
+  style: string,
+  pieceMap: Record<string, string>
+): Record<string, HTMLImageElement> | null {
+  const result: Record<string, HTMLImageElement> = {};
+  for (const piece of Object.keys(pieceMap)) {
+    const img = pieceCache.get(`${style}_${piece}`);
+    if (!img) return null;
+    result[piece] = img;
+  }
+  return result;
+}
 
 const MAX_DATA_URL_CACHE = 48;
 const pieceDataUrlCache = new Map<string, string>();
@@ -11,20 +129,6 @@ const FALLBACK_PIECE_SVG =
   '</svg>';
 const FALLBACK_PIECE_DATA_URL = `data:image/svg+xml;base64,${btoa(FALLBACK_PIECE_SVG)}`;
 
-function enforceDataUrlCacheCap(): void {
-  while (pieceDataUrlCache.size > MAX_DATA_URL_CACHE) {
-    const oldestKey = pieceDataUrlCache.keys().next().value;
-    if (oldestKey === undefined) break;
-    pieceDataUrlCache.delete(oldestKey);
-  }
-}
-
-/**
- * Maps a FEN piece character to a piece image key.
- *
- * @param fenPiece - FEN piece character (e.g. `'P'`, `'k'`)
- * @returns Image key (e.g. `'wP'`, `'bk'`), or `null` for an empty square
- */
 export function getPieceKey(fenPiece: string): string | null {
   if (!fenPiece) return null;
   const isWhite = fenPiece === fenPiece.toUpperCase();
@@ -55,11 +159,6 @@ function imageToDataURL(img: HTMLImageElement): Promise<string> {
   });
 }
 
-/**
- * Resolves once an image element has finished loading (or times out after 2 s).
- *
- * @param img - The image element to wait for
- */
 export function waitForPieceImage(img: HTMLImageElement): Promise<void> {
   if (!img || img.complete) return Promise.resolve();
   return new Promise<void>((resolve) => {
@@ -92,16 +191,6 @@ function toBase64Utf8(text: string): string {
   return btoa(binary);
 }
 
-/**
- * Converts a piece `HTMLImageElement` to a self-contained base64 data URL for
- * inline embedding in SVG exports.
- *
- * SVG sources are fetched and inlined as UTF-8 base64; other formats fall back to
- * canvas-based rasterization. Results are cached by image `src` (max 48 entries).
- *
- * @param img - Loaded piece image element
- * @returns Base64 data URL string, or an empty string if conversion fails
- */
 export async function imageToEmbeddableDataURL(
   img: HTMLImageElement
 ): Promise<string> {
@@ -116,8 +205,6 @@ export async function imageToEmbeddableDataURL(
   if (src.startsWith('data:')) {
     dataUrl = src;
   } else if (src.startsWith('blob:')) {
-    // blob: URLs cannot be fetched cross-context or embedded in SVG — rasterize
-    // the already-loaded image element directly via canvas instead.
     dataUrl = await imageToDataURL(img);
   } else {
     let parsedUrl: URL;
@@ -163,6 +250,6 @@ export async function imageToEmbeddableDataURL(
   if (!dataUrl) dataUrl = FALLBACK_PIECE_DATA_URL;
 
   pieceDataUrlCache.set(src, dataUrl);
-  enforceDataUrlCacheCap();
+  evictOldest(pieceDataUrlCache, MAX_DATA_URL_CACHE);
   return dataUrl;
 }

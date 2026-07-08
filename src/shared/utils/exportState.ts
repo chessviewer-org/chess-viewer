@@ -6,10 +6,9 @@ import {
   getMaxCanvasSize,
   shouldForceCoordinateBorder
 } from './imageOptimizer';
-import { isValidHexColor, MAX_FEN_LENGTH } from './validation';
+import { isValidHexColor, MAX_FEN_LENGTH } from '@chessviewer-org/chess-viewer';
 import { isSvgRasterWorkerSupported } from './workerRasterExport';
 
-/** Shared mutable state controlling the in-flight export operation lifecycle. */
 export interface ExportState {
   cancelled: boolean;
   paused: boolean;
@@ -20,21 +19,16 @@ export let exportState: ExportState = {
   paused: false
 };
 
-/** Cancel function for the currently active worker raster task, if any. */
 let activeRasterTaskCancel: (() => void) | null = null;
 
-/** Registers the cancel handle of the in-flight worker raster task so that
- *  cancelExport() can actually stop it. */
 export function setActiveRasterTask(cancel: () => void) {
   activeRasterTaskCancel = cancel;
 }
 
-/** Clears the active raster task cancel handle after it resolves or is cancelled. */
 export function clearActiveRasterTask() {
   activeRasterTaskCancel = null;
 }
 
-/** Cancels any in-progress export operation. */
 export function cancelExport() {
   exportState.cancelled = true;
   exportState.paused = false;
@@ -44,17 +38,14 @@ export function cancelExport() {
   }
 }
 
-/** Pauses the current export operation. */
 export function pauseExport() {
   exportState.paused = true;
 }
 
-/** Resumes a paused export operation. */
 export function resumeExport() {
   exportState.paused = false;
 }
 
-/** Resets export state (cancelled, paused) to defaults. */
 export function resetExportState() {
   exportState = {
     cancelled: false,
@@ -63,31 +54,18 @@ export function resetExportState() {
   clearActiveRasterTask();
 }
 
-/**
- * Waits asynchronously while the export is paused.
- */
 export async function waitWhilePaused(): Promise<void> {
   while (exportState.paused && !exportState.cancelled) {
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 }
 
-/**
- * Checks if the export was cancelled and throws an error if so.
- */
 export function checkCancellation() {
   if (exportState.cancelled) {
     throw new Error('Export cancelled');
   }
 }
 
-/**
- * Invokes the progress callback with a value and label, if provided.
- *
- * @param onProgress - Optional callback to notify
- * @param value - Progress percentage (0–100)
- * @param label - Human-readable stage label
- */
 export function setProgress(
   onProgress: ProgressCallback | undefined,
   value: number,
@@ -96,23 +74,10 @@ export function setProgress(
   onProgress?.(value, label);
 }
 
-/**
- * Estimates the GPU memory footprint in MB for a canvas of the given dimensions.
- *
- * @param width - Canvas width in pixels
- * @param height - Canvas height in pixels
- * @returns Estimated memory in megabytes (4 bytes per pixel)
- */
 function estimateMemoryMB(width: number, height: number): number {
   return Math.round((width * height * 4) / 1024 / 1024);
 }
 
-/**
- * Returns metadata about the planned export (dimensions, DPI, file size estimate).
- *
- * @param config - Export configuration
- * @returns Export metadata
- */
 export function getExportInfo(config: ExportConfig): ExportInfo {
   const {
     boardSize,
@@ -165,12 +130,6 @@ export function getExportInfo(config: ExportConfig): ExportInfo {
   };
 }
 
-/**
- * Validates an export configuration object and throws a descriptive error if it is invalid.
- *
- * @param config - The export configuration to validate
- * @throws If any required field is missing, out of range, or has an invalid value
- */
 export function validateExportConfig(config: ExportConfig) {
   const errors: string[] = [];
   if (!config) {
