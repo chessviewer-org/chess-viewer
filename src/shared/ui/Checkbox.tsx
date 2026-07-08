@@ -1,4 +1,5 @@
 import React, { memo, useId } from 'react';
+import styles from '../styles/ui.module.scss';
 
 interface CheckboxProps {
   checked: boolean;
@@ -9,10 +10,6 @@ interface CheckboxProps {
   disabled?: boolean;
 }
 
-/**
- * @param {CheckboxProps} props
- * @returns {JSX.Element}
- */
 const Checkbox = memo(function Checkbox({
   checked,
   onChange,
@@ -26,7 +23,7 @@ const Checkbox = memo(function Checkbox({
   return (
     <label
       htmlFor={checkboxId}
-      className={`flex items-center gap-2.5 cursor-pointer group p-2 rounded-xl transition-opacity duration-200 opacity-80 hover:opacity-100 has-focus-visible:ring-2 has-focus-visible:ring-accent has-focus-visible:opacity-100 ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+      className={`group ${styles['checkboxLabel']} ${disabled ? styles['checkboxLabelDisabled'] : ''} ${className}`}
     >
       <input
         id={checkboxId}
@@ -34,13 +31,13 @@ const Checkbox = memo(function Checkbox({
         checked={checked}
         onChange={onChange}
         disabled={disabled}
-        className="w-4 h-4 sm:w-5 sm:h-5 cursor-pointer accent-accent rounded outline-none disabled:cursor-not-allowed"
+        className={styles['checkboxInput']}
       />
-      <span className="text-sm font-semibold text-text-secondary group-hover:text-text-primary transition-colors select-none">
-        {label}
-      </span>
+      <span className={styles['checkboxText']}>{label}</span>
     </label>
   );
 });
-Checkbox.displayName = 'Checkbox';
+
 export default Checkbox;
+
+Checkbox.displayName = 'Checkbox';

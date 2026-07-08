@@ -1,9 +1,8 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useRef } from 'react';
 
-import { AnimatePresence, motion } from 'framer-motion';
-import { LucideIcon, X } from 'lucide-react';
+import { LucideIcon, X } from '@/assets/icons';
 
-import { useFocusTrap } from '@hooks';
+import { useFocusTrap, useScrollLock } from '@/shared/hooks';
 
 interface ModalShellProps {
   isOpen: boolean;
@@ -31,83 +30,52 @@ const ModalShell = memo(
   }: ModalShellProps) => {
     const dialogRef = useRef<HTMLDivElement>(null);
     useFocusTrap(dialogRef, isOpen);
+    useScrollLock(isOpen);
 
-    useEffect(() => {
-      if (isOpen) {
-        document.body.style.overflow = 'hidden';
-      } else {
-        document.body.style.overflow = 'unset';
-      }
-      return () => {
-        document.body.style.overflow = 'unset';
-      };
-    }, [isOpen]);
+    if (!isOpen) return null;
 
     return (
-      <AnimatePresence>
-        {isOpen && (
-          <div className="fixed inset-0 z-90 h-[100dvh] flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              onClick={disableBackdropClick ? undefined : onClose}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            />
-            <motion.div
-              ref={dialogRef}
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="modal-shell-title"
-              initial={{ scale: 0.92, opacity: 0, y: 24 }}
-              animate={{
-                scale: 1,
-                opacity: 1,
-                y: 0,
-                transition: { duration: 0.34, ease: [0.16, 1, 0.3, 1] }
-              }}
-              exit={{
-                scale: 0.96,
-                opacity: 0,
-                y: 12,
-                transition: { duration: 0.2, ease: [0.4, 0, 1, 1] }
-              }}
-              className={`relative w-full ${maxWidth} max-h-[90vh] flex flex-col bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden`}
-            >
-              <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border shrink-0">
-                <div className="flex items-center gap-3 min-w-0">
-                  {Icon && (
-                    <Icon
-                      className={`w-5 h-5 shrink-0 ${iconColor}`}
-                      aria-hidden="true"
-                    />
-                  )}
-                  <h3
-                    id="modal-shell-title"
-                    className="text-base sm:text-lg font-bold text-text-primary truncate"
-                  >
-                    {title}
-                  </h3>
-                </div>
-                {showCloseButton && (
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    aria-label="Close dialog"
-                    className="p-2 -mr-1 min-h-11 min-w-11 flex items-center justify-center hover:bg-surface-hover rounded-lg transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                  >
-                    <X className="w-5 h-5 text-text-muted" aria-hidden="true" />
-                  </button>
-                )}
-              </div>
-              <div className="p-4 sm:p-6 overflow-y-auto min-h-0">
-                {children}
-              </div>
-            </motion.div>
+      <div className="fixed inset-0 z-90 h-dvh flex items-center justify-center p-4">
+        <div
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-modal-backdrop-in"
+          onClick={disableBackdropClick ? undefined : onClose}
+        />
+        <div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-shell-title"
+          className={`relative w-full ${maxWidth} max-h-[90vh] flex flex-col bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden animate-modal-in`}
+        >
+          <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border shrink-0">
+            <div className="flex items-center gap-3 min-w-0">
+              {Icon && (
+                <Icon
+                  className={`w-5 h-5 shrink-0 ${iconColor}`}
+                  aria-hidden="true"
+                />
+              )}
+              <h3
+                id="modal-shell-title"
+                className="text-base sm:text-lg font-bold text-text-primary truncate"
+              >
+                {title}
+              </h3>
+            </div>
+            {showCloseButton && (
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close dialog"
+                className="p-2 -mr-1 min-h-11 min-w-11 flex items-center justify-center hover:bg-surface-hover rounded-lg transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                <X className="w-5 h-5 text-text-muted" aria-hidden="true" />
+              </button>
+            )}
           </div>
-        )}
-      </AnimatePresence>
+          <div className="p-4 sm:p-6 overflow-y-auto min-h-0">{children}</div>
+        </div>
+      </div>
     );
   }
 );

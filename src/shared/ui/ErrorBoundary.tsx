@@ -1,40 +1,26 @@
 import React from 'react';
 
-import { Home, Mail, RefreshCw } from 'lucide-react';
+import { Home, Mail, RefreshCw, Check, Copy } from '@/assets/icons';
 
-import { Logo } from '@/components/layout';
+import { Logo } from '@/shared/ui';
 
-import { logger } from '@utils';
+import { logger } from '@/shared/utils';
 
-/** Props for the `ErrorFallback` component. */
 interface ErrorFallbackProps {
   error: Error | null;
   resetErrorBoundary: () => void;
 }
 
-/** Support address users can reach to report an unrecoverable error. */
 const SUPPORT_EMAIL = 'contact@chessvision.org';
 
-/**
- * Full-page fallback UI displayed when `ErrorBoundary` catches an unhandled
- * render error. Professional, brand-led status screen — logo lockup, a precise
- * statement of the failure, recovery actions, and a way to report the error.
- * No raw error details are exposed to the user.
- */
-function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
-  const reportSubject = encodeURIComponent('ChessVision — Error report');
-  const reportBody = encodeURIComponent(
-    [
-      'Please describe what you were doing when the error occurred:',
-      '',
-      '',
-      '— — — — — — — — — —',
-      'Technical details (do not edit):',
-      `Reference: ${error?.name ?? 'UnknownError'}`,
-      `Page: ${typeof window !== 'undefined' ? window.location.href : 'unknown'}`
-    ].join('\n')
-  );
-  const reportHref = `mailto:${SUPPORT_EMAIL}?subject=${reportSubject}&body=${reportBody}`;
+function ErrorFallback({ resetErrorBoundary }: ErrorFallbackProps) {
+  const [copied, setCopied] = React.useState(false);
+
+  const handleCopyEmail = () => {
+    void navigator.clipboard.writeText(SUPPORT_EMAIL);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div
@@ -43,11 +29,10 @@ function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
       className="min-h-dvh w-full flex flex-col items-center justify-center px-6 py-16 bg-bg text-text-primary"
     >
       <div className="w-full max-w-md text-center animate-fadeIn">
-        {/* Brand lockup: the real accent-themed logo + wordmark. */}
         <div className="inline-flex items-center justify-center gap-3 mb-12">
           <Logo className="w-12 h-12 object-contain" />
           <span className="text-2xl font-display font-bold text-text-primary tracking-tight">
-            ChessVision
+            ChessViewer
           </span>
         </div>
 
@@ -81,22 +66,34 @@ function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
           </a>
         </div>
 
-        {/* Reporting channel: opens a pre-filled mail draft to support. */}
-        <p className="mt-10 text-sm text-text-secondary text-center">
-          If the problem persists, report it to{' '}
-          <a
-            href={reportHref}
-            className="inline-flex items-center gap-1 font-semibold text-accent hover:text-accent-hover underline-offset-4 hover:underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm"
-          >
-            <Mail className="w-4 h-4" aria-hidden="true" />
-            {SUPPORT_EMAIL}
-          </a>
-        </p>
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-2.5">
+          <p className="text-sm text-text-secondary">
+            If the problem persists, report it to
+          </p>
+          <div className="inline-flex items-center gap-1">
+            <span className="inline-flex items-center gap-1 font-semibold text-accent bg-accent/10 px-2 py-1 rounded-md">
+              <Mail className="w-4 h-4" aria-hidden="true" />
+              <span>{SUPPORT_EMAIL}</span>
+            </span>
+            <button
+              onClick={handleCopyEmail}
+              className="p-1.5 rounded-md bg-surface hover:bg-surface-hover text-text-secondary hover:text-text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              aria-label="Copy email address"
+              title="Copy email address"
+            >
+              {copied ? (
+                <Check className="w-4 h-4 text-green-500" aria-hidden="true" />
+              ) : (
+                <Copy className="w-4 h-4" aria-hidden="true" />
+              )}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
-/** Props for the `ErrorBoundary` class component. */
+
 interface ErrorBoundaryProps {
   children: React.ReactNode;
   fallback?: React.ReactNode;
@@ -113,13 +110,6 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-/**
- * React class-based error boundary.
- *
- * Catches unhandled render errors in the subtree and renders a fallback UI.
- * Supports custom `FallbackComponent`, a static `fallback` node, or defaults
- * to `ErrorFallback`.
- */
 class ErrorBoundary extends React.Component<
   ErrorBoundaryProps,
   ErrorBoundaryState
@@ -180,4 +170,5 @@ class ErrorBoundary extends React.Component<
     return this.props.children;
   }
 }
+
 export { ErrorBoundary };

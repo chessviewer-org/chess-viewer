@@ -8,18 +8,15 @@ import {
   useState
 } from 'react';
 
-import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight } from '@/assets/icons';
+import { useOutsideClick } from '@/shared/hooks';
+import styles from '../styles/ui.module.scss';
 
-/**
- * @param {Object} props
- * @returns {JSX.Element}
- */
 interface DatePickerProps {
   value: Date | string | number | null | undefined;
   onChange: (value: number | undefined) => void;
   placeholder?: string;
   label?: string;
-  /** Which edge of the trigger to align the dropdown to. Default: 'left' */
   align?: 'left' | 'right';
 }
 
@@ -57,7 +54,6 @@ const DatePicker = memo(function DatePicker({
     if (value) return new Date(value);
     return new Date();
   });
-  // The day that holds keyboard focus inside the grid (roving tabindex).
   const [focusedDay, setFocusedDay] = useState<number>(() => {
     if (value) return new Date(value).getDate();
     return new Date().getDate();
@@ -69,35 +65,19 @@ const DatePicker = memo(function DatePicker({
   const dialogLabelId = `${baseId}-dialog-label`;
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-    if (isOpen) {
-      // Detect if dropdown would overflow below the viewport; if so, open upward.
-      if (triggerRef.current) {
-        const rect = triggerRef.current.getBoundingClientRect();
-        const spaceBelow = window.innerHeight - rect.bottom;
-        setOpenUpward(spaceBelow < 360);
-      }
-      document.addEventListener('mousedown', handleClickOutside);
-      return () =>
-        document.removeEventListener('mousedown', handleClickOutside);
-    }
-    return undefined;
+    if (!isOpen || !triggerRef.current) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    setOpenUpward(spaceBelow < 360);
   }, [isOpen]);
+
+  useOutsideClick(containerRef, () => setIsOpen(false), isOpen);
 
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
   const daysInMonth = getDaysInMonth(year, month);
   const firstDay = getFirstDayOfMonth(year, month);
 
-  // When the calendar opens, seed focus on the selected/today day and move DOM
-  // focus into the grid so arrow keys work immediately.
   useLayoutEffect(() => {
     if (!isOpen) return;
     const seed = value
@@ -114,11 +94,9 @@ const DatePicker = memo(function DatePicker({
       `[data-day="${seedDay}"]`
     );
     node?.focus();
-    // Only run when the popup opens.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally runs only when the popup opens
   }, [isOpen]);
 
-  // Keep DOM focus on the focused day as it moves within the grid.
   useEffect(() => {
     if (!isOpen) return;
     const node = gridRef.current?.querySelector<HTMLButtonElement>(
@@ -164,7 +142,6 @@ const DatePicker = memo(function DatePicker({
     triggerRef.current?.focus();
   }, [onChange]);
 
-  // Move the focused day by `delta`, rolling into adjacent months as needed.
   const moveFocus = useCallback(
     (delta: number) => {
       const target = new Date(year, month, focusedDay + delta);
@@ -259,10 +236,7 @@ const DatePicker = memo(function DatePicker({
   return (
     <div className="relative" ref={containerRef}>
       {label && (
-        <label
-          id={`${baseId}-label`}
-          className="block text-xs font-semibold text-text-secondary mb-1.5"
-        >
+        <label id={`${baseId}-label`} className={styles['dpLabel']}>
           {label}
         </label>
       )}
@@ -274,12 +248,12 @@ const DatePicker = memo(function DatePicker({
         aria-haspopup="dialog"
         aria-expanded={isOpen}
         {...(label ? { 'aria-labelledby': `${baseId}-label` } : {})}
-        className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-sm text-text-primary focus:outline-none focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 flex items-center justify-between gap-2 hover:bg-surface-hover transition-colors"
+        className={styles['dpTrigger']}
       >
         <span className={value ? 'text-text-primary' : 'text-text-muted'}>
           {value ? formatDate(value) : placeholder}
         </span>
-        <Calendar aria-hidden="true" className="w-4 h-4 text-accent" />
+        <Calendar aria-hidden="true" className={styles['dpTriggerIcon']} />
       </button>
 
       {isOpen && (
@@ -287,23 +261,26 @@ const DatePicker = memo(function DatePicker({
           role="dialog"
           aria-modal="false"
           aria-labelledby={dialogLabelId}
-          className={`absolute z-30 w-72 max-w-[calc(100vw-2rem)] bg-surface-elevated border border-border rounded-xl shadow-2xl overflow-hidden ${openUpward ? 'bottom-full mb-2' : 'top-full mt-2'} ${align === 'right' ? 'right-0' : 'left-0'}`}
+          className={`${styles['dpDropdown']} ${openUpward ? 'bottom-full mb-2' : 'top-full mt-2'} ${align === 'right' ? 'right-0' : 'left-0'}`}
         >
-          <div className="bg-linear-to-r from-accent/10 to-accent/5 px-4 py-3 border-b border-border">
+          <div className={styles['dpHeader']}>
             <div className="flex items-center justify-between">
               <button
                 type="button"
                 onClick={handlePreviousMonth}
                 aria-label="Previous month"
-                className="p-1.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-accent/10 transition-colors"
+                className={styles['dpHeaderBtn']}
               >
-                <ChevronLeft aria-hidden="true" className="w-5 h-5" />
+                <ChevronLeft
+                  aria-hidden="true"
+                  className={styles['dpHeaderIcon']}
+                />
               </button>
 
               <div
                 id={dialogLabelId}
                 aria-live="polite"
-                className="text-sm font-bold text-text-primary"
+                className={styles['dpMonthTitle']}
               >
                 {MONTH_NAMES[month]} {year}
               </div>
@@ -312,20 +289,20 @@ const DatePicker = memo(function DatePicker({
                 type="button"
                 onClick={handleNextMonth}
                 aria-label="Next month"
-                className="p-1.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-accent/10 transition-colors"
+                className={styles['dpHeaderBtn']}
               >
-                <ChevronRight aria-hidden="true" className="w-5 h-5" />
+                <ChevronRight
+                  aria-hidden="true"
+                  className={styles['dpHeaderIcon']}
+                />
               </button>
             </div>
           </div>
 
           <div className="p-3">
-            <div className="grid grid-cols-7 gap-1 mb-2" aria-hidden="true">
+            <div className={styles['dpGrid']} aria-hidden="true">
               {WEEK_DAYS.map((day) => (
-                <div
-                  key={day}
-                  className="h-8 flex items-center justify-center text-xs font-semibold text-text-muted"
-                >
+                <div key={day} className={styles['dpWeekDay']}>
                   {day}
                 </div>
               ))}
@@ -336,7 +313,7 @@ const DatePicker = memo(function DatePicker({
               role="grid"
               aria-labelledby={dialogLabelId}
               onKeyDown={handleGridKeyDown}
-              className="grid grid-cols-7 gap-1"
+              className={styles['dpGrid']}
             >
               {Array.from(
                 { length: firstDay },
@@ -360,10 +337,13 @@ const DatePicker = memo(function DatePicker({
                     aria-label={formatLongDate(year, month, day)}
                     tabIndex={isFocusTarget ? 0 : -1}
                     onClick={() => handleDateSelect(day)}
-                    className={`
-                      h-8 flex items-center justify-center text-sm rounded-lg font-medium transition-all focus:outline-none focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2
-                      ${selected ? 'bg-accent text-bg shadow-md scale-105' : today ? 'bg-accent/20 text-accent font-bold' : 'text-text-primary hover:bg-surface-hover'}
-                    `}
+                    className={`${styles['dpDayCell']} ${
+                      selected
+                        ? styles['dpDaySelected']
+                        : today
+                          ? styles['dpDayToday']
+                          : styles['dpDayNormal']
+                    }`}
                   >
                     {day}
                   </button>
@@ -372,11 +352,11 @@ const DatePicker = memo(function DatePicker({
             </div>
           </div>
 
-          <div className="px-3 py-2 border-t border-border bg-surface flex items-center justify-between gap-2">
+          <div className={styles['dpFooter']}>
             <button
               type="button"
               onClick={handleClear}
-              className="text-xs font-semibold text-text-muted hover:text-error transition-colors px-3 py-1.5 rounded focus:outline-none focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
+              className={styles['dpFooterClear']}
             >
               Clear
             </button>
@@ -387,7 +367,7 @@ const DatePicker = memo(function DatePicker({
                 setIsOpen(false);
                 triggerRef.current?.focus();
               }}
-              className="text-xs font-semibold text-accent hover:text-text-primary-hover transition-colors px-3 py-1.5 rounded focus:outline-none focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
+              className={styles['dpFooterToday']}
             >
               Today
             </button>
