@@ -1,4 +1,4 @@
-import react from '@vitejs/plugin-react';
+import preact from '@preact/preset-vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
@@ -8,12 +8,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [
-    react(),
-    // Service Worker + precaching. The win here is hard-refresh (Ctrl+F5):
-    // it bypasses the HTTP cache but NOT the Service Worker cache, so once the
-    // SW is installed every reload serves JS/CSS/icons from cache instantly
-    // instead of re-downloading ~1.3MB over the network. `autoUpdate` ships a
-    // new SW on each deploy and activates it in the background.
+    preact(),
+
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: null, // we register manually in src/index.tsx
@@ -25,25 +21,16 @@ export default defineConfig({
       ],
       manifest: false, // keep the existing public/manifest.json
       workbox: {
-        // Precache the built app shell (hashed JS/CSS) so a hard refresh is
-        // served from cache. SPA navigations fall back to index.html.
-        // Piece SVGs are excluded from precache: there are 276 of them but a
-        // user only ever loads 1–2 styles, so they're runtime-cached on demand
-        // (see the /piece/ rule below) instead of bloating the precache.
         globPatterns: ['**/*.{js,css,html,ico,png,woff2}'],
         globIgnores: ['piece/**'],
         navigateFallback: '/index.html',
-        // Supabase API, the chess-DB edge function, and auth must always hit
-        // the network — never serve a stale cached response for them.
+
         navigateFallbackDenylist: [/^\/api/, /supabase/],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
         runtimeCaching: [
           {
-            // Self-hosted piece SVGs — immutable, cached on first use so only
-            // the styles a user actually opens are stored. StaleWhileRevalidate
-            // self-heals a bad entry on the next load.
             urlPattern: /\/piece\/.*\.svg$/i,
             handler: 'StaleWhileRevalidate',
             options: {
@@ -53,13 +40,11 @@ export default defineConfig({
             }
           },
           {
-            // Google Fonts stylesheets.
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'StaleWhileRevalidate',
             options: { cacheName: 'google-fonts-stylesheets' }
           },
           {
-            // Google Fonts webfont files — immutable.
             urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
             handler: 'CacheFirst',
             options: {
@@ -71,7 +56,6 @@ export default defineConfig({
         ]
       },
       devOptions: {
-        // Keep the SW off in `pnpm dev` so it never interferes with HMR.
         enabled: false
       }
     })
@@ -117,10 +101,6 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (!id.includes('node_modules')) return undefined;
-          if (id.includes('lucide-react')) return 'vendor-icons';
-          if (id.includes('framer-motion')) return 'vendor-motion';
-          if (id.includes('@dnd-kit')) return 'vendor-dnd';
-          if (id.includes('@supabase')) return 'vendor-supabase';
           if (
             id.includes('/react/') ||
             id.includes('/react-dom/') ||
@@ -150,9 +130,6 @@ export default defineConfig({
 
     cssCodeSplit: true,
 
-    // Inline only assets smaller than 4 KB (Vite default).
-    // Higher values would base64-encode SVG chess pieces into the JS bundle,
-    // increasing bundle size and disabling HTTP caching for those assets.
     assetsInlineLimit: 4096
   },
 
@@ -162,13 +139,7 @@ export default defineConfig({
   },
 
   optimizeDeps: {
-    include: [
-      'react',
-      'react-dom',
-      'react-router-dom',
-      '@dnd-kit/core',
-      'lucide-react'
-    ]
+    include: ['react', 'react-dom', 'react-router-dom']
   },
 
   envPrefix: 'VITE_',

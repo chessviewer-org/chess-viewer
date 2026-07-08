@@ -1,6 +1,6 @@
 {
-    "javascript.updateImportsOnFileMove.enabled": "always",
-    "typescript.updateImportsOnFileMove.enabled": "always",
+    "javascript.preferences.updateImportsOnFileMove": "always",
+    "typescript.preferences.updateImportsOnFileMove": "always",
     "files.watcherExclude": {
         "**/node_modules/**": true,
         "**/.git/objects/**": true,
@@ -27,5 +27,18 @@
             "[\"'`]([^\"'`]*).*?[\"'`]"
         ]
     ],
-    "tailwindCSS.lint.unknownClass": "ignore"
+    "tailwindCSS.lint.unknownClass": "ignore",
+    "deno.enablePaths": ["supabase/functions"],
+    "deno.lint": true,
+    "deno.unstable": [],
+    "deno.path": "/home/webman/.deno/bin/deno",
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "json.schemas": [
+        {
+            "fileMatch": ["/supabase/functions/deno.json"],
+            "url": "./.vscode/dummy-schema.json"
+        }
+    ]
 }

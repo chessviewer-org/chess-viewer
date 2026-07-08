@@ -3,39 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="author" content="ChessVision" />
+    <meta name="author" content="ChessViewer" />
     <meta
       name="google-site-verification"
       content="JOQDA_IVktrTpKqQ6hedH3jk7ixrSYA_WZMT5QLSOOU"
     />
 
-    <!-- prerender:strip:start -->
     <meta
       name="description"
       content="Free chess diagram generator — convert FEN to PNG, JPEG, or SVG in seconds. Professional-quality chess diagrams for books, articles, and social media. No sign-up required."
     />
+    <!-- prerender:strip:start -->
     <meta
       name="keywords"
-      content="chess diagram generator, FEN to image, FEN to PNG, chess diagram maker, chess FEN converter, chess position image, chessvision, chess diagram export, FEN to SVG"
+      content="chess diagram generator, FEN to image, FEN to PNG, chess diagram maker, chess FEN converter, chess position image, chessviewer, chess diagram export, FEN to SVG"
     />
 
-    <!--
-      Static SEO / social-sharing fallbacks for the home route. These are the
-      tags non-JS crawlers (Twitter, Facebook, LinkedIn, WhatsApp, Slack) read
-      before any JavaScript runs. The `<Seo>` component overrides them
-      per route at runtime, and the build-time prerender step bakes the correct
-      per-route tags into each page's HTML. Keep these in sync with the home
-      entry of src/shared/constants/seoConstants.ts.
-    -->
     <link rel="canonical" href="https://chessvision.org/" />
     <meta name="robots" content="index, follow" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="ChessVision" />
+    <meta property="og:site_name" content="ChessViewer" />
     <meta
       property="og:title"
-      content="ChessVision — Free Chess Diagram Generator"
+      content="ChessViewer — Free Chess Diagram Generator"
     />
     <meta
       property="og:description"
@@ -47,7 +39,7 @@
     <meta property="og:image:height" content="630" />
     <meta
       property="og:image:alt"
-      content="ChessVision — Chess Diagram Generator"
+      content="ChessViewer — Chess Diagram Generator"
     />
     <meta property="og:locale" content="en_US" />
 
@@ -56,7 +48,7 @@
     <meta name="twitter:site" content="@chessvision_org" />
     <meta
       name="twitter:title"
-      content="ChessVision — Free Chess Diagram Generator"
+      content="ChessViewer — Free Chess Diagram Generator"
     />
     <meta
       name="twitter:description"
@@ -65,7 +57,7 @@
     <meta name="twitter:image" content="https://chessvision.org/og-image.png" />
     <meta
       name="twitter:image:alt"
-      content="ChessVision chess diagram generator preview"
+      content="ChessViewer chess diagram generator preview"
     />
     <!-- prerender:strip:end -->
 
@@ -82,14 +74,6 @@
     <!-- Theme Color -->
     <meta name="theme-color" content="#111827" />
 
-    <!--
-      CRITICAL CSS — paints the themed body background on first paint to
-      eliminate the white flash (FOUC) on hard refresh, before the external
-      stylesheet (~109KB, render-blocking) has loaded. `theme-init.js` sets
-      `data-theme` synchronously below, so the correct color is chosen before
-      the first paint. RGB values mirror `--val-bg`/gradient tokens in
-      src/index.css; the external stylesheet takes over seamlessly once loaded.
-    -->
     <style>
       html {
         background-color: rgb(15 15 20);
@@ -113,14 +97,6 @@
         );
       }
 
-      /*
-        APP SPLASH — shown only on the very first visit (before the Service
-        Worker has cached the bundle). It paints a branded spinner over the
-        themed background so the user never sees a blank screen while the
-        ~1.3MB bundle downloads. React replaces #root on mount, removing the
-        splash with it; #app-splash also fades out via the .app-ready class
-        set in src/App once the tree is interactive.
-      */
       #app-splash {
         position: fixed;
         inset: 0;
@@ -159,22 +135,13 @@
       }
     </style>
 
-    <!--
-      Fonts are SELF-HOSTED: Inter (variable) is bundled via
-      @fontsource-variable/inter (imported in src/index.tsx) and served from our
-      own origin. No Google Fonts request — privacy-first, no third-party
-      network call, no FOUC / font-swap drift across loads, and no font-src CSP
-      entry needed for external hosts.
-    -->
-
-    <title>ChessVision — Free Chess Diagram Generator</title>
+    <title>ChessViewer — Free Chess Diagram Generator</title>
   </head>
   <body class="preload">
     <script src="/theme-init.js"></script>
 
     <div id="root"></div>
 
-    <!-- First-paint splash; removed once the app is interactive (see src/App). -->
     <div id="app-splash" aria-hidden="true">
       <div class="app-splash-spinner"></div>
     </div>
