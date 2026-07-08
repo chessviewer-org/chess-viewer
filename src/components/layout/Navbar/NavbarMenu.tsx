@@ -140,6 +140,7 @@ function AuthActions({
   const prefetch = usePrefetchRoute();
 
   if (isAuthenticated) {
+    const iconSizeOnly = iconSize.replace(/text-\S+/g, '').trim();
     return (
       <button
         type="button"
@@ -149,8 +150,8 @@ function AuthActions({
         }}
         className={styles['menuItemDanger']}
       >
-        <LogOut className={`${iconSize} text-error`} aria-hidden="true" />
-        <span>Sign Out</span>
+        <LogOut className={`${iconSizeOnly} text-error`} aria-hidden="true" />
+        <span className="text-error">Sign Out</span>
       </button>
     );
   }
