@@ -1,6 +1,6 @@
-# Copilot Instructions for ChessVision
+# Copilot Instructions for ChessViewer
 
-ChessVision is a React 19 + TypeScript (strict) + Vite chess board editor and
+ChessViewer is a React 19 + TypeScript (strict) + Vite chess board editor and
 export tool, backed by Supabase. Use these instructions when generating commit
 messages, reviewing pull requests, and suggesting code.
 

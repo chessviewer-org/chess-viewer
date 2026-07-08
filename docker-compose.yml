@@ -4,8 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: production
-    image: chess-vision:latest
-    container_name: chess-vision-web
+    image: chess-viewer:latest
+    container_name: chess-viewer-web
     ports:
       - '3000:8080'
     healthcheck:
@@ -26,15 +26,15 @@ services:
       context: .
       dockerfile: Dockerfile
       target: development
-    container_name: chess-vision-dev
+    container_name: chess-viewer-dev
     ports:
       - '5173:5173'
     environment:
       - CHOKIDAR_USEPOLLING=true
     volumes:
       - .:/app
-      - chess-vision-node-modules:/app/node_modules
+      - chess-viewer-node-modules:/app/node_modules
     restart: unless-stopped
 
 volumes:
-  chess-vision-node-modules:
+  chess-viewer-node-modules:
