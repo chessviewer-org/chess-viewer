@@ -533,7 +533,7 @@ function InfoRow({
 
 function MembershipRow({ tier }: { tier: MembershipTier }) {
   return (
-    <div className="flex flex-col gap-2 px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-row items-center justify-between gap-2 px-5 py-3.5">
       <span className="flex items-center gap-2 text-sm text-text-secondary">
         <Heart className="h-4 w-4 text-text-muted" aria-hidden="true" />
         Membership

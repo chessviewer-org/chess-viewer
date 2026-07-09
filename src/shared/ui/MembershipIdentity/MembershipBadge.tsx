@@ -37,26 +37,20 @@ export function MembershipBadge({
   tier,
   variant = 'badge'
 }: MembershipBadgeProps) {
-  const Icon = tier.id === 'none' ? Heart : TONE_ICON[tier.tone];
-
   if (tier.id === 'none') {
-    const plainClasses =
-      'mt-1 flex items-center gap-1.5 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors';
-    const badgeClasses =
-      'inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-sm font-semibold text-accent transition-colors hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface-elevated';
-
     return (
       <a
         href={DONATE_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className={variant === 'plain' ? plainClasses : badgeClasses}
+        className="text-sm font-bold text-warning transition-colors hover:text-warning/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-warning focus-visible:ring-offset-2 focus-visible:ring-offset-surface-elevated"
       >
-        <Icon className="h-3.5 w-3.5" aria-hidden="true" />
         Donate now
       </a>
     );
   }
+
+  const Icon = TONE_ICON[tier.tone];
 
   if (variant === 'plain') {
     return (
