@@ -6,6 +6,7 @@ const resvgWasm = await fetch(
 ).then((res: Response) => res.arrayBuffer());
 await initWasm(resvgWasm);
 
+// Constants
 const DEFAULT_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
 const PIECE_NAMES = [
   'wK',
@@ -37,6 +38,7 @@ await Promise.all(
   })
 );
 
+// Handler
 Deno.serve(async (req) => {
   try {
     const url = new URL(req.url);
