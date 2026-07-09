@@ -2,6 +2,7 @@ import type { PlacedPiece, SearchResponse } from '../types.ts';
 import { fetchText } from '../utils/fetch.ts';
 import { logDrift, trace } from '../utils/trace.ts';
 
+// Constants
 const PDB_PIECE: Record<string, string> = {
   K: 'K',
   Q: 'D',
@@ -11,6 +12,7 @@ const PDB_PIECE: Record<string, string> = {
   P: 'B'
 };
 
+// Helpers
 function buildExpression(pieces: PlacedPiece[]): string {
   const tokens = pieces.map(
     (p) => `${p.white ? 'w' : 's'}${PDB_PIECE[p.piece] ?? '?'}${p.square}`
@@ -22,6 +24,7 @@ export function pdbUrl(pieces: PlacedPiece[]): string {
   return `https://pdb.dieschwalbe.de/search.jsp?expression=${encodeURIComponent(buildExpression(pieces))}`;
 }
 
+// Search
 export async function searchPdb(
   pieces: PlacedPiece[]
 ): Promise<SearchResponse> {

@@ -68,12 +68,14 @@ export function ExternalLinkButton({
   href,
   icon: Icon,
   children,
-  variant = 'neutral'
+  variant = 'neutral',
+  className = ''
 }: {
   href: string;
   icon: LucideIcon;
   children: ReactNode;
   variant?: 'primary' | 'neutral';
+  className?: string;
 }) {
   const variantClass =
     variant === 'primary' ? styles['btnPrimary'] : styles['btnNeutral'];
@@ -82,7 +84,7 @@ export function ExternalLinkButton({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className={`${styles['btn']} ${variantClass}`}
+      className={`${styles['btn']} ${variantClass} ${className}`}
     >
       <Icon className="h-4 w-4" aria-hidden="true" />
       {children}
@@ -94,18 +96,23 @@ export function MailButton({
   email,
   subject,
   icon: Icon,
-  children
+  children,
+  className = ''
 }: {
   email: string;
   subject?: string;
   icon: LucideIcon;
   children: ReactNode;
+  className?: string;
 }) {
   const href = subject
     ? `mailto:${email}?subject=${encodeURIComponent(subject)}`
     : `mailto:${email}`;
   return (
-    <a href={href} className={`${styles['btn']} ${styles['btnNeutral']}`}>
+    <a
+      href={href}
+      className={`${styles['btn']} ${styles['btnNeutral']} ${className}`}
+    >
       <Icon className="h-4 w-4" aria-hidden="true" />
       {children}
     </a>

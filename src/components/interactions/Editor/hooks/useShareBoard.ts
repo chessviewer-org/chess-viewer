@@ -5,6 +5,7 @@ export interface SharePayload {
   positionUrl: string;
 }
 
+// Helpers
 function buildPositionUrl(fen: string): string {
   const url = new URL(window.location.origin + window.location.pathname);
   url.searchParams.set('fen', fen);

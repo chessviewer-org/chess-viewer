@@ -16,11 +16,7 @@ import {
   X
 } from '@/assets/icons';
 
-import {
-  useNotifications,
-  usePagination,
-  useThemePresets
-} from '@hooks';
+import { useNotifications, usePagination, useThemePresets } from '@hooks';
 import { BOARD_THEMES } from '@constants';
 
 import { Pagination } from '@ui';

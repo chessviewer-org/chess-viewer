@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useRef } from 'react';
 import type { ChessDragData } from '@constants';
 
+// Types
 export interface DragSession {
   dragData: ChessDragData;
   ghost: HTMLDivElement;
@@ -19,6 +20,7 @@ export interface DragContextValue {
   unregisterDropTarget(id: string): void;
 }
 
+// Context
 export const DragCtx = createContext<DragContextValue>({
   active: null,
   overId: null,
@@ -31,6 +33,7 @@ export function useDragContext() {
   return useContext(DragCtx);
 }
 
+// Draggable
 interface UseDraggableOptions {
   data: ChessDragData;
   cellSize: number;
@@ -85,6 +88,7 @@ export function useDraggable({
   return { isDragging, onPointerDown };
 }
 
+// Droppable
 interface UseDroppableOptions {
   id: string;
   data: Record<string, unknown>;

@@ -6,6 +6,7 @@ import { AuthProvider } from '@/auth';
 import App from './App';
 
 import './index.css';
+import './styles/_patterns.scss';
 
 render(
   <StrictMode>

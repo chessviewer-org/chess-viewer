@@ -1,11 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { BoardStylePanel, DisplayOptions } from '@/components/features';
-import {
-  useBoardPieceSet,
-  useDebouncedCommit,
-  usePieceImages
-} from '@hooks';
+import { useBoardPieceSet, useDebouncedCommit, usePieceImages } from '@hooks';
 import {
   DEFAULT_DARK_SQUARE,
   DEFAULT_LIGHT_SQUARE,

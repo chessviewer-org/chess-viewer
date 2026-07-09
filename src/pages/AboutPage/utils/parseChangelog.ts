@@ -1,3 +1,4 @@
+// Types
 export type ChangelogCategory =
   | 'Features'
   | 'Bug Fixes'
@@ -30,6 +31,7 @@ export interface ChangelogYear {
   months: ChangelogMonth[];
 }
 
+// Constants
 const CATEGORY_TITLES: ReadonlySet<string> = new Set([
   'Features',
   'Bug Fixes',
@@ -45,6 +47,7 @@ const SCOPE_RE = /^\*\*([^*]+):\*\*\s*/;
 const HASH_LINK_RE = /\(\[#?([0-9a-f]{7})\]\(([^)]+)\)\)/;
 const CLOSES_RE = /,?\s*closes\s+\[#(\d+)\]\(([^)]+)\)/i;
 
+// Helpers
 function parseEntry(line: string): ChangelogEntry {
   let rest = line;
 
@@ -147,6 +150,7 @@ function parseMonths(source: string): ChangelogMonth[] {
   return months;
 }
 
+// Parser
 export function parseChangelog(source: string): ChangelogYear[] {
   const months = parseMonths(source);
   const years: ChangelogYear[] = [];

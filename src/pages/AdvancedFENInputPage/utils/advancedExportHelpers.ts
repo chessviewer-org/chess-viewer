@@ -1,9 +1,4 @@
-import {
-  downloadJPEG,
-  downloadPNG,
-  downloadSVG,
-  ExportConfig
-} from '@/shared/utils';
+import { downloadJPEG, downloadPNG, downloadSVG, ExportConfig } from '@utils';
 
 export const runFormatExport = async (
   format: string,

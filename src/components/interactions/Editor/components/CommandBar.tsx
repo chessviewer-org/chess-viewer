@@ -13,6 +13,7 @@ interface CommandBarProps {
   onDownload?: (() => void) | undefined;
 }
 
+// Helpers
 const iconButton =
   'p-1.5 rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent';
 

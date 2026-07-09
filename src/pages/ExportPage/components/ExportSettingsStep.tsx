@@ -7,6 +7,7 @@ import type {
   useExportWizard
 } from '../hooks/useExportWizard';
 
+// Constants
 const FORMATS: { value: ExportFormat; label: string }[] = [
   { value: 'jpeg', label: 'JPEG' },
   { value: 'png', label: 'PNG' },
@@ -16,6 +17,7 @@ const FORMATS: { value: ExportFormat; label: string }[] = [
 const RESOLUTIONS: ExportResolution[] = [1, 2, 3, 4];
 const BOARD_PRESETS: BoardSizePreset[] = [4, 6, 8];
 
+// Types
 export interface ExportSettingsStepProps {
   wizard: ReturnType<typeof useExportWizard>;
   onExport: () => void;
@@ -40,7 +42,7 @@ export default function ExportSettingsStep({
     <div className="flex h-full flex-col overflow-y-auto p-4 @3xl:p-5 gap-6">
       <div className="flex flex-col gap-6">
         <div className="space-y-2.5">
-          <h3 className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
+          <h3 className="section-eyebrow">
             Format
           </h3>
           <div className="flex w-full rounded-lg border border-border/60 overflow-hidden">
@@ -78,7 +80,7 @@ export default function ExportSettingsStep({
         </div>
 
         <div className="space-y-2.5">
-          <h3 className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
+          <h3 className="section-eyebrow">
             Quality
           </h3>
           <div className="flex w-full gap-2">
@@ -96,7 +98,7 @@ export default function ExportSettingsStep({
         </div>
 
         <div className="space-y-2.5">
-          <h3 className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
+          <h3 className="section-eyebrow">
             Board Size
           </h3>
           <div className="flex w-full items-center gap-2">
@@ -136,7 +138,7 @@ export default function ExportSettingsStep({
         </div>
 
         <div className="space-y-2.5">
-          <h3 className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
+          <h3 className="section-eyebrow">
             File Name
           </h3>
           <input

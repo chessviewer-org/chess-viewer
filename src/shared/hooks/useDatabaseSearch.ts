@@ -4,8 +4,9 @@ import {
   PROVIDER_LABEL,
   searchPositionDatabases,
   validateFEN
-} from '@/shared/utils';
+} from '@utils';
 
+// Types
 type ProviderSearchStatus =
   | 'idle'
   | 'searching'
@@ -28,6 +29,7 @@ export interface UseDatabaseSearchResult {
   searchAll: () => void;
 }
 
+// Constants
 const PROVIDERS: DatabaseProvider[] = ['lichess', 'chessdb', 'pdb', 'yacpdb'];
 
 interface ProviderData {

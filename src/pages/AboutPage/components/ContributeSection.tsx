@@ -19,7 +19,7 @@ import { ExternalLinkButton, InfoCard, Lead, SectionHeading } from './parts';
 
 export default function ContributeSection() {
   return (
-    <div className="space-y-8 animate-pageEnter">
+    <div className="space-y-8 stagger-children">
       <div className="space-y-3">
         <SectionHeading icon={Code2} title="Contribute" />
         <Lead>
@@ -63,11 +63,13 @@ export default function ContributeSection() {
           run a modified version, you must make your source available under the
           same license.
         </p>
-        <div className="pt-1">
-          <ExternalLinkButton href={REPO_LICENSE_URL} icon={Scale}>
-            Read the license
-          </ExternalLinkButton>
-        </div>
+        <ExternalLinkButton
+          href={REPO_LICENSE_URL}
+          icon={Scale}
+          className="mt-1"
+        >
+          Read the license
+        </ExternalLinkButton>
       </InfoCard>
 
       <InfoCard title="Ways to help">

@@ -45,9 +45,7 @@ export const BoardStylePanel = memo(function BoardStylePanel({
 
       <div>
         <div className="mb-2 flex items-end justify-between gap-3 shrink-0">
-          <span className="block section-eyebrow">
-            Piece set
-          </span>
+          <span className="block section-eyebrow">Piece set</span>
           <div className="w-40 shrink-0">
             <CustomSelect
               value={pieceSort}

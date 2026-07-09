@@ -46,7 +46,7 @@ const AccountSection = memo(function AccountSection() {
   const provider = formatProvider(user?.app_metadata?.provider);
 
   return (
-    <div className="space-y-5 animate-pageEnter">
+    <div className="space-y-5 stagger-children">
       <SettingsHeading icon={UserIcon} title="Account" />
       <IdentityHeader
         displayName={displayName}
@@ -105,7 +105,7 @@ const AccountSection = memo(function AccountSection() {
             <button
               type="button"
               onClick={() => openAuthModal('signin')}
-              className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-5 py-2.5 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+              className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-5 py-2.5 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-hover focus-ring"
             >
               <LogIn className="h-4 w-4" aria-hidden="true" />
               Sign In

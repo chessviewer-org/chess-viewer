@@ -7,7 +7,7 @@ import {
   pageScrollBy,
   pageScrollToY,
   getPageScrollMax
-} from '@/shared/utils';
+} from '@utils';
 
 export function useEscapeKey(onEscape: () => void): void {
   useEffect(() => {

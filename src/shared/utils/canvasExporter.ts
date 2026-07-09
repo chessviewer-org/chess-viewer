@@ -16,6 +16,7 @@ import {
 import { FileSizeEstimates } from './imageOptimizer';
 import { saveBlob } from './saveBlob';
 
+// Types
 export type ProgressCallback = (
   progress: number,
   label?: string | null
@@ -58,6 +59,7 @@ export interface ExportInfo {
 
 export { cancelExport, getExportInfo, pauseExport, resumeExport };
 
+// Service
 export async function getRasterBlob(
   config: ExportConfig,
   format: 'png' | 'jpeg',

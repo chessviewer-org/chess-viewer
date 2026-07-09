@@ -5,12 +5,9 @@ import { InfoCard, Lead, SectionHeading } from './parts';
 
 export default function PrivacySection() {
   return (
-    <div className="space-y-8 animate-pageEnter">
+    <div className="space-y-8 stagger-children">
       <div className="space-y-3">
-        <SectionHeading
-          icon={Shield}
-          title="Privacy: your data is none of our business"
-        />
+        <SectionHeading icon={Shield} title="Privacy" />
         <Lead>
           ChessViewer is built on a simple, transparent idea: your personal
           information and what you do here is absolutely none of our business.

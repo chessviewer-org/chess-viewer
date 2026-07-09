@@ -15,7 +15,7 @@ import {
 
 export default function ContactSection() {
   return (
-    <div className="space-y-8 animate-pageEnter">
+    <div className="space-y-8 stagger-children">
       <div className="space-y-3">
         <SectionHeading icon={Mail} title="Contact" />
         <Lead>
@@ -34,15 +34,14 @@ export default function ContactSection() {
           write down which browser you&apos;re using and walk through how the
           bug happened. The more detail you give us, the faster we can fix it.
         </p>
-        <div className="pt-1">
-          <ExternalLinkButton
-            href={REPO_ISSUES_URL}
-            icon={Bug}
-            variant="primary"
-          >
-            Open a GitHub issue
-          </ExternalLinkButton>
-        </div>
+        <ExternalLinkButton
+          href={REPO_ISSUES_URL}
+          icon={Bug}
+          variant="primary"
+          className="mt-1"
+        >
+          Open a GitHub issue
+        </ExternalLinkButton>
       </InfoCard>
 
       <InfoCard title="Got a question or want to discuss something?">
@@ -53,11 +52,13 @@ export default function ContactSection() {
           of it as an open forum: the question you ask and the answer you get
           will help someone else running into the same thing later.
         </p>
-        <div className="pt-1">
-          <ExternalLinkButton href={REPO_DISCUSSIONS_URL} icon={MessageSquare}>
-            Start a discussion
-          </ExternalLinkButton>
-        </div>
+        <ExternalLinkButton
+          href={REPO_DISCUSSIONS_URL}
+          icon={MessageSquare}
+          className="mt-1"
+        >
+          Start a discussion
+        </ExternalLinkButton>
       </InfoCard>
 
       <InfoCard title="For personal matters (email)">

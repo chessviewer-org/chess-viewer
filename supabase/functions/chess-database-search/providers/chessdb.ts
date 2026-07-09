@@ -2,10 +2,12 @@ import type { SearchResponse } from '../types.ts';
 import { fetchText } from '../utils/fetch.ts';
 import { trace } from '../utils/trace.ts';
 
+// Helpers
 export function chessdbHumanUrl(fen: string): string {
   return `https://www.chessdb.cn/queryc_en/?${fen.trim().replace(/ /g, '_')}`;
 }
 
+// Search
 export async function searchChessdb(fen: string): Promise<SearchResponse> {
   const url = chessdbHumanUrl(fen);
   const miss: SearchResponse = { found: false, database: 'CHESSDB', url };

@@ -8,6 +8,7 @@ import styles from '../styles/advanced-fen-layout.module.scss';
 import type { ExportFormat, useAdvancedFEN } from '../hooks/useAdvancedFEN';
 import PlaybackControls from './PlaybackControls';
 
+// Constants
 const { INTERVAL_OPTIONS } = ADVANCED_FEN_CONFIG;
 
 const FORMAT_LABEL: Record<ExportFormat, string> = {
@@ -18,6 +19,7 @@ const FORMAT_LABEL: Record<ExportFormat, string> = {
 
 const FORMAT_ORDER: ExportFormat[] = ['jpeg', 'png', 'svg'];
 
+// Helpers
 function formatFormats(formats: ExportFormat[]): string {
   const labels = FORMAT_ORDER.filter((f) => formats.includes(f)).map(
     (f) => FORMAT_LABEL[f]
@@ -42,6 +44,7 @@ function SummaryBadge({
   );
 }
 
+// Types
 type AdvancedFENReturn = ReturnType<typeof useAdvancedFEN>;
 
 interface InteractiveBoardColumnProps {

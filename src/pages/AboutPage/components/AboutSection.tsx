@@ -5,7 +5,7 @@ import { FactList, FactRow, InfoCard, Lead, SectionHeading } from './parts';
 
 export default function AboutSection() {
   return (
-    <div className="space-y-10 animate-pageEnter">
+    <div className="space-y-10 stagger-children">
       <div className="space-y-3">
         <SectionHeading icon={Info} title="About ChessViewer" />
         <Lead>

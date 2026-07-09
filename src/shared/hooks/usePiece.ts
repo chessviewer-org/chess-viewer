@@ -1,13 +1,13 @@
 import { useCallback, useMemo, useRef, useEffect } from 'react';
-import type { PieceSort } from '@/shared/utils';
 import {
   AVAILABLE_PIECE_SETS,
   hydrateFromSync,
-  sortPieceSets
-} from '@/shared/utils';
+  logger,
+  sortPieceSets,
+  type PieceSort
+} from '@utils';
 import { syncStorage } from '@/auth';
 import { useLocalStorage } from './useLocalStorage';
-import { logger } from '@/shared/utils';
 
 export function usePieceSort() {
   const [pieceSort, setPieceSort] = useLocalStorage<PieceSort>(

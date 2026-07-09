@@ -19,7 +19,7 @@ function Ext({ href, children }: { href: string; children: ReactNode }) {
 
 export default function ThanksSection() {
   return (
-    <div className="space-y-8 animate-pageEnter">
+    <div className="space-y-8 stagger-children">
       <div className="space-y-3">
         <SectionHeading icon={HeartHandshake} title="Thanks" />
         <Lead>
