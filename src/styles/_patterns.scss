@@ -1,0 +1,35 @@
+@reference '../index.css';
+
+@layer components {
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg;
+  }
+
+  .card {
+    @apply rounded-xl border border-border bg-surface p-4;
+  }
+
+  .card-elevated {
+    @apply rounded-2xl border border-border bg-surface-elevated p-5;
+  }
+
+  .card-title {
+    @apply mb-1 flex items-center gap-2 text-sm font-bold text-text-primary;
+  }
+
+  .icon-circle {
+    @apply flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 text-accent;
+  }
+
+  .input-field {
+    @apply w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text-primary outline-none transition-colors duration-200 placeholder:text-text-muted disabled:opacity-60;
+  }
+
+  .form-label {
+    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-text-secondary;
+  }
+
+  .section-eyebrow {
+    @apply text-[10px] font-bold uppercase tracking-wider text-text-muted;
+  }
+}

@@ -9,10 +9,11 @@ import {
   rgbToHsv,
   sanitizeHexColor,
   sanitizeInput
-} from '@/shared/utils';
+} from '@utils';
 import { SaturationField } from './SaturationField';
 import styles from '../styles/color-picker.module.scss';
 
+// Constants
 const MAX_NAME_LEN = 10;
 const DEFAULT_LIGHT = BOARD_THEMES['classic']?.light ?? '#f0d9b5';
 const DEFAULT_DARK = BOARD_THEMES['classic']?.dark ?? '#b58863';

@@ -57,10 +57,6 @@ html[data-reduced-motion='reduce'] .marching-ants {
   animation: cardReveal 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
   will-change: opacity, transform;
 }
-.animate-pageEnter {
-  animation: pageEnter 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: opacity, transform;
-}
 .animate-shimmer {
   background: linear-gradient(
     90deg,

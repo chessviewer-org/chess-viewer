@@ -4,10 +4,10 @@ import {
   BoardThemePicker,
   PieceGridShared
 } from '@/components/features/ColorPicker';
-import { usePieceSort } from '@/shared/hooks';
+import { usePieceSort } from '@hooks';
 import { PIECE_SORT_OPTIONS } from '@constants';
 
-import { CustomSelect } from '@shared/ui';
+import { CustomSelect } from '@ui';
 
 export interface BoardStylePanelProps {
   lightSquare: string;
@@ -45,7 +45,7 @@ export const BoardStylePanel = memo(function BoardStylePanel({
 
       <div>
         <div className="mb-2 flex items-end justify-between gap-3 shrink-0">
-          <span className="block text-[10px] font-bold uppercase tracking-wider text-text-muted">
+          <span className="block section-eyebrow">
             Piece set
           </span>
           <div className="w-40 shrink-0">

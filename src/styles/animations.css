@@ -106,7 +106,18 @@
 @keyframes pageEnter {
   from {
     opacity: 0;
-    transform: translate3d(0, 16px, 0);
+    transform: translate3d(0, 20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes staggerItem {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
   }
   to {
     opacity: 1;
@@ -208,7 +219,7 @@
   will-change: opacity, transform;
 }
 .animate-page-enter {
-  animation: pageEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: pageEnter 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
   will-change: opacity, transform;
 }
 .page-transition-slot--entering > .animate-page-enter {
@@ -217,6 +228,57 @@
 .animate-loader-in {
   animation: fadeIn 0.3s ease 0.25s both;
   will-change: opacity, transform;
+}
+
+/* Staggered children reveal — apply .stagger-children to the parent; every
+   direct child fades up in sequence, one after another, up to 10 deep. */
+.stagger-children > * {
+  animation: staggerItem 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+.stagger-children > *:nth-child(1) {
+  animation-delay: 0.2s;
+}
+.stagger-children > *:nth-child(2) {
+  animation-delay: 0.3s;
+}
+.stagger-children > *:nth-child(3) {
+  animation-delay: 0.4s;
+}
+.stagger-children > *:nth-child(4) {
+  animation-delay: 0.5s;
+}
+.stagger-children > *:nth-child(5) {
+  animation-delay: 0.6s;
+}
+.stagger-children > *:nth-child(6) {
+  animation-delay: 0.7s;
+}
+.stagger-children > *:nth-child(7) {
+  animation-delay: 0.8s;
+}
+.stagger-children > *:nth-child(8) {
+  animation-delay: 0.9s;
+}
+.stagger-children > *:nth-child(9) {
+  animation-delay: 1s;
+}
+.stagger-children > *:nth-child(n + 10) {
+  animation-delay: 1.1s;
+}
+
+/* Scroll-triggered reveal — pair with an IntersectionObserver that adds
+   .is-visible once the element enters the viewport (see useScrollReveal). */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translate3d(0, 20px, 0);
+  transition:
+    opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: opacity, transform;
+}
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
 }
 @keyframes shrinkX {
   from {

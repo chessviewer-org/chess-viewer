@@ -5,14 +5,14 @@ import {
   useBoardPieceSet,
   useDebouncedCommit,
   usePieceImages
-} from '@/shared/hooks';
+} from '@hooks';
 import {
   DEFAULT_DARK_SQUARE,
   DEFAULT_LIGHT_SQUARE,
   PERSIST_DEBOUNCE_MS
 } from '@constants';
 
-import { sanitizeHexColor } from '@/shared/utils';
+import { sanitizeHexColor } from '@utils';
 import type { HomeStateForExport } from '../utils/ExportPage.types';
 import styles from '../styles/board-style-step.module.scss';
 import BoardPreviewCanvas from './BoardPreviewCanvas';

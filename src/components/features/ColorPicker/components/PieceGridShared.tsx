@@ -1,12 +1,14 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 
-import { usePagination } from '@/shared/hooks';
+import { usePagination } from '@hooks';
 import type { PieceSet } from '@app-types';
 
-import { Pagination } from '@shared/ui';
+import { Pagination } from '@ui';
 
+// Constants
 const DEFAULT_PIECE_ROWS = 2;
 
+// Helpers
 function colsForViewport(): number {
   if (typeof window === 'undefined') return 4;
   if (window.matchMedia('(min-width: 1024px)').matches) return 8; // lg
@@ -14,6 +16,7 @@ function colsForViewport(): number {
   return 4; // mobile
 }
 
+// Types
 export interface PieceGridSharedProps {
   sets: PieceSet[];
 

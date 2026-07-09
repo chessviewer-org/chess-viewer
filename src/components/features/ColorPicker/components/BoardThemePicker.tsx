@@ -1,4 +1,4 @@
-import React, {
+import {
   Fragment,
   memo,
   useCallback,
@@ -16,15 +16,20 @@ import {
   X
 } from '@/assets/icons';
 
-import { useNotifications, useThemePresets } from '@/shared/hooks';
+import {
+  useNotifications,
+  usePagination,
+  useThemePresets
+} from '@hooks';
 import { BOARD_THEMES } from '@constants';
 
-import { Pagination } from '@shared/ui';
+import { Pagination } from '@ui';
 
 import { ColorPickerPanel } from './ColorPickerPanel';
 import { Swatch } from './Swatch';
 import styles from '../styles/color-picker.module.scss';
 
+// Types
 interface BoardThemePickerProps {
   lightSquare: string;
   darkSquare: string;
@@ -32,6 +37,7 @@ interface BoardThemePickerProps {
   maxRows?: number;
 }
 
+// Constants
 const MAX_NAME_LEN = 10;
 const DEFAULT_LIGHT = BOARD_THEMES['classic']?.light ?? '#f0d9b5';
 const DEFAULT_DARK = BOARD_THEMES['classic']?.dark ?? '#b58863';
@@ -43,6 +49,7 @@ const MAIN_THEMES = Object.entries(BOARD_THEMES).map(([key, t]) => ({
   dark: t.dark
 }));
 
+// Helpers
 function colsFromWidth(px: number): number {
   if (px >= 700) return 10;
   if (px >= 600) return 9;
@@ -69,7 +76,6 @@ export const BoardThemePicker = memo(function BoardThemePicker({
   const { warning } = useNotifications();
 
   const [tab, setTab] = useState<ActiveTab>('main');
-  const [mainPage, setMainPage] = useState(0);
 
   const [saveTarget, setSaveTarget] = useState<{
     id?: number;
@@ -79,7 +85,6 @@ export const BoardThemePicker = memo(function BoardThemePicker({
   } | null>(null);
 
   const returnToPageRef = useRef(0);
-  const touchStartXRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [cols, setCols] = useState(8);
   const [rows, setRows] = useState(4);
@@ -125,16 +130,17 @@ export const BoardThemePicker = memo(function BoardThemePicker({
 
   const allMainTiles = [...builtInTiles, ...customTiles];
   const mainItemCount = allMainTiles.length + 1;
-  const mainPages = Math.max(1, Math.ceil(mainItemCount / perPage));
+  const {
+    page: mainPage,
+    pageCount: mainPages,
+    goTo: goToMainPage,
+    swipeHandlers
+  } = usePagination(mainItemCount, perPage);
   const mainSlice = allMainTiles.slice(
     mainPage * perPage,
     (mainPage + 1) * perPage
   );
   const showMainAddBtn = mainPage === mainPages - 1;
-
-  useEffect(() => {
-    setMainPage((p) => Math.min(p, mainPages - 1));
-  }, [mainPages]);
 
   const handleSaveCustom = useCallback(
     (name: string, light: string, dark: string) => {
@@ -200,24 +206,6 @@ export const BoardThemePicker = memo(function BoardThemePicker({
     });
   }, [mainPage, lightSquare, darkSquare]);
 
-  const onTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartXRef.current = e.touches[0]?.clientX ?? null;
-  }, []);
-
-  const onTouchEnd = useCallback(
-    (e: React.TouchEvent) => {
-      const startX = touchStartXRef.current;
-      if (startX === null) return;
-      const endX = e.changedTouches[0]?.clientX ?? startX;
-      touchStartXRef.current = null;
-      const delta = endX - startX;
-      if (Math.abs(delta) < 40) return;
-      if (delta < 0) setMainPage((p) => (p + 1) % mainPages);
-      else setMainPage((p) => (p - 1 + mainPages) % mainPages);
-    },
-    [mainPages]
-  );
-
   const gridStyle = { gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` };
 
   return (
@@ -249,7 +237,7 @@ export const BoardThemePicker = memo(function BoardThemePicker({
               onClick={() => {
                 setTab(id);
                 setSaveTarget(null);
-                if (id === 'main') setMainPage(0);
+                if (id === 'main') goToMainPage(0);
               }}
               className={`${styles['tabBtn']} ${
                 tab === id ? styles['tabBtnActive'] : styles['tabBtnInactive']
@@ -267,8 +255,7 @@ export const BoardThemePicker = memo(function BoardThemePicker({
           className={styles['gridContainer']}
           style={gridStyle}
           aria-label="Board themes"
-          onTouchStart={onTouchStart}
-          onTouchEnd={onTouchEnd}
+          {...swipeHandlers}
         >
           {mainSlice.map((tile) => {
             const customId = tile.custom;
@@ -344,7 +331,7 @@ export const BoardThemePicker = memo(function BoardThemePicker({
                 type="button"
                 onClick={() => {
                   setSaveTarget(null);
-                  setMainPage(returnToPageRef.current);
+                  goToMainPage(returnToPageRef.current);
                   setTab('main');
                 }}
                 className={styles['closeBtn']}
@@ -375,7 +362,7 @@ export const BoardThemePicker = memo(function BoardThemePicker({
           <Pagination
             page={mainPage}
             pageCount={mainPages}
-            onChange={setMainPage}
+            onChange={goToMainPage}
             label="Board theme pages"
           />
         </div>

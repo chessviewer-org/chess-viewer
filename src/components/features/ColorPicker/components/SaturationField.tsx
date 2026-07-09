@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
 
-import { hsvToRgb, rgbToHex } from '@/shared/utils';
+import { hsvToRgb, rgbToHex } from '@utils';
 
 export function SaturationField({
   hue,

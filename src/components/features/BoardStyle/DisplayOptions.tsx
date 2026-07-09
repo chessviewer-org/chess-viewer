@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-import { Checkbox } from '@shared/ui';
+import { Checkbox } from '@ui';
 
 interface DisplayOptionsProps {
   showCoords: boolean;
