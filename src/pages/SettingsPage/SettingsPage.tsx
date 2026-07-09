@@ -17,6 +17,7 @@ import {
   PageTabs
 } from '@/components/layout';
 import { useAuth } from '@/auth';
+import { pageScrollToY } from '@utils';
 
 import { Seo } from '@ui';
 import {
@@ -81,7 +82,7 @@ const SettingsPage = memo(function SettingsPage() {
   const handleSelect = useCallback(
     (tabId: string) => {
       setSearchParams({ tab: tabId });
-      contentRef.current?.scrollTo({ top: 0 });
+      pageScrollToY(0);
     },
     [setSearchParams]
   );
@@ -91,7 +92,7 @@ const SettingsPage = memo(function SettingsPage() {
     .find((item) => item.id === activeTab)?.label;
 
   return (
-    <div className="min-h-full bg-bg lg:h-full lg:max-h-full">
+    <div className="min-h-full bg-bg md:h-full md:max-h-full">
       <Seo name={activeTabLabel} noindex />
       <PageSidebarLayout
         contentRef={contentRef}

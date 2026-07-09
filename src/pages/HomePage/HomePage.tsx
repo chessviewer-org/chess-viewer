@@ -63,8 +63,8 @@ const HomePage: React.FC = () => {
       <h1 className="sr-only">
         Free Chess Diagram Generator — FEN to PNG, JPEG &amp; SVG
       </h1>
-      <div className="page-container w-full bg-bg py-2 overflow-x-hidden min-h-full lg:h-full lg:overflow-hidden flex flex-col lg:justify-center">
-        <div className="flex flex-col gap-fluid-xs lg:gap-3 pt-1.5 lg:pt-0">
+      <div className="page-container w-full bg-bg py-2 overflow-x-hidden min-h-full md:h-full md:overflow-hidden flex flex-col md:justify-center">
+        <div className="flex flex-col gap-fluid-xs md:gap-3 pt-1.5 md:pt-0">
           <div className="min-w-0">
             <FenToolbar
               fen={home.fen}
@@ -78,7 +78,7 @@ const HomePage: React.FC = () => {
             />
           </div>
           <div className="w-full">
-            <div className="workspace-container bg-surface border border-border/40 rounded-xl p-fluid-xs sm:p-fluid-sm overflow-x-hidden lg:overflow-hidden">
+            <div className="workspace-container bg-surface border border-border/40 rounded-xl p-fluid-xs sm:p-fluid-sm overflow-x-hidden md:overflow-hidden">
               <ChessEditor
                 fen={home.fen}
                 onFenChange={home.handleEditorFenChange}

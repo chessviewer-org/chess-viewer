@@ -37,7 +37,7 @@ export function AuthPage({ children }: AuthPageProps) {
   else if (pathname.includes('sign-up')) activeId = 'sign-up';
 
   return (
-    <div className="min-h-full bg-bg lg:h-full lg:max-h-full">
+    <div className="min-h-full bg-bg md:h-full md:max-h-full">
       <PageSidebarLayout
         contentRef={contentRef}
         contentLabel="Authentication"

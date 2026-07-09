@@ -192,7 +192,7 @@ const ExportPageInner = ({ config }: { config: ExportPageConfig }) => {
   }, [exportApi, wizard]);
 
   return (
-    <div className="flex flex-col bg-bg min-h-full lg:h-full lg:overflow-hidden">
+    <div className="flex flex-col bg-bg min-h-full md:h-full md:overflow-hidden">
       <PageSidebarLayout
         contentRef={contentRef}
         contentLabel="Export Studio"

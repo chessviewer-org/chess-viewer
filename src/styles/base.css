@@ -54,7 +54,7 @@
 
   #root {
     @apply overflow-x-hidden w-full max-w-full;
-    contain: layout style;
+    contain: style;
   }
 
   button {

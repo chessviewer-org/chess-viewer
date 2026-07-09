@@ -98,7 +98,7 @@ const FENHistoryPage: React.FC = memo(() => {
         : setFilters;
 
   return (
-    <div className="min-h-full bg-bg lg:h-full lg:max-h-full">
+    <div className="min-h-full bg-bg md:h-full md:max-h-full">
       <Seo {...getRouteSeo('/fen-history')} schema={SOFTWARE_APP_SCHEMA} />
 
       <PageSidebarLayout
