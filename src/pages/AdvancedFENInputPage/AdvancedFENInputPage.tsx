@@ -71,10 +71,7 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
   );
 
   return (
-    <div
-      data-page-scroll
-      className="bg-bg min-h-full md:h-screen md:max-h-screen md:overflow-hidden"
-    >
+    <div className="bg-bg min-h-full md:h-full md:max-h-full">
       <Seo
         {...getRouteSeo('/advanced-fen')}
         schema={[SOFTWARE_APP_SCHEMA, ADVANCED_FEN_BREADCRUMB_SCHEMA]}
