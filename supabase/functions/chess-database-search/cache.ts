@@ -58,17 +58,15 @@ export async function writeCache(
   found: boolean
 ): Promise<void> {
   try {
-    await db
-      .from('db_search_cache')
-      .upsert(
-        {
-          fen_board: key,
-          found,
-          providers,
-          checked_at: new Date().toISOString()
-        },
-        { onConflict: 'fen_board' }
-      );
+    await db.from('db_search_cache').upsert(
+      {
+        fen_board: key,
+        found,
+        providers,
+        checked_at: new Date().toISOString()
+      },
+      { onConflict: 'fen_board' }
+    );
   } catch (err) {
     console.error(`Cache write failed for ${key}:`, err);
   }
