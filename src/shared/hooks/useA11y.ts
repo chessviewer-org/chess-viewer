@@ -25,6 +25,7 @@ import {
 } from '@utils';
 
 // Helpers
+// Helpers
 function syncFromCloud(
   key: string,
   event: string,
@@ -47,16 +48,13 @@ function syncFromCloud(
       key
     );
 
-  const hasIdleCallback = typeof requestIdleCallback !== 'undefined';
-  const id = hasIdleCallback ? requestIdleCallback(run) : setTimeout(run, 100);
+  const idle = typeof requestIdleCallback !== 'undefined';
+  const id = idle ? requestIdleCallback(run) : window.setTimeout(run, 100);
 
   return () => {
     cancelled = true;
-    if (hasIdleCallback) {
-      cancelIdleCallback(id as number);
-    } else {
-      clearTimeout(id as ReturnType<typeof setTimeout>);
-    }
+    if (idle) cancelIdleCallback(id as number);
+    else clearTimeout(id);
   };
 }
 

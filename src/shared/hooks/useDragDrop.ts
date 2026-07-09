@@ -1,7 +1,6 @@
 import { createContext, useCallback, useContext, useRef } from 'react';
 import type { ChessDragData } from '@constants';
 
-// Types
 export interface DragSession {
   dragData: ChessDragData;
   ghost: HTMLDivElement;
@@ -20,7 +19,6 @@ export interface DragContextValue {
   unregisterDropTarget(id: string): void;
 }
 
-// Context
 export const DragCtx = createContext<DragContextValue>({
   active: null,
   overId: null,
@@ -33,7 +31,6 @@ export function useDragContext() {
   return useContext(DragCtx);
 }
 
-// Draggable
 interface UseDraggableOptions {
   data: ChessDragData;
   cellSize: number;
@@ -71,12 +68,31 @@ export function useDraggable({
 
       const ghost = document.createElement('div');
       ghost.setAttribute('aria-hidden', 'true');
-      ghost.style.cssText = `position:fixed;top:0;left:0;width:${size}px;height:${size}px;pointer-events:none;z-index:9999;will-change:transform;transform:translate(${e.clientX - half}px,${e.clientY - half}px);`;
+      ghost.style.cssText = [
+        `position:fixed`,
+        `top:0`,
+        `left:0`,
+        `width:${size}px`,
+        `height:${size}px`,
+        `pointer-events:none`,
+        `z-index:9999`,
+        `will-change:transform`,
+        `transform:translate(${e.clientX - half}px,${e.clientY - half}px)`
+      ].join(';');
 
       const img = document.createElement('img');
       img.src = imageSrc;
       img.draggable = false;
-      img.style.cssText = `width:100%;height:100%;object-fit:contain;opacity:0.92;filter:drop-shadow(0 3px 8px rgba(0,0,0,0.55));pointer-events:none;user-select:none;-webkit-user-select:none;`;
+      img.style.cssText = [
+        'width:100%',
+        'height:100%',
+        'object-fit:contain',
+        'opacity:0.9',
+        'filter:drop-shadow(0 2px 6px rgba(0,0,0,0.4))',
+        'pointer-events:none',
+        'user-select:none',
+        '-webkit-user-select:none'
+      ].join(';');
       ghost.appendChild(img);
 
       _startDrag({ dragData: dataRef.current, ghost, halfSize: half });
@@ -88,7 +104,6 @@ export function useDraggable({
   return { isDragging, onPointerDown };
 }
 
-// Droppable
 interface UseDroppableOptions {
   id: string;
   data: Record<string, unknown>;
@@ -96,19 +111,15 @@ interface UseDroppableOptions {
 
 export function useDroppable({ id, data }: UseDroppableOptions) {
   const { overId, registerDropTarget, unregisterDropTarget } = useDragContext();
-  const dataRef = useRef(data);
-  dataRef.current = data;
-  const registerRef = useRef(registerDropTarget);
-  registerRef.current = registerDropTarget;
-  const unregisterRef = useRef(unregisterDropTarget);
-  unregisterRef.current = unregisterDropTarget;
+  const stateRef = useRef({ data, registerDropTarget, unregisterDropTarget });
+  stateRef.current = { data, registerDropTarget, unregisterDropTarget };
 
   const setNodeRef = useCallback(
     (el: HTMLElement | null) => {
       if (el) {
-        registerRef.current(id, el, dataRef.current);
+        stateRef.current.registerDropTarget(id, el, stateRef.current.data);
       } else {
-        unregisterRef.current(id);
+        stateRef.current.unregisterDropTarget(id);
       }
     },
     [id]
