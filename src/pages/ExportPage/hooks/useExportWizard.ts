@@ -1,14 +1,17 @@
 import { useCallback, useMemo, useState } from 'react';
 
+// Types
 export type ExportFormat = 'jpeg' | 'png' | 'svg';
 export type ExportResolution = 1 | 2 | 3 | 4;
 export type BoardSizePreset = 4 | 6 | 8 | 'custom';
 
+// Constants
 const DEFAULT_FILE_NAME = 'chessboard';
 const FORMAT_ORDER: ExportFormat[] = ['jpeg', 'png', 'svg'];
 const BOARD_SIZE_MIN = 4;
 const BOARD_SIZE_MAX = 8;
 
+// Helpers
 function clampBoardSize(value: number): number {
   return Math.min(Math.max(value, BOARD_SIZE_MIN), BOARD_SIZE_MAX);
 }
@@ -33,6 +36,7 @@ function getBoardSizeError(input: string): string | null {
 }
 
 export function useExportWizard() {
+  // State
   const [selectedFormats, setSelectedFormats] = useState<ExportFormat[]>([
     'jpeg',
     'png'
@@ -65,6 +69,7 @@ export function useExportWizard() {
     [customBoardSizeInput]
   );
 
+  // Actions
   const toggleFormat = useCallback((format: ExportFormat) => {
     setSelectedFormats((prev) => {
       if (prev.includes(format) && prev.length === 1) return prev;

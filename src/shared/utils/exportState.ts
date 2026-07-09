@@ -9,11 +9,13 @@ import {
 import { isValidHexColor, MAX_FEN_LENGTH } from '@chessviewer-org/chess-viewer';
 import { isSvgRasterWorkerSupported } from './workerRasterExport';
 
+// Types
 export interface ExportState {
   cancelled: boolean;
   paused: boolean;
 }
 
+// State
 export let exportState: ExportState = {
   cancelled: false,
   paused: false
@@ -21,6 +23,7 @@ export let exportState: ExportState = {
 
 let activeRasterTaskCancel: (() => void) | null = null;
 
+// Actions
 export function setActiveRasterTask(cancel: () => void) {
   activeRasterTaskCancel = cancel;
 }

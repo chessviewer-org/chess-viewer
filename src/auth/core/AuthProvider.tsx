@@ -1,11 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { supabase } from './Supabase';
-import type { Session, User } from './Supabase';
+import { supabase, type Session, type User } from './Supabase';
 import { getMembershipTier } from '../profile/membership';
 import { dataMigration } from '../storage/dataMigration';
-import { AuthContext } from './context';
-import type { AuthContextValue } from './context';
+import { AuthContext, type AuthContextValue } from './context';
 import {
   DEFAULT_PROFILE,
   isActiveSupporter,
@@ -15,10 +13,8 @@ import {
   type Profile
 } from '../profile/profile';
 
-// -----------------------------------------------------------------------------
-// Provider Component
-// -----------------------------------------------------------------------------
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  // State
   const initialSession = supabase.auth.getCurrentSession();
   const [session, setSession] = useState<Session | null>(initialSession);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,9 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [loadProfile]);
 
-  // -----------------------------------------------------------------------------
   // Actions
-  // -----------------------------------------------------------------------------
   const signOut = async () => {
     await supabase.auth.signOut();
     setSession(null);
@@ -118,9 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loadProfile(session?.user ?? null);
   }, [loadProfile, session]);
 
-  // -----------------------------------------------------------------------------
-  // Context Value
-  // -----------------------------------------------------------------------------
+  // Context value
   const value: AuthContextValue = {
     session,
     user: session?.user ?? null,

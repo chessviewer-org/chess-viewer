@@ -1,6 +1,6 @@
-// -----------------------------------------------------------------------------
+// Tier thresholds are wired up but not live yet — supporterMonthlyUsd is not yet fed by real donations, so this always resolves to the Free tier for now.
+
 // Types
-// -----------------------------------------------------------------------------
 export type MembershipTierId =
   | 'none'
   | 'gold'
@@ -22,9 +22,7 @@ export interface MembershipTier {
   tone: MembershipTone;
 }
 
-// -----------------------------------------------------------------------------
 // Constants
-// -----------------------------------------------------------------------------
 const NO_TIER: MembershipTier = {
   id: 'none',
   label: 'Free',
@@ -65,9 +63,7 @@ export const MEMBERSHIP_TIERS: readonly MembershipTier[] = [
   }
 ];
 
-// -----------------------------------------------------------------------------
 // Helpers
-// -----------------------------------------------------------------------------
 export function getMembershipTier(monthlyUsd: number): MembershipTier {
   if (!Number.isFinite(monthlyUsd) || monthlyUsd <= 0) return NO_TIER;
   return (

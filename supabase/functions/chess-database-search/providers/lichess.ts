@@ -2,14 +2,17 @@ import type { SearchResponse } from '../types.ts';
 import { fetchText } from '../utils/fetch.ts';
 import { trace } from '../utils/trace.ts';
 
+// Constants
 const LICHESS_TOKEN = Deno.env.get('LICHESS_TOKEN') ?? '';
 
+// Types
 interface LichessExplorerResponse {
   white?: unknown;
   draws?: unknown;
   black?: unknown;
 }
 
+// Helpers
 function asCount(v: unknown): number {
   return typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : 0;
 }
@@ -35,6 +38,7 @@ export function lichessHumanUrl(fen: string): string {
   return `https://lichess.org/analysis/standard/${path}`;
 }
 
+// Search
 export async function searchLichess(fen: string): Promise<SearchResponse> {
   const url = lichessHumanUrl(fen);
   const miss: SearchResponse = { found: false, database: 'LICHESS', url };

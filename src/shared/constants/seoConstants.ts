@@ -9,6 +9,7 @@ export const TITLE_SEPARATOR = ' • ';
 export const DEFAULT_DESCRIPTION =
   'Free chess diagram generator — convert FEN to PNG, JPEG, or SVG in seconds. Professional-quality chess diagrams for books, articles, and social media. No sign-up required.';
 
+// Types
 export interface SeoMeta {
   name?: string;
   description?: string;
@@ -276,5 +277,6 @@ const ROUTE_SEO: Record<string, SeoMeta> = {
   }
 };
 
+// Service
 export const getRouteSeo = (path: string): SeoMeta =>
   ROUTE_SEO[path] ?? { path, description: DEFAULT_DESCRIPTION };

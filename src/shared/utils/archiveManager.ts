@@ -13,8 +13,10 @@ import {
 import { emitSyncTruncation, trimToSyncBudget } from './historyUtils';
 import { logger } from './logger';
 
+// Constants
 const ARCHIVE_STORAGE_KEY = 'fen-archive';
 
+// Service
 export async function loadArchive(): Promise<ArchivedHistoryEntry[]> {
   try {
     const localRaw = localStorage.getItem(ARCHIVE_STORAGE_KEY);

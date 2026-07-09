@@ -2,6 +2,7 @@ import { supabase } from '@/auth';
 
 import { validateFEN } from '@chessviewer-org/chess-viewer';
 
+// Types
 export type DatabaseProvider = 'pdb' | 'yacpdb' | 'lichess' | 'chessdb';
 
 export const PROVIDER_LABEL: Record<DatabaseProvider, string> = {
@@ -32,6 +33,7 @@ const PROVIDERS: readonly DatabaseProvider[] = [
   'yacpdb'
 ];
 
+// Helpers
 function isEdgeProviderHit(value: unknown): value is EdgeProviderHit {
   if (typeof value !== 'object' || value === null) return false;
   const v = value as Record<string, unknown>;
@@ -138,6 +140,7 @@ function notFound(fen: string): DatabaseSearchResult {
   };
 }
 
+// Service
 export async function searchPositionDatabases(
   fen: string,
   signal?: AbortSignal

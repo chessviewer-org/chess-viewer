@@ -22,8 +22,9 @@ import {
   hydrateFromSync,
   logger,
   resolveReducedMotion
-} from '@/shared/utils';
+} from '@utils';
 
+// Helpers
 function syncFromCloud(
   key: string,
   event: string,
@@ -59,6 +60,7 @@ function syncFromCloud(
   };
 }
 
+// Color vision
 export function useColorVision(): void {
   useLayoutEffect(() => {
     const apply = () => applyColorVision(readColorVisionPreference());
@@ -116,6 +118,7 @@ export function useColorVisionSetting(): [
   return [pref, select];
 }
 
+// Contrast
 export function useContrast(): void {
   useLayoutEffect(() => {
     const apply = () => applyContrast(readContrastPreference());
@@ -173,6 +176,7 @@ export function useContrastSetting(): [
   return [pref, select];
 }
 
+// Reduced motion
 const OS_REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
 
 export function useReducedMotionPreference(): void {

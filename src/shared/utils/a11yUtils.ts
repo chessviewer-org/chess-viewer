@@ -1,5 +1,6 @@
 import { safeJSONParse } from '@chessviewer-org/chess-viewer';
 
+// Color vision
 export type ColorVisionPreference =
   | 'none'
   | 'deuteranopia'
@@ -108,6 +109,7 @@ export function applyColorVision(preference: ColorVisionPreference): void {
   root.style.filter = `url(#cv-cvd-${preference})`;
 }
 
+// Contrast
 export type ContrastPreference = 'normal' | 'high';
 
 const DEFAULT_CONTRAST: ContrastPreference = 'normal';
@@ -144,6 +146,7 @@ export function applyContrast(preference: ContrastPreference): void {
   }
 }
 
+// Reduced motion
 export type ReducedMotionPreference = 'system' | 'reduce' | 'full';
 
 const DEFAULT_REDUCED_MOTION: ReducedMotionPreference = 'system';

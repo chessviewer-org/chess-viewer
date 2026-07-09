@@ -3,14 +3,17 @@ import { useLocation } from 'wouter';
 import {
   readReducedMotionPreference,
   resolveReducedMotion
-} from '@/shared/utils';
+} from '@utils';
 
+// Constants
 const EXIT_DURATION = 240;
 
+// Helpers
 function userWantsReducedMotion(): boolean {
   return resolveReducedMotion(readReducedMotionPreference());
 }
 
+// Types
 interface PageLocation {
   pathname: string;
 }

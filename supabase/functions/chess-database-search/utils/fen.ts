@@ -1,7 +1,9 @@
 import type { PlacedPiece } from '../types.ts';
 
+// Constants
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const;
 
+// Helpers
 export function boardField(fen: string): string {
   return fen.trim().split(/\s+/)[0] ?? '';
 }

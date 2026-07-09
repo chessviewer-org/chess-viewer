@@ -1,3 +1,4 @@
+// Constants
 const FETCH_TIMEOUT_MS = 40_000;
 const RETRY_ATTEMPTS = 1;
 const RETRY_BACKOFF_MS = 600;
@@ -6,11 +7,13 @@ const RETRY_AFTER_CAP_MS = 5000;
 const sleep = (ms: number): Promise<void> =>
   new Promise((r) => setTimeout(r, ms));
 
+// Types
 type FetchAttempt =
   | { kind: 'ok'; text: string }
   | { kind: 'transient'; retryAfterMs?: number }
   | { kind: 'terminal' };
 
+// Helpers
 function parseRetryAfter(value: string | null): number | undefined {
   if (!value) return undefined;
   const secs = Number(value);
@@ -54,6 +57,7 @@ async function fetchOnce(
   }
 }
 
+// Fetch
 export async function fetchText(
   url: string,
   init?: RequestInit

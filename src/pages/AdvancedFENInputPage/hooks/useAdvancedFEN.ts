@@ -26,12 +26,13 @@ import {
   saveBlob,
   validateFEN,
   waitWhilePaused
-} from '@/shared/utils';
+} from '@utils';
 import { zip } from 'fflate';
 import { useFENBatch } from '@contexts';
 
 import { parseSmartNaming } from '../utils/parseSmartNaming';
 
+// Types
 export type ExportFormat = 'png' | 'jpeg' | 'svg';
 export type ExportResolution = 1 | 2 | 3 | 4;
 export type BoardSizePreset = 4 | 6 | 8 | 'custom';
@@ -86,10 +87,12 @@ export interface AdvancedFENInitialProps {
   darkSquare?: string;
 }
 
+// Constants
 const FORMAT_ORDER: ExportFormat[] = ['jpeg', 'png', 'svg'];
 const { MAX_FENS, STORAGE_KEYS, DEFAULT_FENS, DEFAULT_INTERVAL, TABS } =
   ADVANCED_FEN_CONFIG;
 
+// Helpers
 function runFormat(
   format: ExportFormat,
   config: ExportConfigLike,
@@ -101,8 +104,6 @@ function runFormat(
   return downloadSVG(config, name, onProg);
 }
 
-// Builds the export config for one FEN. When chained, every FEN shares the
-// current UI settings; otherwise each FEN uses its own saved settings.
 function buildFenConfig(
   fen: string,
   s: PositionSettings[string],
@@ -153,6 +154,7 @@ function buildFenConfig(
   };
 }
 
+// Hook
 export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
   const [, navigate] = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -200,8 +202,6 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
     initialDark: props.darkSquare ?? '#b58863'
   });
 
-  // Board list: mirror the batch, pad to at least 3 slots, and add one empty
-  // slot at the end when all are filled (so the user can always add more).
   const fens = useMemo(() => {
     const arr = batchList.map((f) =>
       typeof f === 'string' ? f.slice(0, MAX_FEN_LENGTH) : ''
@@ -240,8 +240,6 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
     return errs;
   }, [fens]);
 
-  // Load the saved settings for the current FEN into the UI. A ref guards
-  // against the save effect below firing while we're loading.
   const isSyncingRef = useRef(false);
   useEffect(() => {
     if (!currentFen || isChained) return;
@@ -270,7 +268,6 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
     return () => cancelAnimationFrame(id);
   }, [currentFen, isChained, positionSettings, setLightSquare, setDarkSquare]);
 
-  // Save the current UI settings back to the current FEN (or every FEN when chained).
   useEffect(() => {
     if (!currentFen || isSyncingRef.current) return;
     const snapshot = {

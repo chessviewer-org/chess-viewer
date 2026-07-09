@@ -1,5 +1,6 @@
 import { logger } from './logger';
 
+// Types
 export interface SvgRasterWorkerOptions {
   svgString: string;
   width: number;
@@ -21,12 +22,14 @@ interface PendingTask {
   cancelled: boolean;
 }
 
+// State
 let sharedWorker: Worker | null = null;
 const taskQueue: Array<{ id: number; options: SvgRasterWorkerOptions }> = [];
 const pendingTasks = new Map<number, PendingTask>();
 let nextTaskId = 1;
 let workerBusy = false;
 
+// Helpers
 function getSharedWorker(): Worker {
   if (!sharedWorker) {
     sharedWorker = new Worker(
@@ -107,6 +110,7 @@ function drainQueue() {
   });
 }
 
+// Service
 export function isSvgRasterWorkerSupported(): boolean {
   return (
     typeof Worker !== 'undefined' &&

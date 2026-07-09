@@ -2,6 +2,7 @@ import type { PlacedPiece, SearchResponse } from '../types.ts';
 import { fetchText } from '../utils/fetch.ts';
 import { logDrift, trace } from '../utils/trace.ts';
 
+// Constants
 const YAC_PIECE: Record<string, string> = {
   K: 'K',
   Q: 'Q',
@@ -25,10 +26,12 @@ const YAC_CHECKBOX_DEFAULTS = [
   '0'
 ];
 
+// Types
 interface YacEntry {
   algebraic?: { white?: unknown; black?: unknown };
 }
 
+// Helpers
 function pieceSet(pieces: PlacedPiece[]): Set<string> {
   return new Set(
     pieces.map(
@@ -78,6 +81,7 @@ export function yacpdbHumanUrl(board: string): string {
   return `https://www.yacpdb.org/#search/${yacB64(joined)}/1`;
 }
 
+// Search
 export async function searchYacpdb(
   pieces: PlacedPiece[],
   board: string

@@ -11,8 +11,9 @@ import {
   THEME_MODE_CHANGE_EVENT,
   THEME_MODE_STORAGE_KEY,
   type ThemeModePreference
-} from '@/shared/utils';
+} from '@utils';
 
+// Types
 export interface UseThemeResult {
   lightSquare: string;
   darkSquare: string;
@@ -20,7 +21,6 @@ export interface UseThemeResult {
   setDarkSquare: (color: string) => void;
 }
 
-// Board square colors, persisted to localStorage + cloud, kept in sync across tabs.
 export function useTheme({
   initialLight = '#f0d9b5',
   initialDark = '#b58863'
@@ -77,8 +77,6 @@ export function useTheme({
   return { lightSquare, darkSquare, setLightSquare, setDarkSquare };
 }
 
-// Reads the light/dark square colors from localStorage and keeps the given
-// setters in sync when another tab changes them or the tab becomes visible.
 export function useSyncedBoardColors(
   setLightSquare: (color: string) => void,
   setDarkSquare: (color: string) => void
@@ -114,7 +112,6 @@ export function useSyncedBoardColors(
   }, [setLightSquare, setDarkSquare]);
 }
 
-// Light / dark / system mode preference for the whole app.
 export function useThemeMode(): [
   ThemeModePreference,
   (next: ThemeModePreference) => void
@@ -148,8 +145,6 @@ export function useThemeMode(): [
   return [preference, select];
 }
 
-// One-time hydration of the theme-mode preference from the cloud on a fresh
-// device. Mount once at the app level.
 export function useThemeModeSync(): void {
   useEffect(() => {
     let cancelled = false;
@@ -173,6 +168,7 @@ export function useThemeModeSync(): void {
   }, []);
 }
 
+// Presets
 const CUSTOM_THEME_PRESETS_KEY = 'custom-theme-presets';
 
 export interface ThemePreset {
@@ -193,7 +189,6 @@ export interface UseThemePresetsResult {
   ) => void;
 }
 
-// User-created custom board color presets, persisted locally + cloud.
 export function useThemePresets(): UseThemePresetsResult {
   const [customPresets, setCustomPresets] = useState<ThemePreset[]>([]);
 

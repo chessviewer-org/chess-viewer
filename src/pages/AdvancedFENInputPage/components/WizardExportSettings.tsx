@@ -9,8 +9,10 @@ import type {
   useAdvancedFEN
 } from '../hooks/useAdvancedFEN';
 
+// Types
 type AdvancedFENReturn = ReturnType<typeof useAdvancedFEN>;
 
+// Constants
 const FORMATS: { value: ExportFormat; label: string }[] = [
   { value: 'jpeg', label: 'JPEG' },
   { value: 'png', label: 'PNG' },
@@ -45,7 +47,7 @@ const WizardExportSettings = memo(function WizardExportSettings({
   return (
     <div className="flex flex-col h-full animate-fadeIn gap-6">
       <div className="space-y-2.5">
-        <h3 className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
+        <h3 className="section-eyebrow">
           Format
         </h3>
         <div className="flex w-full rounded-lg border border-border/60 overflow-hidden">
@@ -79,7 +81,7 @@ const WizardExportSettings = memo(function WizardExportSettings({
       </div>
 
       <div className="space-y-2.5">
-        <h3 className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
+        <h3 className="section-eyebrow">
           Quality
         </h3>
         <div className="flex w-full gap-2">
@@ -97,7 +99,7 @@ const WizardExportSettings = memo(function WizardExportSettings({
       </div>
 
       <div className="space-y-2.5">
-        <h3 className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
+        <h3 className="section-eyebrow">
           Board Size
         </h3>
         <div className="flex w-full items-center gap-2">
@@ -137,7 +139,7 @@ const WizardExportSettings = memo(function WizardExportSettings({
       </div>
 
       <div className="space-y-2.5">
-        <h3 className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
+        <h3 className="section-eyebrow">
           File Name
         </h3>
         <div className="relative">

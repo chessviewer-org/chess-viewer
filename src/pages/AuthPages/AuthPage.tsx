@@ -8,6 +8,7 @@ import {
   type PageTabGroup
 } from '@/components/layout';
 
+// Constants
 const GROUPS: PageTabGroup[] = [
   {
     items: [
@@ -17,6 +18,7 @@ const GROUPS: PageTabGroup[] = [
   }
 ];
 
+// Types
 interface AuthPageProps {
   children: ReactNode;
 }

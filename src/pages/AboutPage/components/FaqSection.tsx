@@ -5,6 +5,7 @@ import { HelpCircle } from '@/assets/icons';
 import { CONTACT_EMAIL, REPO_ISSUES_URL } from '../utils/aboutConstants';
 import { FAQItem, Lead, SectionHeading } from './parts';
 
+// Constants
 const FAQS: Array<{ q: string; a: ReactNode }> = [
   {
     q: 'What does ChessViewer actually do?',
@@ -54,7 +55,7 @@ const FAQS: Array<{ q: string; a: ReactNode }> = [
 
 export default function FaqSection() {
   return (
-    <div className="space-y-8 animate-pageEnter">
+    <div className="space-y-8 stagger-children">
       <div className="space-y-3">
         <SectionHeading icon={HelpCircle} title="Frequently Asked Questions" />
         <Lead>

@@ -3,9 +3,7 @@ import type { Session, User } from './Supabase';
 import type { MembershipTier } from '../profile/membership';
 import type { Profile } from '../profile/profile';
 
-// -----------------------------------------------------------------------------
 // Types
-// -----------------------------------------------------------------------------
 export interface AuthContextValue {
   session: Session | null;
   user: User | null;
@@ -20,7 +18,5 @@ export interface AuthContextValue {
   refreshProfile: () => void;
 }
 
-// -----------------------------------------------------------------------------
 // Context
-// -----------------------------------------------------------------------------
 export const AuthContext = createContext<AuthContextValue | null>(null);

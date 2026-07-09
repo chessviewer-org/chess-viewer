@@ -1,6 +1,7 @@
 export * from '@chessviewer-org/chess-viewer';
 import type { BoardMatrix } from '@chessviewer-org/chess-viewer';
 
+// Types
 interface AdvancedFenIntervalOption {
   value: number;
   label: string;

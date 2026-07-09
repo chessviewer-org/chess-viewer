@@ -3,14 +3,14 @@ import { type FormEvent, useState } from 'react';
 import { Eye, EyeOff, Loader2 } from '@/assets/icons';
 import { Link, useLocation } from 'wouter';
 
-import { getAuthErrorMessage } from '@/auth';
-import { supabase } from '@/auth';
+import { getAuthErrorMessage, supabase } from '@/auth';
 
 import { AuthPage } from './AuthPage';
 import { EMAIL_PATTERN } from './utils/authUtils';
 import styles from './styles/auth-forms.module.scss';
 
-export function SignInPage() {
+function SignInPage() {
+  // State
   const [, navigate] = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,6 +20,7 @@ export function SignInPage() {
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Handlers
   const validate = (): boolean => {
     let valid = true;
     setEmailError('');
@@ -104,10 +105,7 @@ export function SignInPage() {
         )}
 
         <div>
-          <label
-            htmlFor="signin-email"
-            className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-text-secondary"
-          >
+          <label htmlFor="signin-email" className="form-label">
             Email
           </label>
           <input
@@ -129,10 +127,7 @@ export function SignInPage() {
         </div>
 
         <div>
-          <label
-            htmlFor="signin-password"
-            className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-text-secondary"
-          >
+          <label htmlFor="signin-password" className="form-label">
             Password
           </label>
           <div className="relative">

@@ -4,6 +4,7 @@ import { History } from '@/assets/icons';
 
 import { type SecurityEvent, securityEventsService } from '@/auth';
 
+// Constants
 const EVENT_LABELS: Record<string, string> = {
   SECURITY_REFRESH: 'Security re-verified',
   RECOVERY_CODES_GENERATED: 'Recovery codes generated',
@@ -16,6 +17,7 @@ const EVENT_LABELS: Record<string, string> = {
   PASSWORD_CHANGE: 'Password changed'
 };
 
+// Helpers
 function formatEventTime(iso: string): string {
   const ms = Date.parse(iso);
   if (Number.isNaN(ms)) return '';
@@ -48,8 +50,8 @@ export function SecurityActivity({
   }, [enabled, refreshSignal]);
 
   return (
-    <section className="rounded-2xl border border-border bg-surface-elevated p-5">
-      <h3 className="mb-1 flex items-center gap-2 text-sm font-bold text-text-primary">
+    <section className="card-elevated">
+      <h3 className="card-title">
         <History className="h-4 w-4 text-text-muted" aria-hidden="true" />
         Recent Security Activity
       </h3>

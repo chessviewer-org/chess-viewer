@@ -3,13 +3,13 @@ import { type FormEvent, useMemo, useState } from 'react';
 import { Eye, EyeOff, Loader2, MailCheck } from '@/assets/icons';
 import { Link } from 'wouter';
 
-import { getAuthErrorMessage } from '@/auth';
-import { supabase } from '@/auth';
+import { getAuthErrorMessage, supabase } from '@/auth';
 
 import { AuthPage } from './AuthPage';
 import { EMAIL_PATTERN } from './utils/authUtils';
 import styles from './styles/auth-forms.module.scss';
 
+// Constants
 const MIN_PASSWORD_LENGTH = 8;
 
 interface StrengthRule {
@@ -47,6 +47,7 @@ interface PasswordStrength {
   passedRules: boolean[];
 }
 
+// Helpers
 function analysePassword(value: string): PasswordStrength {
   const passedRules = RULES.map((r) => r.test(value));
   const score = passedRules.filter(Boolean).length;
@@ -103,7 +104,8 @@ function StrengthMeter({ value }: StrengthMeterProps) {
   );
 }
 
-export function SignUpPage() {
+function SignUpPage() {
+  // State
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -115,6 +117,7 @@ export function SignUpPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  // Handlers
   const validate = (): boolean => {
     let valid = true;
     setEmailError('');
@@ -220,10 +223,7 @@ export function SignUpPage() {
         className="flex flex-col gap-4"
       >
         <div>
-          <label
-            htmlFor="signup-email"
-            className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-text-secondary"
-          >
+          <label htmlFor="signup-email" className="form-label">
             Email
           </label>
           <input
@@ -245,10 +245,7 @@ export function SignUpPage() {
         </div>
 
         <div>
-          <label
-            htmlFor="signup-password"
-            className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-text-secondary"
-          >
+          <label htmlFor="signup-password" className="form-label">
             Password
           </label>
           <div className="relative">
@@ -289,10 +286,7 @@ export function SignUpPage() {
         </div>
 
         <div>
-          <label
-            htmlFor="signup-confirm"
-            className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-text-secondary"
-          >
+          <label htmlFor="signup-confirm" className="form-label">
             Confirm Password
           </label>
           <div className="relative">

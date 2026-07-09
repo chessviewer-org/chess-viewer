@@ -1,11 +1,13 @@
 import { getCoordinateParams } from '@chessviewer-org/chess-viewer';
 
+// Types
 interface TextMetricsExt {
   ascent: number;
   descent: number;
   height: number;
 }
 
+// Helpers
 function getCellCenter(
   borderSize: number,
   squareSize: number,
@@ -40,6 +42,7 @@ function getBaselineFromCenter(
   return Math.round(centerY + (metrics.ascent - metrics.descent) / 2);
 }
 
+// Service
 export function drawCoordinates(
   ctx: CanvasRenderingContext2D,
   squareSize: number,

@@ -1,5 +1,6 @@
 import type { PieceSymbol } from '@app-types';
 
+// Types
 export interface ChessDragData {
   piece: PieceSymbol;
 
@@ -17,6 +18,7 @@ export interface PalettePiece {
   name: string;
 }
 
+// Constants
 export const PALETTE_PIECES: PalettePiece[] = [
   { id: 'wK', piece: 'K', color: 'w', name: 'White King' },
   { id: 'wQ', piece: 'Q', color: 'w', name: 'White Queen' },

@@ -16,6 +16,7 @@ import {
   startSvgRasterWorkerTask
 } from './workerRasterExport';
 
+// Helpers
 function canvasToBlob(
   canvas: HTMLCanvasElement,
   mimeType: string,
@@ -164,6 +165,7 @@ async function createWorkerRasterBlob(
   }
 }
 
+// Service
 export async function createRasterBlob(
   config: ExportConfig,
   format: 'png' | 'jpeg',

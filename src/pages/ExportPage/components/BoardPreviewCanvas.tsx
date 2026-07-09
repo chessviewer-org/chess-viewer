@@ -8,13 +8,15 @@ import {
   isLightSquare,
   logger,
   parseFEN
-} from '@/shared/utils';
+} from '@utils';
 
+// Constants
 const DEFAULT_LIGHT = BOARD_THEMES['classic']?.light ?? '#f0d9b5';
 const DEFAULT_DARK = BOARD_THEMES['classic']?.dark ?? '#b58863';
 
 const GUTTER_RATIO = 0.09;
 
+// Types
 interface BoardPreviewCanvasProps {
   fen: string;
   lightSquare?: string;

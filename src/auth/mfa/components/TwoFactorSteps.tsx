@@ -8,9 +8,6 @@ import {
   Check
 } from '@/assets/icons';
 
-// -----------------------------------------------------------------------------
-// LoadingCard
-// -----------------------------------------------------------------------------
 export function LoadingCard() {
   return (
     <div className="flex h-64 flex-col items-center justify-center space-y-4 rounded-xl border border-border bg-surface shadow-sm">
@@ -20,9 +17,6 @@ export function LoadingCard() {
   );
 }
 
-// -----------------------------------------------------------------------------
-// EnabledCard
-// -----------------------------------------------------------------------------
 export function EnabledCard({
   isDisabling,
   onDisable
@@ -52,9 +46,6 @@ export function EnabledCard({
   );
 }
 
-// -----------------------------------------------------------------------------
-// SetupStartCard
-// -----------------------------------------------------------------------------
 export function SetupStartCard({
   isSubmitting,
   isMfaUnavailable,
@@ -67,7 +58,7 @@ export function SetupStartCard({
   return (
     <div className="rounded-xl border border-border bg-surface p-6 shadow-sm space-y-6">
       <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 text-accent">
+        <div className="icon-circle">
           <ShieldCheck className="w-6 h-6" />
         </div>
         <div>
@@ -90,9 +81,6 @@ export function SetupStartCard({
   );
 }
 
-// -----------------------------------------------------------------------------
-// ScanQrCard
-// -----------------------------------------------------------------------------
 export function ScanQrCard({
   totpUri,
   secret,
@@ -163,9 +151,6 @@ export function ScanQrCard({
   );
 }
 
-// -----------------------------------------------------------------------------
-// BackupCodesCard
-// -----------------------------------------------------------------------------
 export function BackupCodesCard({
   backupCodes,
   copiedCode,

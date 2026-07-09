@@ -9,11 +9,13 @@ import {
   logger,
   parseFEN,
   validateFEN
-} from '@/shared/utils';
+} from '@utils';
 
+// Constants
 const MAX_HISTORY = 100;
 const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
+// Types
 export interface UseInteractiveBoardResult {
   board: ChessBoard;
   currentFen: string;
@@ -40,6 +42,7 @@ export function useInteractiveBoard(
   initialFen: string,
   onFenChange?: (fen: string) => void
 ): UseInteractiveBoardResult {
+  // State
   const [board, setBoard] = useState<ChessBoard>(() => createEmptyBoard());
   const [past, setPast] = useState<ChessBoard[]>([]);
   const [future, setFuture] = useState<ChessBoard[]>([]);
@@ -65,6 +68,7 @@ export function useInteractiveBoard(
     }
   }, [initialFen]);
 
+  // Actions
   const commitMove = useCallback(
     (newBoard: ChessBoard, newMeta = metadata) => {
       setPast((prevPast) => {

@@ -3,19 +3,20 @@ import { type FormEvent, useState } from 'react';
 import { Loader2, MailCheck } from '@/assets/icons';
 import { Link } from 'wouter';
 
-import { getAuthErrorMessage } from '@/auth';
-import { supabase } from '@/auth';
+import { getAuthErrorMessage, supabase } from '@/auth';
 
 import { AuthPage } from './AuthPage';
 import { EMAIL_PATTERN } from './utils/authUtils';
 import styles from './styles/auth-forms.module.scss';
 
-export function ForgotPasswordPage() {
+function ForgotPasswordPage() {
+  // State
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
 
+  // Handlers
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setEmailError('');
@@ -84,10 +85,7 @@ export function ForgotPasswordPage() {
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <div>
-          <label
-            htmlFor="forgot-email"
-            className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-text-secondary"
-          >
+          <label htmlFor="forgot-email" className="form-label">
             Email
           </label>
           <input

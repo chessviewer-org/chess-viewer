@@ -1,18 +1,19 @@
 import { ChessBoard, isChessBoard } from '@app-types';
 
-import { parseFEN } from '@chessviewer-org/chess-viewer';
+import { parseFEN, sanitizeInput } from '@chessviewer-org/chess-viewer';
 import { shouldForceCoordinateBorder } from './imageOptimizer';
 import {
   getPieceKey,
   imageToEmbeddableDataURL,
   waitForPieceImage
 } from './pieceUtils';
-import { sanitizeInput } from '@chessviewer-org/chess-viewer';
 import { saveBlob } from './saveBlob';
 
+// Constants
 const SVG_BOARD_PX = 800;
 const SVG_COORD_BORDER_RATIO = 0.05;
 
+// Helpers
 function escapeXmlAttr(value: string): string {
   return value
     .replace(/&/g, '&amp;')
@@ -21,6 +22,7 @@ function escapeXmlAttr(value: string): string {
     .replace(/>/g, '&gt;');
 }
 
+// Types
 interface SVGExportConfig {
   boardSize: number;
   showCoords: boolean;

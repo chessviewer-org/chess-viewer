@@ -1,3 +1,4 @@
+// Helpers
 function isScrollableY(el: HTMLElement): boolean {
   if (el.scrollHeight <= el.clientHeight + 1) return false;
   const overflowY = getComputedStyle(el).overflowY;
@@ -50,6 +51,7 @@ function getScrollContainer(): HTMLElement | null {
   return null;
 }
 
+// Service
 export function canPageScroll(direction: -1 | 1): boolean {
   const el = getScrollContainer();
   if (el) {

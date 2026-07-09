@@ -4,6 +4,7 @@ import { BoardStylePanel } from '@/components/features';
 
 import type { useAdvancedFEN } from '../hooks/useAdvancedFEN';
 
+// Types
 type AdvancedFENReturn = ReturnType<typeof useAdvancedFEN>;
 
 interface WizardVisualSetupProps {

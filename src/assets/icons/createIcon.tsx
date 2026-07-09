@@ -1,5 +1,6 @@
 import { forwardRef, SVGProps, createElement } from 'react';
 
+// Types
 export type LucideIcon = React.FC<React.SVGProps<SVGSVGElement>>;
 
 export interface IconProps extends SVGProps<SVGSVGElement> {
@@ -7,6 +8,7 @@ export interface IconProps extends SVGProps<SVGSVGElement> {
   absoluteStrokeWidth?: boolean;
 }
 
+// Constants
 const defaultAttributes = {
   xmlns: 'http://www.w3.org/2000/svg',
   width: 24,
@@ -21,6 +23,7 @@ const defaultAttributes = {
 
 export type IconNode = [string, Record<string, string>];
 
+// Service
 export const createLucideIcon = (
   iconName: string,
   iconNode: IconNode[]

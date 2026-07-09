@@ -1,9 +1,11 @@
 import { safeJSONParse } from '@chessviewer-org/chess-viewer';
 
+// Types
 export type ThemeMode = 'light' | 'dark';
 
 export type ThemeModePreference = ThemeMode | 'system';
 
+// Constants
 const DEFAULT_THEME_MODE: ThemeModePreference = 'dark';
 
 export const THEME_MODE_STORAGE_KEY = 'cv_theme_mode';
@@ -12,6 +14,7 @@ const LEGACY_THEME_KEY = 'chess-theme';
 
 export const THEME_MODE_CHANGE_EVENT = 'cv-theme-mode-change';
 
+// Helpers
 function isThemeMode(value: unknown): value is ThemeMode {
   return value === 'light' || value === 'dark';
 }

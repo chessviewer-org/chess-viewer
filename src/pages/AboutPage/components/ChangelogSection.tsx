@@ -12,6 +12,7 @@ import {
 } from '../utils/parseChangelog';
 import { Lead, SectionHeading } from './parts';
 
+// Constants
 const REPO_COMMITS_URL = `${REPO_URL}/commits`;
 
 const CATEGORY_LABELS: Record<ChangelogCategory, string> = {
@@ -21,6 +22,7 @@ const CATEGORY_LABELS: Record<ChangelogCategory, string> = {
   Reverts: 'Reverts'
 };
 
+// Helpers
 function renderInlineMarkdown(text: string): ReactNode[] {
   const parts = text.split(/(`[^`]+`|_[^_]+_)/g).filter(Boolean);
   return parts.map((part, i) => {
@@ -109,7 +111,7 @@ export default function ChangelogSection() {
     setPageIndex(Math.min(Math.max(next, 0), totalPages - 1));
 
   return (
-    <div className="space-y-8 animate-pageEnter">
+    <div className="space-y-8 stagger-children">
       <div className="space-y-3">
         <SectionHeading icon={History} title="Changelog" />
         <Lead>
@@ -178,7 +180,7 @@ export default function ChangelogSection() {
                 type="button"
                 onClick={() => goTo(pageIndex - 1)}
                 disabled={pageIndex === 0}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-40 focus-ring"
               >
                 <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                 Newer
@@ -191,7 +193,7 @@ export default function ChangelogSection() {
                     type="button"
                     onClick={() => goTo(i)}
                     aria-current={i === pageIndex ? 'page' : undefined}
-                    className={`min-w-11 rounded-lg px-3 py-1.5 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg ${
+                    className={`min-w-11 rounded-lg px-3 py-1.5 text-sm font-bold transition-colors focus-ring ${
                       i === pageIndex
                         ? 'bg-accent text-bg'
                         : 'border border-border bg-surface text-text-secondary hover:bg-surface-hover'
@@ -206,7 +208,7 @@ export default function ChangelogSection() {
                 type="button"
                 onClick={() => goTo(pageIndex + 1)}
                 disabled={pageIndex === totalPages - 1}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-40 focus-ring"
               >
                 Older
                 <ChevronRight className="h-4 w-4" aria-hidden="true" />

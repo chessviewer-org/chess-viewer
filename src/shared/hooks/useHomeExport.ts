@@ -10,9 +10,10 @@ import {
   resumeExport,
   shouldForceCoordinateBorder,
   validateFEN
-} from '@/shared/utils';
+} from '@utils';
 import { runFormatExport } from '@/pages/AdvancedFENInputPage/utils/advancedExportHelpers';
 
+// Types
 export interface ExportState {
   isExporting: boolean;
   exportProgress: number;
@@ -46,6 +47,7 @@ interface UseHomeExportOptions {
 }
 
 export function useHomeExport(opts: UseHomeExportOptions) {
+  // State
   const [exportState, setExportState] = useState<ExportState>({
     isExporting: false,
     exportProgress: 0,
@@ -63,6 +65,7 @@ export function useHomeExport(opts: UseHomeExportOptions) {
     };
   }, []);
 
+  // Actions
   const handlePieceImagesChange = (
     images: Record<string, HTMLImageElement>
   ) => {

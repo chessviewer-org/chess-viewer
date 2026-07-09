@@ -2,6 +2,7 @@ import { supabase } from '../core/Supabase';
 import { FACTOR_TYPE_TOTP, ISSUER_NAME } from './constants';
 import { getMfaErrorMessage, isProjectMfaDisabledError } from './errors';
 
+// Service
 export const mfaApi = {
   async fetchFactors() {
     const { data, error } = await supabase.auth.mfa.listFactors();

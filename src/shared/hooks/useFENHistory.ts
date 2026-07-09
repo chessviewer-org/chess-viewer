@@ -22,9 +22,10 @@ import {
   touchEntry,
   trimToSyncBudget,
   validateFEN
-} from '@/shared/utils';
+} from '@utils';
 import { syncStorage } from '@/auth';
 
+// Helpers
 export const persistHistory = (
   history: ActiveHistoryEntry[],
   notifyUser = true
@@ -75,6 +76,7 @@ export function useFENHistory(
   fen: string,
   onFavChange?: (isFav: boolean) => void
 ) {
+  // State
   const [history, setHistory] = useState<ActiveHistoryEntry[]>([]);
   const [archive, setArchive] = useState<ArchivedHistoryEntry[]>([]);
 
@@ -157,6 +159,7 @@ export function useFENHistory(
     }
   }, [isFav, isHydrated, onFavChange]);
 
+  // Actions
   function commitNewFen(f: string, source: HistorySource, dragId?: string) {
     if (!validateFEN(f)) return;
 
