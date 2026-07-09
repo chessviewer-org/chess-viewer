@@ -2,7 +2,7 @@ import { memo, useEffect, useRef } from 'react';
 
 import { Link2, Share2, X } from '@/assets/icons';
 
-import { useFocusTrap } from '@/shared/hooks';
+import { useFocusTrap } from '@hooks';
 import uiStyles from '@/shared/styles/ui.module.scss';
 
 interface ShareDialogProps {

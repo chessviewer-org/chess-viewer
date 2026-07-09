@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import type { ChessDragData } from '@constants';
 import type { PieceSymbol } from '@app-types';
-import { useDragContext } from '@/shared/hooks';
+import { useDragContext } from '@hooks';
 import { DragProvider } from '../components/DragProvider';
 
 interface UseDragStateParams {

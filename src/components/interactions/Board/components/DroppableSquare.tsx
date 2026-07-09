@@ -1,12 +1,14 @@
 import { memo, useCallback, useRef } from 'react';
 
 import type { PieceSymbol } from '@app-types';
-import { pieceToName } from '@/shared/utils';
-import { useDroppable } from '@/shared/hooks';
+import { pieceToName } from '@utils';
+import { useDroppable } from '@hooks';
 import { DraggablePiece } from './DraggablePiece';
 
+// Constants
 const FILES = 'abcdefgh';
 
+// Types
 interface DroppableSquareProps {
   row: number;
   col: number;

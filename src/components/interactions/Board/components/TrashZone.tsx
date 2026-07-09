@@ -1,39 +1,22 @@
 import { memo } from 'react';
 
 import type { ChessDragData } from '@constants';
-import { useDragContext, useDroppable } from '@/shared/hooks';
+import { useDragContext, useDroppable } from '@hooks';
 
 interface TrashZoneProps {
-  id?: string;
   className?: string;
-  minimal?: boolean;
 }
 
 export const TrashZone = memo(function TrashZone({
-  id = 'trash',
-  className = '',
-  minimal = false
+  className = ''
 }: TrashZoneProps) {
   const { active } = useDragContext();
   const dragData = active as ChessDragData | null;
   const canDrop = !!active && !dragData?.isFromPalette;
 
-  const { setNodeRef, isOver } = useDroppable({ id, data: {} });
+  const { setNodeRef, isOver } = useDroppable({ id: 'trash', data: {} });
 
   const isActive = isOver && canDrop;
-
-  if (minimal) {
-    return (
-      <div
-        ref={setNodeRef}
-        className={`
-          transition-all duration-200
-          ${isActive ? 'bg-error/20 border-error' : canDrop ? 'bg-surface-elevated/50 border-border/50' : 'bg-transparent border-transparent'}
-          ${className}
-        `}
-      />
-    );
-  }
 
   return (
     <div

@@ -1,6 +1,6 @@
 import { useLocation } from 'wouter';
 import { memo, useCallback, useEffect, useRef } from 'react';
-import { useEscapeKey, useSearchParams } from '@/shared/hooks';
+import { useEscapeKey, useSearchParams } from '@hooks';
 
 import {
   Code2,
@@ -20,7 +20,7 @@ import {
 } from '@/components/layout';
 import { getRouteSeo, ORGANIZATION_SCHEMA, WEBSITE_SCHEMA } from '@constants';
 
-import { Seo } from '@shared/ui';
+import { Seo } from '@ui';
 import {
   AboutMainSection,
   ChangelogSection,
@@ -32,6 +32,7 @@ import {
   ThanksSection
 } from './components';
 
+// Constants
 const groups: readonly PageTabGroup[] = [
   {
     label: 'Project',

@@ -1,7 +1,7 @@
 import { memo } from 'react';
 
 import { AlertTriangle, X } from '@/assets/icons';
-import { useScrollLock } from '@/shared/hooks';
+import { useScrollLock } from '@hooks';
 import uiStyles from '@/shared/styles/ui.module.scss';
 
 interface ConfirmationModalProps {

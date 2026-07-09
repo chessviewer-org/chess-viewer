@@ -1,10 +1,11 @@
 import { useRef, useState } from 'react';
 
-import { useFENHistory, useHomeExport, useNotifications } from '@/shared/hooks';
+import { useFENHistory, useHomeExport, useNotifications } from '@hooks';
 
 import { useHomeBoardState } from './useHomeBoardState';
 
 export const useHome = () => {
+  // State
   const board = useHomeBoardState();
 
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
@@ -36,6 +37,7 @@ export const useHome = () => {
     notify: { success, error, info }
   });
 
+  // Handlers
   function handleFlip() {
     board.setFlipped((prev) => !prev);
     success('Board flipped');

@@ -11,13 +11,13 @@ import {
   X
 } from '@/assets/icons';
 
-import { useAuth } from '@/auth';
-import type { MembershipTier } from '@/auth';
-import { usePrefetchRoute, useScrollLock } from '@/shared/hooks';
-import { MembershipBadge, AvatarInitial } from '@/shared/ui';
+import { useAuth, type MembershipTier } from '@/auth';
+import { usePrefetchRoute, useScrollLock } from '@hooks';
+import { MembershipBadge, AvatarInitial } from '@ui';
 
 import styles from './styles/navbar.module.scss';
 
+// Types
 interface NavbarDesktopMenuProps {
   isAuthenticated: boolean;
   isDesktopDropdownOpen: boolean;
@@ -33,6 +33,7 @@ interface NavbarMobileMenuProps {
   handleSignOut: () => void;
 }
 
+// Helpers
 function ProfileHeader({
   displayName,
   membershipTier,

@@ -1,13 +1,17 @@
+import { logger } from '@utils';
 import { supabase } from '../core/Supabase';
 
+// Types
 export interface SecurityEvent {
   id: string;
   eventType: string;
   createdAt: string;
 }
 
+// Constants
 const TABLE_MISSING_ERROR = '42P01';
 
+// Service
 export const securityEventsService = {
   async recent(limit = 5): Promise<SecurityEvent[]> {
     try {
@@ -30,7 +34,7 @@ export const securityEventsService = {
         createdAt: row.created_at
       }));
     } catch (err) {
-      console.error('Failed to fetch recent security events:', err);
+      logger.error('Failed to fetch recent security events:', err);
       return [];
     }
   }

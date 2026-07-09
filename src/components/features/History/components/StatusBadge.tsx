@@ -2,7 +2,7 @@ import { memo } from 'react';
 
 import { CircleCheck, Clock, Hourglass } from '@/assets/icons';
 
-import { calculateStatus } from '@/shared/utils';
+import { calculateStatus } from '@utils';
 
 interface StatusBadgeProps {
   lastActiveAt: number;

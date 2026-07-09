@@ -1,18 +1,14 @@
-import { safeJSONParse } from '@/shared/utils';
+import { logger, safeJSONParse } from '@utils';
 import { supabase } from '../core/Supabase';
 
-// -----------------------------------------------------------------------------
 // Types
-// -----------------------------------------------------------------------------
 export interface Profile {
   displayName: string;
   supporterUntil: string | null;
   supporterMonthlyUsd: number;
 }
 
-// -----------------------------------------------------------------------------
 // Constants
-// -----------------------------------------------------------------------------
 export const GUEST_PROFILE_KEY = 'chess_viewer_guest_profile';
 
 export const DEFAULT_PROFILE: Profile = {
@@ -21,9 +17,7 @@ export const DEFAULT_PROFILE: Profile = {
   supporterMonthlyUsd: 0
 };
 
-// -----------------------------------------------------------------------------
 // Helpers
-// -----------------------------------------------------------------------------
 export function isActiveSupporter(supporterUntil: string | null): boolean {
   if (!supporterUntil) return false;
   const expirationTime = new Date(supporterUntil).getTime();
@@ -52,7 +46,7 @@ export function readGuestProfile(): Profile {
           : 0
     };
   } catch (error) {
-    console.error('Failed to read local guest profile:', error);
+    logger.error('Failed to read local guest profile:', error);
     return DEFAULT_PROFILE;
   }
 }
@@ -61,13 +55,11 @@ export function writeGuestProfile(profile: Profile): void {
   try {
     localStorage.setItem(GUEST_PROFILE_KEY, JSON.stringify(profile));
   } catch (error) {
-    console.error('Failed to save guest profile to localStorage:', error);
+    logger.error('Failed to save guest profile to localStorage:', error);
   }
 }
 
-// -----------------------------------------------------------------------------
 // Service
-// -----------------------------------------------------------------------------
 export const profileService = {
   async get(userId: string): Promise<Profile | null> {
     const { data, error } = await supabase
@@ -81,7 +73,7 @@ export const profileService = {
       .maybeSingle();
 
     if (error) {
-      console.error('Failed to fetch user profile:', error);
+      logger.error('Failed to fetch user profile:', error);
       return null;
     }
 

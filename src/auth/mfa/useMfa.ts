@@ -3,7 +3,7 @@ import { supabase } from '../core/Supabase';
 import { MfaStatus, VerifiedFactor } from './types';
 import { mfaApi } from './api';
 import { isProjectMfaDisabledError } from './errors';
-import { logger } from '@/shared/utils';
+import { logger } from '@utils';
 import {
   STATUS_VERIFIED,
   STATUS_UNVERIFIED,
@@ -14,20 +14,13 @@ import {
   ERR_6_DIGITS
 } from './constants';
 
-// -----------------------------------------------------------------------------
-// Hook
-// -----------------------------------------------------------------------------
 export function useMfa() {
-  // -----------------------------------------------------------------------------
   // State
-  // -----------------------------------------------------------------------------
   const [status, setStatus] = useState<MfaStatus>('loading');
   const [verifiedFactors, setVerifiedFactors] = useState<VerifiedFactor[]>([]);
   const [isMfaUnavailable, setIsMfaUnavailable] = useState(false);
 
-  // -----------------------------------------------------------------------------
   // Actions
-  // -----------------------------------------------------------------------------
   const refreshStatus = useCallback(async (): Promise<VerifiedFactor[]> => {
     try {
       const {

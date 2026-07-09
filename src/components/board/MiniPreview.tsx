@@ -2,7 +2,7 @@ import { memo, useEffect, useRef, useState } from 'react';
 
 import { BOARD_THEMES } from '@constants';
 
-import { logger, parseFEN } from '@/shared/utils';
+import { logger, parseFEN } from '@utils';
 
 interface MiniPreviewProps {
   fen: string;

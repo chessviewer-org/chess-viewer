@@ -1,7 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import type { ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode
+} from 'react';
 import type { ChessDragData } from '@constants';
-import { DragCtx, type DragSession } from '@/shared/hooks/useDragDrop';
+import { DragCtx, type DragSession } from '@hooks';
 
 interface DragProviderProps {
   children: ReactNode;

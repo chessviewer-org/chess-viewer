@@ -15,7 +15,7 @@ import {
   SOFTWARE_APP_SCHEMA
 } from '@constants';
 
-import { Seo } from '@shared/ui';
+import { Seo } from '@ui';
 import styles from './styles/advanced-fen-layout.module.scss';
 import InteractiveBoardColumn from './components/InteractiveBoardColumn';
 import NoValidPositions from './components/NoValidPositions';

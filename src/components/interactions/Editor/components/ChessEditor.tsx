@@ -13,16 +13,16 @@ import {
   useEditorKeyboard,
   useInteractiveBoard,
   usePieceImages
-} from '@/shared/hooks';
+} from '@hooks';
 import type { PieceSymbol } from '@app-types';
 
-import { Checkbox } from '@shared/ui';
+import { Checkbox } from '@ui';
 import {
   type BoardKeyboardApi,
-  InteractiveBoard
-} from '../../Board/components/InteractiveBoard';
-import { PiecePalette } from '../../PiecePalette/PiecePalette';
-import { TrashZone } from '../../Board/components/TrashZone';
+  InteractiveBoard,
+  TrashZone
+} from '../../Board';
+import { PiecePalette } from '../../PiecePalette';
 import { CommandBar } from './CommandBar';
 import { DatabaseSearchPanel } from './DatabaseSearchPanel';
 import styles from '../styles/chess-editor.module.scss';
@@ -31,6 +31,7 @@ import { useEditorBoardSize } from '../hooks/useEditorBoardSize';
 import { useShareBoard } from '../hooks/useShareBoard';
 import { ShareDialog } from './ShareDialog';
 
+// Types
 export interface ChessEditorProps {
   fen: string;
   onFenChange: (fen: string) => void;
@@ -44,8 +45,6 @@ export interface ChessEditorProps {
   setShowCoords?: (show: boolean) => void;
   showThinFrame?: boolean;
   setShowThinFrame?: (show: boolean) => void;
-  exportQuality?: number;
-  showCoordinateBorder?: boolean;
   onNotify?: (
     message: string,
     type: 'success' | 'error' | 'info' | 'warning'
@@ -71,8 +70,6 @@ export const ChessEditor = memo(function ChessEditor({
   setShowCoords,
   showThinFrame = false,
   setShowThinFrame,
-  exportQuality: _exportQuality = 2,
-  showCoordinateBorder: _showCoordinateBorder = true,
   onNotify,
   onPieceImagesChange,
   className = ''

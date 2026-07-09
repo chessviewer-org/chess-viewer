@@ -3,9 +3,11 @@ import { QUALITY_PRESETS } from '@constants';
 import { getCoordinateParams } from '@chessviewer-org/chess-viewer';
 import { logger } from './logger';
 
+// Constants
 const CM_PER_INCH = 2.54;
 const PRINT_DPI = 300;
 
+// Helpers
 function calculateBoardPixels(
   boardSizeCm: number,
   qualityMultiplier: number,

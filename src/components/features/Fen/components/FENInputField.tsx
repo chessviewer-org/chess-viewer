@@ -10,14 +10,15 @@ import {
 import { AlertCircle } from '@/assets/icons';
 
 import { useFENBatch } from '@contexts';
-import { useFenValidation } from '@/shared/hooks';
+import { useFenValidation } from '@hooks';
 import { EMPTY_FEN, STARTING_FEN } from '@constants';
 
-import { MAX_FEN_LENGTH, validateFEN } from '@/shared/utils';
+import { MAX_FEN_LENGTH, validateFEN } from '@utils';
 import { FENInputToolbar } from './FENInputToolbar';
 import { useFavoriteFen } from '../hooks/useFavoriteFen';
 import styles from '../styles/fen-toolbar.module.scss';
 
+// Types
 export type NotificationType = 'success' | 'error' | 'warning' | 'info';
 
 interface FENInputFieldProps {

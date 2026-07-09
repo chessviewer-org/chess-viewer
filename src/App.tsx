@@ -26,8 +26,8 @@ import {
   systemThemeMode,
   THEME_MODE_CHANGE_EVENT,
   type ThemeMode
-} from '@/shared/utils';
-import { ErrorBoundary } from '@shared/ui';
+} from '@utils';
+import { ErrorBoundary } from '@ui';
 
 declare global {
   interface Window {
@@ -142,7 +142,7 @@ function App() {
     <ErrorBoundary>
       <FENBatchProvider>
         <ModalProvider openAuthModal={openAuthModal}>
-          <div className="isolate-root shell-safe-area min-h-dvh lg:h-screen lg:overflow-hidden flex flex-col bg-linear-to-br from-bg-gradient-start to-bg-gradient-end text-fluid-base transition-colors duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
+          <div className="isolate-root shell-safe-area min-h-dvh lg:h-screen lg:overflow-hidden flex flex-col bg-bg text-fluid-base transition-colors duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
             <a
               href="#main-content"
               className="sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:top-4 focus-visible:left-4 focus-visible:z-100 focus-visible:px-6 focus-visible:py-3 focus-visible:bg-accent focus-visible:text-bg focus-visible:rounded-xl focus-visible:shadow-lg focus-visible:font-semibold"

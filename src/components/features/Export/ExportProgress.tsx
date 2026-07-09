@@ -7,8 +7,8 @@ import {
   type ExportInfo,
   type FileSizeEstimates,
   getExportInfo
-} from '@/shared/utils';
-import { ModalShell } from '@shared/ui';
+} from '@utils';
+import { ModalShell } from '@ui';
 import uiStyles from '@/shared/styles/ui.module.scss';
 
 interface ExportProgressProps {

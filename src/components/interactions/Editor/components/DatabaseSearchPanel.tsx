@@ -10,7 +10,7 @@ import {
   Search
 } from '@/assets/icons';
 
-import type { ProviderState } from '@/shared/hooks';
+import type { ProviderState } from '@hooks';
 
 import styles from '../styles/database-search.module.scss';
 
@@ -24,6 +24,7 @@ interface DatabaseSearchPanelProps {
   className?: string;
 }
 
+// Helpers
 const SearchActionButton = memo(function SearchActionButton({
   state,
   onBeforeSearch
@@ -40,7 +41,7 @@ const SearchActionButton = memo(function SearchActionButton({
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex shrink-0 items-center justify-center gap-1 px-2 py-1 rounded-lg text-xs font-bold text-bg bg-accent hover:bg-accent-hover transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:scale-[0.98]"
+        className="flex shrink-0 items-center justify-center gap-1 px-2 py-1 rounded-lg text-xs font-bold text-bg bg-accent hover:bg-accent-hover transition-colors duration-200 focus-ring active:scale-[0.98]"
         aria-label={`Open ${state.label} result in a new tab`}
       >
         <span>Open</span>
@@ -69,7 +70,7 @@ const SearchActionButton = memo(function SearchActionButton({
       type="button"
       onClick={handleClick}
       disabled={searching}
-      className={`flex shrink-0 items-center justify-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg ${
+      className={`flex shrink-0 items-center justify-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold border transition-colors duration-200 focus-ring ${
         searching
           ? 'cursor-not-allowed border-border/50 bg-surface text-yellow-500'
           : status === 'notfound'

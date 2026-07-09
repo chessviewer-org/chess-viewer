@@ -13,11 +13,12 @@ import {
 } from '@/components/layout';
 import { getRouteSeo, SOFTWARE_APP_SCHEMA } from '@constants';
 
-import { Seo } from '@shared/ui';
+import { Seo } from '@ui';
 import { FENHistoryEmptyState } from './components/FENHistoryEmptyState';
 import { FENHistoryGrid } from './components/FENHistoryGrid';
 import { type TabType, useFENHistoryPage } from './hooks/useFENHistoryPage';
 
+// Helpers
 const getHistoryGroups = (
   activeCount: number,
   favoritesCount: number,

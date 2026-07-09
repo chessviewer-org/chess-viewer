@@ -4,8 +4,9 @@ import { Clock, ShieldCheck, ShieldX } from '@/assets/icons';
 
 import { supabase } from '@/auth';
 
-import { logger } from '@/shared/utils';
+import { logger } from '@utils';
 
+// Helpers
 function formatDateTime(iso: string | null | undefined): string | null {
   if (!iso) return null;
   const ms = Date.parse(iso);

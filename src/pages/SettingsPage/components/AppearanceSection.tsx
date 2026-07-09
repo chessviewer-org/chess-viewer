@@ -2,10 +2,10 @@ import { memo } from 'react';
 
 import { Check, Contrast, Monitor, Moon, Sparkles, Sun } from '@/assets/icons';
 
-import { useContrastSetting, useThemeMode } from '@/shared/hooks';
+import { useContrastSetting, useThemeMode } from '@hooks';
 
-import type { ContrastPreference, ThemeModePreference } from '@/shared/utils';
-import { CustomSelect } from '@shared/ui';
+import type { ContrastPreference, ThemeModePreference } from '@utils';
+import { CustomSelect } from '@ui';
 import { SettingsBlock } from './parts';
 
 const THEME_MODE_OPTIONS: Array<{
@@ -42,7 +42,7 @@ const AppearanceSection = memo(function AppearanceSection() {
   const showDarkHint = themeMode !== 'light';
 
   return (
-    <div className="space-y-8 animate-pageEnter">
+    <div className="space-y-8 stagger-children">
       <SettingsBlock
         title="Theme"
         description="Personalise how ChessViewer looks, saved on this device and synced when you sign in."

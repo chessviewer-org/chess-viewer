@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { logger, safeJSONParse } from '@/shared/utils';
+import { logger, safeJSONParse } from '@utils';
 
 function writeToStorage<T>(storageKey: string, value: T) {
   try {

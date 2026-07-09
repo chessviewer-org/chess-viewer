@@ -2,11 +2,12 @@ import { memo, useCallback } from 'react';
 
 import { PALETTE_PIECES } from '@constants';
 import type { PieceSymbol } from '@app-types';
-import { getPieceKey } from '@/shared/utils';
+import { getPieceKey } from '@utils';
 
-import { DraggablePiece } from '../Board/components/DraggablePiece';
+import { DraggablePiece } from '../Board';
 import styles from './styles/piece-palette.module.scss';
 
+// Types
 export interface PiecePaletteProps {
   pieceImages: Record<string, HTMLImageElement | null>;
   isLoading: boolean;
@@ -21,6 +22,7 @@ interface PalettePiece {
   name: string;
 }
 
+// Constants
 const WHITE_PIECES = PALETTE_PIECES.filter(
   (p: PalettePiece) => p.color === 'w'
 );
@@ -40,11 +42,10 @@ export const PiecePalette = memo(function PiecePalette({
       const pieceImage = imageKey ? (pieceImages[imageKey] ?? null) : null;
       const disabled = isLoading || !pieceImage;
       return (
-        <div
+        <button
           key={p.id}
-          role="button"
-          tabIndex={disabled ? -1 : 0}
-          aria-disabled={disabled || undefined}
+          type="button"
+          disabled={disabled}
           onKeyDown={(e) => {
             if (disabled) return;
             if (e.key === 'Enter' || e.key === ' ') {
@@ -62,9 +63,8 @@ export const PiecePalette = memo(function PiecePalette({
             isFromPalette
             size="100%"
             disabled={disabled}
-            dragIdPrefix="stk-"
           />
-        </div>
+        </button>
       );
     },
     [pieceImages, isLoading, onKeyboardPick]
@@ -76,11 +76,10 @@ export const PiecePalette = memo(function PiecePalette({
       const pieceImage = imageKey ? (pieceImages[imageKey] ?? null) : null;
       const disabled = isLoading || !pieceImage;
       return (
-        <div
+        <button
           key={p.id}
-          role="button"
-          tabIndex={disabled ? -1 : 0}
-          aria-disabled={disabled || undefined}
+          type="button"
+          disabled={disabled}
           onKeyDown={(e) => {
             if (disabled) return;
             if (e.key === 'Enter' || e.key === ' ') {
@@ -98,9 +97,8 @@ export const PiecePalette = memo(function PiecePalette({
             isFromPalette
             size="100%"
             disabled={disabled}
-            dragIdPrefix="flt-"
           />
-        </div>
+        </button>
       );
     },
     [pieceImages, isLoading, onKeyboardPick]

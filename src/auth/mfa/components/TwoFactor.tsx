@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMfa } from '../useMfa';
-import { logger } from '@/shared/utils';
+import { logger } from '@utils';
 import {
   BackupCodesCard,
   EnabledCard,
@@ -9,9 +9,6 @@ import {
   SetupStartCard
 } from './TwoFactorSteps';
 
-// -----------------------------------------------------------------------------
-// Component
-// -----------------------------------------------------------------------------
 export function TwoFactor() {
   const {
     status,
@@ -21,9 +18,7 @@ export function TwoFactor() {
     disableMfa
   } = useMfa();
 
-  // -----------------------------------------------------------------------------
   // State
-  // -----------------------------------------------------------------------------
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [totpData, setTotpData] = useState<{
     uri: string;
@@ -36,9 +31,7 @@ export function TwoFactor() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // -----------------------------------------------------------------------------
-  // Actions
-  // -----------------------------------------------------------------------------
+  // Handlers
   const handleSetupStart = async () => {
     if (isSubmitting || isMfaUnavailable) return;
     setError('');

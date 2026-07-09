@@ -12,7 +12,7 @@ import {
 
 import { useModal } from '@contexts';
 
-import { safeJSONParse, saveBlob } from '@/shared/utils';
+import { safeJSONParse, saveBlob } from '@utils';
 
 const STORAGE_CATEGORIES = [
   {
@@ -164,8 +164,8 @@ const DataManagement = memo(function DataManagement() {
   }
 
   return (
-    <div className="space-y-4 animate-pageEnter">
-      <section className="rounded-2xl border border-border bg-surface-elevated p-5">
+    <div className="space-y-4 stagger-children">
+      <section className="card-elevated">
         <div className="mb-4 flex items-center justify-between gap-3">
           <h4 className="flex items-center gap-2 text-sm font-bold text-text-primary">
             <HardDrive className="h-4 w-4 text-text-muted" aria-hidden="true" />

@@ -2,8 +2,9 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 
 import type { PieceSymbol } from '@app-types';
 
-import { pieceToName } from '@/shared/utils';
+import { pieceToName } from '@utils';
 
+// Constants
 const FILES = 'abcdefgh';
 
 interface Cell {
@@ -11,6 +12,7 @@ interface Cell {
   col: number;
 }
 
+// Helpers
 function squareName(row: number, col: number): string {
   return `${FILES[col] ?? col}${8 - row}`;
 }

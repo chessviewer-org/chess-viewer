@@ -2,8 +2,9 @@ import { useLocation } from 'wouter';
 import { useCallback, useRef, useState } from 'react';
 
 import { useAuth } from '@/auth';
-import { useOutsideClick } from '@/shared/hooks';
+import { useOutsideClick } from '@hooks';
 
+// Constants
 const AUTH_ROUTE: Record<'signin' | 'signup' | 'security', string> = {
   signin: '/auth/sign-in',
   signup: '/auth/sign-up',

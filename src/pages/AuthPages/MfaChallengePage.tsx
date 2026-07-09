@@ -1,31 +1,21 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { type FormEvent, useState } from 'react';
 
 import { KeyRound, Loader2, ShieldAlert } from '@/assets/icons';
 import { Link, useLocation } from 'wouter';
 
 import { supabase } from '@/auth';
-import { logger } from '@/shared/utils';
+import { logger } from '@utils';
 import { AuthPage } from './AuthPage';
 import styles from './styles/auth-forms.module.scss';
 
 type MfaMode = 'totp' | 'backup';
 
-// -----------------------------------------------------------------------------
-// MfaChallengePage
-// Shown as a full route (/auth/mfa) after sign-in when the user has 2FA enabled.
-// -----------------------------------------------------------------------------
-export function MfaChallengePage() {
+function MfaChallengePage() {
   const [, navigate] = useLocation();
   const [code, setCode] = useState('');
   const [mode, setMode] = useState<MfaMode>('totp');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // --------------------------------------------------------------------------
-  // Handlers
-  // --------------------------------------------------------------------------
 
   const handleVerifyTotp = async () => {
     const { data: factorsRes, error: factorsError } =
@@ -33,7 +23,7 @@ export function MfaChallengePage() {
     if (factorsError) throw factorsError;
 
     const totpFactor = (factorsRes?.totp ?? []).find(
-      (f: any) => f.status === 'verified'
+      (f) => f.status === 'verified'
     );
     if (!totpFactor) throw new Error('No verified TOTP factor found.');
 
@@ -80,13 +70,9 @@ export function MfaChallengePage() {
 
   const isTotp = mode === 'totp';
 
-  // --------------------------------------------------------------------------
-  // Render – standalone page (no AuthPage sidebar wrapper)
-  // --------------------------------------------------------------------------
   return (
     <AuthPage>
       <div className="flex flex-col gap-6">
-        {/* Header */}
         <div className="flex flex-col items-center gap-3 text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10">
             {isTotp ? (
@@ -105,14 +91,12 @@ export function MfaChallengePage() {
           </p>
         </div>
 
-        {/* Error */}
         {error && (
           <div className="rounded-lg border border-error/20 bg-error/10 p-3 text-center text-sm font-medium text-error">
             {error}
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <label htmlFor="mfa-code" className="sr-only">
             {isTotp ? 'Authenticator code' : 'Backup recovery code'}
@@ -143,7 +127,6 @@ export function MfaChallengePage() {
           </button>
         </form>
 
-        {/* Mode switch + back link */}
         <div className="flex flex-col items-center gap-3">
           <button
             type="button"

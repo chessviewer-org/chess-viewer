@@ -11,9 +11,10 @@ import {
   Search
 } from '@/assets/icons';
 
-import { CustomSelect, DatePicker } from '@shared/ui';
+import { CustomSelect, DatePicker } from '@ui';
 import uiStyles from '@/shared/styles/ui.module.scss';
 
+// Types
 export interface HistoryFilterState {
   fenSearch?: string | undefined;
   status?: string | undefined;

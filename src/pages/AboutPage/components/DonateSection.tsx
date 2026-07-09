@@ -2,9 +2,9 @@ import { useCallback } from 'react';
 
 import { Code2, Copy, Heart, Megaphone } from '@/assets/icons';
 
-import { useNotifications } from '@/shared/hooks';
+import { useNotifications } from '@hooks';
 
-import { NotificationContainer } from '@shared/ui';
+import { NotificationContainer } from '@ui';
 import { CRYPTO_WALLET_ADDRESS, REPO_URL } from '../utils/aboutConstants';
 import {
   Callout,
@@ -26,7 +26,7 @@ export default function DonateSection() {
   }, [success, error]);
 
   return (
-    <div className="space-y-8 animate-pageEnter">
+    <div className="space-y-8 stagger-children">
       <div className="space-y-3">
         <SectionHeading icon={Heart} title="Donate" />
         <Lead>
@@ -79,7 +79,7 @@ export default function DonateSection() {
             <button
               type="button"
               onClick={copyWallet}
-              className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+              className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-hover focus-ring"
               aria-label="Copy crypto wallet address to clipboard"
               title="Copy wallet address"
             >
@@ -112,11 +112,9 @@ export default function DonateSection() {
             <span>Share ChessViewer with people who make chess diagrams.</span>
           </li>
         </ul>
-        <div className="pt-1">
-          <ExternalLinkButton href={REPO_URL} icon={Code2}>
-            View the project on GitHub
-          </ExternalLinkButton>
-        </div>
+        <ExternalLinkButton href={REPO_URL} icon={Code2} className="mt-1">
+          View the project on GitHub
+        </ExternalLinkButton>
       </InfoCard>
 
       <NotificationContainer

@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 import { AlertCircle, Check, Clipboard, Star, Trash2 } from '@/assets/icons';
 
-import { MAX_FEN_LENGTH, validateFEN } from '@/shared/utils';
+import { MAX_FEN_LENGTH, validateFEN } from '@utils';
 import styles from '../styles/advanced-fen-layout.module.scss';
 
 interface PositionsTabProps {

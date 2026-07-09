@@ -4,10 +4,10 @@ import { KeyRound, LogOut, RotateCcw, ShieldCheck } from '@/assets/icons';
 
 import { supabase, TwoFactor, useAuth } from '@/auth';
 import { useModal } from '@contexts';
-import { useLocalStorage } from '@/shared/hooks';
+import { useLocalStorage } from '@hooks';
 
-import { logger } from '@/shared/utils';
-import { Switch } from '@shared/ui';
+import { logger } from '@utils';
+import { Switch } from '@ui';
 import { SettingsHeading } from './parts';
 import { SecurityActivity } from './SecurityActivity';
 import { SecurityOverview } from './SecurityOverview';
@@ -117,7 +117,7 @@ const SecuritySection = memo(function SecuritySection() {
   };
 
   return (
-    <div className="space-y-5 animate-pageEnter">
+    <div className="space-y-5 stagger-children">
       <SettingsHeading icon={ShieldCheck} title="Security" />
 
       {isAuthenticated ? (
@@ -137,7 +137,7 @@ const SecuritySection = memo(function SecuritySection() {
             </div>
 
             <div className="p-5">
-              <h3 className="mb-1 flex items-center gap-2 text-sm font-bold text-text-primary">
+              <h3 className="card-title">
                 <KeyRound
                   className="h-4 w-4 text-text-muted"
                   aria-hidden="true"
@@ -161,7 +161,7 @@ const SecuritySection = memo(function SecuritySection() {
                   disabled={changingPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="New password"
-                  className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors duration-200 disabled:opacity-60"
+                  className="input-field"
                 />
                 <label htmlFor="security-confirm-password" className="sr-only">
                   Confirm new password
@@ -182,7 +182,7 @@ const SecuritySection = memo(function SecuritySection() {
                     confirmPassword.length > 0 &&
                     confirmPassword !== newPassword
                   }
-                  className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors duration-200 disabled:opacity-60"
+                  className="input-field"
                 />
                 {confirmPassword.length > 0 &&
                   confirmPassword !== newPassword && (
@@ -195,7 +195,7 @@ const SecuritySection = memo(function SecuritySection() {
                     type="button"
                     onClick={() => void handlePasswordChange()}
                     disabled={!passwordValid || changingPassword}
-                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-bg transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-bg transition-colors hover:bg-accent-hover focus-ring disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {changingPassword ? 'Updating…' : 'Update Password'}
                   </button>
@@ -213,8 +213,8 @@ const SecuritySection = memo(function SecuritySection() {
             </div>
           </section>
 
-          <section className="rounded-2xl border border-border bg-surface-elevated p-5">
-            <h3 className="mb-1 flex items-center gap-2 text-sm font-bold text-text-primary">
+          <section className="card-elevated">
+            <h3 className="card-title">
               <LogOut className="h-4 w-4 text-text-muted" aria-hidden="true" />
               Active Sessions
             </h3>
@@ -238,7 +238,7 @@ const SecuritySection = memo(function SecuritySection() {
             refreshSignal={activityRefresh}
           />
 
-          <section className="space-y-4 rounded-2xl border border-border bg-surface-elevated p-5">
+          <section className="space-y-4 card-elevated">
             <h3 className="text-sm font-bold text-text-primary">Preferences</h3>
             <Switch
               label="Confirm destructive actions"

@@ -18,12 +18,12 @@ import {
 } from '@/assets/icons';
 
 import { MembershipTier, supabase, useAuth } from '@/auth';
+import { CONTACT_EMAIL } from '@/pages/AboutPage/utils/aboutConstants';
 
-import { Modal } from '@shared/ui';
+import { MembershipBadge, Modal } from '@ui';
 
-import { useCopyToClipboard } from '@/shared/hooks';
-import { logger, sanitizeInput } from '@/shared/utils';
-import { MembershipBadge } from '@/shared/ui/MembershipIdentity/MembershipBadge';
+import { useCopyToClipboard } from '@hooks';
+import { logger, sanitizeInput } from '@utils';
 
 export function AccountActions({
   onDeleteClick
@@ -51,8 +51,8 @@ export function AccountActions({
           Delete Account
         </button>
         <a
-          href="mailto:contact@chessviewer.org?subject=Account%20deletion%20request"
-          className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+          href={`mailto:${CONTACT_EMAIL}?subject=Account%20deletion%20request`}
+          className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-hover focus-ring"
         >
           <Mail className="h-4 w-4" aria-hidden="true" />
           Contact support to delete
@@ -326,7 +326,7 @@ export function EmailCard({
   };
 
   return (
-    <section className="space-y-3 rounded-2xl border border-border bg-surface-elevated p-5">
+    <section className="space-y-3 card-elevated">
       <div className="flex flex-col gap-1.5">
         <label
           htmlFor="account-email"
@@ -350,13 +350,13 @@ export function EmailCard({
             }}
             placeholder="you@example.com"
             aria-invalid={draft.length > 0 && !valid}
-            className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted outline-none transition-colors duration-200 disabled:opacity-60"
+            className="input-field"
           />
           <button
             type="button"
             onClick={() => void handleSubmit()}
             disabled={!isDirty || submitting}
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-bg transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-bg transition-colors hover:bg-accent-hover focus-ring disabled:cursor-not-allowed disabled:opacity-50"
           >
             {submitting ? 'Sending…' : 'Update Email'}
           </button>
@@ -425,7 +425,7 @@ export function IdentityHeader({
   };
 
   return (
-    <section className="flex items-center gap-4 rounded-2xl border border-border bg-surface-elevated p-5">
+    <section className="flex items-center gap-4 card-elevated">
       <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent font-bold text-lg uppercase">
         {displayName ? (
           displayName.charAt(0)
@@ -461,7 +461,7 @@ export function IdentityHeader({
                   onClick={() => void commit()}
                   disabled={!canSave || saving}
                   aria-label="Save display name"
-                  className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-bg transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-bg transition-colors hover:bg-accent-hover focus-ring disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Check className="h-4 w-4" aria-hidden="true" />
                   {saving ? 'Saving…' : 'Save'}

@@ -2,8 +2,10 @@ import { PIECE_SET_POPULARITY, PIECE_SETS as ALL_PIECE_SETS } from '@constants';
 import type { PieceSet } from '@app-types';
 import { logger } from './logger';
 
+// Types
 export type PieceSort = 'popular' | 'name';
 
+// Constants
 const MISSING_ARTWORK_IDS = new Set(['alpha', 'reillycraig', 'riohacha']);
 
 export const AVAILABLE_PIECE_SETS: PieceSet[] = ALL_PIECE_SETS.filter(

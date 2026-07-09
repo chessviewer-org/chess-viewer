@@ -1,21 +1,16 @@
+import { logger } from '@utils';
 import { supabase } from '../core/Supabase';
 
-// -----------------------------------------------------------------------------
 // Types
-// -----------------------------------------------------------------------------
 export type SyncSetResult = 'ok' | 'too-large' | 'skipped' | 'error';
 
-// -----------------------------------------------------------------------------
 // Constants
-// -----------------------------------------------------------------------------
 export const SAFE_SYNC_PLAINTEXT_BUDGET = 7_000;
 
 const MAX_VALUE_LENGTH = 10_000;
 const TABLE_MISSING_ERROR = '42P01';
 
-// -----------------------------------------------------------------------------
 // Helpers
-// -----------------------------------------------------------------------------
 async function getUserId(): Promise<string | null> {
   const {
     data: { session }
@@ -23,9 +18,11 @@ async function getUserId(): Promise<string | null> {
   return session?.user?.id ?? null;
 }
 
-// -----------------------------------------------------------------------------
+function isTableMissing(code: string | undefined): boolean {
+  return code === TABLE_MISSING_ERROR;
+}
+
 // Service
-// -----------------------------------------------------------------------------
 export const syncStorage = {
   async get(key: string): Promise<{ value: string } | null> {
     const userId = await getUserId();
@@ -40,14 +37,14 @@ export const syncStorage = {
         .returns<{ value: string }>()
         .maybeSingle();
 
-      if (error && error.code !== TABLE_MISSING_ERROR) {
-        console.error(`syncStorage.get failed for key "${key}":`, error);
+      if (error && !isTableMissing(error.code)) {
+        logger.error(`syncStorage.get failed for key "${key}":`, error);
         return null;
       }
 
       return data?.value ? { value: data.value } : null;
     } catch (err) {
-      console.error(`syncStorage.get caught error for key "${key}":`, err);
+      logger.error(`syncStorage.get caught error for key "${key}":`, err);
       return null;
     }
   },
@@ -70,14 +67,14 @@ export const syncStorage = {
       );
 
       if (error) {
-        if (error.code === TABLE_MISSING_ERROR) return 'skipped';
-        console.error(`syncStorage.set failed for key "${key}":`, error);
+        if (isTableMissing(error.code)) return 'skipped';
+        logger.error(`syncStorage.set failed for key "${key}":`, error);
         return 'error';
       }
 
       return 'ok';
     } catch (err) {
-      console.error(`syncStorage.set caught error for key "${key}":`, err);
+      logger.error(`syncStorage.set caught error for key "${key}":`, err);
       return 'error';
     }
   },
@@ -93,11 +90,11 @@ export const syncStorage = {
         .eq('user_id', userId)
         .eq('key', key);
 
-      if (error && error.code !== TABLE_MISSING_ERROR) {
-        console.error(`syncStorage.delete failed for key "${key}":`, error);
+      if (error && !isTableMissing(error.code)) {
+        logger.error(`syncStorage.delete failed for key "${key}":`, error);
       }
     } catch (err) {
-      console.error(`syncStorage.delete caught error for key "${key}":`, err);
+      logger.error(`syncStorage.delete caught error for key "${key}":`, err);
     }
   }
 };

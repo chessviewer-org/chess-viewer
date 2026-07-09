@@ -13,15 +13,15 @@ import {
   useNotifications,
   usePieceImages,
   useSearchParams
-} from '@/shared/hooks';
+} from '@hooks';
 
-import { safeJSONParse } from '@/shared/utils';
+import { safeJSONParse } from '@utils';
 import {
   EXPORT_BREADCRUMB_SCHEMA,
   EXPORT_HOWTO_SCHEMA,
   getRouteSeo
 } from '@constants';
-import { Seo } from '@shared/ui';
+import { Seo } from '@ui';
 import BoardStyleStep from './components/BoardStyleStep';
 import ExportSettingsStep from './components/ExportSettingsStep';
 import {
@@ -30,6 +30,7 @@ import {
 } from './utils/ExportPage.types';
 import { useExportWizard } from './hooks/useExportWizard';
 
+// Constants
 const TABS: PageTabGroup[] = [
   {
     items: [
@@ -39,6 +40,7 @@ const TABS: PageTabGroup[] = [
   }
 ];
 
+// Types
 export interface ExportPageConfig {
   fen: string;
   pieceStyle: string;

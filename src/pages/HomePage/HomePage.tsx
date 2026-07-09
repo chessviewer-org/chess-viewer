@@ -11,7 +11,7 @@ import {
   WEBSITE_SCHEMA
 } from '@constants';
 
-import { NotificationContainer, Seo } from '@shared/ui';
+import { NotificationContainer, Seo } from '@ui';
 import { useHome } from './hooks/useHome';
 
 const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
@@ -87,8 +87,6 @@ const HomePage: React.FC = () => {
                 setShowCoords={home.setShowCoords}
                 showThinFrame={home.showThinFrame}
                 setShowThinFrame={home.setShowThinFrame}
-                exportQuality={home.exportQuality}
-                showCoordinateBorder={home.showCoordinateBorder}
                 lightSquare={home.lightSquare}
                 darkSquare={home.darkSquare}
                 flipped={home.flipped}

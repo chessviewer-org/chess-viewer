@@ -2,9 +2,9 @@ import React from 'react';
 
 import { Home, Mail, RefreshCw, Check, Copy } from '@/assets/icons';
 
-import { Logo } from '@/shared/ui';
+import { Logo } from '@ui';
 
-import { logger } from '@/shared/utils';
+import { logger } from '@utils';
 
 interface ErrorFallbackProps {
   error: Error | null;

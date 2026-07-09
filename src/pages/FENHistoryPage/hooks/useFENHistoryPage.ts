@@ -7,14 +7,16 @@ import {
   useEscapeKey,
   useFENHistory,
   useSyncedBoardColors
-} from '@/shared/hooks';
+} from '@hooks';
 import { ActiveHistoryEntry, HistoryFilters } from '@app-types';
 
-import { logger } from '@/shared/utils';
+import { logger } from '@utils';
 
+// Types
 export type TabType = 'active' | 'favorites' | 'archive';
 
 export const useFENHistoryPage = () => {
+  // State
   const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState<TabType>('active');
   const [filters, setFilters] = useState<HistoryFilterState>({});
@@ -61,6 +63,7 @@ export const useFENHistoryPage = () => {
 
   useSyncedBoardColors(setLightSquare, setDarkSquare);
 
+  // Handlers
   function handleBack() {
     window.history.back();
   }

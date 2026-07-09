@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { PIECE_MAP } from '@constants';
 
-import { getCachedPieceStyle, logger, preloadPieceStyle } from '@/shared/utils';
+import { getCachedPieceStyle, logger, preloadPieceStyle } from '@utils';
 
 export function usePieceImages(pieceStyle: string): {
   pieceImages: Record<string, HTMLImageElement>;
@@ -18,9 +18,6 @@ export function usePieceImages(pieceStyle: string): {
   const [error, setError] = useState<string | null>(null);
   const [loadProgress, setLoadProgress] = useState(cached ? 100 : 0);
   const currentStyleRef = useRef(pieceStyle);
-  // The style whose images are already reflected in state. Starts satisfied
-  // when the initial render seeded from cache, so the effect skips a redundant
-  // re-set on mount and only syncs when the style actually changes.
   const syncedStyleRef = useRef(cached ? pieceStyle : null);
 
   useEffect(() => {

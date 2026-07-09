@@ -1,4 +1,4 @@
-import { safeJSONParse } from '@/shared/utils';
+import { logger, safeJSONParse } from '@utils';
 import {
   isActiveSupporter,
   profileService,
@@ -7,9 +7,7 @@ import {
 import type { Profile } from '../profile/profile';
 import { syncStorage } from './syncStorage';
 
-// -----------------------------------------------------------------------------
 // Constants
-// -----------------------------------------------------------------------------
 const MIGRATION_LOCK_KEY = 'supabase_migration_complete';
 const DEFAULT_USER_NAME = 'User';
 const MS_PER_MONTH = 30 * 24 * 60 * 60 * 1000;
@@ -20,9 +18,7 @@ const SETTINGS_KEYS_TO_MIGRATE = [
   'fen-history-archive'
 ];
 
-// -----------------------------------------------------------------------------
 // Helpers
-// -----------------------------------------------------------------------------
 async function syncSettingsToCloud(): Promise<void> {
   await Promise.all(
     SETTINGS_KEYS_TO_MIGRATE.map(async (key) => {
@@ -73,9 +69,7 @@ async function migrateGuestProfileToCloud(userId: string): Promise<void> {
   }
 }
 
-// -----------------------------------------------------------------------------
 // Service
-// -----------------------------------------------------------------------------
 export const dataMigration = {
   async migrateToCloud(userId: string): Promise<void> {
     const lockKey = `${MIGRATION_LOCK_KEY}_${userId}`;
@@ -86,7 +80,7 @@ export const dataMigration = {
       await migrateGuestProfileToCloud(userId);
       localStorage.setItem(lockKey, 'true');
     } catch (error) {
-      console.error('Failed to migrate local data to cloud:', error);
+      logger.error('Failed to migrate local data to cloud:', error);
     }
   }
 };

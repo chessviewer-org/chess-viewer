@@ -1,11 +1,12 @@
 import { memo, useEffect, useRef, useState } from 'react';
 
-import { usePieceImages } from '@/shared/hooks';
+import { usePieceImages } from '@hooks';
 import { BaseHistoryEntry } from '@app-types';
 
 import { TabType } from '../hooks/useFENHistoryPage';
 import { FENHistoryGridItem } from './FENHistoryGridItem';
 
+// Types
 interface FENHistoryGridProps {
   data: BaseHistoryEntry[];
   activeTab: TabType;
@@ -20,6 +21,7 @@ interface FENHistoryGridProps {
   handleToggleFavorite: (id: number) => void;
 }
 
+// Constants
 const PAGE_SIZE = 24;
 
 export const FENHistoryGrid = memo(function FENHistoryGrid({
@@ -35,6 +37,7 @@ export const FENHistoryGrid = memo(function FENHistoryGrid({
   handleLoad,
   handleToggleFavorite
 }: FENHistoryGridProps) {
+  // State
   const { pieceImages, isLoading } = usePieceImages(pieceStyle);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const sentinelRef = useRef<HTMLDivElement>(null);

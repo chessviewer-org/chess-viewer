@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, RefObject } from 'react';
 
+import { readReducedMotionPreference, resolveReducedMotion } from '@utils';
+
 export function useOutsideClick(
   ref: React.RefObject<HTMLElement | null>,
   handler: (event: MouseEvent | TouchEvent | KeyboardEvent) => void,
@@ -65,6 +67,35 @@ export function useScrollLock(isLocked: boolean): void {
 
 const FOCUSABLE =
   'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+
+export function useScrollReveal(ref: RefObject<HTMLElement | null>): boolean {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    if (resolveReducedMotion(readReducedMotionPreference())) {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -80px 0px' }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [ref]);
+
+  return isVisible;
+}
 
 export function useFocusTrap(
   ref: RefObject<HTMLElement | null>,

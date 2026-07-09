@@ -4,9 +4,9 @@ import { memo, Ref, useCallback, useImperativeHandle } from 'react';
 import { History, ListPlus } from '@/assets/icons';
 
 import { FENInputField, type NotificationType } from './FENInputField';
-import { useFENHistory, usePrefetchRoute } from '@/shared/hooks';
+import { useFENHistory, usePrefetchRoute } from '@hooks';
 
-import { MAX_FEN_LENGTH } from '@/shared/utils';
+import { MAX_FEN_LENGTH } from '@utils';
 import styles from '../styles/fen-toolbar.module.scss';
 
 interface FenToolbarProps {

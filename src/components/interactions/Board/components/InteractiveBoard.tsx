@@ -2,10 +2,11 @@ import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import type { PieceSymbol } from '@app-types';
 
-import { describeBoardPosition } from '@/shared/utils';
+import { describeBoardPosition } from '@utils';
 import { DroppableSquare } from './DroppableSquare';
 import { useBoardKeyboard } from '../hooks/useBoardKeyboard';
 
+// Types
 export interface BoardKeyboardApi {
   pickUpFromPalette: (piece: PieceSymbol) => void;
 }

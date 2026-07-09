@@ -7,8 +7,9 @@ import React, {
   useState
 } from 'react';
 
-import { Modal, type ModalType } from '@shared/ui';
+import { Modal, type ModalType } from '@ui';
 
+// Types
 interface ModalState {
   isOpen: boolean;
   title: string;
@@ -32,6 +33,7 @@ interface ModalContextType {
   openAuthModal: (tab: 'signin' | 'signup' | 'security') => void;
 }
 
+// Context
 const ModalContext = createContext<ModalContextType | undefined>(undefined);
 
 export function ModalProvider({
@@ -41,6 +43,7 @@ export function ModalProvider({
   children: React.ReactNode;
   openAuthModal: (tab: 'signin' | 'signup' | 'security') => void;
 }) {
+  // State
   const [modalState, setModalState] = useState<ModalState>({
     isOpen: false,
     title: '',
@@ -50,6 +53,7 @@ export function ModalProvider({
     onCancel: () => {}
   });
 
+  // Actions
   const showAlert = useCallback(
     (title: string, message: string, type: ModalType = 'info') => {
       return new Promise<void>((resolve) => {

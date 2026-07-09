@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { useLocalStorage, useSyncedBoardColors } from '@hooks';
 
-import { MAX_FEN_LENGTH, validateFEN } from '@/shared/utils';
+import { MAX_FEN_LENGTH, validateFEN } from '@utils';
 
 export function useHomeBoardState() {
   const [fen, setFen] = useLocalStorage<string>(
@@ -10,7 +10,6 @@ export function useHomeBoardState() {
     'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
   );
 
-  // Adopt a shared deep-link FEN (?fen=…), then strip the param so refreshes stay clean.
   useEffect(() => {
     const shared = new URLSearchParams(window.location.search).get('fen');
     if (!shared) return;

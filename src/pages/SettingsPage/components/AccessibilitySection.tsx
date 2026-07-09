@@ -2,13 +2,13 @@ import { memo } from 'react';
 
 import { Eye, Layers, Monitor, Sparkles, Zap } from '@/assets/icons';
 
-import { useColorVisionSetting, useReducedMotionSetting } from '@/shared/hooks';
+import { useColorVisionSetting, useReducedMotionSetting } from '@hooks';
 
 import type {
   ColorVisionPreference,
   ReducedMotionPreference
-} from '@/shared/utils';
-import { CustomSelect } from '@shared/ui';
+} from '@utils';
+import { CustomSelect } from '@ui';
 import { SettingsBlock, SettingsHeading } from './parts';
 
 const COLOR_VISION_OPTIONS: Array<{
@@ -65,7 +65,7 @@ const AccessibilitySection = memo(function AccessibilitySection() {
   const [reducedMotion, setReducedMotion] = useReducedMotionSetting();
 
   return (
-    <div className="space-y-8 animate-pageEnter">
+    <div className="space-y-8 stagger-children">
       <SettingsHeading
         icon={Eye}
         title="Accessibility"
@@ -124,12 +124,32 @@ const AccessibilitySection = memo(function AccessibilitySection() {
             </p>
           )}
           {reducedMotion === 'system' && (
-            <p className="w-full rounded-lg border border-border bg-surface-elevated px-4 py-3 text-xs leading-relaxed text-text-muted">
-              To change the system preference: GNOME — Settings → Accessibility
-              → Seeing → Reduce Animation; macOS — System Settings →
-              Accessibility → Display → Reduce Motion; Windows — Settings →
-              Accessibility → Visual effects → Animation effects.
-            </p>
+            <div className="w-full rounded-lg border border-border bg-surface-elevated px-4 py-3 text-xs leading-relaxed text-text-muted">
+              <p className="mb-2">
+                This follows your operating system&apos;s motion setting. To
+                change it, open:
+              </p>
+              <ul className="space-y-1">
+                <li>
+                  <span className="font-semibold text-text-secondary">
+                    GNOME:
+                  </span>{' '}
+                  Settings → Accessibility → Seeing → Reduce Animation
+                </li>
+                <li>
+                  <span className="font-semibold text-text-secondary">
+                    macOS:
+                  </span>{' '}
+                  System Settings → Accessibility → Display → Reduce Motion
+                </li>
+                <li>
+                  <span className="font-semibold text-text-secondary">
+                    Windows:
+                  </span>{' '}
+                  Settings → Accessibility → Visual effects → Animation effects
+                </li>
+              </ul>
+            </div>
           )}
         </div>
       </SettingsBlock>

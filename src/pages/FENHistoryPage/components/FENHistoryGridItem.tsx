@@ -12,10 +12,11 @@ import {
 
 import { MiniPreview } from '@/components/board';
 import { StatusBadge } from '@/components/features/History';
-import { useCopyToClipboard } from '@/shared/hooks';
+import { useCopyToClipboard } from '@hooks';
 
 import { TabType } from '../hooks/useFENHistoryPage';
 
+// Types
 interface FENHistoryEntry {
   id: number;
   fen: string;

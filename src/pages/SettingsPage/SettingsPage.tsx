@@ -9,7 +9,7 @@ import {
   ShieldCheck,
   User
 } from '@/assets/icons';
-import { useEscapeKey, useSearchParams } from '@/shared/hooks';
+import { useEscapeKey, useSearchParams } from '@hooks';
 
 import {
   type PageTabGroup,
@@ -18,7 +18,7 @@ import {
 } from '@/components/layout';
 import { useAuth } from '@/auth';
 
-import { Seo } from '@shared/ui';
+import { Seo } from '@ui';
 import {
   AccessibilitySection,
   AccountSection,
@@ -111,7 +111,7 @@ const SettingsPage = memo(function SettingsPage() {
         {activeTab === 'accessibility' && <AccessibilitySection />}
         {activeTab === 'security' && <SecuritySection />}
         {activeTab === 'data' && (
-          <div className="space-y-4 animate-pageEnter">
+          <div className="space-y-4 stagger-children">
             <h2 className="flex items-center gap-2 border-b border-border pb-3 font-display text-2xl font-bold text-text-primary">
               <Database
                 className="h-6 w-6 text-text-secondary"

@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useState } from 'react';
 
 import { LayoutGrid } from '@/assets/icons';
 
-import { MiniPreview } from '@/components/board/MiniPreview';
+import { MiniPreview } from '@/components/board';
 import {
   BoardThemePicker,
   PieceGridShared as PieceGrid
@@ -13,7 +13,7 @@ import {
   useLocalStorage,
   usePieceImages,
   usePieceSort
-} from '@/shared/hooks';
+} from '@hooks';
 import {
   BOARD_COLOR_KEYS,
   DEFAULT_DARK_SQUARE,
@@ -23,8 +23,8 @@ import {
   STARTING_FEN
 } from '@constants';
 
-import { sanitizeHexColor } from '@/shared/utils';
-import { CustomSelect } from '@shared/ui';
+import { sanitizeHexColor } from '@utils';
+import { CustomSelect } from '@ui';
 import { SettingsBlock, SettingsHeading } from './parts';
 
 const BoardSection = memo(function BoardSection() {
@@ -64,7 +64,7 @@ const BoardSection = memo(function BoardSection() {
   );
 
   return (
-    <div className="space-y-6 animate-pageEnter">
+    <div className="space-y-6 stagger-children">
       <SettingsHeading
         icon={LayoutGrid}
         title="Board Style"

@@ -2,8 +2,8 @@ import { memo, useMemo } from 'react';
 
 import { type ChessDragData } from '@constants';
 import type { PieceSymbol } from '@app-types';
-import { useDraggable } from '@/shared/hooks';
-import { getPieceKey } from '@/shared/utils';
+import { useDraggable } from '@hooks';
+import { getPieceKey } from '@utils';
 
 interface DraggablePieceProps {
   piece: PieceSymbol | '';
@@ -13,7 +13,6 @@ interface DraggablePieceProps {
   isFromPalette?: boolean;
   size?: string;
   disabled?: boolean;
-  dragIdPrefix?: string;
   cellSize?: number;
 }
 

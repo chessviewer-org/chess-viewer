@@ -1,7 +1,7 @@
 import { ArrowLeft, Crown, Home } from '@/assets/icons';
 import { Link } from 'wouter';
 
-import { Seo } from '@shared/ui';
+import { Seo } from '@ui';
 
 function NotFoundPage() {
   return (
@@ -31,7 +31,7 @@ function NotFoundPage() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/"
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-linear-to-r from-accent to-accent-hover text-bg rounded-xl font-bold shadow-lg hover:shadow-xl transition-shadow duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-linear-to-r from-accent to-accent-hover text-bg rounded-xl font-bold shadow-lg hover:shadow-xl transition-shadow duration-200 focus-ring"
           >
             <Home className="w-5 h-5" aria-hidden="true" />
             Go Home

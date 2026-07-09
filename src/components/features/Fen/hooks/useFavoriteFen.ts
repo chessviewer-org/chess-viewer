@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { isRecord, safeJSONParse, validateFEN } from '@/shared/utils';
+import { isRecord, safeJSONParse, validateFEN } from '@utils';
 import type { NotificationType } from '../components/FENInputField';
 
 interface UseFavoriteFenOptions {
@@ -14,19 +14,8 @@ export function useFavoriteFen({ fen, onNotification }: UseFavoriteFenOptions) {
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
 
   useEffect(() => {
-    try {
-      const rawFavorites = safeJSONParse(
-        localStorage.getItem('favoriteFens'),
-        {}
-      );
-      if (isRecord(rawFavorites)) {
-        setIsFavorite(!!rawFavorites[fen]);
-      } else {
-        setIsFavorite(false);
-      }
-    } catch {
-      setIsFavorite(false);
-    }
+    const favorites = safeJSONParse(localStorage.getItem('favoriteFens'), {});
+    setIsFavorite(isRecord(favorites) ? !!favorites[fen] : false);
   }, [fen]);
 
   const toggleFavorite = useCallback(
@@ -42,18 +31,10 @@ export function useFavoriteFen({ fen, onNotification }: UseFavoriteFenOptions) {
       }
 
       try {
-        const rawFavorites = safeJSONParse(
-          localStorage.getItem('favoriteFens'),
-          {}
-        );
-        const favorites: Record<string, boolean> = {};
-        if (isRecord(rawFavorites)) {
-          for (const key in rawFavorites) {
-            if (Object.prototype.hasOwnProperty.call(rawFavorites, key)) {
-              favorites[key] = Boolean(rawFavorites[key]);
-            }
-          }
-        }
+        const raw = safeJSONParse(localStorage.getItem('favoriteFens'), {});
+        const favorites: Record<string, boolean> = isRecord(raw)
+          ? (raw as Record<string, boolean>)
+          : {};
         const next = !favorites[trimmed];
         if (next) favorites[trimmed] = true;
         else delete favorites[trimmed];

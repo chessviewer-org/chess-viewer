@@ -10,8 +10,9 @@ import React, {
 
 import { ADVANCED_FEN_CONFIG } from '@constants';
 
-import { safeJSONParse } from '@/shared/utils';
+import { safeJSONParse } from '@utils';
 
+// Types
 export interface FENBatchContextValue {
   batchList: string[];
   addToBatch: (fen: string) => 'added' | 'duplicate' | 'limit' | 'invalid';
@@ -20,9 +21,11 @@ export interface FENBatchContextValue {
   updateBatchItem: (index: number, newFen: string) => boolean;
 }
 
+// Context
 const FENBatchContext = createContext<FENBatchContextValue | null>(null);
 
 export function FENBatchProvider({ children }: { children: React.ReactNode }) {
+  // State
   const [batchList, setBatchList] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('fenBatchList');
@@ -37,6 +40,7 @@ export function FENBatchProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('fenBatchList', JSON.stringify(batchList));
   }, [batchList]);
 
+  // Actions
   const addToBatch = useCallback(
     (fen: string): 'added' | 'duplicate' | 'limit' | 'invalid' => {
       if (typeof fen !== 'string') return 'invalid';

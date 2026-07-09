@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { ChessBoard } from '@app-types';
-import { createEmptyBoard, logger, parseFEN } from '@/shared/utils';
+import { createEmptyBoard, logger, parseFEN } from '@utils';
 
 export interface UseChessBoardResult {
   board: ChessBoard;

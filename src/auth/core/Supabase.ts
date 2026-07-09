@@ -1,6 +1,8 @@
-import { logger, safeJSONParse } from '@/shared/utils';
+import { logger, safeJSONParse } from '@utils';
 
-// --- types.ts ---
+// Minimal hand-rolled client mirroring the official @supabase/supabase-js API surface, not the real SDK.
+
+// Types
 export type JsonValue =
   | string
   | number
@@ -140,7 +142,7 @@ export interface PostgrestResponse<T> {
   statusText?: string;
 }
 
-// --- fetch.ts ---
+// Fetch client
 
 function readField(body: unknown, key: string): string | undefined {
   if (body && typeof body === 'object' && key in body) {
@@ -260,7 +262,7 @@ export class FetchClient {
   }
 }
 
-// --- postgrest.ts ---
+// Postgrest
 
 type Row = JsonObject;
 type RowInput = Row | Row[];
@@ -340,17 +342,6 @@ class PostgrestFilterBuilder<T> {
     return {
       data: null,
       error: null,
-      status: response.status,
-      statusText: response.statusText
-    };
-  }
-
-  async single<U = T>(): Promise<PostgrestResponse<U>> {
-    this.headers['Accept'] = 'application/vnd.pgrst.object+json';
-    const { data, error, response } = await this.executeRequest<U>();
-    return {
-      data,
-      error,
       status: response.status,
       statusText: response.statusText
     };
@@ -467,7 +458,7 @@ export class PostgrestQueryBuilder {
   }
 }
 
-// --- functions.ts ---
+// Functions and RPC
 
 export class FunctionsClient {
   constructor(private fetchClient: FetchClient) {}
@@ -499,7 +490,7 @@ export class RpcClient {
   }
 }
 
-// --- auth.ts ---
+// Auth client
 
 const STORAGE_KEY = 'sb-chess-vision-auth-token';
 
@@ -902,7 +893,7 @@ type SignUpResponse = User & {
   session?: Session | null;
 };
 
-// --- index.ts ---
+// Client instance
 
 let supabaseUrl: string = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey: string =
