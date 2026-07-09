@@ -4,10 +4,7 @@ import { Eye, Layers, Monitor, Sparkles, Zap } from '@/assets/icons';
 
 import { useColorVisionSetting, useReducedMotionSetting } from '@hooks';
 
-import type {
-  ColorVisionPreference,
-  ReducedMotionPreference
-} from '@utils';
+import type { ColorVisionPreference, ReducedMotionPreference } from '@utils';
 import { CustomSelect } from '@ui';
 import { SettingsBlock, SettingsHeading } from './parts';
 

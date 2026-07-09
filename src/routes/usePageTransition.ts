@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
-import {
-  readReducedMotionPreference,
-  resolveReducedMotion
-} from '@utils';
+import { readReducedMotionPreference, resolveReducedMotion } from '@utils';
 
 // Constants
 const EXIT_DURATION = 240;

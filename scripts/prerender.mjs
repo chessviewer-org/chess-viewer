@@ -24,21 +24,35 @@ function startServer() {
       const mime = extname(filePath);
       res.writeHead(200, {
         'Content-Type':
-          mime === '.html' ? 'text/html; charset=utf-8' :
-          mime === '.js' || mime === '.mjs' ? 'text/javascript; charset=utf-8' :
-          mime === '.css' ? 'text/css; charset=utf-8' :
-          mime === '.json' ? 'application/json' :
-          mime === '.svg' ? 'image/svg+xml' :
-          mime === '.png' ? 'image/png' :
-          mime === '.jpg' || mime === '.jpeg' ? 'image/jpeg' :
-          mime === '.ico' ? 'image/x-icon' :
-          mime === '.webp' ? 'image/webp' :
-          mime === '.woff' ? 'font/woff' :
-          mime === '.woff2' ? 'font/woff2' :
-          mime === '.txt' ? 'text/plain; charset=utf-8' :
-          mime === '.xml' ? 'application/xml' :
-          mime === '.webmanifest' ? 'application/manifest+json' :
-          'application/octet-stream'
+          mime === '.html'
+            ? 'text/html; charset=utf-8'
+            : mime === '.js' || mime === '.mjs'
+              ? 'text/javascript; charset=utf-8'
+              : mime === '.css'
+                ? 'text/css; charset=utf-8'
+                : mime === '.json'
+                  ? 'application/json'
+                  : mime === '.svg'
+                    ? 'image/svg+xml'
+                    : mime === '.png'
+                      ? 'image/png'
+                      : mime === '.jpg' || mime === '.jpeg'
+                        ? 'image/jpeg'
+                        : mime === '.ico'
+                          ? 'image/x-icon'
+                          : mime === '.webp'
+                            ? 'image/webp'
+                            : mime === '.woff'
+                              ? 'font/woff'
+                              : mime === '.woff2'
+                                ? 'font/woff2'
+                                : mime === '.txt'
+                                  ? 'text/plain; charset=utf-8'
+                                  : mime === '.xml'
+                                    ? 'application/xml'
+                                    : mime === '.webmanifest'
+                                      ? 'application/manifest+json'
+                                      : 'application/octet-stream'
       });
       res.end(body);
     } catch {
@@ -78,13 +92,19 @@ async function prerender() {
 
       let html = await page.content();
       html = html.replaceAll(`http://localhost:${PORT}`, '');
-      html = html.replace(/<!--\s*prerender:strip:start\s*-->[\s\S]*?<!--\s*prerender:strip:end\s*-->/g, '');
+      html = html.replace(
+        /<!--\s*prerender:strip:start\s*-->[\s\S]*?<!--\s*prerender:strip:end\s*-->/g,
+        ''
+      );
 
       let seenTitle = false;
-      html = html.replace(/<title>[\s\S]*?<\/title>/g, (match) => (seenTitle ? '' : (seenTitle = true, match)));
+      html = html.replace(/<title>[\s\S]*?<\/title>/g, (match) =>
+        seenTitle ? '' : ((seenTitle = true), match)
+      );
       html = html.replace(/<div id="app-splash"[\s\S]*?<\/div>\s*<\/div>/, '');
 
-      const outDir = route === '/' ? DIST : join(DIST, route.replace(/^\//, ''));
+      const outDir =
+        route === '/' ? DIST : join(DIST, route.replace(/^\//, ''));
       await mkdir(outDir, { recursive: true });
       await writeFile(join(outDir, 'index.html'), html, 'utf-8');
 

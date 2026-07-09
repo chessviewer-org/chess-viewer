@@ -47,9 +47,7 @@ const WizardExportSettings = memo(function WizardExportSettings({
   return (
     <div className="flex flex-col h-full animate-fadeIn gap-6">
       <div className="space-y-2.5">
-        <h3 className="section-eyebrow">
-          Format
-        </h3>
+        <h3 className="section-eyebrow">Format</h3>
         <div className="flex w-full rounded-lg border border-border/60 overflow-hidden">
           {FORMATS.map((fmt, idx) => {
             const active = state.selectedFormats.includes(fmt.value);
@@ -81,9 +79,7 @@ const WizardExportSettings = memo(function WizardExportSettings({
       </div>
 
       <div className="space-y-2.5">
-        <h3 className="section-eyebrow">
-          Quality
-        </h3>
+        <h3 className="section-eyebrow">Quality</h3>
         <div className="flex w-full gap-2">
           {RESOLUTIONS.map((r) => (
             <button
@@ -99,9 +95,7 @@ const WizardExportSettings = memo(function WizardExportSettings({
       </div>
 
       <div className="space-y-2.5">
-        <h3 className="section-eyebrow">
-          Board Size
-        </h3>
+        <h3 className="section-eyebrow">Board Size</h3>
         <div className="flex w-full items-center gap-2">
           {BOARD_PRESETS.map((preset) => (
             <button
@@ -139,9 +133,7 @@ const WizardExportSettings = memo(function WizardExportSettings({
       </div>
 
       <div className="space-y-2.5">
-        <h3 className="section-eyebrow">
-          File Name
-        </h3>
+        <h3 className="section-eyebrow">File Name</h3>
         <div className="relative">
           <input
             value={state.fileNamesInput}

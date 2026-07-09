@@ -27,7 +27,8 @@ function resolveFile(absPath) {
   if (existsSync(absPath) && statSync(absPath).isDirectory()) {
     for (const ext of EXTENSIONS) {
       const indexFile = `${absPath}/index${ext}`;
-      if (existsSync(indexFile) && statSync(indexFile).isFile()) return indexFile;
+      if (existsSync(indexFile) && statSync(indexFile).isFile())
+        return indexFile;
     }
   }
   return null;
@@ -35,7 +36,8 @@ function resolveFile(absPath) {
 
 function mapAlias(specifier) {
   for (const alias of ALIASES) {
-    if (alias.bare && specifier === alias.bare) return `${projectRoot}${alias.dir}`;
+    if (alias.bare && specifier === alias.bare)
+      return `${projectRoot}${alias.dir}`;
     if (specifier.startsWith(alias.prefix)) {
       return `${projectRoot}${alias.dir}/${specifier.slice(alias.prefix.length)}`;
     }
@@ -55,10 +57,12 @@ export function resolve(specifier, context, nextResolve) {
   const mapped = mapAlias(specifier);
   if (mapped !== null) {
     const file = resolveFile(mapped);
-    if (file !== null) return { url: pathToFileURL(file).href, shortCircuit: true };
+    if (file !== null)
+      return { url: pathToFileURL(file).href, shortCircuit: true };
   }
   const relative = resolveRelative(specifier, context);
-  if (relative !== null) return { url: pathToFileURL(relative).href, shortCircuit: true };
+  if (relative !== null)
+    return { url: pathToFileURL(relative).href, shortCircuit: true };
   return nextResolve(specifier, context);
 }
 
@@ -86,7 +90,10 @@ export function load(url, context, nextLoad) {
 
   return {
     format: 'module',
-    source: outputText.replaceAll('import.meta.env', 'globalThis.__VITE_TEST_ENV__'),
+    source: outputText.replaceAll(
+      'import.meta.env',
+      'globalThis.__VITE_TEST_ENV__'
+    ),
     shortCircuit: true
   };
 }

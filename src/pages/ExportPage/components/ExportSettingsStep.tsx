@@ -42,9 +42,7 @@ export default function ExportSettingsStep({
     <div className="flex h-full flex-col overflow-y-auto p-4 @3xl:p-5 gap-6">
       <div className="flex flex-col gap-6">
         <div className="space-y-2.5">
-          <h3 className="section-eyebrow">
-            Format
-          </h3>
+          <h3 className="section-eyebrow">Format</h3>
           <div className="flex w-full rounded-lg border border-border/60 overflow-hidden">
             {FORMATS.map((fmt, idx) => {
               const active = wizard.selectedFormats.includes(fmt.value);
@@ -80,9 +78,7 @@ export default function ExportSettingsStep({
         </div>
 
         <div className="space-y-2.5">
-          <h3 className="section-eyebrow">
-            Quality
-          </h3>
+          <h3 className="section-eyebrow">Quality</h3>
           <div className="flex w-full gap-2">
             {RESOLUTIONS.map((r) => (
               <button
@@ -98,9 +94,7 @@ export default function ExportSettingsStep({
         </div>
 
         <div className="space-y-2.5">
-          <h3 className="section-eyebrow">
-            Board Size
-          </h3>
+          <h3 className="section-eyebrow">Board Size</h3>
           <div className="flex w-full items-center gap-2">
             {BOARD_PRESETS.map((preset) => (
               <button
@@ -138,9 +132,7 @@ export default function ExportSettingsStep({
         </div>
 
         <div className="space-y-2.5">
-          <h3 className="section-eyebrow">
-            File Name
-          </h3>
+          <h3 className="section-eyebrow">File Name</h3>
           <input
             value={wizard.fileNamesInput}
             onChange={(e) => wizard.updateFileNames(e.target.value)}
