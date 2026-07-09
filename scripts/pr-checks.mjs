@@ -3,9 +3,7 @@ const repo = process.env.GITHUB_REPOSITORY;
 const eventPath = process.env.GITHUB_EVENT_PATH;
 
 if (!token || !repo || !eventPath) {
-  console.error(
-    'pr-checks: missing GITHUB_TOKEN, GITHUB_REPOSITORY, or GITHUB_EVENT_PATH'
-  );
+  console.error('pr-checks: missing GITHUB_TOKEN, GITHUB_REPOSITORY, or GITHUB_EVENT_PATH');
   process.exit(1);
 }
 
@@ -29,11 +27,7 @@ async function ghFetch(path, init) {
       ...init?.headers
     }
   });
-  if (!res.ok) {
-    throw new Error(
-      `GitHub API ${path} failed: ${res.status} ${await res.text()}`
-    );
-  }
+  if (!res.ok) throw new Error(`GitHub API ${path} failed: ${res.status} ${await res.text()}`);
   return res.json();
 }
 
@@ -46,9 +40,7 @@ async function listChangedFiles() {
   const files = [];
   let page = 1;
   for (;;) {
-    const batch = await ghFetch(
-      `/pulls/${prNumber}/files?per_page=100&page=${page}`
-    );
+    const batch = await ghFetch(`/pulls/${prNumber}/files?per_page=100&page=${page}`);
     files.push(...batch);
     if (batch.length < 100) break;
     page++;
@@ -59,129 +51,87 @@ async function listChangedFiles() {
 const pr = await ghFetch(`/pulls/${prNumber}`);
 const files = await listChangedFiles();
 
-const modified = files
-  .filter((f) => f.status === 'modified')
-  .map((f) => f.filename);
-const created = files
-  .filter((f) => f.status === 'added')
-  .map((f) => f.filename);
-const deleted = files
-  .filter((f) => f.status === 'removed')
-  .map((f) => f.filename);
+const modified = files.filter((f) => f.status === 'modified').map((f) => f.filename);
+const created = files.filter((f) => f.status === 'added').map((f) => f.filename);
+const deleted = files.filter((f) => f.status === 'removed').map((f) => f.filename);
 const touched = [...modified, ...created];
 const allChanged = [...touched, ...deleted];
 
 const failures = [];
 const warnings = [];
 
-const CONVENTIONAL_TYPES = [
-  'feat',
-  'fix',
-  'docs',
-  'style',
-  'refactor',
-  'perf',
-  'test',
-  'chore',
-  'ci',
-  'build',
-  'revert'
-];
+const TYPES = ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'chore', 'ci', 'build', 'revert'];
 
-const titlePattern = new RegExp(
-  `^(${CONVENTIONAL_TYPES.join('|')})(\\([\\w$.\\-*/ ]+\\))?(!)?: .+`
-);
+const titleRe = new RegExp(`^(${TYPES.join('|')})(\\([\\w$.\\-*/ ]+\\))?(!)?: .+`);
 
-if (!titlePattern.test(pr.title)) {
+if (!titleRe.test(pr.title)) {
   failures.push(
-    `**PR title must follow Conventional Commits.**\n\n` +
-      `Received: \`${pr.title}\`\n\n` +
-      `Expected format: \`<type>(optional-scope): <subject>\`\n` +
-      `Allowed types: ${CONVENTIONAL_TYPES.map((t) => `\`${t}\``).join(', ')}\n\n` +
-      `Examples:\n` +
-      `- \`feat(export): add SVG batch export\`\n` +
-      `- \`fix: correct FEN parsing on en passant\``
+    `PR title must follow Conventional Commits.\n\n` +
+    `Expected: \`<type>(scope): <subject>\`\n` +
+    `Allowed types: ${TYPES.map((t) => `\`${t}\``).join(', ')}\n\n` +
+    `Got: \`${pr.title}\``
   );
 } else if (/\.$/.test(pr.title)) {
-  failures.push('**PR title must not end with a period.**');
+  failures.push('PR title must not end with a period.');
 }
 
 if (!pr.body || pr.body.trim().length < 20) {
   warnings.push(
-    '**PR description is missing or too short.**\n\n' +
-      'Describe what changed and why. Link related issues with `Closes #N`.'
+    'PR description is missing or too short.\n\n' +
+    'Describe what changed and why. Link issues with `Closes #N`.'
   );
 }
 
-const CLOSES_PATTERN = /(?:closes|fixes|resolves)\s+#\d+/i;
-
-if (pr.body && !CLOSES_PATTERN.test(pr.body)) {
+if (pr.body && !/(?:closes|fixes|resolves)\s+#\d+/i.test(pr.body)) {
   warnings.push(
-    '**PR has no closing issue reference.**\n\n' +
-      'Add `Closes #N` (or `Fixes #N` / `Resolves #N`) to link the related issue.'
+    'PR has no closing issue reference.\n\n' +
+    'Add `Closes #N` (or `Fixes #N` / `Resolves #N`) to link the issue.'
   );
 }
 
-const touchedSmartNaming = touched.some((f) =>
-  f.endsWith('src/pages/AdvancedFENInputPage/hooks/parseSmartNaming.ts')
-);
-const touchedSmartNamingTest = touched.some((f) =>
-  f.endsWith('src/pages/AdvancedFENInputPage/hooks/parseSmartNaming.test.ts')
-);
-
-if (touchedSmartNaming && !touchedSmartNamingTest) {
+if (
+  touched.some((f) => f.endsWith('src/pages/AdvancedFENInputPage/hooks/parseSmartNaming.ts')) &&
+  !touched.some((f) => f.endsWith('src/pages/AdvancedFENInputPage/hooks/parseSmartNaming.test.ts'))
+) {
   failures.push(
-    '**`parseSmartNaming.ts` changed without updating `parseSmartNaming.test.ts`.**\n\n' +
-      'Every change to a pure logic module must be covered by a corresponding test.'
+    '`parseSmartNaming.ts` changed without updating its test.\n\n' +
+    'Pure logic changes need corresponding tests.'
   );
 }
 
-const changedPackageJson = allChanged.includes('package.json');
-const changedLockfile = allChanged.includes('pnpm-lock.yaml');
-
-if (changedPackageJson && !changedLockfile) {
+if (allChanged.includes('package.json') && !allChanged.includes('pnpm-lock.yaml')) {
   warnings.push(
-    '**`package.json` changed but `pnpm-lock.yaml` did not.**\n\n' +
-      'Run `pnpm install` and commit the updated lockfile so CI does not fail.'
+    '`package.json` changed but `pnpm-lock.yaml` did not.\n\n' +
+    'Run `pnpm install` and commit the lockfile.'
   );
 }
 
 if (allChanged.length > 50) {
   warnings.push(
-    `**Large PR:** ${allChanged.length} files changed.\n\n` +
-      'Consider splitting into smaller focused PRs — they are faster to review and easier to revert.'
+    `Large PR: ${allChanged.length} files changed.\n\n` +
+    'Consider splitting into smaller PRs — easier to review and revert.'
   );
 }
 
 const MARKER = '<!-- pr-checks-report -->';
 
 function renderReport() {
-  const lines = [MARKER, '## PR Checks', ''];
-  if (failures.length === 0 && warnings.length === 0) {
-    lines.push('All checks passed.');
-    return lines.join('\n');
-  }
-  for (const f of failures) lines.push(`❌ ${f}`, '');
-  for (const w of warnings) lines.push(`⚠️ ${w}`, '');
-  return lines.join('\n');
+  if (failures.length === 0 && warnings.length === 0) return `${MARKER}\n## PR Checks\n\nAll checks passed.`;
+  const parts = [`${MARKER}\n## PR Checks\n`];
+  for (const f of failures) parts.push(`\n❌ ${f}\n`);
+  for (const w of warnings) parts.push(`\n⚠️ ${w}\n`);
+  return parts.join('');
 }
 
 async function upsertComment(body) {
   const comments = await ghFetch(`/issues/${prNumber}/comments?per_page=100`);
   const existing = comments.find((c) => c.body?.startsWith(MARKER));
-  if (existing) {
-    await ghFetch(`/issues/comments/${existing.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ body })
-    });
-  } else {
-    await ghFetch(`/issues/${prNumber}/comments`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ body })
-    });
-  }
+  const opts = {
+    method: existing ? 'PATCH' : 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ body })
+  };
+  await ghFetch(existing ? `/issues/comments/${existing.id}` : `/issues/${prNumber}/comments`, opts);
 }
 
 await upsertComment(renderReport());
@@ -192,6 +142,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(
-  `pr-checks: passed (${warnings.length} warning${warnings.length === 1 ? '' : 's'})`
-);
+console.log(`pr-checks: passed (${warnings.length} warning${warnings.length === 1 ? '' : 's'})`);
