@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useId, useRef, useState } from 'react';
 
 import { Check, ChevronDown } from '@/assets/icons';
 
-import { useListboxKeyboard, useOutsideClick } from '@/shared/hooks';
+import { useListboxKeyboard, useOutsideClick } from '@hooks';
 import styles from '../styles/ui.module.scss';
 
 interface CustomSelectProps<T extends string | number> {
@@ -66,8 +66,6 @@ const CustomSelectComponent = <T extends string | number>({
   const activeOptionId =
     isOpen && activeIndex >= 0 ? `${baseId}-option-${activeIndex}` : undefined;
 
-  // const triggerRadius = isOpen ? 'rounded-t-lg rounded-b-none' : 'rounded-lg';
-
   return (
     <div className="relative" ref={containerRef}>
       {label && (
@@ -102,46 +100,47 @@ const CustomSelectComponent = <T extends string | number>({
         />
       </button>
 
-      {isOpen && (
-        <div className={styles['selectDropdown']}>
-          <div
-            ref={listRef}
-            id={listboxId}
-            role="listbox"
-            {...(label ? { 'aria-labelledby': `${baseId}-label` } : {})}
-            className={styles['selectList']}
-          >
-            {options.map((option, index) => {
-              const isSelected = index === selectedIndex;
-              const isActive = index === activeIndex;
-              return (
-                <button
-                  key={option.value}
-                  id={`${baseId}-option-${index}`}
-                  data-option-index={index}
-                  type="button"
-                  role="option"
-                  aria-selected={isSelected}
-                  tabIndex={-1}
-                  onClick={() => handleSelectByIndex(index)}
-                  onMouseEnter={() => setActiveIndex(index)}
-                  className={`${styles['selectOption']} ${isSelected ? styles['selectOptionSelected'] : styles['selectOptionUnselected']} ${isActive ? styles['selectOptionActive'] : ''}`}
-                >
-                  <div className="flex items-center gap-2">
-                    {option.icon && (
-                      <span className="shrink-0">{option.icon}</span>
-                    )}
-                    <span>{option.label}</span>
-                  </div>
-                  {isSelected && (
-                    <Check aria-hidden="true" className="w-4 h-4 text-accent" />
+      <div
+        className={styles['selectDropdown']}
+        data-state={isOpen ? 'open' : 'closed'}
+      >
+        <div
+          ref={listRef}
+          id={listboxId}
+          role="listbox"
+          {...(label ? { 'aria-labelledby': `${baseId}-label` } : {})}
+          className={styles['selectList']}
+        >
+          {options.map((option, index) => {
+            const isSelected = index === selectedIndex;
+            const isActive = index === activeIndex;
+            return (
+              <button
+                key={option.value}
+                id={`${baseId}-option-${index}`}
+                data-option-index={index}
+                type="button"
+                role="option"
+                aria-selected={isSelected}
+                tabIndex={-1}
+                onClick={() => handleSelectByIndex(index)}
+                onMouseEnter={() => setActiveIndex(index)}
+                className={`${styles['selectOption']} ${isSelected ? styles['selectOptionSelected'] : styles['selectOptionUnselected']} ${isActive ? styles['selectOptionActive'] : ''}`}
+              >
+                <div className="flex items-center gap-2">
+                  {option.icon && (
+                    <span className="shrink-0">{option.icon}</span>
                   )}
-                </button>
-              );
-            })}
-          </div>
+                  <span>{option.label}</span>
+                </div>
+                {isSelected && (
+                  <Check aria-hidden="true" className="w-4 h-4 text-accent" />
+                )}
+              </button>
+            );
+          })}
         </div>
-      )}
+      </div>
     </div>
   );
 };
@@ -150,4 +149,4 @@ const CustomSelect = memo(
   CustomSelectComponent
 ) as typeof CustomSelectComponent;
 
-export default CustomSelect;
+export { CustomSelect };

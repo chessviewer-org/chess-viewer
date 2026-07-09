@@ -3,6 +3,7 @@ import { memo, useCallback, useRef, useState } from 'react';
 import { ChevronDown, ChevronRight, type LucideIcon } from '@/assets/icons';
 import styles from './styles/page-tabs.module.scss';
 
+// Types
 interface PageTab {
   id: string;
   label: string;
@@ -205,4 +206,4 @@ const PageTabs = memo(function PageTabs({
 });
 
 PageTabs.displayName = 'PageTabs';
-export default PageTabs;
+export { PageTabs };

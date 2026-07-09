@@ -38,6 +38,6 @@ const Checkbox = memo(function Checkbox({
   );
 });
 
-export default Checkbox;
-
 Checkbox.displayName = 'Checkbox';
+
+export { Checkbox };

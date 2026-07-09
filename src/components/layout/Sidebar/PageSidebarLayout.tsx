@@ -39,4 +39,4 @@ const PageSidebarLayout = memo(function PageSidebarLayout({
 
 PageSidebarLayout.displayName = 'PageSidebarLayout';
 
-export default PageSidebarLayout;
+export { PageSidebarLayout };

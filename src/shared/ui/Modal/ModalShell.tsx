@@ -2,7 +2,7 @@ import React, { memo, useRef } from 'react';
 
 import { LucideIcon, X } from '@/assets/icons';
 
-import { useFocusTrap, useScrollLock } from '@/shared/hooks';
+import { useFocusTrap, useScrollLock } from '@hooks';
 
 interface ModalShellProps {
   isOpen: boolean;
@@ -82,4 +82,4 @@ const ModalShell = memo(
 
 ModalShell.displayName = 'ModalShell';
 
-export default ModalShell;
+export { ModalShell };

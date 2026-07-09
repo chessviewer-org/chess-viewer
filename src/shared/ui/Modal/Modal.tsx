@@ -2,7 +2,7 @@ import React, { memo, useRef } from 'react';
 
 import { AlertTriangle, Info, X, XCircle } from '@/assets/icons';
 
-import { useFocusTrap, useScrollLock } from '@/shared/hooks';
+import { useFocusTrap, useScrollLock } from '@hooks';
 
 export type ModalType = 'warning' | 'info' | 'danger';
 
@@ -114,4 +114,4 @@ const Modal = memo(
 
 Modal.displayName = 'Modal';
 
-export default Modal;
+export { Modal };

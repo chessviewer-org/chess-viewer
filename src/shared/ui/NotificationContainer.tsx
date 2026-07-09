@@ -183,4 +183,4 @@ const Toast = memo(function Toast({
 });
 
 Toast.displayName = 'Toast';
-export default NotificationContainer;
+export { NotificationContainer };

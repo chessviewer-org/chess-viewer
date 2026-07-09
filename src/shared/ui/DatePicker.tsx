@@ -9,7 +9,7 @@ import {
 } from 'react';
 
 import { Calendar, ChevronLeft, ChevronRight } from '@/assets/icons';
-import { useOutsideClick } from '@/shared/hooks';
+import { useOutsideClick } from '@hooks';
 import styles from '../styles/ui.module.scss';
 
 interface DatePickerProps {
@@ -256,126 +256,126 @@ const DatePicker = memo(function DatePicker({
         <Calendar aria-hidden="true" className={styles['dpTriggerIcon']} />
       </button>
 
-      {isOpen && (
-        <div
-          role="dialog"
-          aria-modal="false"
-          aria-labelledby={dialogLabelId}
-          className={`${styles['dpDropdown']} ${openUpward ? 'bottom-full mb-2' : 'top-full mt-2'} ${align === 'right' ? 'right-0' : 'left-0'}`}
-        >
-          <div className={styles['dpHeader']}>
-            <div className="flex items-center justify-between">
-              <button
-                type="button"
-                onClick={handlePreviousMonth}
-                aria-label="Previous month"
-                className={styles['dpHeaderBtn']}
-              >
-                <ChevronLeft
-                  aria-hidden="true"
-                  className={styles['dpHeaderIcon']}
-                />
-              </button>
-
-              <div
-                id={dialogLabelId}
-                aria-live="polite"
-                className={styles['dpMonthTitle']}
-              >
-                {MONTH_NAMES[month]} {year}
-              </div>
-
-              <button
-                type="button"
-                onClick={handleNextMonth}
-                aria-label="Next month"
-                className={styles['dpHeaderBtn']}
-              >
-                <ChevronRight
-                  aria-hidden="true"
-                  className={styles['dpHeaderIcon']}
-                />
-              </button>
-            </div>
-          </div>
-
-          <div className="p-3">
-            <div className={styles['dpGrid']} aria-hidden="true">
-              {WEEK_DAYS.map((day) => (
-                <div key={day} className={styles['dpWeekDay']}>
-                  {day}
-                </div>
-              ))}
-            </div>
+      <div
+        role="dialog"
+        aria-modal="false"
+        aria-hidden={!isOpen}
+        aria-labelledby={dialogLabelId}
+        data-state={isOpen ? 'open' : 'closed'}
+        className={`${styles['dpDropdown']} ${openUpward ? 'bottom-full mb-2' : 'top-full mt-2'} ${align === 'right' ? 'right-0' : 'left-0'}`}
+      >
+        <div className={styles['dpHeader']}>
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={handlePreviousMonth}
+              aria-label="Previous month"
+              className={styles['dpHeaderBtn']}
+            >
+              <ChevronLeft
+                aria-hidden="true"
+                className={styles['dpHeaderIcon']}
+              />
+            </button>
 
             <div
-              ref={gridRef}
-              role="grid"
-              aria-labelledby={dialogLabelId}
-              onKeyDown={handleGridKeyDown}
-              className={styles['dpGrid']}
+              id={dialogLabelId}
+              aria-live="polite"
+              className={styles['dpMonthTitle']}
             >
-              {Array.from(
-                { length: firstDay },
-                (_, index) => `empty-${year}-${month}-${index}`
-              ).map((key) => (
-                <div key={key} role="presentation" className="h-8" />
-              ))}
-
-              {Array.from({ length: daysInMonth }).map((_, index) => {
-                const day = index + 1;
-                const selected = isSelected(day);
-                const today = isToday(day);
-                const isFocusTarget = day === focusedDay;
-                return (
-                  <button
-                    key={day}
-                    data-day={day}
-                    type="button"
-                    role="gridcell"
-                    aria-selected={selected}
-                    aria-label={formatLongDate(year, month, day)}
-                    tabIndex={isFocusTarget ? 0 : -1}
-                    onClick={() => handleDateSelect(day)}
-                    className={`${styles['dpDayCell']} ${
-                      selected
-                        ? styles['dpDaySelected']
-                        : today
-                          ? styles['dpDayToday']
-                          : styles['dpDayNormal']
-                    }`}
-                  >
-                    {day}
-                  </button>
-                );
-              })}
+              {MONTH_NAMES[month]} {year}
             </div>
-          </div>
 
-          <div className={styles['dpFooter']}>
             <button
               type="button"
-              onClick={handleClear}
-              className={styles['dpFooterClear']}
+              onClick={handleNextMonth}
+              aria-label="Next month"
+              className={styles['dpHeaderBtn']}
             >
-              Clear
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                onChange(Date.now());
-                setIsOpen(false);
-                triggerRef.current?.focus();
-              }}
-              className={styles['dpFooterToday']}
-            >
-              Today
+              <ChevronRight
+                aria-hidden="true"
+                className={styles['dpHeaderIcon']}
+              />
             </button>
           </div>
         </div>
-      )}
+
+        <div className="p-3">
+          <div className={styles['dpGrid']} aria-hidden="true">
+            {WEEK_DAYS.map((day) => (
+              <div key={day} className={styles['dpWeekDay']}>
+                {day}
+              </div>
+            ))}
+          </div>
+
+          <div
+            ref={gridRef}
+            role="grid"
+            aria-labelledby={dialogLabelId}
+            onKeyDown={handleGridKeyDown}
+            className={styles['dpGrid']}
+          >
+            {Array.from(
+              { length: firstDay },
+              (_, index) => `empty-${year}-${month}-${index}`
+            ).map((key) => (
+              <div key={key} role="presentation" className="h-8" />
+            ))}
+
+            {Array.from({ length: daysInMonth }).map((_, index) => {
+              const day = index + 1;
+              const selected = isSelected(day);
+              const today = isToday(day);
+              const isFocusTarget = day === focusedDay;
+              return (
+                <button
+                  key={day}
+                  data-day={day}
+                  type="button"
+                  role="gridcell"
+                  aria-selected={selected}
+                  aria-label={formatLongDate(year, month, day)}
+                  tabIndex={isFocusTarget ? 0 : -1}
+                  onClick={() => handleDateSelect(day)}
+                  className={`${styles['dpDayCell']} ${
+                    selected
+                      ? styles['dpDaySelected']
+                      : today
+                        ? styles['dpDayToday']
+                        : styles['dpDayNormal']
+                  }`}
+                >
+                  {day}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className={styles['dpFooter']}>
+          <button
+            type="button"
+            onClick={handleClear}
+            className={styles['dpFooterClear']}
+          >
+            Clear
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onChange(Date.now());
+              setIsOpen(false);
+              triggerRef.current?.focus();
+            }}
+            className={styles['dpFooterToday']}
+          >
+            Today
+          </button>
+        </div>
+      </div>
     </div>
   );
 });
 DatePicker.displayName = 'DatePicker';
-export default DatePicker;
+export { DatePicker };

@@ -2,7 +2,7 @@ import { memo } from 'react';
 
 import { UserCircle, X } from '@/assets/icons';
 
-import { Logo } from '@/shared/ui';
+import { Logo } from '@ui';
 import { NavbarDesktopMenu, NavbarMobileMenu } from './NavbarMenu';
 import styles from './styles/navbar.module.scss';
 interface NavbarProps {
@@ -99,4 +99,6 @@ function Navbar({
   );
 }
 
-export default memo(Navbar);
+const MemoizedNavbar = memo(Navbar);
+
+export { MemoizedNavbar as Navbar };

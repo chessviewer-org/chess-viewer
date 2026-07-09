@@ -105,4 +105,4 @@ const Pagination = memo(function Pagination({
 });
 
 Pagination.displayName = 'Pagination';
-export default Pagination;
+export { Pagination };

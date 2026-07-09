@@ -76,4 +76,4 @@ const Switch = memo(function Switch({
 });
 
 Switch.displayName = 'Switch';
-export default Switch;
+export { Switch };
