@@ -2,7 +2,7 @@ import { memo, useEffect, useRef, useState } from 'react';
 
 import { BOARD_THEMES } from '@constants';
 
-import { logger, parseFEN } from '@utils';
+import { getPieceKey, isLightSquare, logger, parseFEN } from '@utils';
 
 interface MiniPreviewProps {
   fen: string;
@@ -73,22 +73,21 @@ export const MiniPreview = memo(
         const edge = (i: number) => Math.round((i * cssSize) / 8);
         for (let row = 0; row < 8; row++) {
           for (let col = 0; col < 8; col++) {
-            const isLight = (row + col) % 2 === 0;
             const x = edge(col);
             const y = edge(row);
             const w = edge(col + 1) - x;
             const h = edge(row + 1) - y;
-            ctx.fillStyle = isLight ? defaultLight : defaultDark;
+            ctx.fillStyle = isLightSquare(row, col)
+              ? defaultLight
+              : defaultDark;
             ctx.fillRect(x, y, w, h);
           }
         }
         for (let row = 0; row < 8; row++) {
           for (let col = 0; col < 8; col++) {
             const fenChar = board[row]?.[col];
-            if (fenChar) {
-              const color = fenChar === fenChar.toUpperCase() ? 'w' : 'b';
-              const pieceType = fenChar.toUpperCase();
-              const pieceKey = color + pieceType;
+            const pieceKey = getPieceKey(fenChar ?? '');
+            if (pieceKey) {
               const img = pieceImages[pieceKey];
               if (img && img.complete && img.naturalWidth > 0) {
                 const x = edge(col);

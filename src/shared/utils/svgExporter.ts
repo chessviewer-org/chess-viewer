@@ -1,6 +1,12 @@
 import { ChessBoard, isChessBoard } from '@app-types';
 
-import { parseFEN, sanitizeInput } from '@chessviewer-org/chess-viewer';
+import {
+  getDisplayCoordinates,
+  isLightSquare,
+  parseFEN,
+  sanitizeInput
+} from '@chessviewer-org/chess-viewer';
+
 import { shouldForceCoordinateBorder } from './imageOptimizer';
 import {
   getPieceKey,
@@ -138,9 +144,8 @@ export async function generateBoardSVG(
 
   for (let row = 0; row < 8; row++) {
     for (let col = 0; col < 8; col++) {
-      const visRow = flipped ? 7 - row : row;
-      const visCol = flipped ? 7 - col : col;
-      const color = (row + col) % 2 === 0 ? lightSquare : darkSquare;
+      const [visRow, visCol] = getDisplayCoordinates(row, col, flipped);
+      const color = isLightSquare(row, col) ? lightSquare : darkSquare;
       const x = boardX + visCol * squarePx;
       const y = boardY + visRow * squarePx;
       parts.push(
@@ -152,15 +157,11 @@ export async function generateBoardSVG(
 
   for (let row = 0; row < 8; row++) {
     for (let col = 0; col < 8; col++) {
-      const fenPiece = board[row]?.[col];
-      if (!fenPiece) continue;
-
-      const key = getPieceKey(fenPiece);
+      const key = getPieceKey(board[row]?.[col] ?? '');
       const dataURL = key ? pieceDataURLs[key] : null;
       if (!dataURL) continue;
 
-      const visRow = flipped ? 7 - row : row;
-      const visCol = flipped ? 7 - col : col;
+      const [visRow, visCol] = getDisplayCoordinates(row, col, flipped);
       const x = boardX + visCol * squarePx;
       const y = boardY + visRow * squarePx;
       parts.push(

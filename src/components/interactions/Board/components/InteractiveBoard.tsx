@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import type { PieceSymbol } from '@app-types';
 
-import { describeBoardPosition } from '@utils';
+import { describeBoardPosition, getPieceKey } from '@utils';
 import { DroppableSquare } from './DroppableSquare';
 import { useBoardKeyboard } from '../hooks/useBoardKeyboard';
 
@@ -79,11 +79,8 @@ export const InteractiveBoard = memo(function InteractiveBoard({
         const actualCol = flipped ? 7 - displayCol : displayCol;
         const isLight = (actualRow + actualCol) % 2 === 0;
         const piece = board[actualRow]?.[actualCol] || '';
-        const pieceImage = piece
-          ? pieceImages[
-              (piece === piece.toUpperCase() ? 'w' : 'b') + piece.toUpperCase()
-            ] || null
-          : null;
+        const pieceKey = getPieceKey(piece);
+        const pieceImage = pieceKey ? pieceImages[pieceKey] || null : null;
         const isSelected =
           selectedSquare?.[0] === actualRow &&
           selectedSquare?.[1] === actualCol;

@@ -4,6 +4,7 @@ import { BOARD_THEMES } from '@constants';
 
 import {
   getDisplayCoordinates,
+  getPieceKey,
   getSquareBounds,
   isLightSquare,
   logger,
@@ -106,9 +107,9 @@ const BoardPreviewCanvas = memo(
         for (let row = 0; row < 8; row++) {
           for (let col = 0; col < 8; col++) {
             const fenChar = board[row]?.[col];
-            if (!fenChar) continue;
-            const color = fenChar === fenChar.toUpperCase() ? 'w' : 'b';
-            const img = pieceImages[color + fenChar.toUpperCase()];
+            const pieceKey = getPieceKey(fenChar ?? '');
+            if (!pieceKey) continue;
+            const img = pieceImages[pieceKey];
             if (!img?.complete || !img.naturalWidth) continue;
             const [dRow, dCol] = getDisplayCoordinates(row, col, flipped);
             const b = getSquareBounds(dRow, dCol, sq, 0, 0);

@@ -2,19 +2,11 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 
 import type { PieceSymbol } from '@app-types';
 
-import { pieceToName } from '@utils';
-
-// Constants
-const FILES = 'abcdefgh';
+import { indicesToSquare as squareName, pieceToName } from '@utils';
 
 interface Cell {
   row: number;
   col: number;
-}
-
-// Helpers
-function squareName(row: number, col: number): string {
-  return `${FILES[col] ?? col}${8 - row}`;
 }
 
 interface HeldPiece {

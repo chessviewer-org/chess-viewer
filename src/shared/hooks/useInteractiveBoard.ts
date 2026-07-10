@@ -7,13 +7,23 @@ import {
   createEmptyBoard,
   isBoardEmpty,
   logger,
+  movePiece,
   parseFEN,
+  removePieceAt,
+  setPieceAt,
+  STARTING_FEN,
   validateFEN
 } from '@utils';
 
 // Constants
 const MAX_HISTORY = 100;
-const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+const DEFAULT_META = 'w - - 0 1';
+const EMPTY_PLACEMENT = boardToFEN(createEmptyBoard());
+
+function metadataOf(fen: string, fallback = DEFAULT_META): string {
+  const parts = fen.trim().split(/\s+/);
+  return parts.length > 1 ? parts.slice(1).join(' ') : fallback;
+}
 
 // Types
 export interface UseInteractiveBoardResult {
@@ -46,16 +56,12 @@ export function useInteractiveBoard(
   const [board, setBoard] = useState<ChessBoard>(() => createEmptyBoard());
   const [past, setPast] = useState<ChessBoard[]>([]);
   const [future, setFuture] = useState<ChessBoard[]>([]);
-  const [metadata, setMetadata] = useState('w - - 0 1');
+  const [metadata, setMetadata] = useState(DEFAULT_META);
 
   useEffect(() => {
     try {
       if (initialFen && validateFEN(initialFen)) {
-        const parts = initialFen.trim().split(/\s+/);
-        if (parts.length > 1) {
-          setMetadata(parts.slice(1).join(' '));
-        }
-
+        setMetadata(metadataOf(initialFen));
         const parsed = parseFEN(initialFen);
         if (isChessBoard(parsed)) {
           setBoard(parsed);
@@ -79,10 +85,7 @@ export function useInteractiveBoard(
       });
       setFuture([]);
       setBoard(newBoard);
-
-      if (onFenChange) {
-        onFenChange(`${boardToFEN(newBoard)} ${newMeta}`);
-      }
+      onFenChange?.(`${boardToFEN(newBoard)} ${newMeta}`);
     },
     [board, metadata, onFenChange]
   );
@@ -96,17 +99,11 @@ export function useInteractiveBoard(
       toCol: number,
       isFromPalette: boolean
     ) => {
-      const newBoard = board.map((row) => [...row]) as ChessBoard;
-
-      if (!isFromPalette && fromRow !== undefined && fromCol !== undefined) {
-        const fromRowArr = newBoard[fromRow];
-        if (fromRowArr) fromRowArr[fromCol] = '';
-      }
-
-      const toRowArr = newBoard[toRow];
-      if (toRowArr) toRowArr[toCol] = piece;
-
-      commitMove(newBoard);
+      const next =
+        !isFromPalette && fromRow !== undefined && fromCol !== undefined
+          ? movePiece(board, [fromRow, fromCol], [toRow, toCol])
+          : setPieceAt(board, [toRow, toCol], piece);
+      commitMove(next as ChessBoard);
     },
     [board, commitMove]
   );
@@ -114,48 +111,37 @@ export function useInteractiveBoard(
   const handlePieceRemove = useCallback(
     (row: number, col: number) => {
       if (!board[row]?.[col]) return;
-
-      const newBoard = board.map((r) => [...r]) as ChessBoard;
-      const rowArr = newBoard[row];
-      if (rowArr) rowArr[col] = '';
-      commitMove(newBoard);
+      commitMove(removePieceAt(board, [row, col]) as ChessBoard);
     },
     [board, commitMove]
   );
 
   const setPiece = useCallback(
     (row: number, col: number, piece: PieceSymbol) => {
-      const newBoard = board.map((r) => [...r]) as ChessBoard;
-      const rowArr = newBoard[row];
-      if (rowArr) rowArr[col] = piece;
-      commitMove(newBoard);
+      commitMove(setPieceAt(board, [row, col], piece) as ChessBoard);
     },
     [board, commitMove]
   );
 
   const clearBoard = useCallback(() => {
-    if (!isBoardEmpty(board)) {
-      commitMove(createEmptyBoard());
-    }
+    if (!isBoardEmpty(board)) commitMove(createEmptyBoard());
   }, [board, commitMove]);
 
   const resetBoard = useCallback(() => {
     const parsed = parseFEN(STARTING_FEN);
     if (isChessBoard(parsed) && boardToFEN(board) !== boardToFEN(parsed)) {
-      setMetadata('w KQkq - 0 1');
-      commitMove(parsed, 'w KQkq - 0 1');
+      const meta = metadataOf(STARTING_FEN);
+      setMetadata(meta);
+      commitMove(parsed, meta);
     }
   }, [board, commitMove]);
 
   const syncFromFen = useCallback(
     (fen: string) => {
       if (!fen || !validateFEN(fen)) return;
+      setMetadata(metadataOf(fen, metadata));
 
-      const parts = fen.trim().split(/\s+/);
-      const newMeta = parts.length > 1 ? parts.slice(1).join(' ') : metadata;
-      setMetadata(newMeta);
-
-      if (fen.startsWith('8/8/8/8/8/8/8/8')) {
+      if (fen.startsWith(EMPTY_PLACEMENT)) {
         if (!isBoardEmpty(board)) {
           setBoard(createEmptyBoard());
           setPast([]);
@@ -164,12 +150,9 @@ export function useInteractiveBoard(
         return;
       }
 
-      const parsedBoard = parseFEN(fen);
-      if (
-        isChessBoard(parsedBoard) &&
-        boardToFEN(board) !== boardToFEN(parsedBoard)
-      ) {
-        setBoard(parsedBoard);
+      const parsed = parseFEN(fen);
+      if (isChessBoard(parsed) && boardToFEN(board) !== boardToFEN(parsed)) {
+        setBoard(parsed);
         setPast([]);
         setFuture([]);
       }
@@ -183,27 +166,19 @@ export function useInteractiveBoard(
   const undo = useCallback(() => {
     const previousBoard = past[past.length - 1];
     if (!previousBoard) return;
-
     setPast(past.slice(0, -1));
     setFuture([board, ...future]);
     setBoard(previousBoard);
-
-    if (onFenChange) {
-      onFenChange(`${boardToFEN(previousBoard)} ${metadata}`);
-    }
+    onFenChange?.(`${boardToFEN(previousBoard)} ${metadata}`);
   }, [board, future, metadata, onFenChange, past]);
 
   const redo = useCallback(() => {
     const nextBoard = future[0];
     if (!nextBoard) return;
-
     setPast([...past, board]);
     setFuture(future.slice(1));
     setBoard(nextBoard);
-
-    if (onFenChange) {
-      onFenChange(`${boardToFEN(nextBoard)} ${metadata}`);
-    }
+    onFenChange?.(`${boardToFEN(nextBoard)} ${metadata}`);
   }, [board, future, metadata, onFenChange, past]);
 
   return {

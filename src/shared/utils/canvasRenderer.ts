@@ -1,5 +1,12 @@
-import { getSquareBounds, parseFEN } from '@chessviewer-org/chess-viewer';
+import {
+  getDisplayCoordinates,
+  getSquareBounds,
+  isLightSquare,
+  parseFEN
+} from '@chessviewer-org/chess-viewer';
+
 import { drawCoordinates } from './coordinateCalculations';
+import { getPieceKey } from './pieceUtils';
 import {
   calculateRenderSurfaceSize,
   shouldForceCoordinateBorder
@@ -135,18 +142,14 @@ export async function createUltraQualityCanvas(
 
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
-        const vR = flipped ? 7 - row : row,
-          vC = flipped ? 7 - col : col;
-        ctx.fillStyle = (row + col) % 2 === 0 ? lightSquare : darkSquare;
+        const [vR, vC] = getDisplayCoordinates(row, col, flipped);
+        ctx.fillStyle = isLightSquare(row, col) ? lightSquare : darkSquare;
         const { x, y, width, height } = getSquareBounds(vR, vC, sq, bX, bY);
         ctx.fillRect(x, y, width, height);
 
         const pieceChar = board[row]?.[col];
-        if (!pieceChar) continue;
-        const pKey =
-          pieceChar === pieceChar.toUpperCase()
-            ? `w${pieceChar.toUpperCase()}`
-            : `b${pieceChar.toUpperCase()}`;
+        const pKey = getPieceKey(pieceChar ?? '');
+        if (!pKey) continue;
         const img = pieceImages[pKey];
         if (img?.complete && img.naturalWidth > 0) {
           const sz = Math.min(width, height);

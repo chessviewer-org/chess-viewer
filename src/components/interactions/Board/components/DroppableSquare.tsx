@@ -1,14 +1,10 @@
 import { memo, useCallback, useRef } from 'react';
 
 import type { PieceSymbol } from '@app-types';
-import { pieceToName } from '@utils';
+import { indicesToSquare, pieceToName } from '@utils';
 import { useDroppable } from '@hooks';
 import { DraggablePiece } from './DraggablePiece';
 
-// Constants
-const FILES = 'abcdefgh';
-
-// Types
 interface DroppableSquareProps {
   row: number;
   col: number;
@@ -47,7 +43,7 @@ export const DroppableSquare = memo(
       wasLoadingRef.current && !isLoading ? `${(row * 8 + col) * 6}ms` : '0ms';
     if (wasLoadingRef.current && !isLoading) wasLoadingRef.current = false;
 
-    const squareName = `${FILES[col] ?? col}${8 - row}`;
+    const squareName = indicesToSquare(row, col);
     const ariaLabel = piece
       ? `${pieceToName(piece)}, ${squareName}`
       : `${squareName}, empty`;
