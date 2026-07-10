@@ -13,8 +13,8 @@ importers:
   .:
     dependencies:
       '@chessviewer-org/chess-viewer':
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.1.0
+        version: 1.1.0
       fflate:
         specifier: ^0.8.3
         version: 0.8.3
@@ -706,8 +706,8 @@ packages:
     resolution: {integrity: sha512-4zBIxpPzowiZpusoFkyGVwakdRJUyuH5PxQ/PrqghfdFWWasvnCdPfQXHrenDai+gyLARulZjZowCOj6fjT4pA==}
     engines: {node: '>=6.9.0'}
 
-  '@chessviewer-org/chess-viewer@1.0.0':
-    resolution: {integrity: sha512-Y7b4sSZqZZliTLF/bh993XNLanztRJonLQ05c1niW/6Cx8jZQGYHDc+O9IGseD4kIwXNVn4mk0d11xVKs0cV8Q==}
+  '@chessviewer-org/chess-viewer@1.1.0':
+    resolution: {integrity: sha512-1yMr8kxJr7jYBfrBQB9oFYctfxfpDOT/lNJHLXssKN8VYIJwh/vPiqCf7wmKR7AwkLBmJ+0HUJqjGY3/JQ3fmQ==}
     engines: {node: '>=18'}
 
   '@commitlint/cli@21.1.0':
@@ -4314,7 +4314,7 @@ snapshots:
       '@babel/helper-string-parser': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
 
-  '@chessviewer-org/chess-viewer@1.0.0': {}
+  '@chessviewer-org/chess-viewer@1.1.0': {}
 
   '@commitlint/cli@21.1.0(@types/node@25.9.1)(conventional-commits-filter@5.0.0)(conventional-commits-parser@6.4.0)(typescript@6.0.3)':
     dependencies:

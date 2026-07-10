@@ -8,7 +8,7 @@
     "pnpm": ">=10.0.0"
   },
   "dependencies": {
-    "@chessviewer-org/chess-viewer": "^1.0.0",
+    "@chessviewer-org/chess-viewer": "^1.1.0",
     "fflate": "^0.8.3",
     "preact": "^10.29.3",
     "uqr": "^0.1.3",
