@@ -114,6 +114,9 @@
   color: e99695
   description: Browser, device, or OS-specific issue
 
+- name: 'good first issue'
+  color: 7057ff
+  description: Good for newcomers — small, well-scoped, and clearly defined
 - name: 'first timers only'
   color: 5319e7
   description: Open for first-time contributors — no permission needed
