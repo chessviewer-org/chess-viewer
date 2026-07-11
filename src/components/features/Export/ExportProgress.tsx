@@ -6,6 +6,7 @@ import {
   type ExportConfig,
   type ExportInfo,
   type FileSizeEstimates,
+  formatFileSize,
   getExportInfo
 } from '@utils';
 import { ModalShell } from '@ui';
@@ -22,6 +23,7 @@ interface ExportProgressProps {
   onResume?: () => void;
   onCancel?: () => void;
   isPaused?: boolean;
+  actualBytes?: number | null;
 }
 
 export const ExportProgress = memo(function ExportProgress({
@@ -34,7 +36,8 @@ export const ExportProgress = memo(function ExportProgress({
   onPause,
   onResume,
   onCancel,
-  isPaused
+  isPaused,
+  actualBytes
 }: ExportProgressProps) {
   const [displayProgress, setDisplayProgress] = useState(0);
 
@@ -87,9 +90,15 @@ export const ExportProgress = memo(function ExportProgress({
           <div className="text-xs text-text-muted bg-surface-elevated border border-border rounded-lg px-3 py-2 space-y-1">
             <div>Resolution: {exportInfo.displaySize}</div>
             <div>
-              File size estimate:{' '}
-              {exportInfo.fileSizeEstimates[format] ||
-                exportInfo.fileSizeEstimates['png']}
+              {actualBytes != null ? (
+                <>File size: {formatFileSize(actualBytes)}</>
+              ) : (
+                <>
+                  File size estimate: ~
+                  {exportInfo.fileSizeEstimates[format] ||
+                    exportInfo.fileSizeEstimates['png']}
+                </>
+              )}
             </div>
             {exportInfo.isLargeExport && (
               <div className="text-warning mt-1">

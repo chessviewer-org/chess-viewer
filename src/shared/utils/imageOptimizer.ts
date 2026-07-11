@@ -50,7 +50,7 @@ export function shouldForceCoordinateBorder(quality: number): boolean {
   return !!findQualityPreset(quality)?.forceCoordinateBorder;
 }
 
-function formatFileSize(bytes: number): string {
+export function formatFileSize(bytes: number): string {
   if (bytes < 1024) return Math.round(bytes) + ' B';
   if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
   return (bytes / 1024 / 1024).toFixed(1) + ' MB';
@@ -167,14 +167,17 @@ export interface FileSizeEstimates {
 export function estimateFileSizes(
   width: number,
   height: number,
-  exportQuality: number
+  _exportQuality: number
 ): FileSizeEstimates {
   const pixels = width * height;
-  const mode = getExportMode(exportQuality);
-  const pngFactor = mode === 'print' ? 0.05 : 0.08;
-  const jpegFactor = mode === 'print' ? 0.04 : 0.06;
-  const pngBytes = Math.round(pixels * pngFactor);
-  const jpegBytes = Math.round(pixels * jpegFactor);
+  // A chess diagram is mostly flat colour, so bytes-per-pixel falls as the
+  // image grows (larger flat runs compress better). Modelling the encoded
+  // size as proportional to sqrt(pixels) tracks that far more closely than a
+  // fixed bytes-per-pixel factor. Coefficients fitted against real PNG/JPEG
+  // (q=0.92) exports of coordinate boards across export sizes.
+  const scale = Math.sqrt(pixels);
+  const pngBytes = Math.round(scale * 90);
+  const jpegBytes = Math.round(scale * 55);
   return {
     png: formatFileSize(pngBytes),
     jpeg: formatFileSize(jpegBytes),

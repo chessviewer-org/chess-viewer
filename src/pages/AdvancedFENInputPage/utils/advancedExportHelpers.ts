@@ -5,8 +5,8 @@ export const runFormatExport = async (
   config: ExportConfig,
   name: string,
   onProg: (p: number) => void
-) => {
-  if (format === 'png') return downloadPNG(config, name, onProg);
-  if (format === 'jpeg') return downloadJPEG(config, name, onProg);
-  return downloadSVG(config, name, onProg);
+): Promise<void> => {
+  if (format === 'png') await downloadPNG(config, name, onProg);
+  else if (format === 'jpeg') await downloadJPEG(config, name, onProg);
+  else await downloadSVG(config, name, onProg);
 };

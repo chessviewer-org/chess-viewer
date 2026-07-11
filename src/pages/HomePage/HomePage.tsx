@@ -111,6 +111,7 @@ const HomePage: React.FC = () => {
             currentFormat={home.exportState.currentFormat || ''}
             config={home.getExportConfig()}
             isPaused={home.exportState.isPaused}
+            actualBytes={home.exportState.actualBytes}
             onClose={home.toggleProgress}
             onPause={home.handlePause}
             onResume={home.handleResume}

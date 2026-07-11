@@ -90,11 +90,12 @@ async function downloadRaster(
   format: 'png' | 'jpeg',
   extension: string,
   onProgress?: ProgressCallback
-): Promise<void> {
+): Promise<number> {
   try {
     const finalBlob = await getRasterBlob(config, format, onProgress);
     saveBlob(finalBlob, fileName, extension);
     setProgress(onProgress, 100, 'Done');
+    return finalBlob.size;
   } catch (error: unknown) {
     if (error instanceof Error && error.message === 'Export cancelled') {
       throw new Error('Export cancelled', { cause: error });
@@ -110,7 +111,7 @@ export function downloadPNG(
   config: ExportConfig,
   fileName: string,
   onProgress?: ProgressCallback
-): Promise<void> {
+): Promise<number> {
   return downloadRaster(config, fileName, 'png', 'png', onProgress);
 }
 
@@ -118,7 +119,7 @@ export function downloadJPEG(
   config: ExportConfig,
   fileName: string,
   onProgress?: ProgressCallback
-): Promise<void> {
+): Promise<number> {
   return downloadRaster(config, fileName, 'jpeg', 'jpg', onProgress);
 }
 
