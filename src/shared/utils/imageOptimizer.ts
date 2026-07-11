@@ -50,7 +50,7 @@ export function shouldForceCoordinateBorder(quality: number): boolean {
   return !!findQualityPreset(quality)?.forceCoordinateBorder;
 }
 
-function formatFileSize(bytes: number): string {
+export function formatFileSize(bytes: number): string {
   if (bytes < 1024) return Math.round(bytes) + ' B';
   if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
   return (bytes / 1024 / 1024).toFixed(1) + ' MB';
@@ -166,15 +166,11 @@ export interface FileSizeEstimates {
 
 export function estimateFileSizes(
   width: number,
-  height: number,
-  exportQuality: number
+  height: number
 ): FileSizeEstimates {
-  const pixels = width * height;
-  const mode = getExportMode(exportQuality);
-  const pngFactor = mode === 'print' ? 0.05 : 0.08;
-  const jpegFactor = mode === 'print' ? 0.04 : 0.06;
-  const pngBytes = Math.round(pixels * pngFactor);
-  const jpegBytes = Math.round(pixels * jpegFactor);
+  const scale = Math.sqrt(width * height);
+  const pngBytes = Math.round(scale * 90);
+  const jpegBytes = Math.round(scale * 55);
   return {
     png: formatFileSize(pngBytes),
     jpeg: formatFileSize(jpegBytes),

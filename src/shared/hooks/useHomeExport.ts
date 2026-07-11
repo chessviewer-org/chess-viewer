@@ -20,6 +20,7 @@ export interface ExportState {
   currentFormat: string | null;
   isPaused: boolean;
   showProgress: boolean;
+  actualBytes: number | null;
 }
 
 interface BatchExportOverrides {
@@ -53,7 +54,8 @@ export function useHomeExport(opts: UseHomeExportOptions) {
     exportProgress: 0,
     currentFormat: null,
     isPaused: false,
-    showProgress: true
+    showProgress: true,
+    actualBytes: null
   });
 
   const pieceImagesRef = useRef<Record<string, HTMLImageElement>>({});
@@ -101,7 +103,8 @@ export function useHomeExport(opts: UseHomeExportOptions) {
         isExporting: false,
         currentFormat: null,
         exportProgress: 0,
-        isPaused: false
+        isPaused: false,
+        actualBytes: null
       }));
       completeTimerRef.current = null;
     }, 300);
@@ -123,7 +126,7 @@ export function useHomeExport(opts: UseHomeExportOptions) {
       config: ExportConfig,
       filename: string,
       cb: (p: number) => void
-    ) => Promise<void>,
+    ) => Promise<number>,
     label: string
   ) => {
     if (!validateFEN(opts.fen)) {
@@ -136,15 +139,17 @@ export function useHomeExport(opts: UseHomeExportOptions) {
       isExporting: true,
       currentFormat: format,
       exportProgress: 0,
-      isPaused: false
+      isPaused: false,
+      actualBytes: null
     }));
     opts.saveExportFen(opts.fen);
 
     try {
       const config = getExportConfig();
-      await runner(config, opts.fileName, (progress) => {
+      const bytes = await runner(config, opts.fileName, (progress) => {
         setExportState((prev) => ({ ...prev, exportProgress: progress }));
       });
+      setExportState((prev) => ({ ...prev, actualBytes: bytes }));
       opts.notify.success(`${label} downloaded`);
     } catch (err) {
       notifyError(err, label);
@@ -218,7 +223,8 @@ export function useHomeExport(opts: UseHomeExportOptions) {
       isExporting: false,
       currentFormat: null,
       exportProgress: 0,
-      isPaused: false
+      isPaused: false,
+      actualBytes: null
     }));
     opts.notify.info('Export cancelled');
   };
