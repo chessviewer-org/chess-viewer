@@ -100,8 +100,7 @@ export function getExportInfo(config: ExportConfig): ExportInfo {
   const mode = getExportMode(exportQuality);
   const fileSizes = estimateFileSizes(
     exportSize.canvasWidth,
-    exportSize.canvasHeight,
-    exportQuality
+    exportSize.canvasHeight
   );
 
   return {

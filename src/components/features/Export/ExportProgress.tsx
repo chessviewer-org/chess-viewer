@@ -70,6 +70,15 @@ export const ExportProgress = memo(function ExportProgress({
     exportInfo = null;
   }
 
+  const estimatedSize = exportInfo
+    ? exportInfo.fileSizeEstimates[format] ||
+      exportInfo.fileSizeEstimates['png']
+    : '';
+  const fileSizeText =
+    actualBytes != null
+      ? `File size: ${formatFileSize(actualBytes)}`
+      : `File size estimate: ~${estimatedSize}`;
+
   return (
     <ModalShell
       isOpen={isExporting}
@@ -89,17 +98,7 @@ export const ExportProgress = memo(function ExportProgress({
         {exportInfo && (
           <div className="text-xs text-text-muted bg-surface-elevated border border-border rounded-lg px-3 py-2 space-y-1">
             <div>Resolution: {exportInfo.displaySize}</div>
-            <div>
-              {actualBytes != null ? (
-                <>File size: {formatFileSize(actualBytes)}</>
-              ) : (
-                <>
-                  File size estimate: ~
-                  {exportInfo.fileSizeEstimates[format] ||
-                    exportInfo.fileSizeEstimates['png']}
-                </>
-              )}
-            </div>
+            <div>{fileSizeText}</div>
             {exportInfo.isLargeExport && (
               <div className="text-warning mt-1">
                 Large export (RAM: {exportInfo.memoryEstimateMB} MB). May take

@@ -10,8 +10,8 @@ test('formatFileSize scales unit with magnitude', () => {
 });
 
 test('estimateFileSizes stays positive and grows with resolution', () => {
-  const small = estimateFileSizes(1000, 1000, 1);
-  const large = estimateFileSizes(4000, 4000, 1);
+  const small = estimateFileSizes(1000, 1000);
+  const large = estimateFileSizes(4000, 4000);
 
   assert.ok(small.pngBytes > 0);
   assert.ok(small.jpegBytes > 0);
@@ -20,8 +20,8 @@ test('estimateFileSizes stays positive and grows with resolution', () => {
 });
 
 test('estimateFileSizes bytes-per-pixel falls as the image grows', () => {
-  const small = estimateFileSizes(1000, 1000, 1);
-  const large = estimateFileSizes(4000, 4000, 1);
+  const small = estimateFileSizes(1000, 1000);
+  const large = estimateFileSizes(4000, 4000);
 
   const smallBpp = small.pngBytes / (1000 * 1000);
   const largeBpp = large.pngBytes / (4000 * 4000);

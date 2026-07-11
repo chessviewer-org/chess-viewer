@@ -166,16 +166,9 @@ export interface FileSizeEstimates {
 
 export function estimateFileSizes(
   width: number,
-  height: number,
-  _exportQuality: number
+  height: number
 ): FileSizeEstimates {
-  const pixels = width * height;
-  // A chess diagram is mostly flat colour, so bytes-per-pixel falls as the
-  // image grows (larger flat runs compress better). Modelling the encoded
-  // size as proportional to sqrt(pixels) tracks that far more closely than a
-  // fixed bytes-per-pixel factor. Coefficients fitted against real PNG/JPEG
-  // (q=0.92) exports of coordinate boards across export sizes.
-  const scale = Math.sqrt(pixels);
+  const scale = Math.sqrt(width * height);
   const pngBytes = Math.round(scale * 90);
   const jpegBytes = Math.round(scale * 55);
   return {
