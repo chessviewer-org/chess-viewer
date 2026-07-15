@@ -1,9 +1,10 @@
-import { memo, useCallback, useRef } from 'react';
+import { memo, useCallback } from 'react';
 
 import type { PieceSymbol } from '@app-types';
 import { indicesToSquare, pieceToName } from '@utils';
 import { useDroppable } from '@hooks';
 import { DraggablePiece } from './DraggablePiece';
+import { shouldAnimateEntrance } from './entranceAnimation';
 
 interface DroppableSquareProps {
   row: number;
@@ -38,10 +39,8 @@ export const DroppableSquare = memo(
     cellSize = 64
   }: DroppableSquareProps) {
     const bgColor = isLight ? lightColor : darkColor;
-    const wasLoadingRef = useRef(isLoading);
-    const initialDelay =
-      wasLoadingRef.current && !isLoading ? `${(row * 8 + col) * 6}ms` : '0ms';
-    if (wasLoadingRef.current && !isLoading) wasLoadingRef.current = false;
+    const animateEntrance = !isLoading && shouldAnimateEntrance();
+    const entranceDelay = animateEntrance ? `${(row * 8 + col) * 6}ms` : '0ms';
 
     const squareName = indicesToSquare(row, col);
     const ariaLabel = piece
@@ -94,11 +93,13 @@ export const DroppableSquare = memo(
         {piece && pieceImage && !isLoading && (
           <div
             key={piece}
-            className="w-full h-full flex items-center justify-center animate-piece-in"
+            className={`w-full h-full flex items-center justify-center${
+              animateEntrance ? ' animate-piece-in' : ''
+            }`}
             style={{
               contain: 'layout style',
               opacity: isHeldSource ? 0.45 : 1,
-              animationDelay: initialDelay
+              animationDelay: entranceDelay
             }}
           >
             <DraggablePiece
