@@ -10,6 +10,7 @@ import { useBoardKeyboard } from '../hooks/useBoardKeyboard';
 // Types
 export interface BoardKeyboardApi {
   pickUpFromPalette: (piece: PieceSymbol) => void;
+  clearHeld: () => void;
 }
 
 interface InteractiveBoardProps {
@@ -29,6 +30,7 @@ interface InteractiveBoardProps {
   ) => void;
   onSquareSelect?: ((row: number, col: number) => void) | undefined;
   selectedSquare?: readonly [number, number] | null | undefined;
+  paletteActive?: boolean;
   onPieceRemove?: ((row: number, col: number) => void) | undefined;
   onKeyboardApi?: ((api: BoardKeyboardApi) => void) | undefined;
 }
@@ -43,6 +45,7 @@ export const InteractiveBoard = memo(function InteractiveBoard({
   onPieceDrop,
   onSquareSelect,
   selectedSquare,
+  paletteActive = false,
   onPieceRemove,
   onKeyboardApi
 }: InteractiveBoardProps) {
@@ -54,7 +57,8 @@ export const InteractiveBoard = memo(function InteractiveBoard({
     announcement,
     onKeyDown,
     onBlur,
-    pickUpFromPalette
+    pickUpFromPalette,
+    clearHeld
   } = useBoardKeyboard({
     board,
     flipped,
@@ -72,9 +76,10 @@ export const InteractiveBoard = memo(function InteractiveBoard({
       pickUpFromPalette: (piece: PieceSymbol) => {
         pickUpFromPalette(piece);
         boardRef.current?.focus();
-      }
+      },
+      clearHeld
     });
-  }, [onKeyboardApi, pickUpFromPalette]);
+  }, [onKeyboardApi, pickUpFromPalette, clearHeld]);
 
   const squares = useMemo(() => {
     const result = [];
@@ -107,6 +112,7 @@ export const InteractiveBoard = memo(function InteractiveBoard({
             pieceImage={pieceImage}
             onSelect={onSquareSelect}
             isSelected={isSelected}
+            isPlaceTarget={paletteActive}
             isCursor={isCursor}
             isHeldSource={isHeldSource}
             isLoading={isLoading}
@@ -125,7 +131,8 @@ export const InteractiveBoard = memo(function InteractiveBoard({
     onSquareSelect,
     selectedSquare,
     cursor,
-    heldFrom
+    heldFrom,
+    paletteActive
   ]);
 
   const boardDescription = useMemo(

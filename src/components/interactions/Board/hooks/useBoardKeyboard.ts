@@ -36,6 +36,7 @@ export interface UseBoardKeyboardResult {
   onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
   onBlur: () => void;
   pickUpFromPalette: (piece: PieceSymbol) => void;
+  clearHeld: () => void;
 }
 
 export function useBoardKeyboard({
@@ -193,6 +194,8 @@ export function useBoardKeyboard({
     [announce, flipped]
   );
 
+  const clearHeld = useCallback(() => setHeld(null), []);
+
   const activeDescendantId = cursor
     ? `sq-${cursor.row}-${cursor.col}`
     : undefined;
@@ -206,7 +209,8 @@ export function useBoardKeyboard({
       announcement,
       onKeyDown,
       onBlur,
-      pickUpFromPalette
+      pickUpFromPalette,
+      clearHeld
     }),
     [
       cursor,
@@ -215,7 +219,8 @@ export function useBoardKeyboard({
       announcement,
       onKeyDown,
       onBlur,
-      pickUpFromPalette
+      pickUpFromPalette,
+      clearHeld
     ]
   );
 }

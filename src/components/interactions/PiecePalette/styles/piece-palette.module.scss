@@ -107,6 +107,14 @@
     outline: none;
     box-shadow: 0 0 0 2px var(--color-accent);
   }
+
+  &.selected,
+  &.selected:hover,
+  &.selected:focus-visible {
+    background-color: var(--color-surface-hover);
+    border-color: var(--color-text-primary);
+    box-shadow: 0 0 0 1px var(--color-text-primary);
+  }
 }
 
 .flatPieceBtn {
@@ -134,5 +142,12 @@
   &:focus-visible {
     outline: none;
     box-shadow: 0 0 0 2px var(--color-accent);
+  }
+
+  &.selected,
+  &.selected:hover,
+  &.selected:focus-visible {
+    background-color: var(--color-surface-elevated);
+    box-shadow: 0 0 0 1px var(--color-text-primary);
   }
 }

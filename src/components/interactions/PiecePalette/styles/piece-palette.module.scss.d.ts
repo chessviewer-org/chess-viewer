@@ -10,6 +10,7 @@ declare const styles: {
   readonly flatGroup: string;
   readonly flatSep: string;
   readonly flatPieceBtn: string;
+  readonly selected: string;
 };
 
 export default styles;

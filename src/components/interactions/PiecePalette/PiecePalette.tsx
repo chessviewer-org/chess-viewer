@@ -13,6 +13,8 @@ export interface PiecePaletteProps {
   isLoading: boolean;
   className?: string;
   onKeyboardPick?: ((piece: PieceSymbol) => void) | undefined;
+  selectedPiece?: PieceSymbol | null | undefined;
+  onSelect?: ((piece: PieceSymbol) => void) | undefined;
 }
 
 interface PalettePiece {
@@ -34,18 +36,25 @@ export const PiecePalette = memo(function PiecePalette({
   pieceImages,
   isLoading,
   className = '',
-  onKeyboardPick
+  onKeyboardPick,
+  selectedPiece,
+  onSelect
 }: PiecePaletteProps) {
   const renderStackedPiece = useCallback(
     (p: PalettePiece) => {
       const imageKey = getPieceKey(p.piece);
       const pieceImage = imageKey ? (pieceImages[imageKey] ?? null) : null;
       const disabled = isLoading || !pieceImage;
+      const isSelected = selectedPiece === p.piece;
       return (
         <button
           key={p.id}
           type="button"
           disabled={disabled}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect?.(p.piece);
+          }}
           onKeyDown={(e) => {
             if (disabled) return;
             if (e.key === 'Enter' || e.key === ' ') {
@@ -54,8 +63,9 @@ export const PiecePalette = memo(function PiecePalette({
             }
           }}
           aria-label={`Place ${p.name}`}
+          aria-pressed={isSelected}
           title={p.name}
-          className={`${styles.stackedPieceBtn} ${isLoading ? 'opacity-50' : ''}`}
+          className={`${styles.stackedPieceBtn} ${isSelected ? styles.selected : ''} ${isLoading ? 'opacity-50' : ''}`}
         >
           <DraggablePiece
             piece={p.piece}
@@ -67,7 +77,7 @@ export const PiecePalette = memo(function PiecePalette({
         </button>
       );
     },
-    [pieceImages, isLoading, onKeyboardPick]
+    [pieceImages, isLoading, onKeyboardPick, selectedPiece, onSelect]
   );
 
   const renderFlatPiece = useCallback(
@@ -75,11 +85,16 @@ export const PiecePalette = memo(function PiecePalette({
       const imageKey = getPieceKey(p.piece);
       const pieceImage = imageKey ? (pieceImages[imageKey] ?? null) : null;
       const disabled = isLoading || !pieceImage;
+      const isSelected = selectedPiece === p.piece;
       return (
         <button
           key={p.id}
           type="button"
           disabled={disabled}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect?.(p.piece);
+          }}
           onKeyDown={(e) => {
             if (disabled) return;
             if (e.key === 'Enter' || e.key === ' ') {
@@ -88,8 +103,9 @@ export const PiecePalette = memo(function PiecePalette({
             }
           }}
           aria-label={`Place ${p.name}`}
+          aria-pressed={isSelected}
           title={p.name}
-          className={`${styles.flatPieceBtn} ${isLoading ? 'opacity-50' : ''}`}
+          className={`${styles.flatPieceBtn} ${isSelected ? styles.selected : ''} ${isLoading ? 'opacity-50' : ''}`}
         >
           <DraggablePiece
             piece={p.piece}
@@ -101,7 +117,7 @@ export const PiecePalette = memo(function PiecePalette({
         </button>
       );
     },
-    [pieceImages, isLoading, onKeyboardPick]
+    [pieceImages, isLoading, onKeyboardPick, selectedPiece, onSelect]
   );
 
   return (
