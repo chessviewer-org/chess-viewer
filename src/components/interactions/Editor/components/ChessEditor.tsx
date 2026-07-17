@@ -111,7 +111,8 @@ export const ChessEditor = memo(function ChessEditor({
     });
   }, [handlePieceRemove]);
 
-  const clearSelection = useCallback(() => setSelectedSquare(null), []);
+  const [selectedPalettePiece, setSelectedPalettePiece] =
+    useState<PieceSymbol | null>(null);
 
   const boardKeyboardApiRef = useRef<BoardKeyboardApi | null>(null);
   const handleKeyboardApi = useCallback((api: BoardKeyboardApi) => {
@@ -120,6 +121,34 @@ export const ChessEditor = memo(function ChessEditor({
   const handlePalettePick = useCallback((piece: PieceSymbol) => {
     boardKeyboardApiRef.current?.pickUpFromPalette(piece);
   }, []);
+
+  const clearSelection = useCallback(() => {
+    setSelectedSquare(null);
+    setSelectedPalettePiece(null);
+    boardKeyboardApiRef.current?.clearHeld();
+  }, []);
+
+  const handlePaletteSelect = useCallback((piece: PieceSymbol) => {
+    setSelectedPalettePiece((prev) => (prev === piece ? null : piece));
+  }, []);
+
+  const handleBoardSquareSelect = useCallback(
+    (row: number, col: number) => {
+      if (selectedPalettePiece) {
+        handlePieceDrop(
+          selectedPalettePiece,
+          undefined,
+          undefined,
+          row,
+          col,
+          true
+        );
+        return;
+      }
+      handleSquareSelect(row, col);
+    },
+    [selectedPalettePiece, handlePieceDrop, handleSquareSelect]
+  );
 
   useEffect(() => {
     syncFromFen(fen);
@@ -231,8 +260,9 @@ export const ChessEditor = memo(function ChessEditor({
                       isLoading={isLoading}
                       flipped={flipped}
                       onPieceDrop={handlePieceDrop}
-                      onSquareSelect={handleSquareSelect}
+                      onSquareSelect={handleBoardSquareSelect}
                       selectedSquare={selectedSquare}
+                      paletteActive={selectedPalettePiece !== null}
                       onPieceRemove={handlePieceRemove}
                       onKeyboardApi={handleKeyboardApi}
                     />
@@ -304,6 +334,8 @@ export const ChessEditor = memo(function ChessEditor({
                 pieceImages={pieceImages}
                 isLoading={isLoading}
                 onKeyboardPick={handlePalettePick}
+                selectedPiece={selectedPalettePiece}
+                onSelect={handlePaletteSelect}
               />
             </div>
             <div className={styles.editorDisplayOpts}>

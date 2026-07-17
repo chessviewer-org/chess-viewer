@@ -17,6 +17,7 @@ interface DroppableSquareProps {
   isSelected?: boolean;
   isCursor?: boolean;
   isHeldSource?: boolean;
+  isPlaceTarget?: boolean;
   isLoading: boolean;
   cellSize?: number;
 }
@@ -34,6 +35,7 @@ export const DroppableSquare = memo(
     isSelected = false,
     isCursor = false,
     isHeldSource = false,
+    isPlaceTarget = false,
     isLoading,
     cellSize = 64
   }: DroppableSquareProps) {
@@ -79,7 +81,9 @@ export const DroppableSquare = memo(
         role="gridcell"
         aria-label={ariaLabel}
         aria-selected={isSelected || isCursor}
-        className="w-full h-full flex items-center justify-center relative cursor-pointer"
+        className={`w-full h-full flex items-center justify-center relative cursor-pointer ${
+          isPlaceTarget ? 'group' : ''
+        }`}
         style={{
           backgroundColor: bgColor,
           zIndex: ringShadow ? 2 : 0,
@@ -124,6 +128,20 @@ export const DroppableSquare = memo(
             }}
           />
         )}
+        {isPlaceTarget && !ringShadow && (
+          <div
+            aria-hidden="true"
+            className="opacity-0 group-hover:opacity-100 transition-opacity"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              border: '2px solid var(--color-text-primary)',
+              boxSizing: 'border-box',
+              pointerEvents: 'none',
+              zIndex: 3
+            }}
+          />
+        )}
       </div>
     );
   },
@@ -140,6 +158,7 @@ export const DroppableSquare = memo(
       prevProps.isSelected === nextProps.isSelected &&
       prevProps.isCursor === nextProps.isCursor &&
       prevProps.isHeldSource === nextProps.isHeldSource &&
+      prevProps.isPlaceTarget === nextProps.isPlaceTarget &&
       prevProps.pieceImage === nextProps.pieceImage &&
       prevProps.cellSize === nextProps.cellSize
     );
