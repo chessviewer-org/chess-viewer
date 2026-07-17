@@ -72,13 +72,9 @@ export function useDraggable({
       const pointerId = e.pointerId;
       let started = false;
 
-      // Capture immediately so we keep receiving moves even if the pointer
-      // leaves this element before the drag threshold is crossed.
       el.setPointerCapture(pointerId);
 
       const begin = (clientX: number, clientY: number) => {
-        // Props may have changed mid-gesture (e.g. a piece-style reload flips
-        // isLoading); bail if the piece is no longer draggable.
         const src = imageSrcRef.current;
         if (disabledRef.current || !src) return;
         started = true;
@@ -120,13 +116,11 @@ export function useDraggable({
       const onMove = (ev: PointerEvent) => {
         if (started) return;
         if (
-          Math.hypot(ev.clientX - startX, ev.clientY - startY) > DRAG_THRESHOLD
-        ) {
-          begin(ev.clientX, ev.clientY);
-          // Only suppress scroll/selection once a real drag has actually
-          // started; a plain tap never reaches here, so click still fires.
-          if (started) ev.preventDefault();
-        }
+          Math.hypot(ev.clientX - startX, ev.clientY - startY) <= DRAG_THRESHOLD
+        )
+          return;
+        begin(ev.clientX, ev.clientY);
+        if (started) ev.preventDefault();
       };
 
       const cleanup = () => {
