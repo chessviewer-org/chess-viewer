@@ -2,7 +2,7 @@ import { memo, useEffect, useRef } from 'react';
 
 import { Link2, Share2, X } from '@/assets/icons';
 
-import { useFocusTrap } from '@hooks';
+import { useFocusTrap, useScrollLock } from '@hooks';
 import uiStyles from '@/shared/styles/ui.module.scss';
 
 interface ShareDialogProps {
@@ -22,6 +22,7 @@ export const ShareDialog = memo(function ShareDialog({
 }: ShareDialogProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   useFocusTrap(dialogRef, isOpen);
+  useScrollLock(isOpen);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -35,17 +36,14 @@ export const ShareDialog = memo(function ShareDialog({
   if (!isOpen) return null;
 
   return (
-    <div className={uiStyles['modalBackdrop']}>
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-modal-backdrop-in"
-        onClick={onClose}
-      />
+    <div className={uiStyles['modalBackdrop']} onClick={onClose}>
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="share-dialog-title"
         className={uiStyles['modalContainer'] + ' p-5'}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
           <h2

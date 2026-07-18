@@ -94,3 +94,30 @@
     color: var(--color-text-primary);
   }
 }
+
+html.modal-open {
+  overflow: hidden !important;
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
+.modal-open .page-container {
+  overflow: hidden;
+}
+
+.modal-open [class*='modal-container'],
+.modal-open [class*='drawer'],
+.modal-open [class*='sidebar'] {
+  overflow: hidden;
+}
+
+body.modal-open {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auto;
+}
+
+body.modal-open #root {
+  overflow: hidden;
+  height: 100%;
+}

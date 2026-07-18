@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, RefObject } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, RefObject } from 'react';
 
 import { readReducedMotionPreference, resolveReducedMotion } from '@utils';
 
@@ -57,10 +57,39 @@ export function useCopyToClipboard(): [boolean, (text: string) => void] {
 }
 
 export function useScrollLock(isLocked: boolean): void {
-  useEffect(() => {
-    document.body.style.overflow = isLocked ? 'hidden' : 'unset';
+  const scrollYRef = useRef(0);
+
+  useLayoutEffect(() => {
+    if (!isLocked) return;
+
+    scrollYRef.current = window.scrollY;
+    document.documentElement.classList.add('modal-open');
+    document.body.classList.add('modal-open');
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollYRef.current}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+
+    const preventScroll = (e: Event) => {
+      e.preventDefault();
+    };
+    document.addEventListener('touchmove', preventScroll, { passive: false });
+    document.addEventListener('wheel', preventScroll, { passive: false });
+
     return () => {
-      document.body.style.overflow = 'unset';
+      document.removeEventListener('touchmove', preventScroll);
+      document.removeEventListener('wheel', preventScroll);
+      document.documentElement.classList.remove('modal-open');
+      document.body.classList.remove('modal-open');
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      window.scrollTo(0, scrollYRef.current);
     };
   }, [isLocked]);
 }

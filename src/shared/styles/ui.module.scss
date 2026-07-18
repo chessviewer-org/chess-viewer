@@ -181,10 +181,11 @@ $ease-exit: cubic-bezier(0.4, 0, 0.2, 1);
 
 /* --- Modals --- */
 .modalBackdrop {
-  @apply fixed inset-0 z-9999 flex items-center justify-center p-4 bg-bg/95;
+  @apply fixed z-9999 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm;
+  inset: -2px;
 }
 .modalContainer {
-  @apply bg-surface-elevated border border-border rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] flex flex-col overflow-hidden animate-[scaleIn_0.2s_ease_out];
+  @apply bg-surface-elevated border border-border rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] flex flex-col overflow-hidden animate-[scaleIn_0.2s_ease_out] relative z-10;
 }
 .modalHeader {
   @apply flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border shrink-0;

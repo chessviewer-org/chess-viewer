@@ -36,10 +36,8 @@ export const ConfirmationModal = memo(function ConfirmationModal({
     onConfirm();
     onClose();
   };
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
+  const handleBackdropClick = () => {
+    onClose();
   };
   return (
     <div className={uiStyles['modalBackdrop']} onClick={handleBackdropClick}>
@@ -48,6 +46,7 @@ export const ConfirmationModal = memo(function ConfirmationModal({
         aria-modal="true"
         aria-labelledby="confirmation-modal-title"
         className={uiStyles['modalContainer']}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className={uiStyles['modalHeaderDanger']}>
           <div className={uiStyles['modalTitleContainer']}>
