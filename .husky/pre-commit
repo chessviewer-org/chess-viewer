@@ -1,1 +1,2 @@
-pnpm exec lint-staged
+export PATH="/home/webman/.nvm/versions/node/v24.15.0/bin:$PATH"
+node_modules/.bin/lint-staged

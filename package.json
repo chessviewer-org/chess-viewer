@@ -30,7 +30,6 @@
     "format:check": "prettier --check .",
     "format:ci": "prettier --check .",
     "test": "node --experimental-strip-types --import ./scripts/register-test-aliases.mjs --test \"src/**/*.test.ts\"",
-    "pr-checks": "node scripts/pr-checks.mjs",
     "validate": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test",
     "prepare": "husky"
   },

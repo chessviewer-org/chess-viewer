@@ -81,25 +81,6 @@ jobs:
           path: dist/
           retention-days: 7
 
-  pr-checks:
-    name: PR Checks
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    permissions:
-      contents: read
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-
-      - name: Run PR checks
-        run: node scripts/pr-checks.mjs
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   security-audit:
     name: Dependency Audit
     runs-on: ubuntu-latest

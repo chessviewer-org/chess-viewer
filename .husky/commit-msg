@@ -1,33 +1,9 @@
-echo "Validating commit message..."
-
-# Run commitlint
-if ! pnpm exec commitlint --edit "$1"; then
+export PATH="/home/webman/.nvm/versions/node/v24.15.0/bin:$PATH"
+if ! node_modules/.bin/commitlint --edit "$1"; then
   echo ""
-  echo "Commit message does not follow Conventional Commits format!"
-  echo ""
-  echo "Commit message format:"
-  echo "   <type>(<scope>): <subject>"
-  echo ""
-  echo "Types:"
-  echo "   feat:     A new feature"
-  echo "   fix:      A bug fix"
-  echo "   docs:     Documentation only changes"
-  echo "   style:    Code style changes (formatting, missing semi colons, etc)"
-  echo "   refactor: Code refactoring"
-  echo "   perf:     Performance improvements"
-  echo "   test:     Adding or updating tests"
-  echo "   chore:    Changes to build process or auxiliary tools"
-  echo "   ci:       CI configuration changes"
-  echo "   build:    Changes that affect the build system"
-  echo ""
-  echo "Examples:"
-  echo "   feat: add SVG export support"
-  echo "   feat(export): add batch export functionality"
-  echo "   fix: resolve piece rendering issue in Safari"
-  echo "   docs: update README with new features"
-  echo "   style: format code with prettier"
+  echo "Format: type(scope): subject"
+  echo "Types: feat fix docs style refactor perf test chore ci build revert"
+  echo "Example: feat(export): add SVG download"
   echo ""
   exit 1
 fi
-
-echo "Commit message is valid!"
