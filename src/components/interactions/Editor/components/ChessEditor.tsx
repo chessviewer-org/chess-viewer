@@ -16,7 +16,7 @@ import {
 } from '@hooks';
 import type { PieceSymbol } from '@app-types';
 
-import { Checkbox } from '@ui';
+import { DisplayOptions } from '@components/features';
 import {
   type BoardKeyboardApi,
   InteractiveBoard,
@@ -75,8 +75,7 @@ export const ChessEditor = memo(function ChessEditor({
   className = ''
 }: ChessEditorProps) {
   const { pieceImages, isLoading } = usePieceImages(pieceStyle);
-  const { boardSize, cellSize, containerRef, boardElementRef } =
-    useEditorBoardSize();
+  const { boardSize, containerRef, boardElementRef } = useEditorBoardSize();
 
   const {
     board,
@@ -317,8 +316,7 @@ export const ChessEditor = memo(function ChessEditor({
             className={styles.editorPanel}
             style={
               {
-                '--board-h': `${boardSize}px`,
-                paddingBottom: showCoords ? `${cellSize * 8 * 0.05}px` : '0'
+                '--board-h': `${boardSize}px`
               } as CSSProperties
             }
           >
@@ -339,23 +337,13 @@ export const ChessEditor = memo(function ChessEditor({
               />
             </div>
             <div className={styles.editorDisplayOpts}>
-              <span className={styles.editorDisplayOptsLabel}>
-                Display Options
-              </span>
-              <div className={styles.editorDisplayOptsChecks}>
-                <Checkbox
-                  checked={showCoords}
-                  onChange={(e) => setShowCoords?.(e.target.checked)}
-                  label="Show Coordinates"
-                  className="p-1!"
-                />
-                <Checkbox
-                  checked={showThinFrame}
-                  onChange={(e) => setShowThinFrame?.(e.target.checked)}
-                  label="Show Board Frame"
-                  className="p-1!"
-                />
-              </div>
+              <DisplayOptions
+                showCoords={showCoords}
+                setShowCoords={setShowCoords ?? (() => {})}
+                showThinFrame={showThinFrame ?? false}
+                setShowThinFrame={setShowThinFrame ?? (() => {})}
+                hideLabel={true}
+              />
             </div>
             <div className={styles.editorDbSearch}>
               <DatabaseSearchPanel

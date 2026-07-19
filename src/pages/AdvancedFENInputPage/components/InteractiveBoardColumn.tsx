@@ -93,7 +93,7 @@ const InteractiveBoardColumn = memo(function InteractiveBoardColumn({
       />
 
       {state.activeTab === 'export-settings' && (
-        <div className="flex items-center justify-center gap-2 flex-wrap select-none mt-1 ml-[9%] w-[91%]">
+        <div className="flex items-center justify-center gap-2 flex-wrap select-none mt-1 ml-[5%] w-[95%]">
           <SummaryBadge label="Size">
             <span className="text-accent">{summaryParts.size}</span>
           </SummaryBadge>
@@ -114,7 +114,7 @@ const InteractiveBoardColumn = memo(function InteractiveBoardColumn({
       )}
 
       {state.validFens.length > 1 && (
-        <div className="ml-[9%] w-[91%]">
+        <div className="ml-[5%] w-[95%]">
           <PlaybackControls
             isPlaying={state.isPlaying}
             interval={state.intervalTime}
@@ -132,7 +132,7 @@ const InteractiveBoardColumn = memo(function InteractiveBoardColumn({
       )}
 
       {state.activeTab === 'preview-style' && (
-        <div className="mt-1 ml-[9%] w-[91%]">
+        <div className="mt-1 ml-[5%] w-[95%]">
           <DisplayOptions
             showCoords={state.showCoordsLocal}
             setShowCoords={handlers.setShowCoordsLocal}

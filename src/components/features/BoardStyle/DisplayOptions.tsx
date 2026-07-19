@@ -24,7 +24,7 @@ function DisplayOptionsComponent({
   setApplyToAll
 }: DisplayOptionsProps) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-1">
       {!hideLabel && (
         <label className="block text-sm font-semibold text-text-secondary mb-3">
           Display Options
