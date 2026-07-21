@@ -1,4 +1,4 @@
-import React from 'react';
+import { useLayoutEffect } from 'react';
 
 import {
   DEFAULT_DESCRIPTION,
@@ -36,6 +36,10 @@ export const Seo: React.FC<SeoProps> = ({
       : undefined;
 
   const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
+
+  useLayoutEffect(() => {
+    document.title = title;
+  }, [title]);
 
   const serialize = (obj: Record<string, unknown>) =>
     JSON.stringify(obj).replace(/</g, '\\u003c');

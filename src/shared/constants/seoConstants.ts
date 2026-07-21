@@ -187,7 +187,7 @@ export const EXPORT_BREADCRUMB_SCHEMA = {
     {
       '@type': 'ListItem',
       position: 2,
-      name: 'Export Chess Diagram',
+      name: 'Export',
       item: `${SITE_URL}/export`
     }
   ]
@@ -215,29 +215,30 @@ export const ADVANCED_FEN_BREADCRUMB_SCHEMA = {
 
 const ROUTE_SEO: Record<string, SeoMeta> = {
   '/': {
+    name: 'Free Chess Diagram Generator',
     path: '/',
     description: DEFAULT_DESCRIPTION
   },
   '/advanced-fen': {
-    name: 'Batch FEN Export • Chess Diagram Studio',
+    name: 'Batch Export',
     path: '/advanced-fen',
     description:
       'Batch-convert multiple FEN positions to chess diagrams at once. Export high-resolution PNG, JPEG, and SVG files bundled as a ZIP. The fastest way to generate dozens of chess diagrams — free.'
   },
   '/export': {
-    name: 'Export Chess Diagram',
+    name: 'Export',
     path: '/export',
     description:
       'Export your chess diagram as a print-ready PNG, JPEG, or SVG. Choose DPI, board size, transparent background, and download instantly — no watermarks, completely free.'
   },
   '/about': {
-    name: 'About ChessViewer',
+    name: 'About',
     path: '/about',
     description:
       'ChessViewer is a free, open-source chess diagram generator at chessvision.org. No tracking, no paywalls — professional FEN-to-image export for players, coaches, and authors.'
   },
   '/fen-history': {
-    name: 'FEN Position History',
+    name: 'FEN History',
     path: '/fen-history',
     description:
       'Browse and reuse your saved FEN positions. Your chess diagram history is stored privately on your device with optional cloud sync — search, filter, and re-export any position.'
@@ -269,7 +270,7 @@ const ROUTE_SEO: Record<string, SeoMeta> = {
     noindex: true
   },
   '/auth/mfa': {
-    name: 'Two•Factor Verification',
+    name: 'Two-Factor Auth',
     path: '/auth/mfa',
     description:
       'Complete two-factor authentication to access your ChessViewer account.',

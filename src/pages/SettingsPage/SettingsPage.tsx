@@ -87,13 +87,9 @@ const SettingsPage = memo(function SettingsPage() {
     [setSearchParams]
   );
 
-  const activeTabLabel = groups
-    .flatMap((g) => g.items)
-    .find((item) => item.id === activeTab)?.label;
-
   return (
     <div className="min-h-full bg-bg md:h-full md:max-h-full">
-      <Seo name={activeTabLabel} noindex />
+      <Seo name="Settings" noindex />
       <PageSidebarLayout
         contentRef={contentRef}
         contentLabel="Settings"
