@@ -27,7 +27,7 @@ export const Seo: React.FC<SeoProps> = ({
   dynamicParams,
   schema
 }) => {
-  const title = name ? `${name}${TITLE_SEPARATOR}${SITE_NAME}` : SITE_NAME;
+  const title = name ? `${SITE_NAME}${TITLE_SEPARATOR}${name}` : SITE_NAME;
   const desc = description ?? DEFAULT_DESCRIPTION;
   const ogImage = image ?? DEFAULT_OG_IMAGE;
   const canonical =
