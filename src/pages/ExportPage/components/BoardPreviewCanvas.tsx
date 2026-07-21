@@ -15,7 +15,7 @@ import {
 const DEFAULT_LIGHT = BOARD_THEMES['classic']?.light ?? '#f0d9b5';
 const DEFAULT_DARK = BOARD_THEMES['classic']?.dark ?? '#b58863';
 
-const GUTTER_RATIO = 0.09;
+const GUTTER_RATIO = 0.05;
 
 // Types
 interface BoardPreviewCanvasProps {
@@ -143,25 +143,29 @@ const BoardPreviewCanvas = memo(
       boardPx
     ]);
 
+    const ranks = flipped
+      ? ['1', '2', '3', '4', '5', '6', '7', '8']
+      : ['8', '7', '6', '5', '4', '3', '2', '1'];
+    const files = flipped
+      ? ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a']
+      : ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+
     return (
       <div
         ref={wrapperRef}
-        style={
-          {
-            width: '100%',
-            aspectRatio: '1 / 1',
-            position: 'relative',
-            '--gutter-size': `${gutter}px`
-          } as React.CSSProperties
-        }
+        style={{
+          width: '100%',
+          aspectRatio: '1 / 1',
+          position: 'relative'
+        }}
       >
         <div
           style={{
             position: 'absolute',
-            left: `${gutter}px`,
             top: 0,
-            width: `${boardPx}px`,
-            height: `${boardPx}px`
+            right: 0,
+            width: '95%',
+            height: '95%'
           }}
         >
           <canvas
@@ -169,14 +173,17 @@ const BoardPreviewCanvas = memo(
             aria-hidden="true"
             className={`block transition-opacity duration-200 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
           />
-          <div
-            className="pointer-events-none absolute inset-0 border-[3px] transition-colors duration-200"
-            style={{
-              borderColor: showThinFrame
-                ? (darkSquare ?? DEFAULT_DARK)
-                : 'transparent'
-            }}
-          />
+          {showThinFrame && (
+            <div
+              className="absolute pointer-events-none box-border"
+              style={{
+                inset: '-2.5px',
+                border: `2px solid ${darkSquare ?? DEFAULT_DARK}`,
+                boxShadow: 'inset 0 0 0 0.5px rgba(0,0,0,0.9)',
+                zIndex: 10
+              }}
+            />
+          )}
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-surface/60">
               <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
@@ -191,23 +198,15 @@ const BoardPreviewCanvas = memo(
 
         {showCoords && cellSize > 0 && (
           <div
-            className="flex flex-col text-text-secondary font-bold select-none absolute"
-            style={{
-              left: 0,
-              top: 0,
-              width: `${gutter}px`,
-              height: `${boardPx}px`,
-              fontSize: `max(9px, ${boardPx * 0.028}px)`
-            }}
+            className="absolute top-0 left-0 flex flex-col pr-1"
+            style={{ width: '5%', height: '95%' }}
             aria-hidden="true"
           >
-            {(flipped
-              ? ['1', '2', '3', '4', '5', '6', '7', '8']
-              : ['8', '7', '6', '5', '4', '3', '2', '1']
-            ).map((rank) => (
+            {ranks.map((rank) => (
               <div
                 key={rank}
-                className={`flex items-center justify-end flex-1 ${showThinFrame ? 'pr-2 sm:pr-2.5' : 'pr-1 sm:pr-1.5'}`}
+                className="flex items-center justify-center text-text-secondary font-bold select-none h-[12.5%]"
+                style={{ fontSize: `max(9px, ${boardPx * 0.028}px)` }}
               >
                 {rank}
               </div>
@@ -217,23 +216,15 @@ const BoardPreviewCanvas = memo(
 
         {showCoords && cellSize > 0 && (
           <div
-            className="flex flex-row text-text-secondary font-bold select-none absolute lowercase"
-            style={{
-              left: `${gutter}px`,
-              bottom: 0,
-              width: `${boardPx}px`,
-              height: `${gutter}px`,
-              fontSize: `max(9px, ${boardPx * 0.028}px)`
-            }}
+            className="absolute bottom-0 right-0 flex pt-1"
+            style={{ width: '95%', height: '5%' }}
             aria-hidden="true"
           >
-            {(flipped
-              ? ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a']
-              : ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-            ).map((file) => (
+            {files.map((file) => (
               <div
                 key={file}
-                className={`flex items-start justify-center flex-1 ${showThinFrame ? 'pt-2 sm:pt-2.5' : 'pt-1 sm:pt-1.5'}`}
+                className="flex-1 flex items-center justify-center text-text-secondary font-bold select-none lowercase"
+                style={{ fontSize: `max(9px, ${boardPx * 0.028}px)` }}
               >
                 {file}
               </div>

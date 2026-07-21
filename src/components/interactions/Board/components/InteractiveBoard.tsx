@@ -30,7 +30,6 @@ interface InteractiveBoardProps {
   ) => void;
   onSquareSelect?: ((row: number, col: number) => void) | undefined;
   selectedSquare?: readonly [number, number] | null | undefined;
-  paletteActive?: boolean;
   onPieceRemove?: ((row: number, col: number) => void) | undefined;
   onKeyboardApi?: ((api: BoardKeyboardApi) => void) | undefined;
 }
@@ -45,7 +44,6 @@ export const InteractiveBoard = memo(function InteractiveBoard({
   onPieceDrop,
   onSquareSelect,
   selectedSquare,
-  paletteActive = false,
   onPieceRemove,
   onKeyboardApi
 }: InteractiveBoardProps) {
@@ -112,7 +110,6 @@ export const InteractiveBoard = memo(function InteractiveBoard({
             pieceImage={pieceImage}
             onSelect={onSquareSelect}
             isSelected={isSelected}
-            isPlaceTarget={paletteActive}
             isCursor={isCursor}
             isHeldSource={isHeldSource}
             isLoading={isLoading}
@@ -131,8 +128,7 @@ export const InteractiveBoard = memo(function InteractiveBoard({
     onSquareSelect,
     selectedSquare,
     cursor,
-    heldFrom,
-    paletteActive
+    heldFrom
   ]);
 
   const boardDescription = useMemo(
@@ -163,7 +159,7 @@ export const InteractiveBoard = memo(function InteractiveBoard({
         data-arrow-keys="self"
         onKeyDown={onKeyDown}
         onBlur={onBlur}
-        className="grid grid-cols-8 grid-rows-8 overflow-hidden w-full h-full outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+        className="grid grid-cols-8 grid-rows-8 overflow-hidden w-full h-full"
         style={{
           gap: 0,
           zIndex: 1,
