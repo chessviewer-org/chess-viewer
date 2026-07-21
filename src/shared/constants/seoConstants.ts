@@ -43,7 +43,7 @@ export const WEBSITE_SCHEMA = {
   '@type': 'WebSite',
   '@id': `${SITE_URL}/#website`,
   url: `${SITE_URL}/`,
-  name: 'ChessViewer — Chess Diagram Generator',
+  name: 'ChessViewer • Chess Diagram Generator',
   description: DEFAULT_DESCRIPTION,
   publisher: { '@id': `${SITE_URL}/#organization` },
   inLanguage: 'en',
@@ -219,7 +219,7 @@ const ROUTE_SEO: Record<string, SeoMeta> = {
     description: DEFAULT_DESCRIPTION
   },
   '/advanced-fen': {
-    name: 'Batch FEN Export — Chess Diagram Studio',
+    name: 'Batch FEN Export • Chess Diagram Studio',
     path: '/advanced-fen',
     description:
       'Batch-convert multiple FEN positions to chess diagrams at once. Export high-resolution PNG, JPEG, and SVG files bundled as a ZIP. The fastest way to generate dozens of chess diagrams — free.'
@@ -269,7 +269,7 @@ const ROUTE_SEO: Record<string, SeoMeta> = {
     noindex: true
   },
   '/auth/mfa': {
-    name: 'Two-Factor Verification',
+    name: 'Two•Factor Verification',
     path: '/auth/mfa',
     description:
       'Complete two-factor authentication to access your ChessViewer account.',
