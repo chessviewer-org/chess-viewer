@@ -261,7 +261,6 @@ export const ChessEditor = memo(function ChessEditor({
                       onPieceDrop={handlePieceDrop}
                       onSquareSelect={handleBoardSquareSelect}
                       selectedSquare={selectedSquare}
-                      paletteActive={selectedPalettePiece !== null}
                       onPieceRemove={handlePieceRemove}
                       onKeyboardApi={handleKeyboardApi}
                     />

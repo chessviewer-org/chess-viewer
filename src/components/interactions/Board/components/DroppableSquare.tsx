@@ -18,7 +18,6 @@ interface DroppableSquareProps {
   isSelected?: boolean;
   isCursor?: boolean;
   isHeldSource?: boolean;
-  isPlaceTarget?: boolean;
   isLoading: boolean;
   cellSize?: number;
 }
@@ -36,7 +35,6 @@ export const DroppableSquare = memo(
     isSelected = false,
     isCursor = false,
     isHeldSource = false,
-    isPlaceTarget = false,
     isLoading,
     cellSize = 64
   }: DroppableSquareProps) {
@@ -62,16 +60,6 @@ export const DroppableSquare = memo(
       data: { row, col }
     });
 
-    const ringShadow = isOver
-      ? 'inset 0 0 0 3px rgba(255, 255, 255, 0.5)'
-      : isCursor
-        ? 'inset 0 0 0 3px var(--color-accent), inset 0 0 0 5px rgba(0,0,0,0.35)'
-        : isSelected
-          ? 'inset 0 0 0 2px var(--color-text-primary)'
-          : isHeldSource
-            ? 'inset 0 0 0 3px var(--color-accent)'
-            : null;
-
     return (
       <div
         ref={setNodeRef}
@@ -80,16 +68,14 @@ export const DroppableSquare = memo(
         role="gridcell"
         aria-label={ariaLabel}
         aria-selected={isSelected || isCursor}
-        className={`w-full h-full flex items-center justify-center relative cursor-pointer ${
-          isPlaceTarget ? 'group' : ''
-        }`}
+        className="w-full h-full flex items-center justify-center relative cursor-pointer"
         style={{
           backgroundColor: bgColor,
-          zIndex: ringShadow ? 2 : 0,
-          contain: 'layout style',
+          outline: 'none',
+          boxShadow: isOver ? 'inset 0 0 0 1px rgba(255,255,255,0.8)' : 'none',
+          zIndex: isOver ? 2 : 0,
           minWidth: 0,
-          minHeight: 0,
-          outline: `0.5px solid ${bgColor}`
+          minHeight: 0
         }}
         data-row={row}
         data-col={col}
@@ -117,32 +103,6 @@ export const DroppableSquare = memo(
             />
           </div>
         )}
-        {ringShadow && (
-          <div
-            aria-hidden="true"
-            style={{
-              position: 'absolute',
-              inset: 0,
-              boxShadow: ringShadow,
-              pointerEvents: 'none',
-              zIndex: 3
-            }}
-          />
-        )}
-        {isPlaceTarget && !ringShadow && (
-          <div
-            aria-hidden="true"
-            className="opacity-0 group-hover:opacity-100 transition-opacity"
-            style={{
-              position: 'absolute',
-              inset: 0,
-              border: '2px solid var(--color-text-primary)',
-              boxSizing: 'border-box',
-              pointerEvents: 'none',
-              zIndex: 3
-            }}
-          />
-        )}
       </div>
     );
   },
@@ -159,7 +119,6 @@ export const DroppableSquare = memo(
       prevProps.isSelected === nextProps.isSelected &&
       prevProps.isCursor === nextProps.isCursor &&
       prevProps.isHeldSource === nextProps.isHeldSource &&
-      prevProps.isPlaceTarget === nextProps.isPlaceTarget &&
       prevProps.pieceImage === nextProps.pieceImage &&
       prevProps.cellSize === nextProps.cellSize
     );
