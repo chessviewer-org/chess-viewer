@@ -12,14 +12,15 @@ export default {
       'x-real-client-ip',
       request.headers.get('CF-Connecting-IP') ?? ''
     );
-    headers.set('x-proxy-secret', env.PROXY_SHARED_SECRET);
+    headers.set('x-proxy-secret', env.PROXY_SHARED_SECRET ?? '');
+
+    const hasBody = request.method !== 'GET' && request.method !== 'HEAD';
 
     const init = {
       method: request.method,
       headers,
-      body: (request.method === 'GET' || request.method === 'HEAD')
-        ? undefined
-        : request.body,
+      body: hasBody ? request.body : undefined,
+      ...(hasBody ? { duplex: 'half' } : {})
     };
 
     return fetch(target.toString(), init);
