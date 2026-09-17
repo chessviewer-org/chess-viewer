@@ -16,15 +16,6 @@ const BASE_URL =
   '';
 const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY ?? '';
 
-console.info('[invokeProtected] raw env dump:', {
-  VITE_DB_SEARCH_PROXY_URL: import.meta.env.VITE_DB_SEARCH_PROXY_URL,
-  VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
-  VITE_TURNSTILE_SITE_KEY: import.meta.env.VITE_TURNSTILE_SITE_KEY,
-  MODE: import.meta.env.MODE,
-  PROD: import.meta.env.PROD
-});
-console.info('[invokeProtected] resolved base url:', BASE_URL);
-
 // Service
 export async function invokeProtected<T>(
   name: string,
