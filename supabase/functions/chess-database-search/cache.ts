@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.107.0';
-import type { ProviderHit } from './types.ts';
+import type { ProviderHit, ProviderMap } from './types.ts';
 import { trace } from './utils/trace.ts';
 
 // Service client
@@ -14,8 +14,8 @@ const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const NEGATIVE_TTL_MS = 24 * 60 * 60 * 1000;
 
 // Helpers
-export function lichessCacheKey(fen: string): string {
-  return `lfen|${fen.trim()}`.slice(0, 100);
+export function boardCacheKey(fen: string): string {
+  return `fen|${fen.trim()}`.slice(0, 100);
 }
 
 function isHit(v: unknown): v is ProviderHit {
@@ -72,7 +72,8 @@ export async function writeCache(
   }
 }
 
-export function isLichessHit(v: unknown): v is { lichess: ProviderHit } {
+export function isProviderMapHit(v: unknown): v is ProviderMap {
   if (typeof v !== 'object' || v === null) return false;
-  return isHit((v as Record<string, unknown>)['lichess']);
+  const o = v as Record<string, unknown>;
+  return isHit(o['lichess']) && isHit(o['chessdb']);
 }

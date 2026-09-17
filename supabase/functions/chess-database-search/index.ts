@@ -1,7 +1,7 @@
 import type { ProviderHit, ProviderMap } from './types.ts';
 import {
-  isLichessHit,
-  lichessCacheKey,
+  boardCacheKey,
+  isProviderMapHit,
   makeServiceClient,
   readCache,
   writeCache
@@ -128,33 +128,35 @@ Deno.serve(async (req: Request) => {
     chessdb: { found: false, url: chessdbHumanUrl(fen) }
   };
 
-  const cachedLichess = noCache
+  const cacheKey = boardCacheKey(fen);
+  const cached = noCache
     ? null
-    : ((await readCache(supabase, lichessCacheKey(fen), isLichessHit))
-        ?.lichess ?? null);
-  trace('CACHE', 'lichess', !!cachedLichess);
+    : await readCache(supabase, cacheKey, isProviderMapHit);
+  trace('CACHE', 'hit', !!cached);
+
+  if (cached) {
+    trace('REQ', 'served from cache', cached);
+    return json(cached);
+  }
 
   try {
     const [lichess, chessdb] = await Promise.all([
-      cachedLichess ? null : searchLichess(fen),
+      searchLichess(fen),
       searchChessdb(fen)
     ]);
-    if (cachedLichess) map.lichess = cachedLichess;
-    else if (lichess) map.lichess = toHit(lichess);
+    if (lichess) map.lichess = toHit(lichess);
     map.chessdb = toHit(chessdb);
   } catch (err) {
     console.error('Search pipeline error:', err);
   }
   trace('REQ', 'final map', map);
 
-  if (!cachedLichess) {
-    await writeCache(
-      supabase,
-      lichessCacheKey(fen),
-      { lichess: map.lichess },
-      map.lichess.found
-    );
-  }
+  await writeCache(
+    supabase,
+    cacheKey,
+    map,
+    map.lichess.found || map.chessdb.found
+  );
 
   return json(map);
 });
