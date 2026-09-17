@@ -1,14 +1,25 @@
 import { memo } from 'react';
 
-import { ArrowUpRight, Database, Globe, Loader2, Search } from '@/assets/icons';
+import {
+  ArrowUpRight,
+  BookOpen,
+  Database,
+  Globe,
+  Library,
+  Loader2,
+  LogIn,
+  Search
+} from '@/assets/icons';
 
 import type { ProviderState } from '@hooks';
+import { MANUAL_PROVIDER_LABEL, type ManualDatabaseProvider } from '@utils';
 
 import styles from '../styles/database-search.module.scss';
 
 interface DatabaseSearchPanelProps {
   lichess: ProviderState;
   chessdb: ProviderState;
+  onOpenManualProvider: (provider: ManualDatabaseProvider) => void;
 }
 
 // Helpers
@@ -109,9 +120,49 @@ const ProviderRow = memo(function ProviderRow({
   );
 });
 
+const MANUAL_PROVIDER_ICON: Record<ManualDatabaseProvider, React.ElementType> =
+  {
+    pdb: Library,
+    yacpdb: BookOpen
+  };
+
+const ManualProviderRow = memo(function ManualProviderRow({
+  provider,
+  onOpen
+}: {
+  provider: ManualDatabaseProvider;
+  onOpen: (provider: ManualDatabaseProvider) => void;
+}) {
+  const Icon = MANUAL_PROVIDER_ICON[provider];
+  return (
+    <div className={styles.providerRow}>
+      <div className={styles.providerMeta}>
+        <Icon
+          className={styles.providerIcon}
+          strokeWidth={2}
+          aria-hidden="true"
+        />
+        <span className={styles.providerLabel}>
+          {MANUAL_PROVIDER_LABEL[provider]}
+        </span>
+      </div>
+      <button
+        type="button"
+        onClick={() => onOpen(provider)}
+        className="flex shrink-0 items-center justify-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold border border-border/50 bg-surface text-text-secondary hover:bg-surface-hover transition-colors duration-200 focus-ring active:scale-[0.98]"
+        aria-label={`Open ${MANUAL_PROVIDER_LABEL[provider]} (login required)`}
+      >
+        <LogIn className="w-3.5 h-3.5" strokeWidth={2.5} />
+        <span>Open</span>
+      </button>
+    </div>
+  );
+});
+
 export const DatabaseSearchPanel = memo(function DatabaseSearchPanel({
   lichess,
-  chessdb
+  chessdb,
+  onOpenManualProvider
 }: DatabaseSearchPanelProps) {
   return (
     <div className={styles.panel}>
@@ -119,6 +170,8 @@ export const DatabaseSearchPanel = memo(function DatabaseSearchPanel({
       <div className={styles.grid}>
         <ProviderRow state={lichess} Icon={Globe} />
         <ProviderRow state={chessdb} Icon={Database} />
+        <ManualProviderRow provider="pdb" onOpen={onOpenManualProvider} />
+        <ManualProviderRow provider="yacpdb" onOpen={onOpenManualProvider} />
       </div>
     </div>
   );

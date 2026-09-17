@@ -15,6 +15,12 @@ import {
   usePieceImages
 } from '@hooks';
 import type { PieceSymbol } from '@app-types';
+import {
+  buildManualDatabaseUrl,
+  MANUAL_PROVIDER_HOME_URL,
+  MANUAL_PROVIDER_LABEL,
+  type ManualDatabaseProvider
+} from '@utils';
 
 import { DisplayOptions } from '@components/features';
 import {
@@ -176,6 +182,22 @@ export const ChessEditor = memo(function ChessEditor({
   const { lichess: lichessState, chessdb: chessdbState } =
     useDatabaseSearch(fen);
 
+  const handleOpenManualProvider = useCallback(
+    (provider: ManualDatabaseProvider) => {
+      const label = MANUAL_PROVIDER_LABEL[provider];
+      onNotify?.(
+        `${label} requires a login on their site. Log in at ${MANUAL_PROVIDER_HOME_URL[provider]}, then run the search there.`,
+        'info'
+      );
+      window.open(
+        buildManualDatabaseUrl(provider, fen),
+        '_blank',
+        'noopener,noreferrer'
+      );
+    },
+    [fen, onNotify]
+  );
+
   const handleCopyFen = useCallback(() => {
     void navigator.clipboard.writeText(fen);
   }, [fen]);
@@ -334,6 +356,7 @@ export const ChessEditor = memo(function ChessEditor({
               <DatabaseSearchPanel
                 lichess={lichessState}
                 chessdb={chessdbState}
+                onOpenManualProvider={handleOpenManualProvider}
               />
             </div>
             <div className={styles.editorTrash}>
@@ -343,7 +366,11 @@ export const ChessEditor = memo(function ChessEditor({
         </div>
 
         <div className={styles.editorDbRow}>
-          <DatabaseSearchPanel lichess={lichessState} chessdb={chessdbState} />
+          <DatabaseSearchPanel
+            lichess={lichessState}
+            chessdb={chessdbState}
+            onOpenManualProvider={handleOpenManualProvider}
+          />
         </div>
 
         <ShareDialog

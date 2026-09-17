@@ -65,7 +65,10 @@ export default function ThanksSection() {
           <Ext href="https://nginx.org">nginx</Ext>. The position-database
           search would not be possible without the open chess data published by{' '}
           <Ext href="https://lichess.org">Lichess</Ext> and{' '}
-          <Ext href="https://chessdb.cn/queryc_en/">ChessDB</Ext>.
+          <Ext href="https://chessdb.cn/queryc_en/">ChessDB</Ext>, together with
+          the problem collections at{' '}
+          <Ext href="https://pdb.dieschwalbe.de">PDB (Problemdatenbank)</Ext>{' '}
+          and <Ext href="https://www.yacpdb.org">YACPDB</Ext>.
         </p>
 
         <p>

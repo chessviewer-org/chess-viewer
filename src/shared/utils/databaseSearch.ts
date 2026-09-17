@@ -54,6 +54,90 @@ function buildChessdbUrl(fen: string): string {
   return `https://www.chessdb.cn/queryc_en/?${query}`;
 }
 
+// Manual providers (login required — no automated search, link out only)
+export type ManualDatabaseProvider = 'pdb' | 'yacpdb';
+
+export const MANUAL_PROVIDER_LABEL: Record<ManualDatabaseProvider, string> = {
+  pdb: 'PDB',
+  yacpdb: 'YACPDB'
+};
+
+export const MANUAL_PROVIDER_HOME_URL: Record<ManualDatabaseProvider, string> =
+  {
+    pdb: 'https://pdb.dieschwalbe.de/',
+    yacpdb: 'https://www.yacpdb.org/'
+  };
+
+const PDB_PIECE: Record<string, string> = {
+  K: 'K',
+  Q: 'D',
+  R: 'T',
+  B: 'L',
+  N: 'S',
+  P: 'B'
+};
+const YAC_TEXT_FIELDS = 14;
+const YAC_CHECKBOX_DEFAULTS = ['1', '1', '1', '0'];
+
+interface BoardPiece {
+  piece: string;
+  white: boolean;
+  square: string;
+}
+
+function parseBoardPieces(fen: string): BoardPiece[] {
+  const board = fen.trim().split(' ')[0] ?? '';
+  const pieces: BoardPiece[] = [];
+  board.split('/').forEach((row, rankIndex) => {
+    let file = 0;
+    for (const ch of row) {
+      if (/\d/.test(ch)) {
+        file += Number(ch);
+        continue;
+      }
+      pieces.push({
+        piece: ch.toUpperCase(),
+        white: ch === ch.toUpperCase(),
+        square: `${'abcdefgh'[file]}${8 - rankIndex}`
+      });
+      file += 1;
+    }
+  });
+  return pieces;
+}
+
+function yacBase64(value: string): string {
+  const utf8 = new TextEncoder().encode(value);
+  let binary = '';
+  for (const byte of utf8) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\//g, '*');
+}
+
+export function buildPdbUrl(fen: string): string {
+  const tokens = parseBoardPieces(fen).map(
+    (p) => `${p.white ? 'w' : 's'}${PDB_PIECE[p.piece] ?? '?'}${p.square}`
+  );
+  const expression = `POSITION='${tokens.join(' ')}'`;
+  return `https://pdb.dieschwalbe.de/search.jsp?expression=${encodeURIComponent(expression)}`;
+}
+
+export function buildYacpdbUrl(fen: string): string {
+  const board = fen.trim().split(' ')[0] ?? '';
+  const parts: string[] = new Array(YAC_TEXT_FIELDS).fill('') as string[];
+  parts[0] = board;
+  const joined = [...parts, ...YAC_CHECKBOX_DEFAULTS]
+    .map((p) => p.replace(/\\/g, '\\\\').replace(/\//g, '\\/'))
+    .join('/');
+  return `https://www.yacpdb.org/#search/${yacBase64(joined)}/1`;
+}
+
+export function buildManualDatabaseUrl(
+  provider: ManualDatabaseProvider,
+  fen: string
+): string {
+  return provider === 'pdb' ? buildPdbUrl(fen) : buildYacpdbUrl(fen);
+}
+
 function notFound(fen: string): DatabaseSearchResult {
   return {
     lichess: { found: false, url: buildLichessUrl(fen) },
