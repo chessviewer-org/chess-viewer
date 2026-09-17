@@ -15,12 +15,9 @@ import {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   // State
-  const initialSession = supabase.auth.getCurrentSession();
-  const [session, setSession] = useState<Session | null>(initialSession);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [profile, setProfile] = useState<Profile>(() =>
-    initialSession?.user ? DEFAULT_PROFILE : readGuestProfile()
-  );
+  const [profile, setProfile] = useState<Profile>(readGuestProfile);
 
   const loadProfile = useCallback(async (user: User | null) => {
     if (!user) {
@@ -36,6 +33,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let mounted = true;
 
     async function initializeAuth() {
+      const cachedSession = supabase.auth.getCurrentSession();
+      if (cachedSession && mounted) {
+        setSession(cachedSession);
+        if (cachedSession.user) setProfile(DEFAULT_PROFILE);
+      }
+
       const { data } = await supabase.auth.getSession();
       const currentSession = data.session;
 

@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState
+} from 'react';
 
 import { logger, safeJSONParse } from '@utils';
 
@@ -23,15 +29,17 @@ export function useLocalStorage<T>(
   const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingValueRef = useRef<T | null>(null);
 
-  const [storedValue, setStoredValue] = useState<T>(() => {
+  const [storedValue, setStoredValue] = useState<T>(initialValue);
+
+  useLayoutEffect(() => {
     try {
       const item = window.localStorage.getItem(key);
-      return item ? safeJSONParse<T>(item, initialValue) : initialValue;
+      if (item !== null) setStoredValue(safeJSONParse<T>(item, initialValue));
     } catch (error: unknown) {
       logger.error(`Error loading ${key} from localStorage:`, error);
-      return initialValue;
     }
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
 
   useEffect(() => {
     return () => {
