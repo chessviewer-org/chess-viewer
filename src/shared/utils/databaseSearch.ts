@@ -1,6 +1,6 @@
 import { validateFEN } from '@chessviewer-org/chess-viewer';
 
-import { invokeProtected } from './protectedFunctions';
+import { getSessionId, invokeProtected } from './protectedFunctions';
 import { verifyHuman } from './humanVerification';
 
 // Types
@@ -68,7 +68,10 @@ function needsVerification(
 }
 
 function callSearch(fen: string) {
-  return invokeProtected<EdgeSearchResponse>('chess-database-search', { fen });
+  return invokeProtected<EdgeSearchResponse>('chess-database-search', {
+    fen,
+    sessionId: getSessionId()
+  });
 }
 
 // Service

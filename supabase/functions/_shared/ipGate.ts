@@ -32,6 +32,14 @@ export async function hashIp(ip: string): Promise<string> {
   return hmacSha256Hex(pepper, ip);
 }
 
+export async function hashSessionId(sessionId: string): Promise<string> {
+  const pepper =
+    Deno.env.get('SESSION_HASH_SECRET') ?? 'chess-viewer-session-pepper';
+  return hmacSha256Hex(pepper, sessionId);
+}
+
+const VERIFICATION_TTL_MS = 24 * 60 * 60 * 1000;
+
 export async function isIpVerified(
   db: ServiceClient,
   ipHash: string
@@ -39,10 +47,12 @@ export async function isIpVerified(
   try {
     const { data } = await db
       .from('verified_search_ips')
-      .select('ip_hash')
+      .select('verified_at')
       .eq('ip_hash', ipHash)
       .maybeSingle();
     if (!data) return false;
+    const age = Date.now() - new Date(data.verified_at as string).getTime();
+    if (age > VERIFICATION_TTL_MS) return false;
     void db
       .from('verified_search_ips')
       .update({ last_used_at: new Date().toISOString() })
@@ -55,26 +65,26 @@ export async function isIpVerified(
   }
 }
 
-export async function checkIpRateLimit(
+export async function checkRateLimit(
   db: ServiceClient,
-  ipHash: string,
+  hash: string,
   maxAttempts: number,
   windowSql: string
 ): Promise<boolean> {
   try {
     const { data, error } = await db.rpc('check_ip_rate_limit', {
-      p_ip_hash: ipHash,
+      p_ip_hash: hash,
       p_max_attempts: maxAttempts,
       p_window: windowSql
     });
     if (error) {
       console.error('Rate limit check failed:', error);
-      return true;
+      return false;
     }
     return data === true;
   } catch (err) {
     console.error('Rate limit check failed:', err);
-    return true;
+    return false;
   }
 }
 

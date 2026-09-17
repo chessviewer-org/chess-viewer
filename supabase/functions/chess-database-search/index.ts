@@ -7,9 +7,10 @@ import {
   writeCache
 } from './cache.ts';
 import {
-  checkIpRateLimit,
+  checkRateLimit,
   getClientIp,
   hashIp,
+  hashSessionId,
   isFromTrustedProxy,
   isIpVerified
 } from '../_shared/ipGate.ts';
@@ -29,6 +30,16 @@ const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Max-Age': '86400'
 };
 const RATE_LIMIT_MAX_PER_HOUR = 150;
+const SESSION_RATE_LIMIT_MAX_PER_HOUR = 60;
+const SESSION_ID_MAX_LEN = 128;
+
+function isValidSessionId(value: unknown): value is string {
+  return (
+    typeof value === 'string' &&
+    value.length > 0 &&
+    value.length <= SESSION_ID_MAX_LEN
+  );
+}
 
 // Helpers
 function json(body: unknown, status = 200): Response {
@@ -56,10 +67,12 @@ Deno.serve(async (req: Request) => {
 
   let fen = '';
   let noCache = false;
+  let sessionId: string | null = null;
   try {
     const body = await req.json();
     fen = typeof body?.fen === 'string' ? body.fen : '';
     noCache = body?.nocache === true;
+    sessionId = isValidSessionId(body?.sessionId) ? body.sessionId : null;
   } catch {
     return json({ error: 'Invalid JSON body' }, 400);
   }
@@ -79,15 +92,24 @@ Deno.serve(async (req: Request) => {
     );
   }
   if (
-    !(await checkIpRateLimit(
-      supabase,
-      ipHash,
-      RATE_LIMIT_MAX_PER_HOUR,
-      '1 hour'
-    ))
+    !(await checkRateLimit(supabase, ipHash, RATE_LIMIT_MAX_PER_HOUR, '1 hour'))
   ) {
     trace('REQ', 'IP rate limited');
     return json({ error: 'rate_limited', message: 'rate_limited' }, 429);
+  }
+  if (sessionId) {
+    const sessionHash = await hashSessionId(sessionId);
+    if (
+      !(await checkRateLimit(
+        supabase,
+        sessionHash,
+        SESSION_RATE_LIMIT_MAX_PER_HOUR,
+        '1 hour'
+      ))
+    ) {
+      trace('REQ', 'session rate limited');
+      return json({ error: 'rate_limited', message: 'rate_limited' }, 429);
+    }
   }
 
   const board = boardField(fen);

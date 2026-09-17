@@ -15,6 +15,31 @@ const BASE_URL =
   import.meta.env.VITE_SUPABASE_URL ||
   '';
 const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY ?? '';
+const SESSION_ID_KEY = 'cv_session_id';
+
+// State
+let sessionId: string | null = null;
+
+// Helpers
+export function getSessionId(): string {
+  if (sessionId) return sessionId;
+  try {
+    const stored = localStorage.getItem(SESSION_ID_KEY);
+    if (stored) {
+      sessionId = stored;
+      return sessionId;
+    }
+  } catch {
+    // localStorage unavailable (private mode, blocked storage) — fall through
+  }
+  sessionId = crypto.randomUUID();
+  try {
+    localStorage.setItem(SESSION_ID_KEY, sessionId);
+  } catch {
+    // best-effort persistence only
+  }
+  return sessionId;
+}
 
 // Service
 export async function invokeProtected<T>(
