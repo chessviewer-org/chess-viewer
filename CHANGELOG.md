@@ -8,6 +8,36 @@ linking back to the commit that introduced the change. There are no version tags
 
 ---
 
+## September 2026
+
+### Features
+
+- **db-search:** add a Cloudflare Worker proxy in front of the search edge function, gated by Cloudflare Turnstile, so it can no longer be called directly or by bots ([#bc749f8](https://github.com/chessviewer-org/chess-viewer/commit/bc749f8c))
+- **db-search:** add per-session rate limiting alongside the existing per-IP limit and require re-verification every 24 hours instead of trusting a verified IP indefinitely ([#fcb8479](https://github.com/chessviewer-org/chess-viewer/commit/fcb8479e))
+- **db-search:** bring back PDB and YACPDB as "Open" links with a pre-filled search — both now require a login on their own site, so we hand off to a ready-made search there instead of scraping on the user's behalf ([#32f9f39](https://github.com/chessviewer-org/chess-viewer/commit/32f9f398))
+
+### Bug Fixes
+
+- **db-search:** allow Cloudflare Turnstile's script and iframe through the CSP so the human-verification widget actually loads ([#68faeb6](https://github.com/chessviewer-org/chess-viewer/commit/68faeb60))
+- **db-search:** handle a missing proxy secret and clean up request-body handling in the Cloudflare proxy instead of failing silently ([#cf4a2ed](https://github.com/chessviewer-org/chess-viewer/commit/cf4a2ed3))
+- **db-search:** wire `VITE_DB_SEARCH_PROXY_URL` and `VITE_TURNSTILE_SITE_KEY` into the production build, fixing a 403 caused by the client silently falling back to calling Supabase directly ([#449e640](https://github.com/chessviewer-org/chess-viewer/commit/449e6403))
+- **app:** hydrate the prerendered HTML on load instead of discarding it and re-rendering from scratch, falling back to a plain client render when nothing was prerendered (local dev) ([#9d48b8c](https://github.com/chessviewer-org/chess-viewer/commit/9d48b8ca))
+- **auth:** stop seeding the very first render with a synchronously-read session, which could mismatch the prerendered anonymous markup and crash hydration for signed-in users on a hard refresh ([#60b95b6](https://github.com/chessviewer-org/chess-viewer/commit/60b95b68))
+
+### Performance Improvements
+
+- **db-search:** cache ChessDB results the same way Lichess results already were, so a repeat search for the same position returns instantly instead of hitting both APIs again ([#d947418](https://github.com/chessviewer-org/chess-viewer/commit/d9474181))
+
+## August 2026
+
+### Features
+
+- **export:** render piece vectors directly for SVG export and handle export resolution more accurately ([#fda0875](https://github.com/chessviewer-org/chess-viewer/commit/fda0875a))
+
+### Bug Fixes
+
+- **db-search:** remove the PDB integration after its upstream search started requiring a login we can't automate — reinstated in September as a manual "Open" link ([#f19f67f](https://github.com/chessviewer-org/chess-viewer/commit/f19f67fe))
+
 ## July 2026
 
 ### Features
