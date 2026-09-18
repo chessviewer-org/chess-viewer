@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { BoardStylePanel, DisplayOptions } from '@/components/features';
-import { useBoardPieceSet, useDebouncedCommit, usePieceImages } from '@hooks';
+import { useDebouncedCommit, usePieceImages } from '@hooks';
 import {
   DEFAULT_DARK_SQUARE,
   DEFAULT_LIGHT_SQUARE,
@@ -29,7 +29,6 @@ export default function BoardStyleStep({ homeState }: BoardStyleStepProps) {
 
   const debouncedCommit = useDebouncedCommit(PERSIST_DEBOUNCE_MS);
 
-  const [, setBoardPieceSet] = useBoardPieceSet();
   const { pieceImages, isLoading } = usePieceImages(homeState.pieceStyle);
 
   const applyPreset = useCallback(
@@ -49,9 +48,8 @@ export default function BoardStyleStep({ homeState }: BoardStyleStepProps) {
   const handlePieceSelect = useCallback(
     (id: string) => {
       homeState.setPieceStyle(id);
-      setBoardPieceSet(id);
     },
-    [homeState, setBoardPieceSet]
+    [homeState]
   );
 
   return (
