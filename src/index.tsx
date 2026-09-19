@@ -17,11 +17,20 @@ const app = (
   </StrictMode>
 );
 
-if (root.hasChildNodes()) {
+function canHydrate(): boolean {
+  return (
+    root.hasChildNodes() &&
+    !document.documentElement.classList.contains('route-mismatch')
+  );
+}
+
+if (canHydrate()) {
   hydrate(app, root);
 } else {
   render(app, root);
 }
+
+document.documentElement.classList.remove('route-mismatch');
 
 if (import.meta.env.PROD) {
   void import('virtual:pwa-register').then(({ registerSW }) => {
