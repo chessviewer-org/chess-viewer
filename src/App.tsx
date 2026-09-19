@@ -5,6 +5,7 @@ import {
   useRef,
   useState
 } from 'react';
+import { flushSync } from 'react-dom';
 
 import { Navbar, useNavbarState } from '@/components/layout';
 import Routes from '@/routes/Router';
@@ -90,7 +91,9 @@ function App() {
       return;
     }
     primeThemeReveal(next);
-    const transition = document.startViewTransition(() => setTheme(next));
+    const transition = document.startViewTransition(() =>
+      flushSync(() => setTheme(next))
+    );
     transition.finished.finally(() => {
       document.documentElement.removeAttribute('data-theme-transition');
     });
