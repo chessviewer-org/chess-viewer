@@ -98,7 +98,7 @@
 }
 
 .gridItem {
-  @applyrelative flex flex-col items-center gap-1.5;
+  @apply relative flex flex-col items-center gap-1.5;
 }
 
 .customActions {
