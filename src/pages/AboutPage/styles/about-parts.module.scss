@@ -29,7 +29,7 @@
 }
 
 .factRow {
-  @apply flex items-center justify-between gap-4 px-6 py-4;
+  @apply flex flex-col items-start gap-1 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6 sm:py-4;
 }
 
 .factLabel {
@@ -41,7 +41,7 @@
 }
 
 .factValue {
-  @apply min-w-0 wrap-break-word text-right text-base font-medium text-text-primary;
+  @apply min-w-0 wrap-break-word text-left text-base font-medium text-text-primary sm:text-right;
 }
 
 .factList {
