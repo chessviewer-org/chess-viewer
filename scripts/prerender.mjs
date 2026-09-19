@@ -5,11 +5,11 @@ import { dirname, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
 
+import { PRERENDERED_ROUTES } from './prerendered-routes.mjs';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DIST = join(__dirname, '..', 'dist');
 const PORT = 4178;
-
-const ROUTES = ['/', '/advanced-fen', '/about', '/fen-history', '/export'];
 
 function startServer() {
   const server = createServer(async (req, res) => {
@@ -75,7 +75,7 @@ async function prerender() {
   });
 
   try {
-    for (const route of ROUTES) {
+    for (const route of PRERENDERED_ROUTES) {
       const page = await browser.newPage();
       await page.goto(`http://localhost:${PORT}${route}`, {
         waitUntil: 'domcontentloaded',
@@ -95,6 +95,11 @@ async function prerender() {
       html = html.replace(
         /<!--\s*prerender:strip:start\s*-->[\s\S]*?<!--\s*prerender:strip:end\s*-->/g,
         ''
+      );
+      html = html.replace(
+        /<html([^>]*)>/,
+        (_match, attrs) =>
+          `<html${attrs.replace(/\s*data-prerendered-route="[^"]*"/g, '')} data-prerendered-route="${route}">`
       );
 
       let seenTitle = false;
