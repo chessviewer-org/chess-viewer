@@ -4,6 +4,8 @@ import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
+import { PRERENDERED_ROUTE_PATTERNS } from './scripts/prerendered-routes.mjs';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
@@ -25,11 +27,26 @@ export default defineConfig({
         globIgnores: ['piece/**'],
         navigateFallback: '/index.html',
 
-        navigateFallbackDenylist: [/^\/api/, /supabase/],
+        navigateFallbackDenylist: [
+          /^\/api/,
+          /supabase/,
+          ...PRERENDERED_ROUTE_PATTERNS
+        ],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
         runtimeCaching: [
+          {
+            urlPattern: ({ request, sameOrigin }) =>
+              sameOrigin && request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'prerendered-pages',
+              networkTimeoutSeconds: 3,
+              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 7 },
+              cacheableResponse: { statuses: [200] }
+            }
+          },
           {
             urlPattern: /\/piece\/.*\.svg$/i,
             handler: 'StaleWhileRevalidate',
