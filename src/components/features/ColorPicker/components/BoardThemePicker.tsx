@@ -2,7 +2,7 @@ import {
   Fragment,
   memo,
   useCallback,
-  useEffect,
+  useLayoutEffect,
   useRef,
   useState
 } from 'react';
@@ -85,7 +85,7 @@ export const BoardThemePicker = memo(function BoardThemePicker({
   const [cols, setCols] = useState(8);
   const [rows, setRows] = useState(4);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const apply = (width: number) => {
@@ -93,11 +93,11 @@ export const BoardThemePicker = memo(function BoardThemePicker({
       const computed = rowsFromWidth(width);
       setRows(maxRows !== undefined ? Math.min(computed, maxRows) : computed);
     };
+    apply(el.getBoundingClientRect().width);
     const obs = new ResizeObserver(([entry]) => {
       if (entry) apply(entry.contentRect.width);
     });
     obs.observe(el);
-    apply(el.getBoundingClientRect().width);
     return () => obs.disconnect();
   }, [maxRows]);
 

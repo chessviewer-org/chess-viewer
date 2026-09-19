@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useLayoutEffect, useRef, useState } from 'react';
 
 import { BOARD_THEMES } from '@constants';
 
@@ -45,15 +45,15 @@ const BoardPreviewCanvas = memo(
     const [hasError, setHasError] = useState(false);
     const [wrapperPx, setWrapperPx] = useState(0);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       const el = wrapperRef.current;
       if (!el) return;
+      setWrapperPx(Math.round(el.getBoundingClientRect().width));
       const obs = new ResizeObserver((entries) => {
         const w = entries[0]?.contentRect.width;
         if (w) setWrapperPx(Math.round(w));
       });
       obs.observe(el);
-      setWrapperPx(Math.round(el.getBoundingClientRect().width));
       return () => obs.disconnect();
     }, []);
 
@@ -64,7 +64,7 @@ const BoardPreviewCanvas = memo(
     const hasImages = Object.keys(pieceImages).length > 0;
     const isLoading = piecesLoading && !hasImages;
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       const canvas = canvasRef.current;
       if (!canvas || boardPx <= 0 || !fen || !hasImages) return;
 

@@ -40,7 +40,7 @@ function evictOldest(cache: Map<string, unknown>, maxSize: number): void {
 const MAX_CACHED_IMAGES = 36;
 const pieceCache = new Map<string, HTMLImageElement>();
 
-function piecePath(style: string, piece: string): string {
+export function piecePath(style: string, piece: string): string {
   return `/piece/${style}/${piece}.svg`;
 }
 

@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
 import { usePagination } from '@hooks';
 import type { PieceSet } from '@app-types';
@@ -7,13 +7,14 @@ import { Pagination } from '@ui';
 
 // Constants
 const DEFAULT_PIECE_ROWS = 2;
+const DEFAULT_COLS = 4;
 
 // Helpers
 function colsForViewport(): number {
-  if (typeof window === 'undefined') return 4;
+  if (typeof window === 'undefined') return DEFAULT_COLS;
   if (window.matchMedia('(min-width: 1024px)').matches) return 8; // lg
   if (window.matchMedia('(min-width: 640px)').matches) return 6; // sm
-  return 4; // mobile
+  return DEFAULT_COLS; // mobile
 }
 
 // Types
@@ -34,9 +35,9 @@ function PieceGridSharedComponent({
   onSelect,
   rows = DEFAULT_PIECE_ROWS
 }: PieceGridSharedProps) {
-  const [cols, setCols] = useState(colsForViewport);
+  const [cols, setCols] = useState(DEFAULT_COLS);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const update = () => setCols(colsForViewport());
     update();
     window.addEventListener('resize', update);

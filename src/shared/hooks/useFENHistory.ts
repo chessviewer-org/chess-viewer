@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type {
   ActiveHistoryEntry,
   ArchivedHistoryEntry,
@@ -86,17 +86,21 @@ export function useFENHistory(
   const [historyFilters, setHistoryFilters] = useState<HistoryFilters>({});
   const [archiveFilters, setArchiveFilters] = useState<HistoryFilters>({});
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     let isMounted = true;
 
-    async function loadData() {
+    const localData = safeJSONParse(
+      window.localStorage.getItem('fen-history') || '[]',
+      []
+    );
+    if (localData.length > 0) {
+      setHistory(sortByMostRecent(localData));
+    }
+
+    async function loadCloud() {
       try {
         const cloud = await syncStorage.get('fen-history').catch(() => null);
         const cloudData = cloud?.value ? safeJSONParse(cloud.value, []) : [];
-        const localData = safeJSONParse(
-          window.localStorage.getItem('fen-history') || '[]',
-          []
-        );
 
         if (isMounted) {
           setHistory(sortByMostRecent(mergeById(cloudData, localData)));
@@ -106,7 +110,7 @@ export function useFENHistory(
       }
     }
 
-    loadData();
+    loadCloud();
 
     return () => {
       isMounted = false;

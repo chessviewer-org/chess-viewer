@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 
 const align8 = (raw: number) => Math.floor(raw / 8) * 8;
 
@@ -8,9 +8,14 @@ export function useEditorBoardSize() {
   const containerRef = useRef<HTMLDivElement>(null);
   const boardElementRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+
+    const initialWidth = container.getBoundingClientRect().width;
+    if (initialWidth > 0) {
+      setBoardSize(Math.max(200, align8(initialWidth)));
+    }
 
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
@@ -28,9 +33,14 @@ export function useEditorBoardSize() {
     };
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const boardEl = boardElementRef.current;
     if (!boardEl) return;
+
+    const initialWidth = boardEl.getBoundingClientRect().width;
+    if (initialWidth > 0) {
+      setCellSize(Math.floor(initialWidth / 8));
+    }
 
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {

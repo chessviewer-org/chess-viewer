@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useLayoutEffect, useState } from 'react';
 
 import { isRecord, safeJSONParse, validateFEN } from '@utils';
 import type { NotificationType } from '../components/FENInputField';
@@ -13,7 +13,7 @@ interface UseFavoriteFenOptions {
 export function useFavoriteFen({ fen, onNotification }: UseFavoriteFenOptions) {
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const favorites = safeJSONParse(localStorage.getItem('favoriteFens'), {});
     setIsFavorite(isRecord(favorites) ? !!favorites[fen] : false);
   }, [fen]);

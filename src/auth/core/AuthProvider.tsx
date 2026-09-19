@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useState } from 'react';
 
 import { supabase, type Session, type User } from './Supabase';
 import { getMembershipTier } from '../profile/membership';
@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfile(remoteProfile ?? DEFAULT_PROFILE);
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     let mounted = true;
 
     async function initializeAuth() {

@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState
 } from 'react';
@@ -26,15 +27,17 @@ const FENBatchContext = createContext<FENBatchContextValue | null>(null);
 
 export function FENBatchProvider({ children }: { children: React.ReactNode }) {
   // State
-  const [batchList, setBatchList] = useState<string[]>(() => {
+  const [batchList, setBatchList] = useState<string[]>([]);
+
+  useLayoutEffect(() => {
     try {
       const saved = localStorage.getItem('fenBatchList');
-      const parsed = safeJSONParse(saved, null);
-      return Array.isArray(parsed) ? parsed : [];
+      const parsed = safeJSONParse<string[] | null>(saved, null);
+      if (Array.isArray(parsed) && parsed.length > 0) setBatchList(parsed);
     } catch {
-      return [];
+      /* noop */
     }
-  });
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('fenBatchList', JSON.stringify(batchList));

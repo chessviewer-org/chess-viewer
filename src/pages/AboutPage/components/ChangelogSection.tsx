@@ -1,4 +1,4 @@
-import { Fragment, type ReactNode, useEffect, useState } from 'react';
+import { Fragment, type ReactNode, useState } from 'react';
 
 import { ChevronLeft, ChevronRight, History } from '@/assets/icons';
 
@@ -94,18 +94,13 @@ function totalEntriesInYear(year: ChangelogYear): number {
 }
 
 export default function ChangelogSection() {
-  const [years, setYears] = useState<ChangelogYear[] | null>(null);
+  const [years] = useState<ChangelogYear[]>(() => parseChangelog(changelogRaw));
   const [pageIndex, setPageIndex] = useState(0);
 
-  useEffect(() => {
-    setYears(parseChangelog(changelogRaw));
-  }, []);
+  const totalEntries = years.reduce((n, y) => n + totalEntriesInYear(y), 0);
 
-  const totalEntries =
-    years?.reduce((n, y) => n + totalEntriesInYear(y), 0) ?? 0;
-
-  const totalPages = years?.length ?? 0;
-  const page = years?.[pageIndex];
+  const totalPages = years.length;
+  const page = years[pageIndex];
 
   const goTo = (next: number) =>
     setPageIndex(Math.min(Math.max(next, 0), totalPages - 1));
@@ -187,7 +182,7 @@ export default function ChangelogSection() {
               </button>
 
               <div className="flex items-center gap-2">
-                {years?.map((y, i) => (
+                {years.map((y, i) => (
                   <button
                     key={y.year}
                     type="button"

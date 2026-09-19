@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
 import { syncStorage } from '@/auth';
 import {
@@ -29,21 +29,31 @@ export function useTheme({
   const [darkSquare, setDarkSquare] = useState(initialDark);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  useEffect(() => {
-    const loadSavedTheme = async () => {
-      type SavedTheme = { light: string; dark: string };
+  useLayoutEffect(() => {
+    type SavedTheme = { light: string; dark: string };
+    let cancelled = false;
+
+    try {
+      const local = window.localStorage.getItem('chess-theme');
+      const saved = local
+        ? safeJSONParse<SavedTheme | null>(local, null)
+        : null;
+      if (saved) {
+        setLightSquare(sanitizeHexColor(saved.light, initialLight));
+        setDarkSquare(sanitizeHexColor(saved.dark, initialDark));
+      }
+    } catch (err) {
+      logger.error('Failed to load theme:', err);
+    }
+
+    const loadCloudTheme = async () => {
       try {
-        let saved: SavedTheme | null = null;
-
         const cloud = await syncStorage.get('chess-theme');
-        if (cloud && typeof cloud.value === 'string') {
-          saved = safeJSONParse<SavedTheme | null>(cloud.value, null);
-        }
-        if (!saved) {
-          const local = window.localStorage.getItem('chess-theme');
-          if (local) saved = safeJSONParse<SavedTheme | null>(local, null);
-        }
-
+        if (cancelled) return;
+        const saved =
+          cloud && typeof cloud.value === 'string'
+            ? safeJSONParse<SavedTheme | null>(cloud.value, null)
+            : null;
         if (saved) {
           setLightSquare(sanitizeHexColor(saved.light, initialLight));
           setDarkSquare(sanitizeHexColor(saved.dark, initialDark));
@@ -51,11 +61,14 @@ export function useTheme({
       } catch (err) {
         logger.error('Failed to load theme:', err);
       } finally {
-        setIsHydrated(true);
+        if (!cancelled) setIsHydrated(true);
       }
     };
 
-    loadSavedTheme();
+    loadCloudTheme();
+    return () => {
+      cancelled = true;
+    };
   }, [initialLight, initialDark]);
 
   useEffect(() => {
@@ -81,7 +94,7 @@ export function useSyncedBoardColors(
   setLightSquare: (color: string) => void,
   setDarkSquare: (color: string) => void
 ): void {
-  useEffect(() => {
+  useLayoutEffect(() => {
     const readFromStorage = () => {
       const light = window.localStorage.getItem('chess-light-square');
       const dark = window.localStorage.getItem('chess-dark-square');

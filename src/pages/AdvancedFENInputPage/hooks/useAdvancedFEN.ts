@@ -1,5 +1,5 @@
 import { useLocation } from 'wouter';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import {
   useChessBoard,
@@ -241,7 +241,7 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
   }, [fens]);
 
   const isSyncingRef = useRef(false);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!currentFen || isChained) return;
     isSyncingRef.current = true;
     const s = positionSettings[currentFen] ?? {};

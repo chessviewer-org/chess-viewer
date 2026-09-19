@@ -2,7 +2,25 @@ import { useEffect, useRef, useState } from 'react';
 
 import { PIECE_MAP } from '@constants';
 
-import { getCachedPieceStyle, logger, preloadPieceStyle } from '@utils';
+import {
+  getCachedPieceStyle,
+  logger,
+  piecePath,
+  preloadPieceStyle
+} from '@utils';
+
+function placeholderImages(
+  style: string,
+  pieceMap: Record<string, string>
+): Record<string, HTMLImageElement> {
+  const result: Record<string, HTMLImageElement> = {};
+  for (const piece of Object.keys(pieceMap)) {
+    const img = new Image();
+    img.src = piecePath(style, piece);
+    result[piece] = img;
+  }
+  return result;
+}
 
 export function usePieceImages(pieceStyle: string): {
   pieceImages: Record<string, HTMLImageElement>;
@@ -13,8 +31,8 @@ export function usePieceImages(pieceStyle: string): {
   const cached = getCachedPieceStyle(pieceStyle, PIECE_MAP);
   const [pieceImages, setPieceImages] = useState<
     Record<string, HTMLImageElement>
-  >(cached ?? {});
-  const [isLoading, setIsLoading] = useState<boolean>(cached === null);
+  >(() => cached ?? placeholderImages(pieceStyle, PIECE_MAP));
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [loadProgress, setLoadProgress] = useState(cached ? 100 : 0);
   const currentStyleRef = useRef(pieceStyle);
