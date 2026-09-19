@@ -70,7 +70,6 @@
 
   --animate-fade-in: fadeIn 0.25s var(--animation-curve);
   --animate-fade-in-scale: fadeInScale 0.2s var(--animation-curve);
-  --animate-piece-in: pieceIn 0.13s var(--ease-smooth);
   --animate-slide-in-right: slideInRight 0.25s var(--animation-curve);
   --animate-slide-in-left: slideInLeft 0.25s var(--animation-curve);
   --animate-slide-up: slideUp 0.2s var(--animation-curve);

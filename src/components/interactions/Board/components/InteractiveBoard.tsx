@@ -4,7 +4,6 @@ import type { PieceSymbol } from '@app-types';
 
 import { describeBoardPosition, getPieceKey } from '@utils';
 import { DroppableSquare } from './DroppableSquare';
-import { markEntrancePlayed } from './entranceAnimation';
 import { useBoardKeyboard } from '../hooks/useBoardKeyboard';
 
 // Types
@@ -63,10 +62,6 @@ export const InteractiveBoard = memo(function InteractiveBoard({
     ...(onPieceDrop ? { onPieceDrop } : {}),
     ...(onPieceRemove ? { onPieceRemove } : {})
   });
-
-  useEffect(() => {
-    if (!isLoading) markEntrancePlayed();
-  }, [isLoading]);
 
   useEffect(() => {
     if (!onKeyboardApi) return;

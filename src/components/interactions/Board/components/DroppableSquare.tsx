@@ -4,7 +4,6 @@ import type { PieceSymbol } from '@app-types';
 import { indicesToSquare, pieceToName } from '@utils';
 import { useDroppable } from '@hooks';
 import { DraggablePiece } from './DraggablePiece';
-import { shouldAnimateEntrance } from './entranceAnimation';
 
 interface DroppableSquareProps {
   row: number;
@@ -39,8 +38,6 @@ export const DroppableSquare = memo(
     cellSize = 64
   }: DroppableSquareProps) {
     const bgColor = isLight ? lightColor : darkColor;
-    const animateEntrance = !isLoading && shouldAnimateEntrance();
-    const entranceDelay = animateEntrance ? `${(row * 8 + col) * 6}ms` : '0ms';
 
     const squareName = indicesToSquare(row, col);
     const ariaLabel = piece
@@ -83,13 +80,10 @@ export const DroppableSquare = memo(
         {piece && pieceImage && !isLoading && (
           <div
             key={piece}
-            className={`w-full h-full flex items-center justify-center${
-              animateEntrance ? ' animate-piece-in' : ''
-            }`}
+            className="w-full h-full flex items-center justify-center"
             style={{
               contain: 'layout style',
-              opacity: isHeldSource ? 0.45 : 1,
-              animationDelay: entranceDelay
+              opacity: isHeldSource ? 0.45 : 1
             }}
           >
             <DraggablePiece
