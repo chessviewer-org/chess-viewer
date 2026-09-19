@@ -7,10 +7,44 @@ import {
   useRef,
   useState
 } from 'react';
+import { createPortal } from 'react-dom';
 
 import { Calendar, ChevronLeft, ChevronRight } from '@/assets/icons';
 import { useOutsideClick } from '@hooks';
 import styles from '../styles/ui.module.scss';
+
+const VIEWPORT_MARGIN = 8;
+
+interface PopoverCoords {
+  top: number;
+  left: number;
+}
+
+function computeCoords(
+  trigger: HTMLElement,
+  popover: HTMLElement,
+  align: 'left' | 'right'
+): PopoverCoords {
+  const triggerRect = trigger.getBoundingClientRect();
+  const width = popover.offsetWidth;
+  const height = popover.offsetHeight;
+
+  let left = align === 'right' ? triggerRect.right - width : triggerRect.left;
+  left = Math.min(
+    Math.max(left, VIEWPORT_MARGIN),
+    window.innerWidth - width - VIEWPORT_MARGIN
+  );
+
+  const top = Math.max(
+    VIEWPORT_MARGIN,
+    Math.min(
+      triggerRect.bottom + VIEWPORT_MARGIN,
+      window.innerHeight - height - VIEWPORT_MARGIN
+    )
+  );
+
+  return { top, left };
+}
 
 interface DatePickerProps {
   value: Date | string | number | null | undefined;
@@ -49,7 +83,7 @@ const DatePicker = memo(function DatePicker({
   align = 'left'
 }: DatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [openUpward, setOpenUpward] = useState(false);
+  const [coords, setCoords] = useState<PopoverCoords | null>(null);
   const [viewDate, setViewDate] = useState(() => {
     if (value) return new Date(value);
     return new Date();
@@ -60,18 +94,34 @@ const DatePicker = memo(function DatePicker({
   });
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const baseId = useId();
   const dialogLabelId = `${baseId}-dialog-label`;
 
-  useEffect(() => {
-    if (!isOpen || !triggerRef.current) return;
-    const rect = triggerRef.current.getBoundingClientRect();
-    const spaceBelow = window.innerHeight - rect.bottom;
-    setOpenUpward(spaceBelow < 360);
-  }, [isOpen]);
+  useLayoutEffect(() => {
+    if (!isOpen) {
+      setCoords(null);
+      return;
+    }
 
-  useOutsideClick(containerRef, () => setIsOpen(false), isOpen);
+    const updateCoords = () => {
+      const trigger = triggerRef.current;
+      const dropdown = dropdownRef.current;
+      if (!trigger || !dropdown) return;
+      setCoords(computeCoords(trigger, dropdown, align));
+    };
+
+    updateCoords();
+    window.addEventListener('resize', updateCoords);
+    window.addEventListener('scroll', updateCoords, true);
+    return () => {
+      window.removeEventListener('resize', updateCoords);
+      window.removeEventListener('scroll', updateCoords, true);
+    };
+  }, [isOpen, align]);
+
+  useOutsideClick([containerRef, dropdownRef], () => setIsOpen(false), isOpen);
 
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
@@ -256,124 +306,135 @@ const DatePicker = memo(function DatePicker({
         <Calendar aria-hidden="true" className={styles['dpTriggerIcon']} />
       </button>
 
-      <div
-        role="dialog"
-        aria-modal="false"
-        aria-hidden={!isOpen}
-        aria-labelledby={dialogLabelId}
-        data-state={isOpen ? 'open' : 'closed'}
-        className={`${styles['dpDropdown']} ${openUpward ? 'bottom-full mb-2' : 'top-full mt-2'} ${align === 'right' ? 'right-0' : 'left-0'}`}
-      >
-        <div className={styles['dpHeader']}>
-          <div className="flex items-center justify-between">
-            <button
-              type="button"
-              onClick={handlePreviousMonth}
-              aria-label="Previous month"
-              className={styles['dpHeaderBtn']}
-            >
-              <ChevronLeft
-                aria-hidden="true"
-                className={styles['dpHeaderIcon']}
-              />
-            </button>
+      {createPortal(
+        <div
+          ref={dropdownRef}
+          role="dialog"
+          aria-modal="false"
+          aria-hidden={!isOpen}
+          aria-labelledby={dialogLabelId}
+          data-state={isOpen ? 'open' : 'closed'}
+          className={styles['dpDropdown']}
+          style={{
+            position: 'fixed',
+            top: coords?.top ?? -9999,
+            left: coords?.left ?? -9999,
+            visibility: coords ? 'visible' : 'hidden',
+            zIndex: 60
+          }}
+        >
+          <div className={styles['dpHeader']}>
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={handlePreviousMonth}
+                aria-label="Previous month"
+                className={styles['dpHeaderBtn']}
+              >
+                <ChevronLeft
+                  aria-hidden="true"
+                  className={styles['dpHeaderIcon']}
+                />
+              </button>
 
-            <div
-              id={dialogLabelId}
-              aria-live="polite"
-              className={styles['dpMonthTitle']}
-            >
-              {MONTH_NAMES[month]} {year}
+              <div
+                id={dialogLabelId}
+                aria-live="polite"
+                className={styles['dpMonthTitle']}
+              >
+                {MONTH_NAMES[month]} {year}
+              </div>
+
+              <button
+                type="button"
+                onClick={handleNextMonth}
+                aria-label="Next month"
+                className={styles['dpHeaderBtn']}
+              >
+                <ChevronRight
+                  aria-hidden="true"
+                  className={styles['dpHeaderIcon']}
+                />
+              </button>
+            </div>
+          </div>
+
+          <div className="p-3">
+            <div className={styles['dpGrid']} aria-hidden="true">
+              {WEEK_DAYS.map((day) => (
+                <div key={day} className={styles['dpWeekDay']}>
+                  {day}
+                </div>
+              ))}
             </div>
 
+            <div
+              ref={gridRef}
+              role="grid"
+              aria-labelledby={dialogLabelId}
+              onKeyDown={handleGridKeyDown}
+              className={styles['dpGrid']}
+            >
+              {Array.from(
+                { length: firstDay },
+                (_, index) => `empty-${year}-${month}-${index}`
+              ).map((key) => (
+                <div key={key} role="presentation" className="h-8" />
+              ))}
+
+              {Array.from({ length: daysInMonth }).map((_, index) => {
+                const day = index + 1;
+                const selected = isSelected(day);
+                const today = isToday(day);
+                const isFocusTarget = day === focusedDay;
+                return (
+                  <button
+                    key={day}
+                    data-day={day}
+                    type="button"
+                    role="gridcell"
+                    aria-selected={selected}
+                    aria-label={formatLongDate(year, month, day)}
+                    tabIndex={isFocusTarget ? 0 : -1}
+                    onClick={() => handleDateSelect(day)}
+                    className={`${styles['dpDayCell']} ${
+                      selected
+                        ? styles['dpDaySelected']
+                        : today
+                          ? styles['dpDayToday']
+                          : styles['dpDayNormal']
+                    }`}
+                  >
+                    {day}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className={styles['dpFooter']}>
             <button
               type="button"
-              onClick={handleNextMonth}
-              aria-label="Next month"
-              className={styles['dpHeaderBtn']}
+              onClick={handleClear}
+              className={styles['dpFooterClear']}
             >
-              <ChevronRight
-                aria-hidden="true"
-                className={styles['dpHeaderIcon']}
-              />
+              Clear
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onChange(Date.now());
+                setIsOpen(false);
+                triggerRef.current?.focus();
+              }}
+              className={styles['dpFooterToday']}
+            >
+              Today
             </button>
           </div>
-        </div>
-
-        <div className="p-3">
-          <div className={styles['dpGrid']} aria-hidden="true">
-            {WEEK_DAYS.map((day) => (
-              <div key={day} className={styles['dpWeekDay']}>
-                {day}
-              </div>
-            ))}
-          </div>
-
-          <div
-            ref={gridRef}
-            role="grid"
-            aria-labelledby={dialogLabelId}
-            onKeyDown={handleGridKeyDown}
-            className={styles['dpGrid']}
-          >
-            {Array.from(
-              { length: firstDay },
-              (_, index) => `empty-${year}-${month}-${index}`
-            ).map((key) => (
-              <div key={key} role="presentation" className="h-8" />
-            ))}
-
-            {Array.from({ length: daysInMonth }).map((_, index) => {
-              const day = index + 1;
-              const selected = isSelected(day);
-              const today = isToday(day);
-              const isFocusTarget = day === focusedDay;
-              return (
-                <button
-                  key={day}
-                  data-day={day}
-                  type="button"
-                  role="gridcell"
-                  aria-selected={selected}
-                  aria-label={formatLongDate(year, month, day)}
-                  tabIndex={isFocusTarget ? 0 : -1}
-                  onClick={() => handleDateSelect(day)}
-                  className={`${styles['dpDayCell']} ${
-                    selected
-                      ? styles['dpDaySelected']
-                      : today
-                        ? styles['dpDayToday']
-                        : styles['dpDayNormal']
-                  }`}
-                >
-                  {day}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className={styles['dpFooter']}>
-          <button
-            type="button"
-            onClick={handleClear}
-            className={styles['dpFooterClear']}
-          >
-            Clear
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              onChange(Date.now());
-              setIsOpen(false);
-              triggerRef.current?.focus();
-            }}
-            className={styles['dpFooterToday']}
-          >
-            Today
-          </button>
-        </div>
-      </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 });

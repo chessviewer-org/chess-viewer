@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useId, useRef, useState } from 'react';
 
 import { Check, ChevronDown } from '@/assets/icons';
 
-import { useListboxKeyboard, useOutsideClick } from '@hooks';
+import { useListboxKeyboard, useOutsideClick, useScrollLock } from '@hooks';
 import styles from '../styles/ui.module.scss';
 
 interface CustomSelectProps<T extends string | number> {
@@ -29,6 +29,7 @@ const CustomSelectComponent = <T extends string | number>({
   const listboxId = `${baseId}-listbox`;
 
   useOutsideClick(containerRef, () => setIsOpen(false), isOpen);
+  useScrollLock(isOpen);
 
   const selectedIndex = options.findIndex((opt) => opt.value === value);
 

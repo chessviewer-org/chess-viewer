@@ -3,11 +3,14 @@ import { useEffect, useLayoutEffect, useRef, useState, RefObject } from 'react';
 import { readReducedMotionPreference, resolveReducedMotion } from '@utils';
 
 export function useOutsideClick(
-  ref: React.RefObject<HTMLElement | null>,
+  ref:
+    | React.RefObject<HTMLElement | null>
+    | React.RefObject<HTMLElement | null>[],
   handler: (event: MouseEvent | TouchEvent | KeyboardEvent) => void,
   enabled: boolean = true
 ): void {
   const handlerRef = useRef(handler);
+  const refs = Array.isArray(ref) ? ref : [ref];
 
   useEffect(() => {
     handlerRef.current = handler;
@@ -17,9 +20,9 @@ export function useOutsideClick(
     if (!enabled) return;
 
     const handleClickOutside = (event: MouseEvent | TouchEvent): void => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        handlerRef.current(event);
-      }
+      const target = event.target as Node;
+      const isInside = refs.some((r) => r.current?.contains(target));
+      if (!isInside) handlerRef.current(event);
     };
 
     const handleEscape = (event: KeyboardEvent): void => {
@@ -37,7 +40,8 @@ export function useOutsideClick(
       document.removeEventListener('touchstart', handleClickOutside);
       document.removeEventListener('keydown', handleEscape);
     };
-  }, [ref, enabled]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, ...refs]);
 }
 
 export function useCopyToClipboard(): [boolean, (text: string) => void] {
