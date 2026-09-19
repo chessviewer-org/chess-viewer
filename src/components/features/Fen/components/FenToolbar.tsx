@@ -4,7 +4,7 @@ import { memo, Ref, useCallback, useImperativeHandle } from 'react';
 import { History, ListPlus } from '@/assets/icons';
 
 import { FENInputField, type NotificationType } from './FENInputField';
-import { useFENHistory, usePrefetchRoute } from '@hooks';
+import { useFENHistory } from '@hooks';
 
 import { MAX_FEN_LENGTH } from '@utils';
 import styles from '../styles/fen-toolbar.module.scss';
@@ -33,7 +33,6 @@ export const FenToolbar = memo(function FenToolbar({
   addCurrentToFavorites: externalAddCurrentToFavorites
 }: FenToolbarProps) {
   const [, navigate] = useLocation();
-  const prefetch = usePrefetchRoute();
 
   const localHistory = useFENHistory(fen, onFavoriteStatusChange);
   const addCurrentToFavorites =
@@ -99,7 +98,6 @@ export const FenToolbar = memo(function FenToolbar({
             <button
               type="button"
               onClick={() => navigate('/advanced-fen')}
-              {...prefetch('/advanced-fen')}
               className={styles['actionBtn']}
               aria-label="Advanced FEN Input"
               title="Advanced FEN Input"
@@ -110,7 +108,6 @@ export const FenToolbar = memo(function FenToolbar({
             <button
               type="button"
               onClick={() => navigate('/fen-history')}
-              {...prefetch('/fen-history')}
               className={styles['actionBtn']}
               aria-label="FEN History"
               title="FEN History"

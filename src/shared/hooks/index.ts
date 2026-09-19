@@ -39,7 +39,6 @@ export { useNotifications } from './useNotifications';
 export { usePagination } from './usePagination';
 export { useBoardPieceSet, usePieceSort } from './usePiece';
 export { usePieceImages } from './usePieceImages';
-export { usePrefetchRoute } from './usePrefetchRoute';
 export { useSearchParams } from './useSearchParams';
 export {
   useSyncedBoardColors,

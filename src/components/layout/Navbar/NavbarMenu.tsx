@@ -12,7 +12,7 @@ import {
 } from '@/assets/icons';
 
 import { useAuth, type MembershipTier } from '@/auth';
-import { usePrefetchRoute, useScrollLock } from '@hooks';
+import { useScrollLock } from '@hooks';
 import { MembershipBadge, AvatarInitial } from '@ui';
 
 import styles from './styles/navbar.module.scss';
@@ -65,7 +65,6 @@ interface NavItemProps {
   className: string;
   iconSize: string;
   onNavigate: () => void;
-  prefetch: ReturnType<typeof usePrefetchRoute>;
 }
 
 function NavItem({
@@ -74,16 +73,10 @@ function NavItem({
   label,
   className,
   iconSize,
-  onNavigate,
-  prefetch
+  onNavigate
 }: NavItemProps) {
   return (
-    <Link
-      href={to}
-      {...prefetch(to)}
-      onClick={onNavigate}
-      className={className}
-    >
+    <Link href={to} onClick={onNavigate} className={className}>
       <Icon className={iconSize} aria-hidden="true" />
       <span>{label}</span>
     </Link>
@@ -99,8 +92,6 @@ function NavLinks({
   iconSize: string;
   onNavigate: () => void;
 }) {
-  const prefetch = usePrefetchRoute();
-
   return (
     <>
       <NavItem
@@ -110,7 +101,6 @@ function NavLinks({
         className={className}
         iconSize={iconSize}
         onNavigate={onNavigate}
-        prefetch={prefetch}
       />
       <NavItem
         to="/about"
@@ -119,7 +109,6 @@ function NavLinks({
         className={className}
         iconSize={iconSize}
         onNavigate={onNavigate}
-        prefetch={prefetch}
       />
     </>
   );
@@ -138,8 +127,6 @@ function AuthActions({
   onNavigate: () => void;
   handleSignOut: () => void;
 }) {
-  const prefetch = usePrefetchRoute();
-
   if (isAuthenticated) {
     const iconSizeOnly = iconSize.replace(/text-\S+/g, '').trim();
     return (
@@ -166,7 +153,6 @@ function AuthActions({
         className={className}
         iconSize={iconSize}
         onNavigate={onNavigate}
-        prefetch={prefetch}
       />
       <NavItem
         to="/auth/sign-up"
@@ -175,7 +161,6 @@ function AuthActions({
         className={className}
         iconSize={iconSize}
         onNavigate={onNavigate}
-        prefetch={prefetch}
       />
     </>
   );
