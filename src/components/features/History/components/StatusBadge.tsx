@@ -45,7 +45,7 @@ export const StatusBadge = memo(function StatusBadge({
       title={config.label}
     >
       <IconComponent className={`w-3 h-3 ${config.iconClass}`} />
-      <span className="hidden sm:inline">{config.label}</span>
+      <span>{config.label}</span>
     </span>
   );
 });

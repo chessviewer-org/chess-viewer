@@ -112,8 +112,44 @@ export const HistoryFilters = memo(function HistoryFilters({
   ];
 
   return (
-    <div className="flex flex-wrap items-center gap-2 mb-4">
-      <div className="relative flex-1 min-w-48">
+    <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 mb-4">
+      <div className="flex flex-wrap items-center gap-2 order-1 sm:order-2 sm:contents">
+        {showStatus && (
+          <CustomSelect
+            value={filters.status ?? ''}
+            onChange={handleStatusChange}
+            options={statusOptions}
+            placeholder="Status"
+            label=""
+          />
+        )}
+
+        <CustomSelect
+          value={filters.source ?? ''}
+          onChange={handleSourceChange}
+          options={sourceOptions}
+          placeholder="Source"
+          label=""
+        />
+
+        <DatePicker
+          value={filters.dateFrom}
+          onChange={(value) => onFiltersChange({ ...filters, dateFrom: value })}
+          placeholder="From"
+          label=""
+          align="right"
+        />
+
+        <DatePicker
+          value={filters.dateTo}
+          onChange={(value) => onFiltersChange({ ...filters, dateTo: value })}
+          placeholder="To"
+          label=""
+          align="right"
+        />
+      </div>
+
+      <div className="relative order-2 sm:order-1 sm:flex-1 sm:min-w-48">
         <Search
           className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted pointer-events-none"
           aria-hidden="true"
@@ -126,40 +162,6 @@ export const HistoryFilters = memo(function HistoryFilters({
           className={uiStyles['inputSearch']}
         />
       </div>
-
-      {showStatus && (
-        <CustomSelect
-          value={filters.status ?? ''}
-          onChange={handleStatusChange}
-          options={statusOptions}
-          placeholder="Status"
-          label=""
-        />
-      )}
-
-      <CustomSelect
-        value={filters.source ?? ''}
-        onChange={handleSourceChange}
-        options={sourceOptions}
-        placeholder="Source"
-        label=""
-      />
-
-      <DatePicker
-        value={filters.dateFrom}
-        onChange={(value) => onFiltersChange({ ...filters, dateFrom: value })}
-        placeholder="From"
-        label=""
-        align="right"
-      />
-
-      <DatePicker
-        value={filters.dateTo}
-        onChange={(value) => onFiltersChange({ ...filters, dateTo: value })}
-        placeholder="To"
-        label=""
-        align="right"
-      />
     </div>
   );
 });

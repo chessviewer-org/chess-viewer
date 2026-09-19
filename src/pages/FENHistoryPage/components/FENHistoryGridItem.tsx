@@ -66,7 +66,7 @@ export const FENHistoryGridItem: React.FC<FENHistoryGridItemProps> = memo(
 
     return (
       <div
-        className="bg-surface border border-border rounded-xl overflow-hidden hover:shadow-lg hover:shadow-accent/5 hover:border-border transition-[box-shadow,border-color] duration-200 group flex flex-col min-h-50 animate-cardReveal"
+        className="bg-surface border border-border rounded-b-xl overflow-hidden hover:shadow-lg hover:shadow-accent/5 hover:border-border transition-[box-shadow,border-color] duration-200 group flex flex-col min-h-50 animate-cardReveal"
         style={{ animationDelay: `${Math.min(index * 0.05, 0.3)}s` }}
       >
         <div className="w-full shrink-0 border-b border-border/30 overflow-hidden">

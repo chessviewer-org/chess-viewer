@@ -219,24 +219,24 @@ const WizardExportSettings = memo(function WizardExportSettings({
         </label>
       </div>
 
-      <div className="space-y-3 pt-4 border-t border-border/40">
+      <div className="flex flex-col xs:flex-row gap-2 pt-4 border-t border-border/40">
         <button
           type="button"
           onClick={handlers.handleExportActive}
           disabled={noFormats}
-          className="w-full py-2.5 bg-surface hover:bg-surface-hover border border-border text-text-primary rounded-lg font-semibold transition duration-150 text-sm active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="flex-1 py-2.5 px-2 bg-surface hover:bg-surface-hover border border-border text-text-primary rounded-lg font-semibold transition duration-150 text-sm active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          <Download className="w-4 h-4" />
-          Download Active Position ({state.safeCurrentIndex + 1})
+          <Download className="w-4 h-4 shrink-0" />
+          <span>Download Active ({state.safeCurrentIndex + 1})</span>
         </button>
         <button
           type="button"
           onClick={handlers.handleExportBatch}
           disabled={noFormats}
-          className="w-full py-3 bg-accent hover:bg-accent-hover text-bg rounded-lg font-bold transition duration-150 text-sm active:scale-[0.98] shadow-lg shadow-accent/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 py-2.5 px-2 bg-accent hover:bg-accent-hover text-bg rounded-lg font-bold transition duration-150 text-sm active:scale-[0.98] shadow-lg shadow-accent/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Archive className="w-4 h-4" />
-          Download All as ZIP ({state.validFens.length})
+          <Archive className="w-4 h-4 shrink-0" />
+          <span>Download ZIP ({state.validFens.length})</span>
         </button>
       </div>
     </div>

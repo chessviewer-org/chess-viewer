@@ -65,7 +65,7 @@ export const DraggablePiece = memo(function DraggablePiece({
           ? 'none'
           : 'opacity 150ms cubic-bezier(0.4, 0, 0.2, 1)',
         contain: 'strict',
-        touchAction: disabled ? 'auto' : 'none',
+        touchAction: disabled ? 'auto' : 'pan-y',
         WebkitUserSelect: 'none',
         userSelect: 'none'
       }}

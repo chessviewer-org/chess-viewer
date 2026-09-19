@@ -6,6 +6,7 @@
 
 .navInner {
   @apply relative z-50 bg-surface;
+  box-shadow: 0 2px 0 0 var(--color-surface);
 }
 
 .navContainer {
@@ -94,7 +95,7 @@
 }
 
 .mobileMenuContainer {
-  @apply fixed left-0 right-0 top-15 sm:top-16 z-40 lg:hidden origin-top border-b border-border bg-surface shadow-sm;
+  @apply fixed left-0 right-0 top-15 sm:top-16 z-40 lg:hidden origin-top bg-surface;
 }
 
 .mobileMenuContent {
@@ -136,19 +137,23 @@ $ease-exit: cubic-bezier(0.4, 0, 0.2, 1);
   grid-template-rows: 0fr;
   overflow: hidden;
   border-bottom: 1px solid transparent;
+  box-shadow: none;
   pointer-events: none;
   transition:
     grid-template-rows 0.24s $ease-exit,
-    border-color 0.24s $ease-exit;
+    border-color 0.24s $ease-exit,
+    box-shadow 0.24s $ease-exit;
 }
 
 .mobilePanel[data-state='open'] {
   grid-template-rows: 1fr;
   border-bottom-color: rgb(var(--val-border) / 0.5);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   pointer-events: auto;
   transition:
     grid-template-rows 0.28s $ease-enter,
-    border-color 0.28s $ease-enter;
+    border-color 0.28s $ease-enter,
+    box-shadow 0.28s $ease-enter;
 }
 
 .mobilePanel > * {
