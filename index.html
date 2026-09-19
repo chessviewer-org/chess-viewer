@@ -97,6 +97,10 @@
         );
       }
 
+      html.route-mismatch #root {
+        visibility: hidden;
+      }
+
       #app-splash {
         position: fixed;
         inset: 0;
@@ -139,6 +143,7 @@
   </head>
   <body class="preload">
     <script src="/theme-init.js"></script>
+    <script src="/route-guard.js"></script>
 
     <div id="root"></div>
 
