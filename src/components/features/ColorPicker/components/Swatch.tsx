@@ -20,7 +20,7 @@ export function Swatch({
       aria-pressed={isSelected}
       title={name}
       aria-label={`Apply ${name} theme`}
-      className={`relative flex h-11 w-11 overflow-hidden rounded-full border-2 transition-[border-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+      className={`relative flex h-11 w-11 shrink-0 aspect-square overflow-hidden rounded-full border-2 transition-[border-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
         isSelected
           ? 'border-accent ring-2 ring-accent/30'
           : 'border-border/60 hover:border-text-muted'

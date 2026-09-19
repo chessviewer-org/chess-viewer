@@ -46,7 +46,7 @@ function renderInlineMarkdown(text: string): ReactNode[] {
 
 function EntryRow({ entry }: { entry: ChangelogEntry }) {
   return (
-    <li className="flex items-start gap-2.5 py-1 text-base leading-relaxed text-text-secondary">
+    <li className="flex items-start gap-2.5 py-1 text-sm leading-relaxed text-text-secondary sm:text-base">
       <span className="mt-[0.6em] h-1.5 w-1.5 shrink-0 rounded-full bg-text-muted" />
       <span className="min-w-0">
         {entry.scope && (
@@ -138,21 +138,21 @@ export default function ChangelogSection() {
         <>
           <ol>
             {page.months.map((month) => (
-              <li key={month.title} className="mb-8 list-none">
-                <h3 className="font-display text-xl font-bold text-text-primary sm:text-2xl">
+              <li key={month.title} className="mb-6 list-none sm:mb-8">
+                <h3 className="font-display text-lg font-bold text-text-primary sm:text-xl">
                   {month.title}
                 </h3>
-                <hr className="mt-2 mb-6 border-t border-warning" />
+                <hr className="mt-2 mb-4 border-t border-warning sm:mb-6" />
 
                 {month.note && (
-                  <p className="mb-4 text-base leading-relaxed text-text-secondary">
+                  <p className="mb-4 text-sm leading-relaxed text-text-secondary sm:text-base">
                     {renderInlineMarkdown(month.note)}
                   </p>
                 )}
 
                 {month.groups.map((group) => (
                   <div key={group.category} className="mb-6 last:mb-0">
-                    <h4 className="mb-1.5 text-lg font-bold text-text-muted">
+                    <h4 className="mb-1.5 text-sm font-bold uppercase tracking-wide text-text-muted sm:text-base">
                       {CATEGORY_LABELS[group.category]}
                     </h4>
                     <ul>
