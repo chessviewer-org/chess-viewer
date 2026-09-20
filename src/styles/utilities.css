@@ -299,5 +299,6 @@ select:focus-visible {
 }
 
 .scrollbar-native {
+  scrollbar-width: thin;
   scrollbar-color: var(--color-accent) var(--color-surface-elevated);
 }
