@@ -48,7 +48,9 @@ const PositionsTab = memo(function PositionsTab({
         return (
           <div
             key={`row-${row.rowIndex}`}
-            className={`animate-[fadeIn_0.2s_ease_both] ${isSingle ? 'grid grid-cols-1 gap-4' : styles['fenGrid']}`}
+            className={
+              isSingle ? 'grid grid-cols-1 gap-4' : (styles['fenGrid'] ?? '')
+            }
           >
             {row.items.map(({ fen, originalIndex: idx, id }) => {
               const hasError = !!fenErrors[idx];

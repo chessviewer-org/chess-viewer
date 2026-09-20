@@ -11,7 +11,7 @@ interface FENHistoryEmptyStateProps {
 export const FENHistoryEmptyState: React.FC<FENHistoryEmptyStateProps> = memo(
   ({ activeTab }) => {
     return (
-      <div className="flex flex-col items-center justify-center text-center py-16 sm:py-24 animate-fadeIn">
+      <div className="flex flex-col items-center justify-center text-center py-16 sm:py-24">
         <Clock className="w-10 h-10 sm:w-12 sm:h-12 text-text-muted/60 mb-3" />
         <p className="text-text-secondary text-base sm:text-lg font-medium">
           {activeTab === 'archive'

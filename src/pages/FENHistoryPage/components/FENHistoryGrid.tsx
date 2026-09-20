@@ -67,11 +67,10 @@ export const FENHistoryGrid = memo(function FENHistoryGrid({
   return (
     <>
       <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-        {data.slice(0, visibleCount).map((entry, index) => (
+        {data.slice(0, visibleCount).map((entry) => (
           <FENHistoryGridItem
             key={entry.id}
             entry={entry}
-            index={index}
             activeTab={activeTab}
             lightSquare={lightSquare}
             darkSquare={darkSquare}

@@ -45,7 +45,7 @@ const WizardExportSettings = memo(function WizardExportSettings({
   const noFormats = state.selectedFormats.length === 0;
 
   return (
-    <div className="flex flex-col h-full animate-fadeIn gap-6">
+    <div className="flex flex-col h-full gap-6">
       <div className="space-y-2.5">
         <h3 className="section-eyebrow">Format</h3>
         <div className="flex w-full rounded-lg border border-border/60 overflow-hidden">

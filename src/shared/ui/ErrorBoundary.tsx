@@ -28,7 +28,7 @@ function ErrorFallback({ resetErrorBoundary }: ErrorFallbackProps) {
       aria-live="assertive"
       className="min-h-dvh w-full flex flex-col items-center justify-center px-6 py-16 bg-bg text-text-primary"
     >
-      <div className="w-full max-w-md text-center animate-fadeIn">
+      <div className="w-full max-w-md text-center">
         <div className="inline-flex items-center justify-center gap-3 mb-12">
           <Logo className="w-12 h-12 object-contain" />
           <span className="text-2xl font-display font-bold text-text-primary tracking-tight">

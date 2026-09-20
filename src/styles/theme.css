@@ -68,13 +68,6 @@
   --spacing-fluid-lg: clamp(1.5rem, 4vw, 2.5rem);
   --spacing-fluid-xl: clamp(2rem, 6vw, 4rem);
 
-  --animate-fade-in: fadeIn 0.25s var(--animation-curve);
-  --animate-fade-in-scale: fadeInScale 0.2s var(--animation-curve);
-  --animate-slide-in-right: slideInRight 0.25s var(--animation-curve);
-  --animate-slide-in-left: slideInLeft 0.25s var(--animation-curve);
-  --animate-slide-up: slideUp 0.2s var(--animation-curve);
-  --animate-scale-in: scaleIn 0.2s var(--animation-curve);
-  --animate-shimmer: shimmer 2s infinite linear;
   --animate-pulse: pulse 2s ease-in-out infinite;
   --animate-spin: spin 1s linear infinite;
 

@@ -129,7 +129,7 @@ const Toast = memo(function Toast({
       role="alert"
       aria-label={style.label}
       tabIndex={0}
-      className="group relative pointer-events-auto isolate overflow-hidden rounded-2xl border border-border/40 bg-surface-elevated p-4 pl-5 text-text-primary shadow-2xl flex items-center gap-4 select-none animate-notif-in
+      className="group relative pointer-events-auto isolate overflow-hidden rounded-2xl border border-border/40 bg-surface-elevated p-4 pl-5 text-text-primary shadow-2xl flex items-center gap-4 select-none
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 focus-within:ring-offset-bg"
     >
       <div
