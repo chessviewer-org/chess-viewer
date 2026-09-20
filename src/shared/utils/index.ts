@@ -1,4 +1,5 @@
 export * from '@chessviewer-org/chess-viewer';
+export * from './analytics';
 export * from './archiveManager';
 export * from './canvasExporter';
 export * from './canvasRenderer';

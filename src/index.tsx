@@ -2,6 +2,7 @@ import { hydrate, render } from 'preact';
 import { StrictMode } from 'react';
 
 import { AuthProvider } from '@/auth';
+import { loadAnalyticsBeacon } from '@utils';
 
 import App from './App';
 
@@ -36,4 +37,5 @@ if (import.meta.env.PROD) {
   void import('virtual:pwa-register').then(({ registerSW }) => {
     registerSW({ immediate: true });
   });
+  loadAnalyticsBeacon();
 }
