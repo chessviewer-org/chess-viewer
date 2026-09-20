@@ -9,6 +9,7 @@ export * from './exportRaster';
 export * from './exportState';
 export * from './historyUtils';
 export * from './imageOptimizer';
+export * from './latexExporter';
 export * from './logger';
 export * from './pageScroll';
 export * from './pieceUtils';

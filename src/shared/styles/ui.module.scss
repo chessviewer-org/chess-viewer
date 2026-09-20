@@ -185,7 +185,7 @@ $ease-exit: cubic-bezier(0.4, 0, 0.2, 1);
   inset: -2px;
 }
 .modalContainer {
-  @apply bg-surface-elevated border border-border rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] flex flex-col overflow-hidden animate-[scaleIn_0.2s_ease_out] relative z-10;
+  @apply bg-surface-elevated border border-border rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] flex flex-col overflow-hidden relative z-10;
 }
 .modalHeader {
   @apply flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border shrink-0;

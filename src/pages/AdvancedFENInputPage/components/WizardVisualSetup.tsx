@@ -17,7 +17,7 @@ const WizardVisualSetup = memo(function WizardVisualSetup({
   handlers
 }: WizardVisualSetupProps) {
   return (
-    <div className="flex flex-col gap-6 animate-fadeIn h-full">
+    <div className="flex flex-col gap-6 h-full">
       <BoardStylePanel
         lightSquare={state.theme.lightSquare}
         darkSquare={state.theme.darkSquare}

@@ -29,58 +29,11 @@ html[data-reduced-motion='reduce'] .marching-ants {
   }
 }
 
-.animate-fadeIn {
-  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: opacity, transform;
-}
-.animate-fadeInScale {
-  animation: fadeInScale 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: opacity, transform;
-}
-.animate-slideInRight {
-  animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: opacity, transform;
-}
-.animate-slideInLeft {
-  animation: slideInLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: opacity, transform;
-}
-.animate-slideUp {
-  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: opacity, transform;
-}
-.animate-scaleIn {
-  animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: opacity, transform;
-}
-.animate-cardReveal {
-  animation: cardReveal 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: opacity, transform;
-}
-.animate-shimmer {
-  background: linear-gradient(
-    90deg,
-    transparent,
-    color-mix(in srgb, var(--color-accent), transparent 70%),
-    transparent
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite linear;
-}
 .animate-pulse {
   animation: pulse 2.6s ease-in-out infinite;
 }
 .animate-spin {
   animation: spin 1s linear infinite;
-}
-
-.input-enter {
-  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
-}
-.tab-content {
-  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
 }
 
 .pb-safe {
@@ -303,41 +256,35 @@ select:focus-visible {
   }
 }
 
-::-webkit-scrollbar,
-*::-webkit-scrollbar {
+*:not(.scrollbar-native)::-webkit-scrollbar {
   width: 4px !important;
   height: 4px !important;
   border-radius: 0 !important;
 }
 
-::-webkit-scrollbar-button,
-*::-webkit-scrollbar-button {
+*:not(.scrollbar-native)::-webkit-scrollbar-button {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
   background: transparent !important;
 }
 
-::-webkit-scrollbar-track,
-*::-webkit-scrollbar-track {
+*:not(.scrollbar-native)::-webkit-scrollbar-track {
   background: var(--color-surface-elevated) !important;
   border-radius: 0 !important;
 }
 
-::-webkit-scrollbar-thumb,
-*::-webkit-scrollbar-thumb {
+*:not(.scrollbar-native)::-webkit-scrollbar-thumb {
   background: var(--color-accent) !important;
   border-radius: 0 !important;
 }
 
-::-webkit-scrollbar-thumb:hover,
-*::-webkit-scrollbar-thumb:hover {
+*:not(.scrollbar-native)::-webkit-scrollbar-thumb:hover {
   background: var(--color-accent-hover) !important;
   border-radius: 0 !important;
 }
 
-::-webkit-scrollbar-corner,
-*::-webkit-scrollbar-corner {
+*:not(.scrollbar-native)::-webkit-scrollbar-corner {
   background: var(--color-surface-elevated) !important;
   border-radius: 0 !important;
 }
@@ -345,8 +292,12 @@ select:focus-visible {
 @supports not selector(::-webkit-scrollbar) {
   html,
   body,
-  * {
+  *:not(.scrollbar-native) {
     scrollbar-width: thin !important;
     scrollbar-color: var(--color-accent) var(--color-surface-elevated) !important;
   }
+}
+
+.scrollbar-native {
+  scrollbar-color: var(--color-accent) var(--color-surface-elevated);
 }

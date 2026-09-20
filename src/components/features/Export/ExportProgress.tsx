@@ -121,11 +121,7 @@ export const ExportProgress = memo(function ExportProgress({
               style={{
                 width: `${displayProgress}%`
               }}
-            >
-              {!isPaused && (
-                <div className="absolute inset-0 animate-shimmer bg-linear-to-r from-transparent via-white/25 to-transparent" />
-              )}
-            </div>
+            ></div>
           </div>
           <p className="text-center text-sm font-semibold text-text-primary">
             {Math.round(displayProgress)}% complete

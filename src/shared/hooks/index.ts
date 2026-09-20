@@ -12,8 +12,7 @@ export {
   useCopyToClipboard,
   useFocusTrap,
   useOutsideClick,
-  useScrollLock,
-  useScrollReveal
+  useScrollLock
 } from './useDOM';
 export type { ProviderState } from './useDatabaseSearch';
 export { useDatabaseSearch } from './useDatabaseSearch';

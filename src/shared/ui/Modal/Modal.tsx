@@ -49,7 +49,7 @@ const Modal = memo(
     return (
       <div className="fixed inset-0 z-100 h-[100dvh] flex items-center justify-center p-4">
         <div
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-modal-backdrop-in"
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           onClick={onCancel}
         />
         <div
@@ -58,7 +58,7 @@ const Modal = memo(
           aria-modal="true"
           aria-labelledby="modal-title"
           aria-describedby="modal-description"
-          className="relative w-full max-w-md bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden animate-modal-in"
+          className="relative w-full max-w-md bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden"
         >
           <div className="p-6">
             <div className="flex items-start gap-4">

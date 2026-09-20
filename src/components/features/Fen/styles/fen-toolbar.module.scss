@@ -55,7 +55,7 @@
 }
 
 .textareaField {
-  @apply w-full min-w-0 px-1 py-1 pb-3.5 sm:pb-1 bg-surface/50 text-text-primary font-mono text-sm sm:text-[14px] leading-tight resize-none whitespace-pre overflow-x-auto overflow-y-hidden focus-visible:outline-none focus:outline-none outline-none transition duration-200 ease-out border-0;
+  @apply w-full min-w-0 px-1 py-1 pb-4 bg-surface/50 text-text-primary font-mono text-sm sm:text-[14px] leading-tight resize-none whitespace-pre overflow-x-auto overflow-y-hidden focus-visible:outline-none focus:outline-none outline-none transition duration-200 ease-out border-0;
   touch-action: pan-x;
   -webkit-overflow-scrolling: touch;
 }

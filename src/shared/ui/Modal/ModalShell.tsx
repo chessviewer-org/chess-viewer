@@ -37,7 +37,7 @@ const ModalShell = memo(
     return (
       <div className="fixed inset-0 z-90 h-dvh flex items-center justify-center p-4">
         <div
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-modal-backdrop-in"
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           onClick={disableBackdropClick ? undefined : onClose}
         />
         <div
@@ -45,7 +45,7 @@ const ModalShell = memo(
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-shell-title"
-          className={`relative w-full ${maxWidth} max-h-[90vh] flex flex-col bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden animate-modal-in`}
+          className={`relative w-full ${maxWidth} max-h-[90vh] flex flex-col bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden`}
         >
           <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border shrink-0">
             <div className="flex items-center gap-3 min-w-0">

@@ -7,7 +7,7 @@ function NotFoundPage() {
   return (
     <div className="w-full flex flex-col flex-1 items-center justify-center px-4 py-12 sm:py-16 bg-bg">
       <Seo name="Page Not Found" noindex />
-      <div className="text-center max-w-lg animate-fadeIn">
+      <div className="text-center max-w-lg">
         <div className="relative mb-8">
           <div className="w-24 h-24 rounded-2xl bg-linear-to-br from-accent/20 to-accent/10 flex items-center justify-center mx-auto">
             <Crown

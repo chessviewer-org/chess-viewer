@@ -22,7 +22,7 @@ import {
   type ManualDatabaseProvider
 } from '@utils';
 
-import { DisplayOptions } from '@components/features';
+import { DisplayOptions, LatexExportDialog } from '@components/features';
 import {
   type BoardKeyboardApi,
   InteractiveBoard,
@@ -206,6 +206,10 @@ export const ChessEditor = memo(function ChessEditor({
   const handleShare = useCallback(() => setIsShareOpen(true), []);
   const closeShare = useCallback(() => setIsShareOpen(false), []);
 
+  const [isLatexOpen, setIsLatexOpen] = useState(false);
+  const handleCopyLatex = useCallback(() => setIsLatexOpen(true), []);
+  const closeLatex = useCallback(() => setIsLatexOpen(false), []);
+
   const { payload, copyLink } = useShareBoard({
     fen,
     ...(onNotify ? { onNotify } : {})
@@ -225,6 +229,7 @@ export const ChessEditor = memo(function ChessEditor({
     canRedo,
     onFlip: onFlip ?? (() => {}),
     onCopyImage: handleCopyFen,
+    onCopyLatex: handleCopyLatex,
     onShare: handleShare,
     onDownload
   };
@@ -372,6 +377,15 @@ export const ChessEditor = memo(function ChessEditor({
             onOpenManualProvider={handleOpenManualProvider}
           />
         </div>
+
+        <LatexExportDialog
+          isOpen={isLatexOpen}
+          onClose={closeLatex}
+          fen={fen}
+          flipped={flipped}
+          showCoords={showCoords}
+          {...(onNotify ? { onNotify } : {})}
+        />
 
         <ShareDialog
           isOpen={isShareOpen}

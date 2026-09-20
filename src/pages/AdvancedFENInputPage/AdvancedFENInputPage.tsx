@@ -107,7 +107,7 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
           )}
 
           {state.activeTab === 'preview-style' && (
-            <div className="tab-content w-full h-full">
+            <div className="w-full h-full">
               {!state.hasValidFens ? (
                 <NoValidPositions
                   onGoToPositions={handlers.handleShowPositionsTab}
@@ -124,7 +124,7 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
           )}
 
           {state.activeTab === 'export-settings' && (
-            <div className="tab-content w-full h-full">
+            <div className="w-full h-full">
               {!state.hasValidFens ? (
                 <NoValidPositions
                   onGoToPositions={handlers.handleShowPositionsTab}

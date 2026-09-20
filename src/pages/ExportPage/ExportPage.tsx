@@ -208,12 +208,12 @@ const ExportPageInner = ({ config }: { config: ExportPageConfig }) => {
         }
       >
         {activeTab === 'board-style' && (
-          <div className="workspace-container h-full animate-page-enter">
+          <div className="workspace-container h-full">
             <BoardStyleStep homeState={homeState} />
           </div>
         )}
         {activeTab === 'export-settings' && (
-          <div className="h-full animate-page-enter">
+          <div className="h-full">
             <ExportSettingsStep wizard={wizard} onExport={handleFinish} />
           </div>
         )}

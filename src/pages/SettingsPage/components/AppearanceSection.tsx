@@ -58,7 +58,7 @@ const AppearanceSection = memo(function AppearanceSection() {
           />
         </div>
         {showDarkHint && (
-          <p className="flex items-start gap-2 rounded-lg border border-accent/30 bg-accent/5 px-3 py-2 text-xs leading-relaxed text-text-secondary animate-[fadeIn_0.22s_ease_both]">
+          <p className="flex items-start gap-2 rounded-lg border border-accent/30 bg-accent/5 px-3 py-2 text-xs leading-relaxed text-text-secondary">
             <Sparkles
               className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent"
               aria-hidden="true"

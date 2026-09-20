@@ -87,7 +87,7 @@ const PlaybackControls = memo(function PlaybackControls({
         {showIntervalMenu && (
           <div
             role="menu"
-            className="absolute bottom-full right-0 mb-2 bg-surface-elevated/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-xl overflow-hidden z-20 min-w-16 p-1 origin-bottom-right animate-fadeIn"
+            className="absolute bottom-full right-0 mb-2 bg-surface-elevated/95 backdrop-blur-xl border border-border/50 rounded-xl shadow-xl overflow-hidden z-20 min-w-16 p-1 origin-bottom-right"
           >
             {intervalOptions.map((opt) => (
               <button
