@@ -48,6 +48,7 @@ docker compose --profile dev up --build dev   # http://localhost:5173
 - **Board editor** — drag pieces onto any square, flip the board, toggle coordinates and border frame
 - **FEN input** — paste any FEN string with real-time validation; batch input supports up to 10 positions at once
 - **Export** — PNG, JPEG, or SVG at four quality presets (300–1200 DPI); batch export downloads a ZIP; DPI metadata is embedded in the file
+- **LaTeX** — copy the position as `skak` or `chessboard` markup, as a snippet or a compilable document
 - **Board customisation** — 20 piece sets, 20 preset themes, custom colour picker, up to 48 saved presets
 - **Position history** — saved locally with favourites, pinning, freshness indicators, and full-text search
 - **Database search** — look up positions directly from Lichess and ChessDB

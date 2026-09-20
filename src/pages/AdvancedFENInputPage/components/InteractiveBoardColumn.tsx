@@ -1,6 +1,8 @@
-import { memo, type ReactNode, useMemo } from 'react';
+import { memo, type ReactNode, useCallback, useMemo, useState } from 'react';
 
-import { DisplayOptions } from '@/components/features';
+import { Code2 } from '@/assets/icons';
+
+import { DisplayOptions, LatexExportDialog } from '@/components/features';
 import BoardPreviewCanvas from '@/pages/ExportPage/components/BoardPreviewCanvas';
 import { ADVANCED_FEN_CONFIG } from '@constants';
 
@@ -77,9 +79,13 @@ const InteractiveBoardColumn = memo(function InteractiveBoardColumn({
     state.safeCurrentIndex
   ]);
 
+  const [isLatexOpen, setIsLatexOpen] = useState(false);
+  const openLatex = useCallback(() => setIsLatexOpen(true), []);
+  const closeLatex = useCallback(() => setIsLatexOpen(false), []);
+
   return (
     <div
-      className={`w-full flex flex-col gap-3 animate-fadeIn mx-auto transition-all duration-300 ${styles['boardWidth']}`}
+      className={`w-full flex flex-col gap-3 mx-auto transition-all duration-300 ${styles['boardWidth']}`}
     >
       <BoardPreviewCanvas
         fen={state.currentFen}
@@ -130,6 +136,26 @@ const InteractiveBoardColumn = memo(function InteractiveBoardColumn({
           />
         </div>
       )}
+
+      <div className="ml-[5%] w-[95%]">
+        <button
+          type="button"
+          onClick={openLatex}
+          disabled={!state.currentFen}
+          className="w-full min-h-11 flex items-center justify-center gap-2 rounded-lg border border-border/60 bg-surface px-3 py-2 text-xs font-semibold text-text-secondary transition-colors hover:bg-surface-elevated hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Code2 className="w-4 h-4" aria-hidden="true" />
+          Copy as LaTeX
+        </button>
+      </div>
+
+      <LatexExportDialog
+        isOpen={isLatexOpen}
+        onClose={closeLatex}
+        fen={state.currentFen}
+        flipped={state.isFlipped}
+        showCoords={state.showCoordsLocal}
+      />
 
       {state.activeTab === 'preview-style' && (
         <div className="mt-1 ml-[5%] w-[95%]">
