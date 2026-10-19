@@ -6,6 +6,7 @@ export const DROP_ID_ATTR = 'data-drop-id';
 export const DRAG_OVER_ATTR = 'data-drag-over';
 
 const TOUCH_GHOST_SCALE = 1.4;
+const TOUCH_HOLD_MS = 200;
 
 export interface DragSession {
   dragData: ChessDragData;
@@ -86,6 +87,7 @@ export function useDraggable({
   const { startDrag, isDragging: dragInProgress } = useContext(DragApiCtx);
   const dataRef = useRef(data);
   dataRef.current = data;
+  const touchElRef = useRef<HTMLElement | null>(null);
 
   const isDragging =
     !!active &&
@@ -100,12 +102,15 @@ export function useDraggable({
       if (e.pointerType === 'mouse' && e.button !== 0) return;
 
       const el = e.currentTarget as HTMLElement;
-      const { clientX: startX, clientY: startY, pointerId } = e;
-      const threshold = dragThreshold(e.pointerType);
+      const { clientX: startX, clientY: startY, pointerId, pointerType } = e;
+      const threshold = dragThreshold(pointerType);
+      const needsHold = pointerType !== 'mouse';
+      let holdTimer = 0;
 
       el.setPointerCapture(pointerId);
 
       const cleanup = () => {
+        window.clearTimeout(holdTimer);
         el.removeEventListener('pointermove', onMove);
         el.removeEventListener('pointerup', cleanup);
         el.removeEventListener('pointercancel', cleanup);
@@ -113,19 +118,15 @@ export function useDraggable({
           el.releasePointerCapture(pointerId);
       };
 
-      const onMove = (ev: PointerEvent) => {
-        if (ev.pointerId !== pointerId) return;
-        if (Math.hypot(ev.clientX - startX, ev.clientY - startY) < threshold)
-          return;
-        ev.preventDefault();
+      const begin = (x: number, y: number) => {
         cleanup();
         const { width, height } = el.getBoundingClientRect();
-        const scale = ev.pointerType === 'mouse' ? 1 : TOUCH_GHOST_SCALE;
+        const scale = pointerType === 'mouse' ? 1 : TOUCH_GHOST_SCALE;
         const { ghost, half } = createGhost(
           imageSrc,
           Math.max(width, height) * scale,
-          ev.clientX,
-          ev.clientY
+          x,
+          y
         );
         startDrag({
           dragData: dataRef.current,
@@ -135,6 +136,25 @@ export function useDraggable({
         });
       };
 
+      const onMove = (ev: PointerEvent) => {
+        if (ev.pointerId !== pointerId) return;
+        if (Math.hypot(ev.clientX - startX, ev.clientY - startY) < threshold)
+          return;
+        if (needsHold) {
+          cleanup();
+          return;
+        }
+        ev.preventDefault();
+        begin(ev.clientX, ev.clientY);
+      };
+
+      if (needsHold) {
+        holdTimer = window.setTimeout(
+          () => begin(startX, startY),
+          TOUCH_HOLD_MS
+        );
+      }
+
       el.addEventListener('pointermove', onMove, { passive: false });
       el.addEventListener('pointerup', cleanup);
       el.addEventListener('pointercancel', cleanup);
@@ -142,7 +162,23 @@ export function useDraggable({
     [disabled, imageSrc, startDrag, dragInProgress]
   );
 
-  return { isDragging, onPointerDown };
+  const blockTouchScroll = useCallback(
+    (ev: TouchEvent) => {
+      if (dragInProgress()) ev.preventDefault();
+    },
+    [dragInProgress]
+  );
+
+  const touchRef = useCallback(
+    (el: HTMLElement | null) => {
+      touchElRef.current?.removeEventListener('touchmove', blockTouchScroll);
+      touchElRef.current = el;
+      el?.addEventListener('touchmove', blockTouchScroll, { passive: false });
+    },
+    [blockTouchScroll]
+  );
+
+  return { isDragging, onPointerDown, touchRef };
 }
 
 interface UseDroppableOptions {

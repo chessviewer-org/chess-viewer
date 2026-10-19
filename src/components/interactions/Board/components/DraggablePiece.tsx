@@ -37,7 +37,7 @@ export const DraggablePiece = memo(function DraggablePiece({
     [piece, pieceKey, row, col, isFromPalette]
   );
 
-  const { isDragging, onPointerDown } = useDraggable({
+  const { isDragging, onPointerDown, touchRef } = useDraggable({
     data: dragData,
     imageSrc: pieceImage?.src ?? null,
     disabled: disabled || !piece
@@ -47,7 +47,9 @@ export const DraggablePiece = memo(function DraggablePiece({
 
   return (
     <div
+      ref={touchRef}
       onPointerDown={onPointerDown}
+      onContextMenu={(e) => e.preventDefault()}
       className={`
         flex items-center justify-center
         select-none
@@ -62,7 +64,8 @@ export const DraggablePiece = memo(function DraggablePiece({
           ? 'none'
           : 'opacity 150ms cubic-bezier(0.4, 0, 0.2, 1)',
         contain: 'strict',
-        touchAction: disabled ? 'auto' : 'none',
+        touchAction: 'manipulation',
+        WebkitTouchCallout: 'none',
         WebkitUserSelect: 'none',
         userSelect: 'none'
       }}
