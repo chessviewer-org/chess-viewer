@@ -113,7 +113,7 @@ export const HistoryFilters = memo(function HistoryFilters({
 
   return (
     <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 mb-4">
-      <div className="flex flex-wrap items-center gap-2 order-1 sm:order-2 sm:contents">
+      <div className="grid grid-cols-2 gap-2 order-1 sm:order-2 sm:contents">
         {showStatus && (
           <CustomSelect
             value={filters.status ?? ''}

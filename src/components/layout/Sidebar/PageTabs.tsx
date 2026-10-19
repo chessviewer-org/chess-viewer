@@ -63,9 +63,11 @@ const PageTabs = memo(function PageTabs({
 
       switch (event.key) {
         case 'ArrowDown':
+        case 'ArrowRight':
           nextIndex = (index + 1) % flatTabs.length;
           break;
         case 'ArrowUp':
+        case 'ArrowLeft':
           nextIndex = (index - 1 + flatTabs.length) % flatTabs.length;
           break;
         case 'Home':

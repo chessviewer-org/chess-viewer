@@ -52,7 +52,7 @@ const PlaybackControls = memo(function PlaybackControls({
         <button
           type="button"
           onClick={onTogglePlay}
-          className="p-2.5 bg-accent hover:bg-accent-hover text-bg rounded-full transition-transform active:scale-[0.92] shadow-md flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface-elevated"
+          className="p-2.5 bg-accent hover:bg-accent-hover text-bg rounded-full transition-[background-color,transform] active:scale-[0.92] shadow-md flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface-elevated"
           aria-label={isPlaying ? 'Pause' : 'Play'}
         >
           {isPlaying ? (

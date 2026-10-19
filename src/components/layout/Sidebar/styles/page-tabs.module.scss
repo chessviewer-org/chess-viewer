@@ -1,23 +1,23 @@
 @reference "../../../../index.css";
 
 .tabsNav {
-  @apply mb-6 md:mb-0 w-full;
+  @apply w-full max-md:-mx-1;
 }
 
 .tabsList {
-  @apply flex flex-col gap-0.5 w-full;
+  @apply flex flex-col gap-0.5 w-full max-md:flex-row max-md:items-center max-md:gap-1 max-md:overflow-x-auto max-md:snap-x max-md:px-1 max-md:pb-1 hide-scrollbar;
 }
 
 .groupContainer {
-  @apply mt-3 border-t border-border pt-3 w-full;
+  @apply mt-3 border-t border-border pt-3 w-full max-md:contents;
 }
 
 .groupContainerFirst {
-  @apply w-full;
+  @apply w-full max-md:contents;
 }
 
 .groupToggleBtn {
-  @apply relative flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset;
+  @apply relative flex w-full max-md:w-auto max-md:shrink-0 max-md:gap-2 max-md:whitespace-nowrap items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset;
 }
 
 .groupToggleActive {
@@ -50,23 +50,23 @@
 }
 
 .groupHeading {
-  @apply block px-3 pb-1.5 text-xs font-bold uppercase tracking-wider text-text-muted;
+  @apply block max-md:hidden px-3 pb-1.5 text-xs font-bold uppercase tracking-wider text-text-muted;
 }
 
 .groupItems {
-  @apply flex flex-col gap-0.5 w-full;
+  @apply flex flex-col gap-0.5 w-full max-md:contents;
 }
 
 .groupItemsCollapsible {
-  @apply mt-1 flex flex-col gap-0.5 w-full;
+  @apply mt-1 flex flex-col gap-0.5 w-full max-md:contents;
 }
 
 .tabBtn {
-  @apply relative flex shrink-0 items-center gap-2 rounded-lg py-2 pr-3 text-left text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset w-full;
+  @apply relative flex shrink-0 items-center gap-2 rounded-lg py-2 pr-3 text-left text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset w-full max-md:w-auto max-md:snap-start max-md:whitespace-nowrap;
 }
 
 .tabBtnCollapsible {
-  @apply pl-8;
+  @apply pl-8 max-md:pl-3;
 }
 
 .tabBtnNormal {
@@ -82,7 +82,7 @@
 }
 
 .tabIndicator {
-  @apply absolute inset-y-1.5 left-0 w-0.5 rounded-full transition-colors;
+  @apply absolute inset-y-1.5 left-0 w-0.5 rounded-full transition-colors max-md:inset-x-3 max-md:top-auto max-md:bottom-0 max-md:h-0.5 max-md:w-auto;
 }
 
 .tabIndicatorActive {

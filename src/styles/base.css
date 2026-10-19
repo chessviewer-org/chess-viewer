@@ -53,6 +53,19 @@
   button {
     @apply select-none;
     touch-action: manipulation;
+  }
+
+  button,
+  a,
+  summary,
+  label,
+  input,
+  select,
+  textarea,
+  [role='button'],
+  [role='tab'],
+  [role='menuitem'],
+  [role='option'] {
     transition:
       background-color var(--animation-duration) var(--animation-curve),
       color var(--animation-duration) var(--animation-curve),

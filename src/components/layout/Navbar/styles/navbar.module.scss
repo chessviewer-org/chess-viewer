@@ -1,7 +1,7 @@
 @reference "../../../../index.css";
 
 .nav {
-  @apply fixed top-0 left-0 right-0 z-50 pt-[max(0px,env(safe-area-inset-top))] transition-all duration-300;
+  @apply fixed top-0 left-0 right-0 z-50 pt-[max(0px,env(safe-area-inset-top))];
 }
 
 .navInner {
