@@ -10,7 +10,3 @@ export const PRERENDERED_ROUTES = [
   '/auth/sign-up',
   '/auth/forgot-password'
 ];
-
-export const PRERENDERED_ROUTE_PATTERNS = PRERENDERED_ROUTES.filter(
-  (route) => route !== '/'
-).map((route) => new RegExp(`^${route}/?$`));

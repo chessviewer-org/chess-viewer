@@ -4,8 +4,6 @@ import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
-import { PRERENDERED_ROUTE_PATTERNS } from './scripts/prerendered-routes.mjs';
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
@@ -13,7 +11,7 @@ export default defineConfig({
     preact(),
 
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       injectRegister: null, // we register manually in src/index.tsx
       includeAssets: [
         'favicon.ico',
@@ -25,13 +23,8 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,woff2}'],
         globIgnores: ['piece/**'],
-        navigateFallback: '/index.html',
-
-        navigateFallbackDenylist: [
-          /^\/api/,
-          /supabase/,
-          ...PRERENDERED_ROUTE_PATTERNS
-        ],
+        navigateFallback: null,
+        directoryIndex: null,
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
@@ -42,9 +35,9 @@ export default defineConfig({
             handler: 'NetworkFirst',
             options: {
               cacheName: 'prerendered-pages',
-              networkTimeoutSeconds: 3,
               expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 7 },
-              cacheableResponse: { statuses: [200] }
+              cacheableResponse: { statuses: [200] },
+              precacheFallback: { fallbackURL: '/index.html' }
             }
           },
           {
