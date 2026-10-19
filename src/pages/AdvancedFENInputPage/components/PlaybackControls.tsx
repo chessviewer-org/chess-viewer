@@ -43,7 +43,7 @@ const PlaybackControls = memo(function PlaybackControls({
           type="button"
           onClick={onPrevious}
           disabled={totalCount <= 1}
-          className="p-1.5 text-text-secondary hover:text-text-primary rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="flex size-9 min-h-0 items-center justify-center text-text-secondary hover:text-text-primary rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           aria-label="Previous"
         >
           <ChevronLeft className="w-5 h-5" aria-hidden="true" />
@@ -52,7 +52,7 @@ const PlaybackControls = memo(function PlaybackControls({
         <button
           type="button"
           onClick={onTogglePlay}
-          className="p-2.5 bg-accent hover:bg-accent-hover text-bg rounded-full transition-[background-color,transform] active:scale-[0.92] shadow-md flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface-elevated"
+          className="size-10 min-h-0 bg-accent hover:bg-accent-hover text-bg rounded-full transition-[background-color,transform] active:scale-[0.92] shadow-md flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface-elevated"
           aria-label={isPlaying ? 'Pause' : 'Play'}
         >
           {isPlaying ? (
@@ -66,7 +66,7 @@ const PlaybackControls = memo(function PlaybackControls({
           type="button"
           onClick={onNext}
           disabled={totalCount <= 1}
-          className="p-1.5 text-text-secondary hover:text-text-primary rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="flex size-9 min-h-0 items-center justify-center text-text-secondary hover:text-text-primary rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           aria-label="Next"
         >
           <ChevronRight className="w-5 h-5" aria-hidden="true" />
@@ -80,7 +80,7 @@ const PlaybackControls = memo(function PlaybackControls({
           aria-haspopup="menu"
           aria-expanded={showIntervalMenu}
           aria-label={`Playback interval: ${interval} seconds`}
-          className="px-2.5 py-1 text-text-secondary hover:text-text-primary hover:bg-surface rounded-full text-xs font-semibold transition-colors border border-transparent hover:border-border/40 active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="min-h-0 px-2.5 py-1 text-text-secondary hover:text-text-primary hover:bg-surface rounded-full text-xs font-semibold transition-colors border border-transparent hover:border-border/40 active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           {interval}s
         </button>

@@ -19,6 +19,7 @@ import {
   getFENValidationError,
   getRasterBlob,
   getSVGBlob,
+  isTextEntryTarget,
   logger,
   pauseExport,
   resetExportState,
@@ -404,12 +405,17 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || isTextEntryTarget(e.target)) return;
       if (e.key === 'Escape') window.history.back();
       else if (e.key === 'ArrowLeft' && validFens.length)
         setCurrentIndex((p) => (p - 1 + validFens.length) % validFens.length);
       else if (e.key === 'ArrowRight' && validFens.length)
         setCurrentIndex((p) => (p + 1) % validFens.length);
-      else if (e.key === ' ' && validFens.length) {
+      else if (
+        e.key === ' ' &&
+        validFens.length &&
+        !(e.target instanceof Element && e.target.closest('button, a'))
+      ) {
         e.preventDefault();
         setIsPlaying((p) => !p);
       }

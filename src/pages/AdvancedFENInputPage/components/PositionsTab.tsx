@@ -59,7 +59,7 @@ const PositionsTab = memo(function PositionsTab({
               return (
                 <div
                   key={id}
-                  className={`bg-surface border rounded-xl p-4 space-y-3 ${hasDuplicate ? 'border-warning/50' : 'border-border hover:border-border-hover'}`}
+                  className={`bg-surface border rounded-xl p-4 space-y-3 ${hasDuplicate ? 'border-warning/50' : 'border-border hover:border-text-muted/50'}`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -127,13 +127,21 @@ const PositionsTab = memo(function PositionsTab({
                     </div>
                   </div>
 
-                  <input
-                    type="text"
+                  <textarea
+                    rows={2}
                     value={fen}
-                    onChange={(e) => onUpdateFen(idx, e.target.value)}
+                    onChange={(e) =>
+                      onUpdateFen(idx, e.target.value.replace(/\s*\n\s*/g, ' '))
+                    }
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') e.preventDefault();
+                    }}
+                    spellCheck={false}
+                    autoCapitalize="off"
+                    autoComplete="off"
                     placeholder="Paste FEN notation here…"
                     maxLength={MAX_FEN_LENGTH}
-                    className={`w-full px-3 py-2.5 bg-surface text-text-primary border rounded-lg font-mono text-xs transition-all placeholder:text-text-muted/50 ${hasError ? 'border-error/60 focus:border-error focus:ring-1 focus:ring-error/30' : hasDuplicate ? 'border-warning/60 focus:border-warning focus:ring-1 focus:ring-warning/30' : 'border-border'} focus:outline-none`}
+                    className={`block w-full resize-none break-all [field-sizing:content] px-3 py-2.5 bg-surface text-text-primary border rounded-lg font-mono text-xs leading-relaxed transition-colors placeholder:text-text-muted/50 ${hasError ? 'border-error/60 focus:border-error focus:ring-1 focus:ring-error/30' : hasDuplicate ? 'border-warning/60 focus:border-warning focus:ring-1 focus:ring-warning/30' : 'border-border'} focus:outline-none`}
                   />
                   {hasError && (
                     <div className="flex items-center gap-1.5 text-error text-xs">

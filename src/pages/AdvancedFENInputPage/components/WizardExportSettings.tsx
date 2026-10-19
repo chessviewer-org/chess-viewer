@@ -36,7 +36,7 @@ const WizardExportSettings = memo(function WizardExportSettings({
     'text-text-primary focus:outline-none transition-colors';
 
   const presetBtn = (active: boolean) =>
-    `flex-1 flex justify-center items-center rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors focus:outline-none ${
+    `flex-1 flex justify-center items-center rounded-lg px-2 py-1.5 text-xs sm:text-sm font-semibold transition-colors focus:outline-none ${
       active
         ? 'bg-accent/10 text-text-primary'
         : 'bg-surface text-text-secondary hover:bg-surface-elevated focus:bg-surface-elevated'
@@ -45,7 +45,7 @@ const WizardExportSettings = memo(function WizardExportSettings({
   const noFormats = state.selectedFormats.length === 0;
 
   return (
-    <div className="flex flex-col h-full gap-6">
+    <div className="flex flex-col h-full gap-5 sm:gap-6">
       <div className="space-y-2.5">
         <h3 className="section-eyebrow">Format</h3>
         <div className="flex w-full rounded-lg border border-border/60 overflow-hidden">
@@ -80,7 +80,7 @@ const WizardExportSettings = memo(function WizardExportSettings({
 
       <div className="space-y-2.5">
         <h3 className="section-eyebrow">Quality</h3>
-        <div className="flex w-full gap-2">
+        <div className="flex w-full gap-1.5 sm:gap-2">
           {RESOLUTIONS.map((r) => (
             <button
               key={r}
@@ -96,7 +96,7 @@ const WizardExportSettings = memo(function WizardExportSettings({
 
       <div className="space-y-2.5">
         <h3 className="section-eyebrow">Board Size</h3>
-        <div className="flex w-full items-center gap-2">
+        <div className="flex w-full items-center gap-1.5 sm:gap-2">
           {BOARD_PRESETS.map((preset) => (
             <button
               key={preset}
@@ -120,7 +120,7 @@ const WizardExportSettings = memo(function WizardExportSettings({
             placeholder="cm"
             aria-label="Custom board size in centimetres (4 to 8)"
             aria-invalid={state.customBoardSizeError ? true : undefined}
-            className={`flex-1 min-w-0 text-center rounded-lg px-3 py-1.5 text-sm transition-colors focus:outline-none ${
+            className={`w-16 shrink-0 text-center rounded-lg px-2 py-1.5 text-xs sm:text-sm transition-colors focus:outline-none ${
               state.boardSizePreset === 'custom'
                 ? 'bg-accent/10 text-text-primary'
                 : 'bg-surface text-text-secondary hover:bg-surface-elevated focus:bg-surface-elevated'
@@ -219,7 +219,7 @@ const WizardExportSettings = memo(function WizardExportSettings({
         </label>
       </div>
 
-      <div className="flex flex-col xs:flex-row gap-2 pt-4 border-t border-border/40">
+      <div className="flex gap-2 pt-4 border-t border-border/40">
         <button
           type="button"
           onClick={handlers.handleExportActive}
@@ -227,7 +227,10 @@ const WizardExportSettings = memo(function WizardExportSettings({
           className="flex-1 py-2.5 px-2 bg-surface hover:bg-surface-hover border border-border text-text-primary rounded-lg font-semibold transition duration-150 text-sm active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           <Download className="w-4 h-4 shrink-0" />
-          <span>Download Active ({state.safeCurrentIndex + 1})</span>
+          <span>
+            <span className="max-xs:hidden">Download </span>Active (
+            {state.safeCurrentIndex + 1})
+          </span>
         </button>
         <button
           type="button"
@@ -236,7 +239,10 @@ const WizardExportSettings = memo(function WizardExportSettings({
           className="flex-1 py-2.5 px-2 bg-accent hover:bg-accent-hover text-bg rounded-lg font-bold transition duration-150 text-sm active:scale-[0.98] shadow-lg shadow-accent/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Archive className="w-4 h-4 shrink-0" />
-          <span>Download ZIP ({state.validFens.length})</span>
+          <span>
+            <span className="max-xs:hidden">Download </span>ZIP (
+            {state.validFens.length})
+          </span>
         </button>
       </div>
     </div>
