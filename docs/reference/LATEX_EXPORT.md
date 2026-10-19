@@ -30,12 +30,11 @@ LaTeX Studio is a standalone page that turns one or many positions into LaTeX fo
 - Snippet, full document or cropped standalone figure
 - Document class, paper, font size, margin, title page, columns, numbering, piece count and a Solutions section
 - Four diagram sizes: `tiny`, `small`, `normal`, `large`
-- Per-position previous/next navigation and "Use these details for all"
+- Diagrams open in place in the list for editing, with "Use these details for all"
 - A layout check that warns when boards are wider than their column and offers the column count that fits
-- Live preview of the page and syntax-coloured code, copy, `.tex` download and the exact `tlmgr` and `pdflatex` commands
-- Preview coordinates follow the site theme (white on dark, black on light); the LaTeX output always prints them in black
+- Live preview on a white paper sheet and syntax-coloured code, copy, `.tex` download and the exact `tlmgr` and `pdflatex` commands
 - The project is kept in `localStorage` (`cv_latex_project`), can be saved to and opened from a `.json` file, and Undo reverses delete, new project and open
-- Layout: three columns on desktop, two on tablets and tabs with a fixed Copy / Download bar on phones
+- Layout: diagrams and settings on the left and the output on the right on desktop, both flowing with the page without inner scroll; an Edit / Output switch on phones and tablets
 
 ---
 
@@ -285,7 +284,7 @@ Also exported: `LATEX_PACKAGES`, `LATEX_PACKAGE_META`, `LATEX_BOARD_SIZES`, `LAT
 
 - **Board editor** — `Open in LaTeX Studio` in the command bar hands over the current position and orientation
 - **Advanced FEN** — `Open in LaTeX Studio` under the board preview hands over every valid position of the batch
-- **History** — `Import from history` on the Positions tab adds saved FENs
+- **History** — `From history` under the diagram list adds saved FENs
 
 The editor and Advanced FEN pages store the positions in `sessionStorage` (`cv_latex_incoming`) and navigate to `/latex`. The Studio consumes them once on load: a project that still holds only the untouched starting position is replaced, otherwise new positions are appended and duplicates are skipped.
 
@@ -293,15 +292,15 @@ The editor and Advanced FEN pages store the positions in `sessionStorage` (`cv_l
 
 ## File Reference
 
-| File                                                                       | Role                                         |
-| -------------------------------------------------------------------------- | -------------------------------------------- |
-| `@chessviewer-org/chess-viewer` (`src/latex-core.ts`, `latex-document.ts`) | Markup generation, escaping and validation   |
-| `src/pages/LatexPage/LatexPage.tsx`                                        | Page shell, tabs and download                |
-| `src/pages/LatexPage/hooks/useLatexProject.ts`                             | Project state, persistence and actions       |
-| `src/pages/LatexPage/utils/latexProject.ts`                                | Project model, parsing, sanitising, build    |
-| `src/pages/LatexPage/components/`                                          | Positions, details, document and code panels |
-| `src/shared/utils/latexHandoff.ts`                                         | sessionStorage hand-off from other pages     |
-| `src/components/interactions/Editor/components/CommandBar.tsx`             | Editor entry point                           |
-| `src/pages/AdvancedFENInputPage/components/InteractiveBoardColumn.tsx`     | Advanced FEN entry point                     |
-| `tests/latexProject.test.ts`                                               | Project, parsing and requirements tests      |
-| `@chessviewer-org/chess-viewer` (`src/latex*.test.ts`)                     | Generator tests                              |
+| File                                                                       | Role                                       |
+| -------------------------------------------------------------------------- | ------------------------------------------ |
+| `@chessviewer-org/chess-viewer` (`src/latex-core.ts`, `latex-document.ts`) | Markup generation, escaping and validation |
+| `src/pages/LatexPage/LatexPage.tsx`                                        | Page shell, project file and download      |
+| `src/pages/LatexPage/hooks/useLatexProject.ts`                             | Project state, persistence and actions     |
+| `src/pages/LatexPage/utils/latexProject.ts`                                | Project model, parsing, sanitising, build  |
+| `src/pages/LatexPage/components/`                                          | Diagram list, editor, settings and output  |
+| `src/shared/utils/latexHandoff.ts`                                         | sessionStorage hand-off from other pages   |
+| `src/components/interactions/Editor/components/CommandBar.tsx`             | Editor entry point                         |
+| `src/pages/AdvancedFENInputPage/components/InteractiveBoardColumn.tsx`     | Advanced FEN entry point                   |
+| `tests/latexProject.test.ts`                                               | Project, parsing and requirements tests    |
+| `@chessviewer-org/chess-viewer` (`src/latex*.test.ts`)                     | Generator tests                            |

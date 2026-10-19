@@ -589,7 +589,6 @@ export function previewDataUri(
     size: number;
     showCoords: boolean;
     showAnnotations: boolean;
-    coordColor?: 'black' | 'white';
   }
 ): string | null {
   const fen = usableFen(position.fen);
@@ -602,7 +601,7 @@ export function previewDataUri(
     size: options.size,
     flipped: position.flipped,
     showCoords: options.showCoords,
-    coordColor: options.coordColor ?? 'black',
+    coordColor: 'black',
     lightSquare: PREVIEW_LIGHT,
     darkSquare: PREVIEW_DARK,
     squarePattern: 'hatched',

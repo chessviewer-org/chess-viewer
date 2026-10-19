@@ -35,14 +35,14 @@ const PACKAGE_COPY: Record<
 
 const MODE_OPTIONS = [
   {
-    value: 'snippet',
-    label: 'Snippet',
-    hint: 'Only the lines to paste into your own document.'
-  },
-  {
     value: 'document',
     label: 'Document',
     hint: 'A complete file that compiles on its own.'
+  },
+  {
+    value: 'snippet',
+    label: 'Snippet',
+    hint: 'Only the lines to paste into your own document.'
   },
   {
     value: 'standalone',
@@ -81,30 +81,27 @@ const FONT_OPTIONS = LATEX_FONT_SIZES.map((value) => ({
   label: `${value} pt`
 }));
 
-interface DocumentPanelProps {
+interface SettingsPanelProps {
   settings: StudioSettings;
   onChange: (patch: Partial<StudioSettings>) => void;
 }
 
-export const DocumentPanel = memo(function DocumentPanel({
+export const SettingsPanel = memo(function SettingsPanel({
   settings,
   onChange
-}: DocumentPanelProps) {
+}: SettingsPanelProps) {
   const isDiagram = settings.latexPackage === 'diagram';
   const isChessboard = settings.latexPackage === 'chessboard';
   const isDocument = settings.mode === 'document';
   const fit = useMemo(() => estimateFit(settings), [settings]);
 
   return (
-    <div className="flex flex-col gap-4">
-      <Section
-        title="Diagram style"
-        description="Choose how the boards are typeset."
-      >
+    <>
+      <Section title="Style" description="How every board is typeset.">
         <div
           role="radiogroup"
           aria-label="LaTeX package"
-          className="flex flex-col gap-2"
+          className="grid gap-2 sm:grid-cols-3"
         >
           {LATEX_PACKAGES.map((id) => {
             const copy = PACKAGE_COPY[id];
@@ -116,19 +113,17 @@ export const DocumentPanel = memo(function DocumentPanel({
                 role="radio"
                 aria-checked={active}
                 onClick={() => onChange({ latexPackage: id })}
-                className={`flex flex-col gap-1 rounded-xl border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                className={`flex min-h-0 flex-col gap-1 rounded-xl border p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                   active
-                    ? 'border-accent bg-accent/5 ring-1 ring-accent/40'
-                    : 'border-border hover:bg-surface-elevated'
+                    ? 'border-accent bg-accent/5'
+                    : 'border-border hover:border-text-muted/40 hover:bg-surface-elevated'
                 }`}
               >
-                <span className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-bold text-text-primary">
-                    {copy.title}
-                  </span>
-                  <span className="font-mono text-[10px] text-text-muted">
-                    {LATEX_PACKAGE_META[id].label}
-                  </span>
+                <span className="text-xs font-bold text-text-primary">
+                  {copy.title}
+                </span>
+                <span className="font-mono text-[10px] text-text-muted">
+                  {LATEX_PACKAGE_META[id].label}
                 </span>
                 <span className="text-[11px] leading-snug text-text-muted">
                   {copy.summary}
@@ -137,74 +132,62 @@ export const DocumentPanel = memo(function DocumentPanel({
             );
           })}
         </div>
-      </Section>
 
-      <Section title="Output">
         <Segmented
-          label="Format"
-          value={settings.mode}
-          options={MODE_OPTIONS}
-          onChange={(mode) => onChange({ mode })}
+          label="Board size"
+          value={settings.boardSize}
+          options={SIZE_OPTIONS}
+          onChange={(boardSize) => onChange({ boardSize })}
         />
-        {isDocument && (
+
+        {isDiagram ? (
+          <p className="text-[11px] leading-relaxed text-text-muted">
+            Problem diagrams always print White at the bottom, without
+            coordinates, with the piece count beside the stipulation.
+          </p>
+        ) : (
           <>
-            <Segmented
-              label="Document class"
-              value={settings.documentClass}
-              options={CLASS_OPTIONS}
-              onChange={(documentClass) => onChange({ documentClass })}
+            <Switch
+              label="Coordinates"
+              description="Show file letters and rank numbers."
+              checked={settings.showCoords}
+              onChange={(showCoords) => onChange({ showCoords })}
             />
-            <Segmented
-              label="Paper"
-              value={settings.paper}
-              options={PAPER_OPTIONS}
-              onChange={(paper) => onChange({ paper })}
-            />
-            <Segmented
-              label="Font size"
-              value={settings.fontSize}
-              options={FONT_OPTIONS}
-              onChange={(fontSize) => onChange({ fontSize })}
-            />
-            <RangeField
-              label="Margin"
-              value={settings.marginMm}
-              min={LATEX_MARGIN_RANGE_MM.min}
-              max={LATEX_MARGIN_RANGE_MM.max}
-              unit="mm"
-              onChange={(marginMm) => onChange({ marginMm })}
-            />
-            <TextField
-              label="Title"
-              value={settings.title}
-              onChange={(title) => onChange({ title })}
-              maxLength={200}
-              hint="Adds a title page when filled in."
-            />
-            <TextField
-              label="Document author"
-              value={settings.documentAuthor}
-              onChange={(documentAuthor) => onChange({ documentAuthor })}
-              maxLength={200}
+            {isChessboard && (
+              <Switch
+                label="Side-to-move marker"
+                description="A small square beside the board shows who is to move."
+                checked={settings.showMover}
+                onChange={(showMover) => onChange({ showMover })}
+              />
+            )}
+            <Switch
+              label="Piece count"
+              description="Print (white+black) beside the stipulation."
+              checked={settings.pieceCount}
+              onChange={(pieceCount) => onChange({ pieceCount })}
             />
           </>
         )}
       </Section>
 
-      <Section title="Layout">
+      <Section title="Document" description="The page around the diagrams.">
+        <Segmented
+          label="Output"
+          value={settings.mode}
+          options={MODE_OPTIONS}
+          onChange={(mode) => onChange({ mode })}
+        />
+
         <Segmented
           label="Diagrams per row"
           value={settings.columns}
           options={COLUMN_OPTIONS}
           onChange={(columns) => onChange({ columns })}
-          hint="Large boards need fewer columns; they overlap when a row is too narrow."
         />
         {fit &&
           (fit.fits ? (
-            <p
-              role="status"
-              className="rounded-lg border border-success/30 bg-success/5 px-3 py-2 text-[11px] leading-relaxed text-text-secondary"
-            >
+            <p role="status" className="text-[11px] text-success">
               Fits: each board is about {Math.round(fit.boardMm)} mm in a{' '}
               {Math.round(fit.cellMm)} mm column.
             </p>
@@ -225,64 +208,75 @@ export const DocumentPanel = memo(function DocumentPanel({
                 <button
                   type="button"
                   onClick={() => onChange({ columns: fit.maxColumns })}
-                  className="self-start rounded-md border border-warning/50 px-2.5 py-1 font-semibold text-text-primary transition-colors hover:bg-warning/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  className="min-h-0 self-start rounded-md border border-warning/50 px-2.5 py-1 font-semibold text-text-primary hover:bg-warning/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 >
                   Use {fit.maxColumns} per row
                 </button>
               )}
             </div>
           ))}
-        <Segmented
-          label="Board size"
-          value={settings.boardSize}
-          options={SIZE_OPTIONS}
-          onChange={(boardSize) => onChange({ boardSize })}
-        />
+
         <Switch
           label="Number the diagrams"
           description="Print No. 1, No. 2, … above each board."
           checked={settings.numbering}
           onChange={(numbering) => onChange({ numbering })}
         />
-        {!isDiagram && (
-          <Switch
-            label="Show piece count"
-            description="Print (white+black) beside the stipulation."
-            checked={settings.pieceCount}
-            onChange={(pieceCount) => onChange({ pieceCount })}
-          />
-        )}
         <Switch
           label="Solutions section"
-          description="List every solution you entered at the end of the document."
+          description="List every solution you entered at the end."
           checked={settings.solutions}
           onChange={(solutions) => onChange({ solutions })}
         />
-      </Section>
 
-      {isDiagram ? (
-        <p className="rounded-xl border border-dashed border-border px-4 py-3 text-[11px] leading-relaxed text-text-muted">
-          Problem diagrams always print White at the bottom, without
-          coordinates, with the piece count beside the stipulation.
-        </p>
-      ) : (
-        <Section title="Board">
-          <Switch
-            label="Coordinates"
-            description="Show file letters and rank numbers."
-            checked={settings.showCoords}
-            onChange={(showCoords) => onChange({ showCoords })}
-          />
-          {isChessboard && (
-            <Switch
-              label="Side-to-move marker"
-              description="Draw the small square beside the board that shows who is to move."
-              checked={settings.showMover}
-              onChange={(showMover) => onChange({ showMover })}
+        {isDocument && (
+          <div className="flex flex-col gap-4 border-t border-border/60 pt-4">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <TextField
+                label="Title"
+                value={settings.title}
+                onChange={(title) => onChange({ title })}
+                maxLength={200}
+                hint="Adds a title page when filled in."
+              />
+              <TextField
+                label="Document author"
+                value={settings.documentAuthor}
+                onChange={(documentAuthor) => onChange({ documentAuthor })}
+                maxLength={200}
+              />
+            </div>
+            <Segmented
+              label="Paper"
+              value={settings.paper}
+              options={PAPER_OPTIONS}
+              onChange={(paper) => onChange({ paper })}
             />
-          )}
-        </Section>
-      )}
-    </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Segmented
+                label="Document class"
+                value={settings.documentClass}
+                options={CLASS_OPTIONS}
+                onChange={(documentClass) => onChange({ documentClass })}
+              />
+              <Segmented
+                label="Font size"
+                value={settings.fontSize}
+                options={FONT_OPTIONS}
+                onChange={(fontSize) => onChange({ fontSize })}
+              />
+            </div>
+            <RangeField
+              label="Margin"
+              value={settings.marginMm}
+              min={LATEX_MARGIN_RANGE_MM.min}
+              max={LATEX_MARGIN_RANGE_MM.max}
+              unit="mm"
+              onChange={(marginMm) => onChange({ marginMm })}
+            />
+          </div>
+        )}
+      </Section>
+    </>
   );
 });

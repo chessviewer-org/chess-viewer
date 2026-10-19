@@ -1,7 +1,5 @@
 import { memo, useCallback, useMemo, useState } from 'react';
 
-import { ChevronLeft, ChevronRight } from '@/assets/icons';
-
 import { FENInputField } from '@/components/features';
 import { Switch } from '@ui';
 import { LATEX_PACKAGE_META, pieceCounts } from '@utils';
@@ -9,28 +7,25 @@ import {
   type StudioPosition,
   type StudioSettings,
   positionWarnings,
-  previewDataUri,
   usableFen
 } from '../utils/latexProject';
 import type { LatexProjectActions } from '../hooks/useLatexProject';
-import { useSiteTheme } from '../hooks/useSiteTheme';
 import { readFenFromClipboard } from '../utils/clipboardFen';
-import { ColorField, Section, TextField } from './controls';
+import { ColorField, TextField } from './controls';
+import { PaperBoard } from './PaperBoard';
 
-const PREVIEW_SIZE = 360;
+const PREVIEW_SIZE = 320;
 
-const NAV_BUTTON =
-  'inline-flex size-9 items-center justify-center rounded-lg border border-border/60 text-text-secondary transition-colors hover:bg-surface-elevated hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-40';
+const GROUP_TITLE =
+  'text-[11px] font-bold uppercase tracking-wider text-text-muted';
 
-const ACTION_BUTTON =
-  'inline-flex min-h-10 items-center justify-center rounded-lg border border-border/60 bg-surface px-3 py-2 text-xs font-semibold text-text-secondary transition-colors hover:bg-surface-elevated hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-50';
+const LINK_BUTTON =
+  'self-start rounded-md px-1 text-xs font-semibold text-accent hover:text-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-40';
 
-interface PositionDetailsProps {
+interface DiagramEditorProps {
   position: StudioPosition;
-  index: number;
+  number: number;
   total: number;
-  previousId: string | null;
-  nextId: string | null;
   settings: StudioSettings;
   actions: LatexProjectActions;
   onNotify: (message: string, type?: 'success' | 'error') => void;
@@ -40,35 +35,17 @@ function listWarning(label: string, invalid: string[]): string | null {
   return invalid.length ? `Ignored ${label}: ${invalid.join(', ')}` : null;
 }
 
-export const PositionDetails = memo(function PositionDetails({
+export const DiagramEditor = memo(function DiagramEditor({
   position,
-  index,
+  number,
   total,
-  previousId,
-  nextId,
   settings,
   actions,
   onNotify
-}: PositionDetailsProps) {
+}: DiagramEditorProps) {
   const meta = LATEX_PACKAGE_META[settings.latexPackage];
   const isDiagram = settings.latexPackage === 'diagram';
-  const marksEnabled = meta.supportsMarks;
-  const theme = useSiteTheme();
   const [applied, setApplied] = useState(false);
-
-  const preview = useMemo(
-    () =>
-      previewDataUri(
-        meta.supportsFlip ? position : { ...position, flipped: false },
-        {
-          size: PREVIEW_SIZE,
-          showCoords: !isDiagram && settings.showCoords,
-          showAnnotations: marksEnabled,
-          coordColor: theme === 'dark' ? 'white' : 'black'
-        }
-      ),
-    [position, meta, isDiagram, settings.showCoords, marksEnabled, theme]
-  );
   const fen = usableFen(position.fen);
   const counts = fen ? pieceCounts(fen) : null;
   const warnings = useMemo(() => positionWarnings(position), [position]);
@@ -97,81 +74,48 @@ export const PositionDetails = memo(function PositionDetails({
       remark: position.remark
     });
     setApplied(true);
-    onNotify(`Details copied to all ${total} positions`);
+    onNotify(`Details copied to all ${total} diagrams`);
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <Section
-        title={`No. ${index + 1}`}
-        description={`${index + 1} of ${total}`}
-        actions={
-          <>
-            <button
-              type="button"
-              className={NAV_BUTTON}
-              disabled={!previousId}
-              aria-label="Previous position"
-              onClick={() => previousId && actions.select(previousId)}
-            >
-              <ChevronLeft className="size-4" aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className={NAV_BUTTON}
-              disabled={!nextId}
-              aria-label="Next position"
-              onClick={() => nextId && actions.select(nextId)}
-            >
-              <ChevronRight className="size-4" aria-hidden="true" />
-            </button>
-          </>
-        }
-      >
-        <div className="mx-auto grid aspect-square w-full max-w-[18rem] place-items-center">
-          {preview ? (
-            <img
-              src={preview}
-              alt={`Preview of position ${index + 1}`}
-              width={PREVIEW_SIZE}
-              height={PREVIEW_SIZE}
-              className="size-full object-contain"
-            />
-          ) : (
-            <p className="px-4 text-center text-xs text-error">
-              Fix the FEN to see the board
+    <div className="flex flex-col gap-5 border-t border-border/60 p-3 sm:p-4">
+      <div className="grid gap-4 sm:grid-cols-[9rem_minmax(0,1fr)]">
+        <div className="flex flex-col items-center gap-1.5">
+          <PaperBoard
+            position={position}
+            settings={settings}
+            size={PREVIEW_SIZE}
+            alt={`Diagram ${number}`}
+            className="w-full max-w-[12rem] rounded-md"
+          />
+          {counts && (
+            <p className="text-[11px] text-text-muted">
+              White {counts.white} · Black {counts.black}
             </p>
           )}
         </div>
-        {counts && (
-          <p className="text-center text-[11px] text-text-muted">
-            White {counts.white} · Black {counts.black}
-          </p>
-        )}
-
-        <FENInputField
-          key={id}
-          fen={position.fen}
-          onChange={handleFen}
-          onPaste={() => void handlePaste()}
-          allowBatch={false}
-        />
-
-        {meta.supportsFlip && (
-          <Switch
-            label="Black at the bottom"
-            description="Turn the board around for this diagram."
-            checked={position.flipped}
-            onChange={(flipped) => patch({ flipped })}
+        <div className="flex min-w-0 flex-col gap-3">
+          <FENInputField
+            key={id}
+            fen={position.fen}
+            onChange={handleFen}
+            onPaste={() => void handlePaste()}
+            allowBatch={false}
           />
-        )}
-      </Section>
+          {meta.supportsFlip && (
+            <Switch
+              label="Black at the bottom"
+              description="Turn the board around for this diagram."
+              checked={position.flipped}
+              onChange={(flipped) => patch({ flipped })}
+            />
+          )}
+        </div>
+      </div>
 
-      <Section
-        title="Problem"
-        description="Printed with the diagram. Leave a field empty to omit it."
-      >
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1 2xl:grid-cols-2">
+      <fieldset className="flex flex-col gap-3">
+        <legend className={`${GROUP_TITLE} mb-3`}>Problem</legend>
+        <div className="grid gap-3 sm:grid-cols-2">
           <TextField
             label="Stipulation"
             value={position.stipulation}
@@ -204,16 +148,17 @@ export const PositionDetails = memo(function PositionDetails({
         </div>
         <button
           type="button"
-          className={ACTION_BUTTON}
+          className={LINK_BUTTON}
           disabled={total < 2}
           onClick={applyShared}
           onBlur={() => setApplied(false)}
         >
-          {applied ? 'Copied to every position' : 'Use these details for all'}
+          {applied ? 'Copied to every diagram' : 'Use these details for all'}
         </button>
-      </Section>
+      </fieldset>
 
-      <Section title="Notes">
+      <fieldset className="flex flex-col gap-3">
+        <legend className={`${GROUP_TITLE} mb-3`}>Notes</legend>
         {!isDiagram && (
           <TextField
             label="Caption"
@@ -239,16 +184,16 @@ export const PositionDetails = memo(function PositionDetails({
           hint={
             settings.solutions
               ? 'Printed in the Solutions section at the end.'
-              : 'Turn on the Solutions section in Document to print it.'
+              : 'Turn on the Solutions section under Document to print it.'
           }
         />
-      </Section>
+      </fieldset>
 
-      {marksEnabled ? (
-        <Section
-          title="Highlights and arrows"
-          description="Squares like e4 d5, arrows like e2-e4 g1-f3."
-        >
+      {meta.supportsMarks ? (
+        <fieldset className="flex flex-col gap-3">
+          <legend className={`${GROUP_TITLE} mb-3`}>
+            Highlights and arrows
+          </legend>
           <div className="grid grid-cols-[minmax(0,1fr)_4.5rem] items-start gap-3">
             <TextField
               label="Highlighted squares"
@@ -287,12 +232,12 @@ export const PositionDetails = memo(function PositionDetails({
               onChange={(arrowColor) => patch({ arrowColor })}
             />
           </div>
-        </Section>
+        </fieldset>
       ) : (
-        <p className="rounded-xl border border-dashed border-border px-4 py-3 text-[11px] leading-relaxed text-text-muted">
-          Highlights and arrows are available with the chessboard package.
+        <p className="rounded-lg border border-dashed border-border px-3 py-2.5 text-[11px] leading-relaxed text-text-muted">
+          Highlights and arrows need the Annotated board style.
           {isDiagram
-            ? ' The diagram package always prints White at the bottom.'
+            ? ' Problem diagrams always print White at the bottom.'
             : ''}
         </p>
       )}
