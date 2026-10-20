@@ -44,7 +44,10 @@ export interface LatexProjectActions {
 }
 
 export type SharedFields = Partial<
-  Pick<StudioPosition, 'author' | 'source' | 'award' | 'stipulation' | 'remark'>
+  Pick<
+    StudioPosition,
+    'author' | 'source' | 'award' | 'stipulation' | 'remark' | 'event' | 'date'
+  >
 >;
 
 export interface LatexProjectState {

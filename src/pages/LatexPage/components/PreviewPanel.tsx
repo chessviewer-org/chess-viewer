@@ -32,6 +32,95 @@ function rowsPerPage(columns: number): number {
   return columns === 1 ? 2 : 3;
 }
 
+type Line = [key: string, text: string];
+
+interface CaptionLayout {
+  above: Line[];
+  left: string;
+  right: string;
+  center: string;
+}
+
+function joined(parts: string[], separator: string): string {
+  return parts.filter(Boolean).join(separator);
+}
+
+function captionLayout(
+  position: StudioPosition,
+  number: number,
+  settings: StudioSettings
+): CaptionLayout {
+  const isDiagram = settings.latexPackage === 'diagram';
+  const style = position.captionStyle ?? settings.captionStyle;
+  const fen = usableFen(position.fen);
+  const counts = fen ? pieceCounts(fen) : null;
+  const count =
+    counts && (isDiagram || settings.pieceCount)
+      ? `(${counts.white}+${counts.black})`
+      : '';
+  const numberText = settings.numbering ? `No. ${number}` : '';
+  const heading = joined([numberText, position.caption], '  ');
+  const credits: Line[] = [
+    ['author', position.author],
+    ['source', position.source],
+    ['award', position.award],
+    ['remark', position.remark]
+  ];
+  const toMove = fen?.split(' ')[1] === 'b' ? 'Black to move' : 'White to move';
+  const blank = { above: [], left: '', right: '', center: '' };
+
+  switch (
+    isDiagram && style !== 'game' && style !== 'plain' ? 'problem' : style
+  ) {
+    case 'problem':
+      return {
+        ...blank,
+        above: [['heading', heading], ...credits],
+        left: count,
+        right: position.stipulation
+      };
+    case 'study':
+      return {
+        ...blank,
+        above: [['heading', heading], ...credits],
+        center: joined([position.stipulation, count], '  ')
+      };
+    case 'game':
+      return {
+        above: [
+          ['heading', numberText],
+          ['players', joined([position.white, position.black], ' – ')],
+          ['event', joined([position.event, position.date], ', ')],
+          ['remark', position.remark]
+        ],
+        left: position.caption,
+        right: toMove,
+        center: ''
+      };
+    case 'plain':
+      return {
+        ...blank,
+        above: [['heading', numberText]],
+        center: position.stipulation
+      };
+    default:
+      return {
+        ...blank,
+        center: joined(
+          [
+            heading,
+            position.author,
+            position.source,
+            position.award,
+            position.remark,
+            joined([position.stipulation, count], '  ')
+          ],
+          '\n'
+        )
+      };
+  }
+}
+
 interface PreviewCardProps {
   position: StudioPosition;
   number: number;
@@ -43,39 +132,44 @@ const PreviewCard = memo(function PreviewCard({
   number,
   settings
 }: PreviewCardProps) {
-  const isDiagram = settings.latexPackage === 'diagram';
-  const fen = usableFen(position.fen);
-  const counts = fen ? pieceCounts(fen) : null;
-  const credits = [position.author, position.source, position.award]
-    .filter(Boolean)
-    .join(' — ');
-  const showCount = counts && (isDiagram || settings.pieceCount);
+  const layout = captionLayout(position, number, settings);
+  const lines = layout.above.filter(([, text]) => text);
 
   return (
-    <figure className="flex min-w-0 flex-col items-center gap-2 text-center">
-      {settings.numbering && (
-        <p className="text-xs font-bold text-neutral-900">No. {number}</p>
-      )}
+    <figure className="row-span-3 grid min-w-0 grid-rows-subgrid justify-items-center gap-y-1.5 text-center text-neutral-900">
+      <figcaption className="w-full self-end break-words text-xs leading-snug">
+        {lines.map(([key, text]) => (
+          <p
+            key={key}
+            className={
+              key === 'heading'
+                ? 'font-bold'
+                : key === 'author' || key === 'players'
+                  ? 'font-semibold'
+                  : 'text-neutral-600 italic'
+            }
+          >
+            {text}
+          </p>
+        ))}
+      </figcaption>
       <PaperBoard
         position={position}
         settings={settings}
         alt={`Diagram ${number}`}
         className="w-full max-w-[15rem]"
       />
-      <figcaption className="w-full space-y-0.5 break-words text-xs text-neutral-700">
-        {credits && <p className="leading-snug">{credits}</p>}
-        {(position.stipulation || showCount) && (
-          <p className="font-semibold text-neutral-900">
-            {position.stipulation}
-            {position.stipulation && showCount ? ' ' : ''}
-            {showCount && (
-              <span className="font-normal text-neutral-500">
-                ({counts.white}+{counts.black})
-              </span>
-            )}
+      <div className="w-full max-w-[15rem] text-xs">
+        {(layout.left || layout.right) && (
+          <p className="flex justify-between gap-2">
+            <span className="text-neutral-600">{layout.left}</span>
+            <span className="font-bold">{layout.right}</span>
           </p>
         )}
-      </figcaption>
+        {layout.center && (
+          <p className="break-words whitespace-pre-line">{layout.center}</p>
+        )}
+      </div>
     </figure>
   );
 });
@@ -217,7 +311,7 @@ export const PreviewPanel = memo(function PreviewPanel({
               </header>
             )}
             <div
-              className="grid grid-cols-[repeat(var(--preview-columns),minmax(0,1fr))] gap-x-4 gap-y-8 max-sm:grid-cols-[repeat(min(var(--preview-columns),2),minmax(0,1fr))]"
+              className="grid grid-cols-[repeat(var(--preview-columns),minmax(0,1fr))] gap-x-4 gap-y-1.5 [&>figure]:mb-6 max-sm:grid-cols-[repeat(min(var(--preview-columns),2),minmax(0,1fr))]"
               style={{ '--preview-columns': columns } as CSSProperties}
             >
               {printable

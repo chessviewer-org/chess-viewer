@@ -182,18 +182,16 @@ export function Segmented<T extends string | number>({
       <div
         role="group"
         aria-labelledby={id}
-        className="flex w-full overflow-hidden rounded-lg border border-border/60"
+        className="grid w-full grid-cols-[repeat(auto-fit,minmax(4.25rem,1fr))] overflow-hidden rounded-lg border border-border/60"
       >
-        {options.map((option, index) => (
+        {options.map((option) => (
           <button
             key={String(option.value)}
             type="button"
             disabled={disabled}
             aria-pressed={option.value === value}
             onClick={() => onChange(option.value)}
-            className={`${segmentButton(option.value === value)} ${
-              index < options.length - 1 ? 'border-r border-border/60' : ''
-            }`}
+            className={`${segmentButton(option.value === value)} min-w-0 bg-surface px-2 shadow-[1px_1px_0_0_rgb(var(--val-border)/0.6)] aria-pressed:bg-[color-mix(in_srgb,var(--color-accent)_10%,var(--color-surface))]`}
           >
             {option.label}
           </button>

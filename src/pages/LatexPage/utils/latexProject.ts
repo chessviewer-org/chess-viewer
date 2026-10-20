@@ -1,5 +1,6 @@
 import {
   LATEX_BOARD_SIZES,
+  LATEX_CAPTION_STYLES,
   LATEX_COLUMN_RANGE,
   LATEX_DOCUMENT_CLASSES,
   LATEX_FONT_SIZES,
@@ -9,6 +10,7 @@ import {
   LATEX_PAPER_SIZES,
   type Arrow,
   type LatexBoardSize,
+  type LatexCaptionStyle,
   type LatexDocumentClass,
   type LatexFontSize,
   type LatexOutputMode,
@@ -51,6 +53,11 @@ export interface StudioPosition {
   squareColor: string;
   ringColor: string;
   arrowColor: string;
+  white: string;
+  black: string;
+  event: string;
+  date: string;
+  captionStyle: LatexCaptionStyle | null;
 }
 
 export interface StudioSettings {
@@ -69,6 +76,7 @@ export interface StudioSettings {
   numbering: boolean;
   pieceCount: boolean;
   solutions: boolean;
+  captionStyle: LatexCaptionStyle;
 }
 
 export interface LatexProject {
@@ -115,7 +123,8 @@ export const DEFAULT_SETTINGS: StudioSettings = {
   documentAuthor: '',
   numbering: true,
   pieceCount: true,
-  solutions: true
+  solutions: true,
+  captionStyle: 'problem'
 };
 
 const ARROW_TOKEN = /^([a-h][1-8])[-–>]?([a-h][1-8])$/;
@@ -149,6 +158,11 @@ export function createPosition(
     squareColor: DEFAULT_SQUARE_COLOR,
     ringColor: DEFAULT_RING_COLOR,
     arrowColor: DEFAULT_ARROW_COLOR,
+    white: '',
+    black: '',
+    event: '',
+    date: '',
+    captionStyle: null,
     ...extras,
     id: newPositionId()
   };
@@ -277,6 +291,11 @@ export function toLatexPosition(
     ...textField('stipulation', position.stipulation),
     ...textField('remark', position.remark),
     ...textField('solution', position.solution),
+    ...textField('white', position.white),
+    ...textField('black', position.black),
+    ...textField('event', position.event),
+    ...textField('date', position.date),
+    ...(position.captionStyle ? { captionStyle: position.captionStyle } : {}),
     highlights,
     arrows
   };
@@ -321,7 +340,8 @@ export function buildLatex(project: LatexProject): BuildResult {
       documentAuthor: settings.documentAuthor,
       numbering: settings.numbering,
       pieceCount: settings.pieceCount,
-      solutions: settings.solutions
+      solutions: settings.solutions,
+      captionStyle: settings.captionStyle
     });
     return { code, skipped, error: null };
   } catch (err: unknown) {
@@ -407,7 +427,16 @@ function sanitizePosition(raw: unknown): StudioPosition | null {
     arrows: text('arrows'),
     squareColor: colorOr(raw['squareColor'], DEFAULT_SQUARE_COLOR),
     ringColor: colorOr(raw['ringColor'], DEFAULT_RING_COLOR),
-    arrowColor: colorOr(raw['arrowColor'], DEFAULT_ARROW_COLOR)
+    arrowColor: colorOr(raw['arrowColor'], DEFAULT_ARROW_COLOR),
+    white: text('white'),
+    black: text('black'),
+    event: text('event'),
+    date: text('date'),
+    captionStyle: LATEX_CAPTION_STYLES.includes(
+      raw['captionStyle'] as LatexCaptionStyle
+    )
+      ? (raw['captionStyle'] as LatexCaptionStyle)
+      : null
   };
 }
 
@@ -455,7 +484,12 @@ function sanitizeSettings(raw: unknown): StudioSettings {
     documentAuthor: clampText(source['documentAuthor'], TITLE_LIMIT),
     numbering: flag('numbering', defaults.numbering),
     pieceCount: flag('pieceCount', defaults.pieceCount),
-    solutions: flag('solutions', defaults.solutions)
+    solutions: flag('solutions', defaults.solutions),
+    captionStyle: oneOf(
+      LATEX_CAPTION_STYLES,
+      source['captionStyle'],
+      defaults.captionStyle
+    )
   };
 }
 
@@ -544,7 +578,9 @@ export function isPlaceholderProject(project: LatexProject): boolean {
     !only.author &&
     !only.stipulation &&
     !only.source &&
-    !only.solution
+    !only.solution &&
+    !only.white &&
+    !only.black
   );
 }
 

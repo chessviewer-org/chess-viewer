@@ -26,6 +26,7 @@ LaTeX Studio is a standalone page that turns one or many positions into LaTeX fo
 - Three packages: `skak`, `chessboard` and `diagram` (`chess-problem-diagrams`)
 - Up to 100 positions, added with the regular FEN input (paste, favourites, start/clear), reordered, duplicated, filtered or pasted in bulk (`FEN | author | source | stipulation`)
 - Per-position problem details: stipulation, author, source, award, remark, solution and caption
+- Caption styles for the text around each board — Problem (number and credits above, `(white+black)` bottom-left, stipulation bottom-right), Study, Game (players, event and date above, side to move below), Plain and Classic — set for the document and overridable per diagram; game diagrams take White, Black, Event and Date
 - `chessboard` highlights, circles and arrows
 - Snippet, full document or cropped standalone figure
 - Document class, paper, font size, margin, title page, columns, numbering, piece count and a Solutions section

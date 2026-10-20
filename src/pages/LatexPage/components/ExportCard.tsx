@@ -83,7 +83,7 @@ export const ExportCard = memo(function ExportCard({
   return (
     <section
       aria-labelledby="latex-export-title"
-      className="flex min-w-0 flex-col gap-4 rounded-2xl border border-border bg-surface p-4 sm:p-5"
+      className="flex min-w-0 flex-col gap-4 rounded-2xl border border-border bg-surface p-4 sm:p-5 lg:sticky lg:top-[calc(var(--navbar-height)+1rem)] lg:self-start"
     >
       <h2
         id="latex-export-title"
@@ -182,7 +182,7 @@ export const ExportCard = memo(function ExportCard({
         </button>
       </div>
 
-      <div className="mt-auto flex flex-col gap-3 border-t border-border/60 pt-4">
+      <div className="flex flex-col gap-3 border-t border-border/60 pt-4">
         <p className="text-xs leading-relaxed text-text-secondary">
           Compile with pdfLaTeX. Needs{' '}
           <span className="font-semibold text-text-primary">

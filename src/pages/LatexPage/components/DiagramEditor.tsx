@@ -11,7 +11,12 @@ import {
 
 import { FENInputField } from '@/components/features';
 import { Switch } from '@ui';
-import { LATEX_MAX_POSITIONS, LATEX_PACKAGE_META, pieceCounts } from '@utils';
+import {
+  LATEX_MAX_POSITIONS,
+  LATEX_PACKAGE_META,
+  type LatexCaptionStyle,
+  pieceCounts
+} from '@utils';
 import {
   type StudioPosition,
   type StudioSettings,
@@ -21,12 +26,20 @@ import {
 import type { LatexProjectActions } from '../hooks/useLatexProject';
 import { readFenFromClipboard } from '../utils/clipboardFen';
 import { ICON_BUTTON, MarkField, TextField } from './controls';
+import { CAPTION_STYLE_OPTIONS } from '../utils/captionStyles';
 import { PaperBoard } from './PaperBoard';
 
 const SUMMARY =
   'flex min-h-9 cursor-pointer list-none items-center justify-between gap-2 rounded-md text-[11px] font-bold uppercase tracking-wider text-text-muted hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent [&::-webkit-details-marker]:hidden';
 
 const WIDE_QUERY = '(min-width: 1024px)';
+
+function styleLabel(style: LatexCaptionStyle): string {
+  return (
+    CAPTION_STYLE_OPTIONS.find((option) => option.value === style)?.label ??
+    style
+  );
+}
 
 function isWide(): boolean {
   return typeof window !== 'undefined' && window.matchMedia(WIDE_QUERY).matches;
@@ -69,6 +82,9 @@ export const DiagramEditor = memo(function DiagramEditor({
   const isDiagram = settings.latexPackage === 'diagram';
   const [applied, setApplied] = useState(false);
   const [wide] = useState(isWide);
+  const style = position.captionStyle ?? settings.captionStyle;
+  const isGame = style === 'game';
+  const isPlain = style === 'plain';
   const fen = usableFen(position.fen);
   const counts = fen ? pieceCounts(fen) : null;
   const warnings = useMemo(() => positionWarnings(position), [position]);
@@ -89,13 +105,17 @@ export const DiagramEditor = memo(function DiagramEditor({
   }, [patch, onNotify]);
 
   const applyShared = () => {
-    actions.applyToAll({
-      author: position.author,
-      source: position.source,
-      award: position.award,
-      stipulation: position.stipulation,
-      remark: position.remark
-    });
+    actions.applyToAll(
+      isGame
+        ? { event: position.event, date: position.date }
+        : {
+            author: position.author,
+            source: position.source,
+            award: position.award,
+            stipulation: position.stipulation,
+            remark: position.remark
+          }
+    );
     setApplied(true);
     onNotify(`Details copied to all ${total} diagrams`);
   };
@@ -116,7 +136,7 @@ export const DiagramEditor = memo(function DiagramEditor({
         </button>
         <h2
           id="diagram-editor-title"
-          className="min-w-0 flex-1 text-sm font-bold text-text-primary"
+          className="min-w-0 flex-1 text-sm font-bold whitespace-nowrap text-text-primary"
         >
           Diagram {number}
           <span className="font-normal text-text-muted"> of {total}</span>
@@ -202,35 +222,95 @@ export const DiagramEditor = memo(function DiagramEditor({
             onPaste={() => void handlePaste()}
             allowBatch={false}
           />
-          <div className="grid gap-3 @sm:grid-cols-2">
-            <TextField
-              label="Stipulation"
-              value={position.stipulation}
-              onChange={(stipulation) => patch({ stipulation })}
-              placeholder="#2, h#3, +, ="
-            />
-            <TextField
-              label="Award"
-              value={position.award}
-              onChange={(award) => patch({ award })}
-              placeholder="1st Prize"
-            />
-            <TextField
-              label="Author"
-              value={position.author}
-              onChange={(author) => patch({ author })}
-              placeholder="Loyd, Sam"
-              hint={
-                isDiagram ? 'Surname, First name; ; between authors' : undefined
+          <label className="flex flex-col gap-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted">
+              Caption style
+            </span>
+            <select
+              value={position.captionStyle ?? ''}
+              onChange={(event) =>
+                patch({
+                  captionStyle:
+                    (event.target.value as LatexCaptionStyle) || null
+                })
               }
-            />
-            <TextField
-              label="Source"
-              value={position.source}
-              onChange={(source) => patch({ source })}
-              placeholder="Chess Monthly, 1903"
-            />
-          </div>
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text-primary outline-none focus-visible:border-accent"
+            >
+              <option value="">
+                Document default ({styleLabel(settings.captionStyle)})
+              </option>
+              {CAPTION_STYLE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          {isGame ? (
+            <div className="grid gap-3 @sm:grid-cols-2">
+              <TextField
+                label="White"
+                value={position.white}
+                onChange={(white) => patch({ white })}
+                placeholder="Kasparov, Garry"
+              />
+              <TextField
+                label="Black"
+                value={position.black}
+                onChange={(black) => patch({ black })}
+                placeholder="Topalov, Veselin"
+              />
+              <TextField
+                label="Event"
+                value={position.event}
+                onChange={(event) => patch({ event })}
+                placeholder="Wijk aan Zee"
+              />
+              <TextField
+                label="Date"
+                value={position.date}
+                onChange={(date) => patch({ date })}
+                placeholder="1999"
+              />
+            </div>
+          ) : (
+            <div className="grid gap-3 @sm:grid-cols-2">
+              <TextField
+                label="Stipulation"
+                value={position.stipulation}
+                onChange={(stipulation) => patch({ stipulation })}
+                placeholder="#2, h#3, Win, Draw"
+              />
+              {!isPlain && (
+                <>
+                  <TextField
+                    label="Award"
+                    value={position.award}
+                    onChange={(award) => patch({ award })}
+                    placeholder="1st Prize"
+                  />
+                  <TextField
+                    label="Author"
+                    value={position.author}
+                    onChange={(author) => patch({ author })}
+                    placeholder="Loyd, Sam"
+                    hint={
+                      isDiagram
+                        ? 'Surname, First name; ; between authors'
+                        : undefined
+                    }
+                  />
+                  <TextField
+                    label="Source"
+                    value={position.source}
+                    onChange={(source) => patch({ source })}
+                    placeholder="Chess Monthly, 1903"
+                  />
+                </>
+              )}
+            </div>
+          )}
           <div className="flex flex-wrap items-center justify-between gap-3">
             {meta.supportsFlip ? (
               <Switch
@@ -266,12 +346,12 @@ export const DiagramEditor = memo(function DiagramEditor({
         </summary>
         <div className="mt-3 grid gap-3 @2xl:grid-cols-2">
           <div className="flex flex-col gap-3">
-            {!isDiagram && (
+            {(!isDiagram || isGame) && (
               <TextField
-                label="Caption"
+                label={isGame ? 'Caption under the board' : 'Caption'}
                 value={position.caption}
                 onChange={(caption) => patch({ caption })}
-                placeholder="Initial position"
+                placeholder={isGame ? 'after 23...Qxd4' : 'Initial position'}
               />
             )}
             <TextField

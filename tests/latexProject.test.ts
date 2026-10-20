@@ -326,3 +326,56 @@ describe('appending positions', () => {
     );
   });
 });
+
+describe('caption styles', () => {
+  const GAME_FEN =
+    'r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 4 4';
+
+  test('new projects use the problem layout', () => {
+    assert.equal(createDefaultProject().settings.captionStyle, 'problem');
+  });
+
+  test('passes game fields and a per-diagram style to the generator', () => {
+    const project = {
+      ...createDefaultProject(),
+      positions: [
+        createPosition(GAME_FEN, {
+          white: 'Kasparov',
+          black: 'Topalov',
+          event: 'Wijk aan Zee',
+          date: '1999',
+          captionStyle: 'game'
+        })
+      ],
+      settings: { ...DEFAULT_SETTINGS, latexPackage: 'chessboard' as const }
+    };
+    const { code } = buildLatex(project);
+    assert.match(code, /Kasparov -- Topalov/);
+    assert.match(code, /Wijk aan Zee, 1999/);
+    assert.match(code, /Black to move/);
+  });
+
+  test('keeps valid styles and drops unknown ones when sanitising', () => {
+    const project = sanitizeProject({
+      positions: [
+        { fen: GAME_FEN, captionStyle: 'game', white: 'Tal' },
+        { fen: GAME_FEN, captionStyle: 'fancy' }
+      ],
+      settings: { captionStyle: 'study' }
+    });
+    assert.equal(project.settings.captionStyle, 'study');
+    assert.equal(project.positions[0]?.captionStyle, 'game');
+    assert.equal(project.positions[0]?.white, 'Tal');
+    assert.equal(project.positions[1]?.captionStyle, null);
+  });
+
+  test('opens projects saved before caption styles existed', () => {
+    const project = sanitizeProject({
+      positions: [{ fen: GAME_FEN, author: 'Loyd' }],
+      settings: {}
+    });
+    assert.equal(project.settings.captionStyle, 'problem');
+    assert.equal(project.positions[0]?.captionStyle, null);
+    assert.equal(project.positions[0]?.event, '');
+  });
+});

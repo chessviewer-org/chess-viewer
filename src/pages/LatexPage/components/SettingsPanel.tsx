@@ -11,6 +11,7 @@ import {
   LATEX_PAPER_SIZES,
   type LatexBoardSize
 } from '@utils';
+import { CAPTION_STYLE_OPTIONS } from '../utils/captionStyles';
 import { estimateFit } from '../utils/layoutFit';
 import type { StudioSettings } from '../utils/latexProject';
 import { RangeField, Section, Segmented, TextField } from './controls';
@@ -138,6 +139,13 @@ export const SettingsPanel = memo(function SettingsPanel({
             );
           })}
         </div>
+
+        <Segmented
+          label="Caption style"
+          value={settings.captionStyle}
+          options={CAPTION_STYLE_OPTIONS}
+          onChange={(captionStyle) => onChange({ captionStyle })}
+        />
 
         <div className="grid gap-4 @xl:grid-cols-2">
           <Segmented

@@ -35,10 +35,18 @@ const DiagramRow = memo(function DiagramRow({
   onSelect
 }: RowProps) {
   const problem = useMemo(() => fenProblem(position.fen), [position.fen]);
+  const isGame =
+    (position.captionStyle ?? project.settings.captionStyle) === 'game';
+  const players = [position.white, position.black].filter(Boolean).join(' – ');
   const title =
-    [position.stipulation, position.caption].filter(Boolean).join(' · ') ||
+    (isGame
+      ? players
+      : [position.stipulation, position.caption].filter(Boolean).join(' · ')) ||
     'Untitled';
-  const subtitle = problem ?? (position.author || position.source || '—');
+  const details = isGame
+    ? [position.event, position.date].filter(Boolean).join(', ')
+    : position.author || position.source;
+  const subtitle = problem ?? (details || '—');
 
   return (
     <li>
