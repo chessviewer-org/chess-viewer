@@ -21,6 +21,7 @@
     "build:vite": "vite build",
     "prerender": "node scripts/prerender.mjs",
     "preview": "vite preview",
+    "pieces:fairy": "node scripts/generate-fairy-pieces.mjs",
     "build:analyze": "vite build && npx vite-bundle-visualizer",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings=0",
