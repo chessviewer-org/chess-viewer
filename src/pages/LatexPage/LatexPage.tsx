@@ -118,7 +118,7 @@ const LatexPage = () => {
     0,
     project.positions.findIndex((p) => p.id === project.selectedId)
   );
-  const selected = project.positions[index]!;
+  const selected = project.positions[index];
 
   return (
     <div className="flex-1 bg-bg">
@@ -188,18 +188,20 @@ const LatexPage = () => {
                 onNotify={notify}
                 className={`lg:sticky lg:top-[calc(var(--navbar-height)+1rem)] lg:self-start ${editing ? 'max-lg:hidden' : ''}`}
               />
-              <DiagramEditor
-                position={selected}
-                index={index}
-                total={project.positions.length}
-                previousId={project.positions[index - 1]?.id ?? null}
-                nextId={project.positions[index + 1]?.id ?? null}
-                settings={project.settings}
-                actions={actions}
-                onNotify={notify}
-                onBack={() => setEditing(false)}
-                className={editing ? '' : 'max-lg:hidden'}
-              />
+              {selected && (
+                <DiagramEditor
+                  position={selected}
+                  index={index}
+                  total={project.positions.length}
+                  previousId={project.positions[index - 1]?.id ?? null}
+                  nextId={project.positions[index + 1]?.id ?? null}
+                  settings={project.settings}
+                  actions={actions}
+                  onNotify={notify}
+                  onBack={() => setEditing(false)}
+                  className={editing ? '' : 'max-lg:hidden'}
+                />
+              )}
             </div>
           )}
 

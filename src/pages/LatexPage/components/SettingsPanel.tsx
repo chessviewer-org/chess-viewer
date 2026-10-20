@@ -69,7 +69,7 @@ const COLUMN_OPTIONS = Array.from(
 
 const CLASS_OPTIONS = LATEX_DOCUMENT_CLASSES.map((value) => ({
   value,
-  label: value[0]!.toUpperCase() + value.slice(1)
+  label: value.charAt(0).toUpperCase() + value.slice(1)
 }));
 
 const PAPER_OPTIONS = LATEX_PAPER_SIZES.map((value) => ({
