@@ -40,7 +40,7 @@ export const ProjectBar = memo(function ProjectBar({
   };
 
   return (
-    <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+    <header className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
       <div className="min-w-0">
         <h1 className="text-h2 font-bold tracking-tight text-text-primary">
           LaTeX Studio

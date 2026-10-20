@@ -79,7 +79,7 @@ export const DiagramEditor = memo(function DiagramEditor({
 
   return (
     <div className="flex flex-col gap-5 border-t border-border/60 p-3 sm:p-4">
-      <div className="grid gap-4 sm:grid-cols-[9rem_minmax(0,1fr)]">
+      <div className="grid gap-4 @xl:grid-cols-[9rem_minmax(0,1fr)]">
         <div className="flex flex-col items-center gap-1.5">
           <PaperBoard
             position={position}
@@ -115,7 +115,7 @@ export const DiagramEditor = memo(function DiagramEditor({
 
       <fieldset className="flex flex-col gap-3">
         <legend className={`${GROUP_TITLE} mb-3`}>Problem</legend>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 @xs:grid-cols-2">
           <TextField
             label="Stipulation"
             value={position.stipulation}

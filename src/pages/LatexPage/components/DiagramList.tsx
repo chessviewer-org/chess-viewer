@@ -161,13 +161,15 @@ interface DiagramListProps {
   isFull: boolean;
   actions: LatexProjectActions;
   onNotify: (message: string, type?: 'success' | 'error') => void;
+  className?: string | undefined;
 }
 
 export const DiagramList = memo(function DiagramList({
   project,
   isFull,
   actions,
-  onNotify
+  onNotify,
+  className
 }: DiagramListProps) {
   const [collapsedId, setCollapsedId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
@@ -239,6 +241,7 @@ export const DiagramList = memo(function DiagramList({
     <Section
       title="Diagrams"
       description="Each position becomes one numbered diagram, in this order."
+      className={className}
       actions={
         <span className="rounded-full bg-surface-elevated px-2.5 py-1 font-mono text-[11px] font-semibold text-text-secondary">
           {project.positions.length}/{LATEX_MAX_POSITIONS}
@@ -278,7 +281,7 @@ export const DiagramList = memo(function DiagramList({
       )}
 
       {pasting ? (
-        <div className="flex flex-col gap-3 rounded-xl border border-dashed border-border p-3">
+        <div className="mt-auto flex flex-col gap-3 rounded-xl border border-dashed border-border p-3">
           <TextField
             label="One diagram per line"
             value={bulk}
@@ -309,7 +312,7 @@ export const DiagramList = memo(function DiagramList({
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-2 xs:grid-cols-3">
+        <div className="mt-auto grid grid-cols-1 gap-2 pt-1 @md:grid-cols-3">
           <button
             type="button"
             className={ACTION_BUTTON}

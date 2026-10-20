@@ -34,7 +34,8 @@ LaTeX Studio is a standalone page that turns one or many positions into LaTeX fo
 - A layout check that warns when boards are wider than their column and offers the column count that fits
 - Live preview on a white paper sheet and syntax-coloured code, copy, `.tex` download and the exact `tlmgr` and `pdflatex` commands
 - The project is kept in `localStorage` (`cv_latex_project`), can be saved to and opened from a `.json` file, and Undo reverses delete, new project and open
-- Layout: diagrams and settings on the left and the output on the right on desktop, both flowing with the page without inner scroll; an Edit / Output switch on phones and tablets
+- Layout: a balanced two-by-two grid on desktop (Diagrams | Output, Layout | Document) whose cards share row heights and flow with the page without inner scroll; an Edit / Output switch on phones and tablets
+- The install command lists every TeX Live package a fresh TinyTeX needs for the chosen style and output, and the layout check also covers snippets against a standard article text width
 
 ---
 

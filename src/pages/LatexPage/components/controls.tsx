@@ -12,6 +12,7 @@ interface SectionProps {
   title: string;
   description?: string;
   actions?: ReactNode;
+  className?: string | undefined;
   children: ReactNode;
 }
 
@@ -19,13 +20,16 @@ export const Section = memo(function Section({
   title,
   description,
   actions,
+  className = '',
   children
 }: SectionProps) {
   return (
-    <section className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 sm:p-5">
+    <section
+      className={`@container flex min-w-0 flex-col gap-3 rounded-2xl border border-border bg-surface p-4 sm:p-5 ${className}`}
+    >
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
-          <h3 className="text-sm font-bold text-text-primary">{title}</h3>
+          <h2 className="text-sm font-bold text-text-primary">{title}</h2>
           {description && (
             <p className="text-[11px] leading-relaxed text-text-muted">
               {description}

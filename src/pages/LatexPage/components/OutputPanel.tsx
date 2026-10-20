@@ -25,7 +25,7 @@ const TOKEN_CLASS: Record<LatexTokenKind, string> = {
 };
 
 const PRE_CLASS =
-  'rounded-xl border border-border bg-surface-elevated p-3 font-mono text-[12px] leading-relaxed text-text-secondary whitespace-pre-wrap break-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent';
+  'flex-1 rounded-xl border border-border bg-surface-elevated p-3 font-mono text-[12px] leading-relaxed text-text-secondary whitespace-pre-wrap break-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent';
 
 const PRIMARY_BUTTON =
   'inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-bold text-bg hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-50';
@@ -122,6 +122,7 @@ interface OutputPanelProps {
   copied: boolean;
   onCopy: () => void;
   onDownload: () => void;
+  className?: string;
 }
 
 export const OutputPanel = memo(function OutputPanel({
@@ -132,7 +133,8 @@ export const OutputPanel = memo(function OutputPanel({
   onFileNameChange,
   copied,
   onCopy,
-  onDownload
+  onDownload,
+  className = ''
 }: OutputPanelProps) {
   const [view, setView] = useState<OutputView>('preview');
   const requirements = useMemo(() => latexRequirements(settings), [settings]);
@@ -151,7 +153,7 @@ export const OutputPanel = memo(function OutputPanel({
   return (
     <section
       aria-labelledby="latex-output-title"
-      className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-4 sm:p-5"
+      className={`@container flex min-w-0 flex-col gap-4 rounded-2xl border border-border bg-surface p-4 sm:p-5 ${className}`}
     >
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
@@ -184,7 +186,7 @@ export const OutputPanel = memo(function OutputPanel({
         </div>
       </header>
 
-      <div className="flex flex-col gap-2 sm:flex-row">
+      <div className="flex flex-col gap-2 @xl:flex-row">
         <label className="flex min-w-0 flex-1 items-center rounded-lg border border-border bg-bg/40 focus-within:border-accent">
           <span className="sr-only">File name</span>
           <input
@@ -198,7 +200,7 @@ export const OutputPanel = memo(function OutputPanel({
           />
           <span className="pr-3 font-mono text-xs text-text-muted">.tex</span>
         </label>
-        <div className="grid grid-cols-2 gap-2 sm:flex">
+        <div className="grid grid-cols-2 gap-2 @xl:flex">
           <button
             type="button"
             onClick={onCopy}

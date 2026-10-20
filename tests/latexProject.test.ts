@@ -289,7 +289,15 @@ describe('requirements', () => {
     const requirements = latexRequirements(DEFAULT_SETTINGS);
     assert.equal(
       requirements.install,
-      'tlmgr install chess-problem-diagrams geometry'
+      'tlmgr install chess-problem-diagrams geometry bartel-chess-fonts pgf xstring'
+    );
+    assert.equal(
+      latexRequirements({
+        ...DEFAULT_SETTINGS,
+        latexPackage: 'skak',
+        mode: 'standalone'
+      }).install,
+      'tlmgr install skak standalone chessfss lambda-lists skaknew varwidth'
     );
     assert.equal(requirements.compile('book'), 'pdflatex book.tex');
   });

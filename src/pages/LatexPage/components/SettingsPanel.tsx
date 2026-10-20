@@ -84,11 +84,13 @@ const FONT_OPTIONS = LATEX_FONT_SIZES.map((value) => ({
 interface SettingsPanelProps {
   settings: StudioSettings;
   onChange: (patch: Partial<StudioSettings>) => void;
+  className?: string | undefined;
 }
 
 export const SettingsPanel = memo(function SettingsPanel({
   settings,
-  onChange
+  onChange,
+  className
 }: SettingsPanelProps) {
   const isDiagram = settings.latexPackage === 'diagram';
   const isChessboard = settings.latexPackage === 'chessboard';
@@ -97,11 +99,15 @@ export const SettingsPanel = memo(function SettingsPanel({
 
   return (
     <>
-      <Section title="Style" description="How every board is typeset.">
+      <Section
+        title="Layout"
+        description="How the boards look and sit on the page."
+        className={className}
+      >
         <div
           role="radiogroup"
           aria-label="LaTeX package"
-          className="grid gap-2 sm:grid-cols-3"
+          className="grid gap-2 @lg:grid-cols-3"
         >
           {LATEX_PACKAGES.map((id) => {
             const copy = PACKAGE_COPY[id];
@@ -133,45 +139,102 @@ export const SettingsPanel = memo(function SettingsPanel({
           })}
         </div>
 
-        <Segmented
-          label="Board size"
-          value={settings.boardSize}
-          options={SIZE_OPTIONS}
-          onChange={(boardSize) => onChange({ boardSize })}
-        />
-
-        {isDiagram ? (
-          <p className="text-[11px] leading-relaxed text-text-muted">
-            Problem diagrams always print White at the bottom, without
-            coordinates, with the piece count beside the stipulation.
+        <div className="grid gap-4 @xl:grid-cols-2">
+          <Segmented
+            label="Board size"
+            value={settings.boardSize}
+            options={SIZE_OPTIONS}
+            onChange={(boardSize) => onChange({ boardSize })}
+          />
+          <Segmented
+            label="Diagrams per row"
+            value={settings.columns}
+            options={COLUMN_OPTIONS}
+            onChange={(columns) => onChange({ columns })}
+          />
+        </div>
+        {fit.fits ? (
+          <p role="status" className="text-[11px] text-success">
+            Fits: each board is about {Math.round(fit.boardMm)} mm in a{' '}
+            {Math.round(fit.cellMm)} mm column
+            {settings.mode === 'snippet' ? ' of a standard article' : ''}.
           </p>
         ) : (
-          <>
-            <Switch
-              label="Coordinates"
-              description="Show file letters and rank numbers."
-              checked={settings.showCoords}
-              onChange={(showCoords) => onChange({ showCoords })}
-            />
-            {isChessboard && (
-              <Switch
-                label="Side-to-move marker"
-                description="A small square beside the board shows who is to move."
-                checked={settings.showMover}
-                onChange={(showMover) => onChange({ showMover })}
-              />
+          <div
+            role="alert"
+            className="flex flex-col gap-2 rounded-lg border border-warning/40 bg-warning/5 px-3 py-2 text-[11px] leading-relaxed text-text-secondary"
+          >
+            <p>
+              Boards are about {Math.round(fit.boardMm)} mm wide but each column
+              is only {Math.round(fit.cellMm)} mm
+              {settings.mode === 'snippet' ? ' in a standard article' : ''}, so
+              they will overlap.
+              {fit.maxColumns > 0
+                ? ` ${fit.maxColumns} per row fits.`
+                : ' Choose a smaller board size or smaller margins.'}
+            </p>
+            {fit.maxColumns > 0 && (
+              <button
+                type="button"
+                onClick={() => onChange({ columns: fit.maxColumns })}
+                className="min-h-0 self-start rounded-md border border-warning/50 px-2.5 py-1 font-semibold text-text-primary hover:bg-warning/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                Use {fit.maxColumns} per row
+              </button>
             )}
-            <Switch
-              label="Piece count"
-              description="Print (white+black) beside the stipulation."
-              checked={settings.pieceCount}
-              onChange={(pieceCount) => onChange({ pieceCount })}
-            />
-          </>
+          </div>
         )}
+
+        <div className="flex flex-col gap-3 border-t border-border/60 pt-4">
+          <Switch
+            label="Number the diagrams"
+            description="Print No. 1, No. 2, … above each board."
+            checked={settings.numbering}
+            onChange={(numbering) => onChange({ numbering })}
+          />
+          <Switch
+            label="Solutions section"
+            description="List every solution you entered at the end."
+            checked={settings.solutions}
+            onChange={(solutions) => onChange({ solutions })}
+          />
+          {isDiagram ? (
+            <p className="text-[11px] leading-relaxed text-text-muted">
+              Problem diagrams always print White at the bottom, without
+              coordinates, with the piece count beside the stipulation.
+            </p>
+          ) : (
+            <>
+              <Switch
+                label="Coordinates"
+                description="Show file letters and rank numbers."
+                checked={settings.showCoords}
+                onChange={(showCoords) => onChange({ showCoords })}
+              />
+              {isChessboard && (
+                <Switch
+                  label="Side-to-move marker"
+                  description="A small square beside the board shows who is to move."
+                  checked={settings.showMover}
+                  onChange={(showMover) => onChange({ showMover })}
+                />
+              )}
+              <Switch
+                label="Piece count"
+                description="Print (white+black) beside the stipulation."
+                checked={settings.pieceCount}
+                onChange={(pieceCount) => onChange({ pieceCount })}
+              />
+            </>
+          )}
+        </div>
       </Section>
 
-      <Section title="Document" description="The page around the diagrams.">
+      <Section
+        title="Document"
+        description="What you download and the page around the diagrams."
+        className={className}
+      >
         <Segmented
           label="Output"
           value={settings.mode}
@@ -179,59 +242,9 @@ export const SettingsPanel = memo(function SettingsPanel({
           onChange={(mode) => onChange({ mode })}
         />
 
-        <Segmented
-          label="Diagrams per row"
-          value={settings.columns}
-          options={COLUMN_OPTIONS}
-          onChange={(columns) => onChange({ columns })}
-        />
-        {fit &&
-          (fit.fits ? (
-            <p role="status" className="text-[11px] text-success">
-              Fits: each board is about {Math.round(fit.boardMm)} mm in a{' '}
-              {Math.round(fit.cellMm)} mm column.
-            </p>
-          ) : (
-            <div
-              role="alert"
-              className="flex flex-col gap-2 rounded-lg border border-warning/40 bg-warning/5 px-3 py-2 text-[11px] leading-relaxed text-text-secondary"
-            >
-              <p>
-                Boards are about {Math.round(fit.boardMm)} mm wide but each
-                column is only {Math.round(fit.cellMm)} mm, so they will
-                overlap.
-                {fit.maxColumns > 0
-                  ? ` ${fit.maxColumns} per row fits.`
-                  : ' Choose a smaller board size or smaller margins.'}
-              </p>
-              {fit.maxColumns > 0 && (
-                <button
-                  type="button"
-                  onClick={() => onChange({ columns: fit.maxColumns })}
-                  className="min-h-0 self-start rounded-md border border-warning/50 px-2.5 py-1 font-semibold text-text-primary hover:bg-warning/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                >
-                  Use {fit.maxColumns} per row
-                </button>
-              )}
-            </div>
-          ))}
-
-        <Switch
-          label="Number the diagrams"
-          description="Print No. 1, No. 2, … above each board."
-          checked={settings.numbering}
-          onChange={(numbering) => onChange({ numbering })}
-        />
-        <Switch
-          label="Solutions section"
-          description="List every solution you entered at the end."
-          checked={settings.solutions}
-          onChange={(solutions) => onChange({ solutions })}
-        />
-
-        {isDocument && (
+        {isDocument ? (
           <div className="flex flex-col gap-4 border-t border-border/60 pt-4">
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 @xs:grid-cols-2">
               <TextField
                 label="Title"
                 value={settings.title}
@@ -246,18 +259,12 @@ export const SettingsPanel = memo(function SettingsPanel({
                 maxLength={200}
               />
             </div>
-            <Segmented
-              label="Paper"
-              value={settings.paper}
-              options={PAPER_OPTIONS}
-              onChange={(paper) => onChange({ paper })}
-            />
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 @xl:grid-cols-2">
               <Segmented
-                label="Document class"
-                value={settings.documentClass}
-                options={CLASS_OPTIONS}
-                onChange={(documentClass) => onChange({ documentClass })}
+                label="Paper"
+                value={settings.paper}
+                options={PAPER_OPTIONS}
+                onChange={(paper) => onChange({ paper })}
               />
               <Segmented
                 label="Font size"
@@ -266,6 +273,12 @@ export const SettingsPanel = memo(function SettingsPanel({
                 onChange={(fontSize) => onChange({ fontSize })}
               />
             </div>
+            <Segmented
+              label="Document class"
+              value={settings.documentClass}
+              options={CLASS_OPTIONS}
+              onChange={(documentClass) => onChange({ documentClass })}
+            />
             <RangeField
               label="Margin"
               value={settings.marginMm}
@@ -275,6 +288,10 @@ export const SettingsPanel = memo(function SettingsPanel({
               onChange={(marginMm) => onChange({ marginMm })}
             />
           </div>
+        ) : (
+          <p className="rounded-lg border border-dashed border-border px-3 py-2.5 text-[11px] leading-relaxed text-text-muted">
+            Title, paper, font size and margins apply to the Document output.
+          </p>
         )}
       </Section>
     </>

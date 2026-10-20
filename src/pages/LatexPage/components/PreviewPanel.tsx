@@ -79,8 +79,8 @@ export const PreviewPanel = memo(function PreviewPanel({
   const titled = settings.mode === 'document' && settings.title.trim();
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="rounded-lg bg-white p-5 shadow-lg ring-1 ring-black/5 sm:p-8">
+    <div className="flex flex-1 flex-col gap-3">
+      <div className="flex-1 rounded-lg bg-white p-5 shadow-lg ring-1 ring-black/5 sm:p-8">
         {titled && (
           <header className="mb-6 text-center">
             <p className="font-serif text-lg font-bold text-neutral-900">

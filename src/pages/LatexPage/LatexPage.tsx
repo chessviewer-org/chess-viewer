@@ -34,6 +34,8 @@ const LatexPage = () => {
   const [pane, setPane] = useState<Pane>('edit');
   const [fileName, setFileName] = useState(DEFAULT_FILE_NAME);
 
+  const editHidden = pane === 'edit' ? '' : 'max-lg:hidden';
+
   const notify = useCallback(
     (message: string, type: 'success' | 'error' = 'success') =>
       type === 'error' ? error(message) : success(message),
@@ -127,36 +129,30 @@ const LatexPage = () => {
           ))}
         </div>
 
-        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] 2xl:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
-          <div
-            className={`min-w-0 flex-col gap-6 ${pane === 'edit' ? 'flex' : 'hidden lg:flex'}`}
-          >
-            <DiagramList
-              project={project}
-              isFull={isFull}
-              actions={actions}
-              onNotify={notify}
-            />
-            <SettingsPanel
-              settings={project.settings}
-              onChange={actions.updateSettings}
-            />
-          </div>
-
-          <div
-            className={`min-w-0 ${pane === 'output' ? 'block' : 'hidden lg:block'}`}
-          >
-            <OutputPanel
-              build={build}
-              positions={project.positions}
-              settings={project.settings}
-              fileName={fileName}
-              onFileNameChange={setFileName}
-              copied={copied}
-              onCopy={handleCopy}
-              onDownload={handleDownload}
-            />
-          </div>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <DiagramList
+            project={project}
+            isFull={isFull}
+            actions={actions}
+            onNotify={notify}
+            className={editHidden}
+          />
+          <OutputPanel
+            build={build}
+            positions={project.positions}
+            settings={project.settings}
+            fileName={fileName}
+            onFileNameChange={setFileName}
+            copied={copied}
+            onCopy={handleCopy}
+            onDownload={handleDownload}
+            className={pane === 'output' ? '' : 'max-lg:hidden'}
+          />
+          <SettingsPanel
+            settings={project.settings}
+            onChange={actions.updateSettings}
+            className={editHidden}
+          />
         </div>
       </div>
       <NotificationContainer

@@ -8,6 +8,7 @@ import type { StudioSettings } from './latexProject';
 const PT_TO_MM = 25.4 / 72;
 const COLUMN_GAP_RATIO = 0.02;
 const STANDALONE_WIDTH_MM = 170;
+const ARTICLE_TEXT_WIDTH_PT = 345;
 const MOVER_MARKER_SQUARES = 1.2;
 
 const PAPER_WIDTH_MM = { a4: 210, a5: 148, letter: 216 } as const;
@@ -33,9 +34,9 @@ export interface FitReport {
 }
 
 function textWidthMm(settings: StudioSettings): number {
-  return settings.mode === 'standalone'
-    ? STANDALONE_WIDTH_MM
-    : PAPER_WIDTH_MM[settings.paper] - settings.marginMm * 2;
+  if (settings.mode === 'standalone') return STANDALONE_WIDTH_MM;
+  if (settings.mode === 'snippet') return ARTICLE_TEXT_WIDTH_PT * PT_TO_MM;
+  return PAPER_WIDTH_MM[settings.paper] - settings.marginMm * 2;
 }
 
 function cellWidthMm(textMm: number, columns: number): number {
@@ -51,9 +52,7 @@ export function boardWidthMm(settings: StudioSettings): number {
   return (base + mover) * PT_TO_MM;
 }
 
-export function estimateFit(settings: StudioSettings): FitReport | null {
-  if (settings.mode === 'snippet') return null;
-
+export function estimateFit(settings: StudioSettings): FitReport {
   const textMm = textWidthMm(settings);
   const boardMm = boardWidthMm(settings);
   let maxColumns = 0;
