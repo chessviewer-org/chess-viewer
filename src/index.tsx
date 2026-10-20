@@ -34,6 +34,7 @@ if (canHydrate()) {
 document.documentElement.classList.remove('prerender-stale');
 
 if (import.meta.env.PROD) {
+  window.addEventListener('vite:preloadError', () => window.location.reload());
   void import('virtual:pwa-register').then(({ registerSW }) => {
     registerSW({ immediate: true });
   });
