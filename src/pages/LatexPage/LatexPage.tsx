@@ -1,15 +1,16 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useId, useState } from 'react';
 
 import { getRouteSeo } from '@constants';
 import { useCopyToClipboard, useNotifications } from '@hooks';
 import { NotificationContainer, Seo } from '@ui';
-import { saveBlob } from '@utils';
-import { DiagramList } from './components/DiagramList';
-import { OutputPanel } from './components/OutputPanel';
+import { STARTING_FEN, saveBlob } from '@utils';
+import { DiagramEditor } from './components/DiagramEditor';
+import { DiagramNavigator } from './components/DiagramNavigator';
+import { ExportCard } from './components/ExportCard';
+import { PreviewPanel } from './components/PreviewPanel';
 import { ProjectBar } from './components/ProjectBar';
 import { SettingsPanel } from './components/SettingsPanel';
 import { useLatexProject } from './hooks/useLatexProject';
-import { segmentButton } from './utils/controlStyles';
 import {
   PROJECT_FILE_MAX_BYTES,
   parseProjectFile,
@@ -19,11 +20,12 @@ import {
 const DEFAULT_FILE_NAME = 'chess-diagrams';
 const PROJECT_FILE_NAME = 'latex-studio-project';
 
-type Pane = 'edit' | 'output';
+type Tab = 'diagrams' | 'document' | 'export';
 
-const PANES: ReadonlyArray<{ id: Pane; label: string }> = [
-  { id: 'edit', label: 'Edit' },
-  { id: 'output', label: 'Output' }
+const TABS: ReadonlyArray<{ id: Tab; label: string }> = [
+  { id: 'diagrams', label: 'Diagrams' },
+  { id: 'document', label: 'Document' },
+  { id: 'export', label: 'Export' }
 ];
 
 const LatexPage = () => {
@@ -31,16 +33,29 @@ const LatexPage = () => {
   const { notifications, success, error, removeNotification } =
     useNotifications();
   const [copied, copy] = useCopyToClipboard();
-  const [pane, setPane] = useState<Pane>('edit');
+  const [tab, setTab] = useState<Tab>('diagrams');
+  const [editing, setEditing] = useState(false);
   const [fileName, setFileName] = useState(DEFAULT_FILE_NAME);
-
-  const editHidden = pane === 'edit' ? '' : 'max-lg:hidden';
+  const tabsId = useId();
 
   const notify = useCallback(
     (message: string, type: 'success' | 'error' = 'success') =>
       type === 'error' ? error(message) : success(message),
     [error, success]
   );
+
+  const openDiagram = useCallback(
+    (id: string) => {
+      actions.select(id);
+      setEditing(true);
+    },
+    [actions]
+  );
+
+  const addDiagram = useCallback(() => {
+    actions.addFen(STARTING_FEN);
+    setEditing(true);
+  }, [actions]);
 
   const handleCopy = useCallback(() => {
     if (!build.code) return;
@@ -82,7 +97,8 @@ const LatexPage = () => {
         return;
       }
       actions.replaceProject(imported);
-      setPane('edit');
+      setTab('diagrams');
+      setEditing(false);
       success(
         `Loaded ${imported.positions.length} diagram${
           imported.positions.length === 1 ? '' : 's'
@@ -94,13 +110,20 @@ const LatexPage = () => {
 
   const handleReset = useCallback(() => {
     actions.reset();
+    setEditing(false);
     success('Started a new project. Undo brings it back.');
   }, [actions, success]);
+
+  const index = Math.max(
+    0,
+    project.positions.findIndex((p) => p.id === project.selectedId)
+  );
+  const selected = project.positions[index]!;
 
   return (
     <div className="flex-1 bg-bg">
       <Seo {...getRouteSeo('/latex')} />
-      <div className="page-container flex flex-col gap-6 py-6 sm:py-8">
+      <div className="page-container flex flex-col gap-5 py-6 sm:py-8">
         <ProjectBar
           canUndo={canUndo}
           onUndo={actions.undo}
@@ -110,49 +133,104 @@ const LatexPage = () => {
         />
 
         <div
-          role="group"
-          aria-label="Studio view"
-          className="flex overflow-hidden rounded-lg border border-border/60 lg:hidden"
+          role="tablist"
+          aria-label="Studio sections"
+          className="hide-scrollbar flex gap-1 overflow-x-auto border-b border-border"
         >
-          {PANES.map(({ id, label }, index) => (
-            <button
-              key={id}
-              type="button"
-              aria-pressed={pane === id}
-              onClick={() => setPane(id)}
-              className={`${segmentButton(pane === id)} min-h-11 ${
-                index < PANES.length - 1 ? 'border-r border-border/60' : ''
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+          {TABS.map(({ id, label }) => {
+            const active = tab === id;
+            return (
+              <button
+                key={id}
+                id={`${tabsId}-${id}`}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                aria-controls={`${tabsId}-${id}-panel`}
+                onClick={() => setTab(id)}
+                className={`relative -mb-px inline-flex min-h-11 shrink-0 items-center gap-2 border-b-2 px-4 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent ${
+                  active
+                    ? 'border-accent text-text-primary'
+                    : 'border-transparent text-text-muted hover:text-text-primary'
+                }`}
+              >
+                {label}
+                {id === 'diagrams' && (
+                  <span className="rounded-full bg-surface-elevated px-2 py-0.5 font-mono text-[11px] text-text-secondary">
+                    {project.positions.length}
+                  </span>
+                )}
+                {id === 'export' && build.skipped.length > 0 && (
+                  <span
+                    className="size-2 rounded-full bg-warning"
+                    aria-label={`${build.skipped.length} left out`}
+                  />
+                )}
+              </button>
+            );
+          })}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <DiagramList
-            project={project}
-            isFull={isFull}
-            actions={actions}
-            onNotify={notify}
-            className={editHidden}
-          />
-          <OutputPanel
-            build={build}
-            positions={project.positions}
-            settings={project.settings}
-            fileName={fileName}
-            onFileNameChange={setFileName}
-            copied={copied}
-            onCopy={handleCopy}
-            onDownload={handleDownload}
-            className={pane === 'output' ? '' : 'max-lg:hidden'}
-          />
-          <SettingsPanel
-            settings={project.settings}
-            onChange={actions.updateSettings}
-            className={editHidden}
-          />
+        <div
+          role="tabpanel"
+          id={`${tabsId}-${tab}-panel`}
+          aria-labelledby={`${tabsId}-${tab}`}
+          className="min-w-0"
+        >
+          {tab === 'diagrams' && (
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,24rem)_minmax(0,1fr)]">
+              <DiagramNavigator
+                project={project}
+                isFull={isFull}
+                actions={actions}
+                onOpen={openDiagram}
+                onAdd={addDiagram}
+                onNotify={notify}
+                className={`lg:sticky lg:top-[calc(var(--navbar-height)+1rem)] lg:self-start ${editing ? 'max-lg:hidden' : ''}`}
+              />
+              <DiagramEditor
+                position={selected}
+                index={index}
+                total={project.positions.length}
+                previousId={project.positions[index - 1]?.id ?? null}
+                nextId={project.positions[index + 1]?.id ?? null}
+                settings={project.settings}
+                actions={actions}
+                onNotify={notify}
+                onBack={() => setEditing(false)}
+                className={editing ? '' : 'max-lg:hidden'}
+              />
+            </div>
+          )}
+
+          {tab === 'document' && (
+            <div className="grid gap-6 lg:grid-cols-2">
+              <SettingsPanel
+                settings={project.settings}
+                onChange={actions.updateSettings}
+              />
+            </div>
+          )}
+
+          {tab === 'export' && (
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,24rem)_minmax(0,1fr)]">
+              <ExportCard
+                build={build}
+                total={project.positions.length}
+                settings={project.settings}
+                fileName={fileName}
+                onFileNameChange={setFileName}
+                copied={copied}
+                onCopy={handleCopy}
+                onDownload={handleDownload}
+              />
+              <PreviewPanel
+                build={build}
+                positions={project.positions}
+                settings={project.settings}
+              />
+            </div>
+          )}
         </div>
       </div>
       <NotificationContainer

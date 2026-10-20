@@ -582,30 +582,26 @@ export function importIncoming(
 
 const PREVIEW_LIGHT = '#ffffff';
 const PREVIEW_DARK = '#222222';
+const THUMB_DARK = '#b8b8b8';
+const HATCH_MIN_BOARD_PX = 160;
 
 export function previewDataUri(
   position: StudioPosition,
-  options: {
-    size: number;
-    showCoords: boolean;
-    showAnnotations: boolean;
-  }
+  options: { size: number; showAnnotations: boolean }
 ): string | null {
   const fen = usableFen(position.fen);
   if (fen === null) return null;
-  const annotations = options.showAnnotations
-    ? positionAnnotations(position)
-    : { highlights: [], arrows: [] };
+  const hatched = options.size >= HATCH_MIN_BOARD_PX;
   const svg = generateDiagram({
     fen,
     size: options.size,
     flipped: position.flipped,
-    showCoords: options.showCoords,
-    coordColor: 'black',
     lightSquare: PREVIEW_LIGHT,
-    darkSquare: PREVIEW_DARK,
-    squarePattern: 'hatched',
-    annotations
+    darkSquare: hatched ? PREVIEW_DARK : THUMB_DARK,
+    squarePattern: hatched ? 'hatched' : 'solid',
+    annotations: options.showAnnotations
+      ? positionAnnotations(position)
+      : { highlights: [], arrows: [] }
   });
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
