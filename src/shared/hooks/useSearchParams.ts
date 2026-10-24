@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 
+import { withViewTransition } from '@/shared/utils/viewTransition';
+
 export function useSearchParams() {
   const [search, setSearch] = useState(() => window.location.search);
   const [path] = useLocation();
@@ -36,10 +38,13 @@ export function useSearchParams() {
 
       if (options?.replace) {
         window.history.replaceState(null, '', newUrl);
-      } else {
-        window.history.pushState(null, '', newUrl);
+        setSearch(newSearch);
+        return;
       }
-      setSearch(newSearch);
+      withViewTransition(() => {
+        window.history.pushState(null, '', newUrl);
+        setSearch(newSearch);
+      });
     },
     []
   );

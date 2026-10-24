@@ -1,36 +1,38 @@
 import { useLocation } from 'wouter';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
-import {
-  useChessBoard,
-  useLocalStorage,
-  usePieceImages,
-  useSearchParams,
-  useTheme
-} from '@hooks';
+import { useChessBoard } from '@/shared/hooks/useChessBoard';
+import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
+import { usePieceImages } from '@/shared/hooks/usePieceImages';
+import { useSearchParams } from '@/shared/hooks/useSearchParams';
+import { useTheme } from '@/shared/hooks/useTheme';
 import { ADVANCED_FEN_CONFIG } from '@constants';
 import {
-  MAX_FEN_LENGTH,
+  MAX_POSITION_LENGTH,
+  getFENValidationError,
+  validateFEN
+} from '@/shared/utils/fenParser';
+import {
   cancelExport,
   checkCancellation,
-  downloadJPEG,
-  downloadPNG,
-  downloadSVG,
-  getFENValidationError,
-  getRasterBlob,
-  getSVGBlob,
-  isTextEntryTarget,
-  logger,
   pauseExport,
   resetExportState,
   resumeExport,
-  sanitizeFileName,
-  saveBlob,
-  validateFEN,
   waitWhilePaused
-} from '@utils';
+} from '@/shared/utils/exportState';
+import {
+  downloadJPEG,
+  downloadPNG,
+  getRasterBlob
+} from '@/shared/utils/canvasExporter';
+import { downloadSVG, getSVGBlob } from '@/shared/utils/svgExporter';
+import { isTextEntryTarget } from '@/shared/utils/pageScroll';
+import { logger } from '@/shared/utils/logger';
+import { sanitizeFileName } from '@chessviewer-org/chess-viewer';
+import { saveBlob } from '@/shared/utils/saveBlob';
+import { withViewTransition } from '@/shared/utils/viewTransition';
 import { type Zippable, zip } from 'fflate';
-import { useFENBatch } from '@contexts';
+import { useFENBatch } from '@/shared/contexts/FENBatchContext';
 
 import { parseSmartNaming } from '../utils/parseSmartNaming';
 
@@ -215,7 +217,7 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
 
   const fens = useMemo(() => {
     const arr = batchList.map((f) =>
-      typeof f === 'string' ? f.slice(0, MAX_FEN_LENGTH) : ''
+      typeof f === 'string' ? f.slice(0, MAX_POSITION_LENGTH) : ''
     );
     while (arr.length < 3) arr.push('');
     if (arr.every((f) => f.trim()) && arr.length < MAX_FENS) arr.push('');
@@ -339,12 +341,14 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
   const activeTab = searchParams.get('tab') || TABS.POSITIONS;
   function setActiveTab(val: React.SetStateAction<string>) {
     const v = typeof val === 'function' ? val(activeTab) : val;
-    setSearchParams(
-      (p) => {
-        p.set('tab', v);
-        return p;
-      },
-      { replace: true }
+    withViewTransition(() =>
+      setSearchParams(
+        (p) => {
+          p.set('tab', v);
+          return p;
+        },
+        { replace: true }
+      )
     );
   }
 
@@ -357,7 +361,9 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
   })();
 
   const { board: boardState } = useChessBoard(renderFen);
-  const { pieceImages, isLoading: imagesLoading } = usePieceImages(pieceStyle);
+  const { pieceImages, isLoading: imagesLoading } = usePieceImages(pieceStyle, {
+    positions: fens
+  });
   const isBoardReady =
     Array.isArray(boardState) &&
     boardState.length === 8 &&
@@ -392,7 +398,7 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
   }
 
   function updateFen(idx: number, val: string) {
-    const v = String(val || '').slice(0, MAX_FEN_LENGTH);
+    const v = String(val || '').slice(0, MAX_POSITION_LENGTH);
     const t = v.trim();
     if (t && batchList.some((f, i) => i !== idx && f.trim() === t)) {
       setDuplicateWarning(idx);
