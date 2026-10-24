@@ -10,10 +10,12 @@ publicHoistPattern:
 overrides:
   esbuild: '>=0.28.2'
   node-fetch: ^3.3.2
+  miniflare>undici: 7.30.1
 allowBuilds:
   esbuild: false
   '@parcel/watcher': false
   puppeteer: false
+  workerd: false
 
 # The requested Preact release is younger than pnpm's default quarantine.
 minimumReleaseAgeExclude:
