@@ -21,10 +21,7 @@ export function readPreference<T extends string>(
 
 // Color vision
 export type ColorVisionPreference =
-  | 'none'
-  | 'deuteranopia'
-  | 'protanopia'
-  | 'tritanopia';
+  'none' | 'deuteranopia' | 'protanopia' | 'tritanopia';
 
 const DEFAULT_COLOR_VISION: ColorVisionPreference = 'none';
 

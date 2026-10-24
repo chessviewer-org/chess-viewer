@@ -2,74 +2,11 @@ import preact from '@preact/preset-vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
-import { VitePWA } from 'vite-plugin-pwa';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  plugins: [
-    preact(),
-
-    VitePWA({
-      registerType: 'prompt',
-      injectRegister: null, // we register manually in src/index.tsx
-      includeAssets: [
-        'favicon.ico',
-        'logo192.png',
-        'logo512.png',
-        'robots.txt'
-      ],
-      manifest: false, // keep the existing public/manifest.json
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,woff2}'],
-        globIgnores: ['piece/**'],
-        navigateFallback: null,
-        directoryIndex: null,
-        cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        skipWaiting: true,
-        runtimeCaching: [
-          {
-            urlPattern: ({ request, sameOrigin }) =>
-              sameOrigin && request.mode === 'navigate',
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'prerendered-pages',
-              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 7 },
-              cacheableResponse: { statuses: [200] },
-              precacheFallback: { fallbackURL: '/index.html' }
-            }
-          },
-          {
-            urlPattern: /\/piece\/.*\.svg$/i,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'piece-svgs',
-              expiration: { maxEntries: 120, maxAgeSeconds: 60 * 60 * 24 * 30 },
-              cacheableResponse: { statuses: [200] }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'google-fonts-stylesheets' }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-webfonts',
-              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
-              cacheableResponse: { statuses: [0, 200] }
-            }
-          }
-        ]
-      },
-      devOptions: {
-        enabled: false
-      }
-    })
-  ],
+  plugins: [preact()],
 
   resolve: {
     alias: {
@@ -91,6 +28,9 @@ export default defineConfig({
     port: 3000,
     open: true,
     strictPort: false,
+    warmup: {
+      clientFiles: ['./src/index.tsx', './src/pages/**/*Page.tsx']
+    },
     hmr: {
       overlay: true
     }
@@ -103,24 +43,21 @@ export default defineConfig({
 
   build: {
     outDir: 'dist',
+    manifest: true,
 
     sourcemap: false,
 
     chunkSizeWarningLimit: 500,
 
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        manualChunks(id) {
-          if (!id.includes('node_modules')) return undefined;
-          if (
-            id.includes('/react/') ||
-            id.includes('/react-dom/') ||
-            id.includes('/wouter/') ||
-            id.includes('/scheduler/')
-          ) {
-            return 'vendor-react';
-          }
-          return undefined;
+        codeSplitting: {
+          groups: [
+            {
+              name: 'preact-router',
+              test: /[\\/]node_modules[\\/](preact|wouter)[\\/]/
+            }
+          ]
         },
 
         chunkFileNames: 'static/js/[name]-[hash].js',
@@ -134,7 +71,7 @@ export default defineConfig({
       }
     },
 
-    minify: 'esbuild',
+    minify: 'oxc',
 
     target: 'es2020',
 

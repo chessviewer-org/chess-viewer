@@ -1,2 +1,20 @@
+nodeLinker: hoisted
+autoInstallPeers: true
+strictPeerDependencies: false
+publicHoistPattern:
+  - '*eslint*'
+  - '*prettier*'
+  - '*tailwindcss*'
+  - '*postcss*'
+  - '*autoprefixer*'
+overrides:
+  esbuild: '>=0.28.2'
+  node-fetch: ^3.3.2
 allowBuilds:
   esbuild: false
+  '@parcel/watcher': false
+  puppeteer: false
+
+# The requested Preact release is younger than pnpm's default quarantine.
+minimumReleaseAgeExclude:
+  - preact@11.0.2

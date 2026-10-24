@@ -15,7 +15,7 @@ ChessViewer is a browser-based chess diagram editor. Set up any position, choose
 
 ## Getting started
 
-**Requirements:** Node.js 22 or later, pnpm 10 or later.
+**Requirements:** Node.js 22.12 or later, pnpm 12.15 or later (the exact pnpm release is pinned in `package.json`).
 
 ```bash
 git clone https://github.com/chessviewer-org/chess-viewer.git
@@ -84,7 +84,7 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
 ## Tech stack
 
-Preact 10, TypeScript 6, Vite 8, Tailwind CSS 4, wouter, fflate, vite-plugin-pwa.
+Preact 11, TypeScript 7, Vite 8.3 (Rolldown/Oxc), Tailwind CSS 4.3, wouter, fflate. TypeScript 6’s API package is used only by ESLint, following Microsoft’s recommended setup for TypeScript 7. No active service worker.
 
 Supabase is used for auth and cloud sync via a custom hand-written client (`src/auth/Supabase.ts`) — the `@supabase/supabase-js` SDK is not installed. Icons are Lucide SVG paths embedded directly in `src/assets/icons/` (ISC License) — `lucide-react` is not installed. Page transition animations are CSS-based — `framer-motion` is not installed.
 

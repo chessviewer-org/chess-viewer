@@ -2,8 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, RefObject } from 'react';
 
 export function useOutsideClick(
   ref:
-    | React.RefObject<HTMLElement | null>
-    | React.RefObject<HTMLElement | null>[],
+    React.RefObject<HTMLElement | null> | React.RefObject<HTMLElement | null>[],
   handler: (event: MouseEvent | TouchEvent | KeyboardEvent) => void,
   enabled: boolean = true
 ): void {

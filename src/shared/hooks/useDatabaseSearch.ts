@@ -8,11 +8,7 @@ import {
 
 // Types
 type ProviderSearchStatus =
-  | 'idle'
-  | 'searching'
-  | 'found'
-  | 'notfound'
-  | 'error';
+  'idle' | 'searching' | 'found' | 'notfound' | 'error';
 
 export interface ProviderState {
   status: ProviderSearchStatus;

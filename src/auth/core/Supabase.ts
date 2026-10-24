@@ -4,12 +4,7 @@ import { logger, safeJSONParse } from '@utils';
 
 // Types
 export type JsonValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JsonValue[]
-  | { [key: string]: JsonValue };
+  string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
 export type JsonObject = { [key: string]: JsonValue };
 
@@ -369,9 +364,7 @@ class PostgrestFilterBuilder<T> {
       | undefined
       | null,
     onrejected?:
-      | ((reason: unknown) => TResult2 | PromiseLike<TResult2>)
-      | undefined
-      | null
+      ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | undefined | null
   ): Promise<TResult1 | TResult2> {
     return this.executeRequest<T>().then((res) => {
       const value: PostgrestResponse<T> = {

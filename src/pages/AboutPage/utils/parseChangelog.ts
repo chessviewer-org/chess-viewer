@@ -1,9 +1,6 @@
 // Types
 export type ChangelogCategory =
-  | 'Features'
-  | 'Bug Fixes'
-  | 'Performance Improvements'
-  | 'Reverts';
+  'Features' | 'Bug Fixes' | 'Performance Improvements' | 'Reverts';
 
 export interface ChangelogEntry {
   scope: string | null;

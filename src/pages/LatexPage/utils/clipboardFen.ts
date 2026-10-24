@@ -1,8 +1,7 @@
 import { usableFen } from './latexProject';
 
 export type ClipboardFenResult =
-  | { ok: true; fen: string }
-  | { ok: false; reason: string };
+  { ok: true; fen: string } | { ok: false; reason: string };
 
 export async function readFenFromClipboard(): Promise<ClipboardFenResult> {
   try {
