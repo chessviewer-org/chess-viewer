@@ -4,14 +4,14 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useLayoutEffect,
   useMemo,
+  useRef,
   useState
 } from 'react';
 
 import { ADVANCED_FEN_CONFIG } from '@constants';
 
-import { safeJSONParse } from '@utils';
+import { safeJSONParse } from '@chessviewer-org/chess-viewer';
 
 // Types
 export interface FENBatchContextValue {
@@ -22,25 +22,40 @@ export interface FENBatchContextValue {
   updateBatchItem: (index: number, newFen: string) => boolean;
 }
 
+const BATCH_STORAGE_KEY = 'fenBatchList';
+
 // Context
 const FENBatchContext = createContext<FENBatchContextValue | null>(null);
 
+function readBatchList(): string[] {
+  try {
+    const parsed = safeJSONParse<unknown>(
+      localStorage.getItem(BATCH_STORAGE_KEY),
+      null
+    );
+    return Array.isArray(parsed)
+      ? parsed.filter((fen): fen is string => typeof fen === 'string')
+      : [];
+  } catch {
+    return [];
+  }
+}
+
 export function FENBatchProvider({ children }: { children: React.ReactNode }) {
   // State
-  const [batchList, setBatchList] = useState<string[]>([]);
+  const [batchList, setBatchList] = useState<string[]>(readBatchList);
+  const storedList = useRef(batchList);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
+    if (storedList.current === batchList) return;
+    storedList.current = batchList;
     try {
-      const saved = localStorage.getItem('fenBatchList');
-      const parsed = safeJSONParse<string[] | null>(saved, null);
-      if (Array.isArray(parsed) && parsed.length > 0) setBatchList(parsed);
+      if (batchList.length)
+        localStorage.setItem(BATCH_STORAGE_KEY, JSON.stringify(batchList));
+      else localStorage.removeItem(BATCH_STORAGE_KEY);
     } catch {
       /* noop */
     }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('fenBatchList', JSON.stringify(batchList));
   }, [batchList]);
 
   // Actions

@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   type DatabaseProvider,
   PROVIDER_LABEL,
-  searchPositionDatabases,
-  validateFEN
-} from '@utils';
+  searchPositionDatabases
+} from '@/shared/utils/databaseSearch';
+import { isFairyFEN, validateFEN } from '@/shared/utils/fenParser';
 
 // Types
 type ProviderSearchStatus =
@@ -45,58 +45,71 @@ export function useDatabaseSearch(fen: string): UseDatabaseSearchResult {
     setResults(IDLE_STATE);
   }, [fen]);
 
-  async function run(targets: DatabaseProvider[]) {
-    const trimmed = fen.trim();
-    if (!trimmed || !validateFEN(trimmed)) return;
+  const run = useCallback(
+    async (targets: readonly DatabaseProvider[]) => {
+      const trimmed = fen.trim();
+      if (!trimmed || isFairyFEN(trimmed) || !validateFEN(trimmed)) return;
 
-    setResults((prev) => {
-      const next = { ...prev };
-      for (const provider of targets) {
-        next[provider] = { ...next[provider], status: 'searching' };
+      setResults((prev) => {
+        const next = { ...prev };
+        for (const provider of targets) {
+          next[provider] = { ...next[provider], status: 'searching' };
+        }
+        return next;
+      });
+
+      try {
+        const res = await searchPositionDatabases(trimmed);
+        if (fen !== currentFenRef.current) return;
+
+        setResults((prev) => {
+          const next = { ...prev };
+          for (const provider of targets) {
+            const found = res[provider].found;
+            next[provider] = {
+              status: found ? 'found' : 'notfound',
+              url: res[provider].url
+            };
+          }
+          return next;
+        });
+      } catch {
+        if (fen !== currentFenRef.current) return;
+
+        setResults((prev) => {
+          const next = { ...prev };
+          for (const provider of targets) {
+            next[provider] = { ...next[provider], status: 'error' };
+          }
+          return next;
+        });
       }
-      return next;
-    });
+    },
+    [fen]
+  );
 
-    try {
-      const res = await searchPositionDatabases(trimmed);
-      if (fen !== currentFenRef.current) return;
+  const lichess = useProviderState('lichess', results.lichess, run);
+  const chessdb = useProviderState('chessdb', results.chessdb, run);
+  const searchAll = useCallback(() => run(PROVIDERS), [run]);
 
-      setResults((prev) => {
-        const next = { ...prev };
-        for (const provider of targets) {
-          const found = res[provider].found;
-          next[provider] = {
-            status: found ? 'found' : 'notfound',
-            url: res[provider].url
-          };
-        }
-        return next;
-      });
-    } catch {
-      if (fen !== currentFenRef.current) return;
+  return useMemo(
+    () => ({ lichess, chessdb, searchAll }),
+    [lichess, chessdb, searchAll]
+  );
+}
 
-      setResults((prev) => {
-        const next = { ...prev };
-        for (const provider of targets) {
-          next[provider] = { ...next[provider], status: 'error' };
-        }
-        return next;
-      });
-    }
-  }
-
-  function makeProviderState(provider: DatabaseProvider): ProviderState {
-    return {
-      status: results[provider].status,
-      url: results[provider].url,
+function useProviderState(
+  provider: DatabaseProvider,
+  { status, url }: ProviderData,
+  run: (targets: readonly DatabaseProvider[]) => Promise<void>
+): ProviderState {
+  return useMemo(
+    () => ({
+      status,
+      url,
       label: PROVIDER_LABEL[provider],
-      search: () => run([provider])
-    };
-  }
-
-  return {
-    lichess: makeProviderState('lichess'),
-    chessdb: makeProviderState('chessdb'),
-    searchAll: () => run(PROVIDERS)
-  };
+      search: () => void run([provider])
+    }),
+    [provider, status, url, run]
+  );
 }

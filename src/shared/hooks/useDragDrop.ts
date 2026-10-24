@@ -1,6 +1,12 @@
-import { createContext, useCallback, useContext, useRef } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useRef,
+  useSyncExternalStore
+} from 'react';
 import type { ChessDragData } from '@constants';
-import { dragThreshold } from '@utils';
+import { dragThreshold } from '@/shared/utils/a11yUtils';
 
 export const DROP_ID_ATTR = 'data-drop-id';
 export const DRAG_OVER_ATTR = 'data-drag-over';
@@ -18,6 +24,8 @@ export interface DragSession {
 export interface DragApi {
   startDrag(session: DragSession): void;
   isDragging(): boolean;
+  getActive(): ChessDragData | null;
+  subscribe(listener: () => void): () => void;
   registerDropTarget(
     id: string,
     el: HTMLElement,
@@ -29,14 +37,17 @@ export interface DragApi {
 export const DragApiCtx = createContext<DragApi>({
   startDrag: () => {},
   isDragging: () => false,
+  getActive: () => null,
+  subscribe: () => () => {},
   registerDropTarget: () => {},
   unregisterDropTarget: () => {}
 });
 
-export const DragActiveCtx = createContext<ChessDragData | null>(null);
-
-export function useDragActive() {
-  return useContext(DragActiveCtx);
+export function useDragSelector<T>(
+  select: (active: ChessDragData | null) => T
+): T {
+  const { subscribe, getActive } = useContext(DragApiCtx);
+  return useSyncExternalStore(subscribe, () => select(getActive()));
 }
 
 function createGhost(src: string, size: number, x: number, y: number) {
@@ -83,18 +94,19 @@ export function useDraggable({
   imageSrc,
   disabled
 }: UseDraggableOptions) {
-  const active = useDragActive();
   const { startDrag, isDragging: dragInProgress } = useContext(DragApiCtx);
   const dataRef = useRef(data);
   dataRef.current = data;
   const touchElRef = useRef<HTMLElement | null>(null);
 
-  const isDragging =
-    !!active &&
-    active.piece === data.piece &&
-    active.fromRow === data.fromRow &&
-    active.fromCol === data.fromCol &&
-    active.isFromPalette === data.isFromPalette;
+  const isDragging = useDragSelector(
+    (active) =>
+      !!active &&
+      active.piece === data.piece &&
+      active.fromRow === data.fromRow &&
+      active.fromCol === data.fromCol &&
+      active.isFromPalette === data.isFromPalette
+  );
 
   const onPointerDown = useCallback(
     (e: React.PointerEvent<HTMLElement>) => {
