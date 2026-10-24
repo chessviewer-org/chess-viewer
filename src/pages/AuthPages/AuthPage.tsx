@@ -2,11 +2,13 @@ import { LogIn, UserPlus } from '@/assets/icons';
 import { useRef, type ReactNode } from 'react';
 import { useLocation } from 'wouter';
 
+import { getRouteSeo } from '@constants';
 import { PageSidebarLayout } from '@/components/layout/Sidebar/PageSidebarLayout';
 import {
   PageTabs,
   type PageTabGroup
 } from '@/components/layout/Sidebar/PageTabs';
+import { Seo } from '@/shared/ui/Seo';
 
 // Constants
 const GROUPS: PageTabGroup[] = [
@@ -38,6 +40,7 @@ export function AuthPage({ children }: AuthPageProps) {
 
   return (
     <div className="flex-1 bg-bg">
+      <Seo {...getRouteSeo(pathname)} />
       <PageSidebarLayout
         contentRef={contentRef}
         contentLabel="Authentication"

@@ -162,11 +162,6 @@ async function prerender() {
 
       html = await inlineStylesheets(html);
 
-      let seenTitle = false;
-      html = html.replace(/<title>[\s\S]*?<\/title>/g, (match) =>
-        seenTitle ? '' : ((seenTitle = true), match)
-      );
-
       const outFile =
         route === '/'
           ? join(DIST, 'index.html')
