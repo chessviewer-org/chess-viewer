@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import DiagramWorkspace from '@/components/interactions/Editor/DiagramWorkspace';
 import { FairySetup } from '@/components/interactions/FairySetup/FairySetup';
 import { useHome } from '@/pages/HomePage/hooks/useHome';
@@ -14,16 +14,7 @@ import type { BoardCell } from '@app-types';
 export default function FairyChessPage() {
   const home = useHome('fairy');
   const [palettePiece, setPalettePiece] = useState<BoardCell | null>(null);
-  const [images, setImages] = useState<Record<string, HTMLImageElement>>({});
   const fileRef = useRef<HTMLInputElement>(null);
-  const { handlePieceImagesChange } = home;
-  const captureImages = useCallback(
-    (value: Record<string, HTMLImageElement>) => {
-      setImages(value);
-      handlePieceImagesChange(value);
-    },
-    [handlePieceImagesChange]
-  );
   const importPosition = async (file: File) => {
     try {
       if (file.size > MAX_COMPOSITION_LENGTH * 4)
@@ -68,7 +59,6 @@ export default function FairyChessPage() {
       home={home}
       variant="fairy"
       palettePiece={palettePiece}
-      onPieceImagesChange={captureImages}
       header={
         <div className="flex flex-wrap items-center justify-between gap-3 pt-2 pb-1">
           <p className="text-lg font-semibold text-text-primary">Fairy chess</p>
@@ -111,7 +101,7 @@ export default function FairyChessPage() {
           <FairySetup
             section="pieces"
             fen={home.fen}
-            pieceImages={images}
+            pieceStyle={home.pieceStyle}
             selectedPiece={palettePiece}
             onPick={(piece) => {
               setPalettePiece(piece);
@@ -137,7 +127,7 @@ export default function FairyChessPage() {
           <FairySetup
             section="problem"
             fen={home.fen}
-            pieceImages={images}
+            pieceStyle={home.pieceStyle}
             onPick={(piece) => {
               setPalettePiece(piece);
               document

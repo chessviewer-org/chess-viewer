@@ -8,6 +8,7 @@ import {
 } from '@constants/fairyCatalogue';
 import type { BoardCell } from '@app-types';
 import { getPieceKey, piecePath } from '@/shared/utils/pieceUtils';
+import { pieceSrc } from '@/shared/utils/pieceSources';
 import { namedCell } from '@/shared/utils/fairyCells';
 import {
   parseFEN,
@@ -20,7 +21,7 @@ interface FairySetupProps {
   section: 'pieces' | 'problem';
   selectedPiece?: BoardCell | null;
   fen: string;
-  pieceImages: Record<string, HTMLImageElement>;
+  pieceStyle: string;
   onPick: (piece: BoardCell) => void;
   onUseSymbols: () => void;
   onChange: (position: string) => void;
@@ -44,7 +45,7 @@ export function FairySetup({
   section,
   selectedPiece,
   fen,
-  pieceImages,
+  pieceStyle,
   onPick,
   onUseSymbols,
   onChange
@@ -326,9 +327,9 @@ export function FairySetup({
               .slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
               .map((walk) => {
                 const cell = namedCell(color, walk.code, attrs);
-                const image = pieceImages[getPieceKey(cell) ?? ''];
-                const source =
-                  image?.src ?? (!walk.glyph ? piecePath('', cell) : undefined);
+                const source = pieceSrc(
+                  piecePath(pieceStyle, getPieceKey(cell) ?? cell)
+                );
                 return (
                   <button
                     type="button"
@@ -336,8 +337,7 @@ export function FairySetup({
                     onClick={() => {
                       onPick(cell);
                     }}
-                    disabled={!source}
-                    className="min-w-0 flex flex-col items-center gap-1 border border-border rounded-lg p-2 cursor-pointer hover:bg-surface-hover hover:border-accent aria-pressed:border-accent aria-pressed:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="min-w-0 flex flex-col items-center gap-1 border border-border rounded-lg p-2 cursor-pointer hover:bg-surface-hover hover:border-accent aria-pressed:border-accent aria-pressed:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                     aria-label={`Select ${color === 'w' ? 'white' : color === 'b' ? 'black' : 'neutral'} ${walk.name}`}
                     aria-pressed={selectedPiece === cell}
                     title={`${walk.code} — ${walk.name}`}

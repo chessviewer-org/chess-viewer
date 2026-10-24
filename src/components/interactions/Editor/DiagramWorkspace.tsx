@@ -24,7 +24,6 @@ interface DiagramWorkspaceProps {
   home: ReturnType<typeof useHome>;
   variant?: 'standard' | 'fairy';
   palettePiece?: BoardCell | null;
-  onPieceImagesChange?: (images: Record<string, HTMLImageElement>) => void;
   header?: React.ReactNode;
   children?: React.ReactNode;
 }
@@ -33,7 +32,6 @@ const DiagramWorkspace: React.FC<DiagramWorkspaceProps> = ({
   home,
   variant = 'standard',
   palettePiece,
-  onPieceImagesChange,
   header,
   children
 }) => {
@@ -153,9 +151,7 @@ const DiagramWorkspace: React.FC<DiagramWorkspaceProps> = ({
                 onNotify={home.handleNotification}
                 onDownload={handleDownloadClick}
                 onCopyImage={home.handleCopyImage}
-                onPieceImagesChange={
-                  onPieceImagesChange ?? home.handlePieceImagesChange
-                }
+                onPieceImagesChange={home.handlePieceImagesChange}
               />
             </div>
           </div>
