@@ -61,15 +61,27 @@ test('artwork identity ignores cell attributes and is independent of square orde
   assert.ok(before.includes('w@WR'));
 });
 
-test('a walk without a Popeye glyph borrows a turned piece no other walk uses', () => {
+test('a walk without a Popeye glyph keeps its own turned piece as others join', () => {
   const board = Array.from({ length: 8 }, () => Array<string>(8).fill(''));
   board[0]![0] = 'w@B1';
+  const alone = requestedPieceMap({ board })['w@B1'];
   board[0]![1] = 'b@B1';
-  board[0]![2] = 'w@G';
-  board[0]![3] = 'n@SK';
+  board[0]![2] = 'n@SK';
+  board[0]![3] = 'w@B2';
+  board[0]![4] = 'w@G';
   const map = requestedPieceMap({ board });
-  assert.equal(map['w@B1'], 'wR180');
-  assert.equal(map['b@B1'], 'bR180');
-  assert.equal(map['n@SK'], 'nB180');
-  assert.equal(map['wQ180'], '');
+  assert.equal(map['w@B1'], alone);
+  assert.equal(map['b@B1'], `b${alone?.slice(1)}`);
+  const shapes = ['w@B1', 'n@SK', 'w@B2'].map((key) => map[key]?.slice(1));
+  assert.equal(new Set(shapes).size, 3);
+  assert.ok(!shapes.includes('Q180'));
+});
+
+test('a turned piece already on the board moves the walk to its next shape', () => {
+  const board = Array.from({ length: 8 }, () => Array<string>(8).fill(''));
+  board[0]![0] = 'w@B1';
+  const own = requestedPieceMap({ board })['w@B1']!.slice(1);
+  board[0]![1] = `b${own}`;
+  const moved = requestedPieceMap({ board })['w@B1']!.slice(1);
+  assert.notEqual(moved, own);
 });

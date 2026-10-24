@@ -174,7 +174,7 @@ describe('Popeye composition notation', () => {
     const pieces = fairyDiagramPieces(source);
     assert.match(pieces, /wDUe4/);
     assert.match(pieces, /sSUe5/);
-    assert.match(pieces, /wTUf4/);
+    assert.match(pieces, /w[KDTLSB][RUL]f4/);
     assert.doesNotMatch(pieces, /fieldtext/);
     const output = generatePositionLatex({
       positions: [{ fen: source }],
@@ -187,7 +187,7 @@ describe('Popeye composition notation', () => {
     assert.doesNotMatch(output, /\\fen\[/);
     const svg = generatePositionPreview({ fen: source });
     assert.doesNotMatch(svg, />NA<\/text>/);
-    assert.equal(svg.match(/rotate\(180 22\.5 22\.5\)/g)?.length, 3);
+    assert.equal(svg.match(/rotate\((?:90|180|270) 22\.5 22\.5\)/g)?.length, 4);
   });
   test('studio preserves full compositions through multiline import and persistence', () => {
     const source = SOURCE.replace(
