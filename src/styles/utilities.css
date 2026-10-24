@@ -253,9 +253,11 @@ select:focus-visible {
   }
 }
 
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-accent) transparent;
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent) transparent;
+  }
 }
 
 @utility hide-scrollbar {
