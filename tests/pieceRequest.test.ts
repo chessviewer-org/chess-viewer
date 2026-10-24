@@ -77,11 +77,27 @@ test('a walk without a Popeye glyph keeps its own turned piece as others join', 
   assert.ok(!shapes.includes('Q180'));
 });
 
-test('a turned piece already on the board moves the walk to its next shape', () => {
+test('a named piece yields its shape only to a piece whose shape is fixed', () => {
   const board = Array.from({ length: 8 }, () => Array<string>(8).fill(''));
   board[0]![0] = 'w@B1';
   const own = requestedPieceMap({ board })['w@B1']!.slice(1);
   board[0]![1] = `b${own}`;
   const moved = requestedPieceMap({ board })['w@B1']!.slice(1);
   assert.notEqual(moved, own);
+  board[0]![2] = 'n@SK';
+  assert.equal(requestedPieceMap({ board })['w@B1'], `w${moved}`);
+});
+
+test('a newly placed walk takes a shape no piece on the board uses', () => {
+  const shapes = ['K', 'Q', 'R', 'B', 'N', 'P'].flatMap((type) =>
+    ['90', '180', '270'].map((turn) => `${type}${turn}`)
+  );
+  const board = Array.from({ length: 8 }, () => Array<string>(8).fill(''));
+  shapes
+    .filter((shape) => shape !== 'P270')
+    .forEach((shape, index) => {
+      board[Math.floor(index / 8)]![index % 8] = `b${shape}`;
+    });
+  board[7]![7] = 'w@TH';
+  assert.equal(requestedPieceMap({ board })['w@TH'], 'wP270');
 });
