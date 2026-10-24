@@ -232,7 +232,6 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
         hidden={tab !== 'named'}
       >
         <FairyCatalogue
-          pieceStyle={pieceStyle}
           color={namedColor}
           selectedPiece={selectedPiece}
           onSelect={onSelect}

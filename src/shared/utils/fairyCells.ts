@@ -83,17 +83,51 @@ export const FAIRY_LETTER_PIECE_MAP: Record<string, string> =
     )
   );
 
+const SVG_OPEN =
+  '<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 45 45">';
 const LETTER_INKS = {
   w: { fill: 'white', edge: 'black', body: 1.2, outline: 3 },
   b: { fill: 'black', edge: 'white', body: 1.6, outline: 2.8 },
-  n: { fill: '#a8a8a8', edge: 'black', body: 1.6, outline: 3.4 }
+  n: {
+    fill: 'url(#neutral-letter-fill)',
+    edge: 'url(#neutral-letter-edge)',
+    body: 1.4,
+    outline: 2.9
+  }
 } as const;
 
-export function fairyLetterSVG(color: 'w' | 'b' | 'n', text: string): string {
+function letterSize(text: string): number {
   if (!/^[A-Z0-9]{1,2}$/.test(text)) throw new Error('Invalid fairy symbol.');
+  return text.length === 1 ? 20 : 17;
+}
+
+function halves(id: string, left: string, right: string): string {
+  return `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x2="45" y2="0"><stop offset="50%" stop-color="${left}"/><stop offset="50%" stop-color="${right}"/></linearGradient>`;
+}
+
+export function fairyLetterSVG(color: 'w' | 'b' | 'n', text: string): string {
+  const size = letterSize(text);
   const { fill, edge, body, outline } = LETTER_INKS[color];
-  const size = text.length === 1 ? 20 : 17;
+  const defs =
+    color === 'n'
+      ? `<defs>${halves('neutral-letter-fill', 'white', 'black')}${halves('neutral-letter-edge', 'black', 'white')}</defs>`
+      : '';
   const glyph = (paint: string) =>
     `<text x="23" y="${22.5 + size * 0.36}" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="${size}" font-weight="700" letter-spacing="1" stroke-linejoin="round" ${paint}>${text}</text>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 45 45">${glyph(`fill="none" stroke="${edge}" stroke-width="${outline}"`)}${glyph(`fill="${fill}" stroke="${fill}" stroke-width="${body}"`)}</svg>`;
+  return `${SVG_OPEN}${defs}${glyph(`fill="none" stroke="${edge}" stroke-width="${outline}"`)}${glyph(`fill="${fill}" stroke="${fill}" stroke-width="${body}"`)}</svg>`;
+}
+
+export function fairyDiscSVG(color: 'w' | 'b' | 'n', text: string): string {
+  const size = letterSize(text) - 2;
+  const disc =
+    color === 'w' ? 'white' : color === 'b' ? 'black' : 'url(#neutral-disc)';
+  const defs =
+    color === 'n'
+      ? `<defs>${halves('neutral-disc', 'white', 'black')}</defs>`
+      : '';
+  const halo =
+    color === 'n'
+      ? ' stroke="white" stroke-width="2" paint-order="stroke"'
+      : '';
+  return `${SVG_OPEN}${defs}<circle cx="22.5" cy="22.5" r="18" fill="${disc}" stroke="black" stroke-width="1.5"/><text x="22.5" y="${22.5 + size * 0.36}" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="${size}" font-weight="700" fill="${color === 'b' ? 'white' : 'black'}"${halo}>${text}</text></svg>`;
 }

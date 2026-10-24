@@ -7,15 +7,12 @@ import {
 } from '@constants/fairyCatalogue';
 import type { FairyColor } from '@constants/fairyPieces';
 import type { BoardCell } from '@app-types';
-import { getPieceKey } from '@/shared/utils/pieceUtils';
-import { namedCell } from '@/shared/utils/fairyCells';
+import { fairyDiscSVG, namedCell } from '@/shared/utils/fairyCells';
 import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
-import { usePieceImages } from '@/shared/hooks/usePieceImages';
 import { DraggablePiece } from '../Board';
 import { BUTTON, CHIP } from './controls';
 
 interface FairyCatalogueProps {
-  pieceStyle: string;
   color: FairyColor;
   selectedPiece: BoardCell | null;
   onSelect: (piece: BoardCell) => void;
@@ -32,8 +29,13 @@ const COLOR_NAMES: Record<FairyColor, string> = {
   n: 'neutral'
 };
 
+function discImage(color: FairyColor, code: string): HTMLImageElement {
+  const image = new Image();
+  image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(fairyDiscSVG(color, code))}`;
+  return image;
+}
+
 export const FairyCatalogue = memo(function FairyCatalogue({
-  pieceStyle,
   color,
   selectedPiece,
   onSelect,
@@ -60,11 +62,13 @@ export const FairyCatalogue = memo(function FairyCatalogue({
       })),
     [color, attributes]
   );
-  const visibleBoard = useMemo(
-    () => [entries.map(({ piece }) => piece)],
-    [entries]
+  const discs = useMemo(
+    () =>
+      Object.fromEntries(
+        WALKS.map((walk) => [walk.code, discImage(color, walk.code)])
+      ),
+    [color]
   );
-  const { pieceImages } = usePieceImages(pieceStyle, { board: visibleBoard });
   const prefix = attributes.length ? `${attributes.join(' ')} ` : '';
 
   const toggleAttribute = (attribute: string) =>
@@ -81,8 +85,6 @@ export const FairyCatalogue = memo(function FairyCatalogue({
     walk: FairyWalk;
     piece: BoardCell;
   }) => {
-    const key = getPieceKey(piece);
-    const image = key ? (pieceImages[key] ?? null) : null;
     return (
       <button
         key={walk.code}
@@ -111,7 +113,7 @@ export const FairyCatalogue = memo(function FairyCatalogue({
         )}
         <DraggablePiece
           piece={piece}
-          pieceImage={image}
+          pieceImage={discs[walk.code] ?? null}
           isFromPalette
           size="100%"
         />
