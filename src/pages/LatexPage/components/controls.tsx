@@ -1,5 +1,7 @@
 import { memo, useId, type ReactNode } from 'react';
 
+import { ChevronLeft, ChevronRight } from '@/assets/icons';
+
 import { segmentButton } from '../utils/controlStyles';
 
 const LABEL_CLASS =
@@ -12,6 +14,7 @@ interface SectionProps {
   title: string;
   description?: string;
   actions?: ReactNode;
+  className?: string | undefined;
   children: ReactNode;
 }
 
@@ -19,13 +22,16 @@ export const Section = memo(function Section({
   title,
   description,
   actions,
+  className = '',
   children
 }: SectionProps) {
   return (
-    <section className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 sm:p-5">
+    <section
+      className={`@container flex min-w-0 flex-col gap-3 rounded-2xl border border-border bg-surface p-4 sm:p-5 ${className}`}
+    >
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
-          <h3 className="text-sm font-bold text-text-primary">{title}</h3>
+          <h2 className="text-sm font-bold text-text-primary">{title}</h2>
           {description && (
             <p className="text-[11px] leading-relaxed text-text-muted">
               {description}
@@ -176,18 +182,16 @@ export function Segmented<T extends string | number>({
       <div
         role="group"
         aria-labelledby={id}
-        className="flex w-full overflow-hidden rounded-lg border border-border/60"
+        className="grid w-full grid-cols-[repeat(auto-fit,minmax(4.25rem,1fr))] overflow-hidden rounded-lg border border-border/60"
       >
-        {options.map((option, index) => (
+        {options.map((option) => (
           <button
             key={String(option.value)}
             type="button"
             disabled={disabled}
             aria-pressed={option.value === value}
             onClick={() => onChange(option.value)}
-            className={`${segmentButton(option.value === value)} ${
-              index < options.length - 1 ? 'border-r border-border/60' : ''
-            }`}
+            className={`${segmentButton(option.value === value)} min-w-0 bg-surface px-2 shadow-[1px_1px_0_0_rgb(var(--val-border)/0.6)] aria-pressed:bg-[color-mix(in_srgb,var(--color-accent)_10%,var(--color-surface))]`}
           >
             {option.label}
           </button>
@@ -234,27 +238,101 @@ export const RangeField = memo(function RangeField({
   );
 });
 
-interface ColorFieldProps {
+export const ICON_BUTTON =
+  'inline-flex size-9 min-h-0 shrink-0 items-center justify-center rounded-lg text-text-muted hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:pointer-events-none disabled:opacity-30';
+
+interface PagerProps {
+  page: number;
+  pageCount: number;
   label: string;
-  value: string;
-  onChange: (value: string) => void;
+  onChange: (page: number) => void;
 }
 
-export const ColorField = memo(function ColorField({
+export const Pager = memo(function Pager({
+  page,
+  pageCount,
+  label,
+  onChange
+}: PagerProps) {
+  if (pageCount <= 1) return null;
+  return (
+    <nav
+      aria-label={`${label} pages`}
+      className="flex items-center justify-between gap-2"
+    >
+      <button
+        type="button"
+        className={ICON_BUTTON}
+        disabled={page === 0}
+        aria-label="Previous page"
+        onClick={() => onChange(page - 1)}
+      >
+        <ChevronLeft className="size-4" aria-hidden="true" />
+      </button>
+      <span className="text-xs font-semibold tabular-nums text-text-secondary">
+        Page {page + 1} of {pageCount}
+      </span>
+      <button
+        type="button"
+        className={ICON_BUTTON}
+        disabled={page >= pageCount - 1}
+        aria-label="Next page"
+        onClick={() => onChange(page + 1)}
+      >
+        <ChevronRight className="size-4" aria-hidden="true" />
+      </button>
+    </nav>
+  );
+});
+
+interface MarkFieldProps {
+  label: string;
+  value: string;
+  color: string;
+  placeholder: string;
+  error?: string | null | undefined;
+  onChange: (value: string) => void;
+  onColorChange: (color: string) => void;
+}
+
+export const MarkField = memo(function MarkField({
   label,
   value,
-  onChange
-}: ColorFieldProps) {
+  color,
+  placeholder,
+  error,
+  onChange,
+  onColorChange
+}: MarkFieldProps) {
   return (
-    <Field label={label}>
-      {(id) => (
-        <input
-          id={id}
-          type="color"
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          className="h-10 w-full cursor-pointer rounded-lg border border-border bg-surface p-1"
-        />
+    <Field label={label} error={error}>
+      {(id, describedBy) => (
+        <div
+          className={`flex min-w-0 items-center rounded-lg border bg-surface focus-within:border-accent ${
+            error ? 'border-error' : 'border-border'
+          }`}
+        >
+          <input
+            id={id}
+            type="text"
+            aria-describedby={describedBy}
+            aria-invalid={error ? true : undefined}
+            value={value}
+            maxLength={500}
+            placeholder={placeholder}
+            autoComplete="off"
+            spellCheck={false}
+            onChange={(event) => onChange(event.target.value)}
+            className="min-w-0 flex-1 bg-transparent px-3 py-2 font-mono text-xs text-text-primary placeholder:text-text-muted outline-none"
+          />
+          <input
+            type="color"
+            value={color}
+            aria-label={`${label} colour`}
+            onChange={(event) => onColorChange(event.target.value)}
+            className="mr-1.5 size-7 shrink-0 cursor-pointer rounded-md border border-border bg-transparent p-0.5"
+          />
+        </div>
       )}
     </Field>
   );

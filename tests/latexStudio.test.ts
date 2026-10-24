@@ -19,8 +19,15 @@ import {
 const ENDGAME_FEN = '8/8/8/3k4/8/4K3/3Q4/8 w - - 0 1';
 
 describe('layout fit', () => {
-  test('has no opinion about snippets', () => {
-    assert.equal(estimateFit({ ...DEFAULT_SETTINGS, mode: 'snippet' }), null);
+  test('measures snippets against a standard article text width', () => {
+    const fit = estimateFit({
+      ...DEFAULT_SETTINGS,
+      latexPackage: 'chessboard',
+      mode: 'snippet',
+      columns: 2
+    });
+    assert.equal(fit.fits, false);
+    assert.equal(fit.maxColumns, 1);
   });
 
   test('reports a fitting layout', () => {

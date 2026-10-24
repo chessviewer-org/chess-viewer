@@ -1,136 +1,345 @@
 import { type CSSProperties, memo, useMemo, useState } from 'react';
 
-import { LATEX_PACKAGE_META, pieceCounts } from '@utils';
-import { useSiteTheme } from '../hooks/useSiteTheme';
+import { pieceCounts } from '@utils';
+import { tokenizeLatexLine, type LatexTokenKind } from '../utils/latexSyntax';
+import { segmentButton } from '../utils/controlStyles';
 import {
+  type BuildResult,
   type StudioPosition,
   type StudioSettings,
-  previewDataUri,
   usableFen
 } from '../utils/latexProject';
+import { Pager } from './controls';
+import { PaperBoard } from './PaperBoard';
 
-const PAGE_SIZE = 12;
-const PREVIEW_SIZE = 260;
+const CODE_PAGE_LINES = 120;
+
+const TOKEN_CLASS: Record<LatexTokenKind, string> = {
+  command: 'text-accent',
+  key: 'text-success',
+  bracket: 'text-text-muted',
+  text: ''
+};
+
+type View = 'preview' | 'code';
+
+const VIEWS: ReadonlyArray<{ value: View; label: string }> = [
+  { value: 'preview', label: 'Preview' },
+  { value: 'code', label: 'Code' }
+];
+
+function rowsPerPage(columns: number): number {
+  return columns === 1 ? 2 : 3;
+}
+
+type Line = [key: string, text: string];
+
+interface CaptionLayout {
+  above: Line[];
+  left: string;
+  right: string;
+  center: string;
+}
+
+function joined(parts: string[], separator: string): string {
+  return parts.filter(Boolean).join(separator);
+}
+
+function captionLayout(
+  position: StudioPosition,
+  number: number,
+  settings: StudioSettings
+): CaptionLayout {
+  const isDiagram = settings.latexPackage === 'diagram';
+  const style = position.captionStyle ?? settings.captionStyle;
+  const fen = usableFen(position.fen);
+  const counts = fen ? pieceCounts(fen) : null;
+  const count =
+    counts && (isDiagram || settings.pieceCount)
+      ? `(${counts.white}+${counts.black})`
+      : '';
+  const numberText = settings.numbering ? `No. ${number}` : '';
+  const heading = joined([numberText, position.caption], '  ');
+  const credits: Line[] = [
+    ['author', position.author],
+    ['source', position.source],
+    ['award', position.award],
+    ['remark', position.remark]
+  ];
+  const toMove = fen?.split(' ')[1] === 'b' ? 'Black to move' : 'White to move';
+  const blank = { above: [], left: '', right: '', center: '' };
+
+  switch (
+    isDiagram && style !== 'game' && style !== 'plain' ? 'problem' : style
+  ) {
+    case 'problem':
+      return {
+        ...blank,
+        above: [['heading', heading], ...credits],
+        left: count,
+        right: position.stipulation
+      };
+    case 'study':
+      return {
+        ...blank,
+        above: [['heading', heading], ...credits],
+        center: joined([position.stipulation, count], '  ')
+      };
+    case 'game':
+      return {
+        above: [
+          ['heading', numberText],
+          ['players', joined([position.white, position.black], ' – ')],
+          ['event', joined([position.event, position.date], ', ')],
+          ['remark', position.remark]
+        ],
+        left: position.caption,
+        right: toMove,
+        center: ''
+      };
+    case 'plain':
+      return {
+        ...blank,
+        above: [['heading', numberText]],
+        center: position.stipulation
+      };
+    default:
+      return {
+        ...blank,
+        center: joined(
+          [
+            heading,
+            position.author,
+            position.source,
+            position.award,
+            position.remark,
+            joined([position.stipulation, count], '  ')
+          ],
+          '\n'
+        )
+      };
+  }
+}
 
 interface PreviewCardProps {
   position: StudioPosition;
   number: number;
   settings: StudioSettings;
-  coordColor: 'black' | 'white';
 }
 
 const PreviewCard = memo(function PreviewCard({
   position,
   number,
-  settings,
-  coordColor
+  settings
 }: PreviewCardProps) {
-  const meta = LATEX_PACKAGE_META[settings.latexPackage];
-  const isDiagram = settings.latexPackage === 'diagram';
-  const src = useMemo(
-    () =>
-      previewDataUri(
-        meta.supportsFlip ? position : { ...position, flipped: false },
-        {
-          size: PREVIEW_SIZE,
-          showCoords: !isDiagram && settings.showCoords,
-          showAnnotations: meta.supportsMarks,
-          coordColor
-        }
-      ),
-    [position, meta, isDiagram, settings.showCoords, coordColor]
-  );
-  const fen = usableFen(position.fen);
-  const counts = fen ? pieceCounts(fen) : null;
-  const credits = [position.author, position.source, position.award]
-    .filter(Boolean)
-    .join(' — ');
-  const showCount = counts && (isDiagram || settings.pieceCount);
+  const layout = captionLayout(position, number, settings);
+  const lines = layout.above.filter(([, text]) => text);
 
   return (
-    <figure className="flex min-w-0 flex-col items-center gap-2 text-center">
-      <div className="grid aspect-square w-full max-w-[16rem] place-items-center">
-        {src ? (
-          <img
-            src={src}
-            alt={`Diagram ${number}`}
-            width={PREVIEW_SIZE}
-            height={PREVIEW_SIZE}
-            loading="lazy"
-            decoding="async"
-            className="size-full object-contain"
-          />
-        ) : (
-          <span className="px-3 text-xs font-semibold text-error">
-            Invalid FEN — left out
-          </span>
-        )}
-      </div>
-      <figcaption className="space-y-0.5 text-xs text-text-secondary">
-        {settings.numbering && (
-          <p className="font-bold text-text-primary">No. {number}</p>
-        )}
-        {credits && <p className="leading-snug">{credits}</p>}
-        {(position.stipulation || showCount) && (
-          <p className="font-semibold text-text-primary">
-            {position.stipulation}
-            {position.stipulation && showCount ? '  ' : ''}
-            {showCount && (
-              <span className="font-normal text-text-muted">
-                ({counts.white}+{counts.black})
-              </span>
-            )}
+    <figure className="row-span-3 grid min-w-0 grid-rows-subgrid justify-items-center gap-y-1.5 text-center text-neutral-900">
+      <figcaption className="w-full self-end break-words text-xs leading-snug">
+        {lines.map(([key, text]) => (
+          <p
+            key={key}
+            className={
+              key === 'heading'
+                ? 'font-bold'
+                : key === 'author' || key === 'players'
+                  ? 'font-semibold'
+                  : 'text-neutral-600 italic'
+            }
+          >
+            {text}
+          </p>
+        ))}
+      </figcaption>
+      <PaperBoard
+        position={position}
+        settings={settings}
+        alt={`Diagram ${number}`}
+        className="w-full max-w-[15rem]"
+      />
+      <div className="w-full max-w-[15rem] text-xs">
+        {(layout.left || layout.right) && (
+          <p className="flex justify-between gap-2">
+            <span className="text-neutral-600">{layout.left}</span>
+            <span className="font-bold">{layout.right}</span>
           </p>
         )}
-      </figcaption>
+        {layout.center && (
+          <p className="break-words whitespace-pre-line">{layout.center}</p>
+        )}
+      </div>
     </figure>
   );
 });
 
+interface CodeLine {
+  number: number;
+  text: string;
+}
+
+const CodePage = memo(function CodePage({
+  lines,
+  gutter
+}: {
+  lines: CodeLine[];
+  gutter: number;
+}) {
+  return (
+    <pre
+      tabIndex={0}
+      aria-label="Generated LaTeX source"
+      className="flex-1 rounded-xl border border-border bg-surface-elevated p-3 font-mono text-[12px] leading-relaxed whitespace-pre-wrap break-all text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+    >
+      <code>
+        {lines.map(({ number, text }) => (
+          <span key={number} className="flex">
+            <span
+              aria-hidden="true"
+              className="mr-4 shrink-0 text-right text-text-muted/60 select-none"
+              style={{ minWidth: `${gutter}ch` }}
+            >
+              {number}
+            </span>
+            <span className="min-w-0">
+              {tokenizeLatexLine(text).map((token) => (
+                <span key={token.start} className={TOKEN_CLASS[token.kind]}>
+                  {token.text}
+                </span>
+              ))}
+            </span>
+          </span>
+        ))}
+      </code>
+    </pre>
+  );
+});
+
 interface PreviewPanelProps {
+  build: BuildResult;
   positions: StudioPosition[];
   settings: StudioSettings;
 }
 
 export const PreviewPanel = memo(function PreviewPanel({
+  build,
   positions,
   settings
 }: PreviewPanelProps) {
-  const [visible, setVisible] = useState(PAGE_SIZE);
-  const theme = useSiteTheme();
-  const coordColor = theme === 'dark' ? 'white' : 'black';
-  const shown = positions.slice(0, visible);
+  const [view, setView] = useState<View>('preview');
+  const [pages, setPages] = useState<Record<View, number>>({
+    preview: 0,
+    code: 0
+  });
+
+  const printable = useMemo(
+    () => positions.filter((position) => usableFen(position.fen) !== null),
+    [positions]
+  );
+  const lines = useMemo(
+    () =>
+      build.code
+        .split('\n')
+        .map((text, offset): CodeLine => ({ number: offset + 1, text })),
+    [build.code]
+  );
+
   const columns = Math.min(settings.columns, 4);
+  const perPage = columns * rowsPerPage(columns);
+  const pageCount =
+    view === 'preview'
+      ? Math.max(1, Math.ceil(printable.length / perPage))
+      : Math.max(1, Math.ceil(lines.length / CODE_PAGE_LINES));
+  const page = Math.min(pages[view], pageCount - 1);
+  const setPage = (next: number) =>
+    setPages((current) => ({ ...current, [view]: next }));
+
+  const titled =
+    page === 0 && settings.mode === 'document' && settings.title.trim();
 
   return (
-    <div className="flex flex-col gap-3">
-      <div
-        className="grid grid-cols-[repeat(var(--preview-columns),minmax(0,1fr))] gap-x-3 gap-y-6 rounded-xl border border-border bg-surface-elevated p-3 max-sm:grid-cols-[repeat(min(var(--preview-columns),2),minmax(0,1fr))] sm:gap-x-4 sm:p-4"
-        style={{ '--preview-columns': columns } as CSSProperties}
-      >
-        {shown.map((position, index) => (
-          <PreviewCard
-            key={position.id}
-            position={position}
-            number={index + 1}
-            settings={settings}
-            coordColor={coordColor}
-          />
-        ))}
-      </div>
-      <p className="text-[11px] leading-relaxed text-text-muted">
-        An approximation of the printed page. Coordinates follow the site theme
-        here and print in black; fonts and spacing come from LaTeX.
-      </p>
-      {visible < positions.length && (
-        <button
-          type="button"
-          onClick={() => setVisible((count) => count + PAGE_SIZE)}
-          className="min-h-10 rounded-lg border border-border/60 bg-surface px-3 py-2 text-xs font-semibold text-text-secondary transition-colors hover:bg-surface-elevated hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+    <section
+      aria-label="Document preview"
+      className="flex min-w-0 flex-col gap-4 rounded-2xl border border-border bg-surface p-4 sm:p-5"
+    >
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div
+          role="group"
+          aria-label="Preview or code"
+          className="flex overflow-hidden rounded-lg border border-border/60"
         >
-          Show more ({positions.length - visible} left)
-        </button>
+          {VIEWS.map((option, index) => (
+            <button
+              key={option.value}
+              type="button"
+              aria-pressed={view === option.value}
+              onClick={() => setView(option.value)}
+              className={`${segmentButton(view === option.value)} min-w-20 ${
+                index < VIEWS.length - 1 ? 'border-r border-border/60' : ''
+              }`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+        <Pager
+          page={page}
+          pageCount={pageCount}
+          label={view === 'preview' ? 'Preview' : 'Code'}
+          onChange={setPage}
+        />
+      </header>
+
+      {build.error ? (
+        <p className="py-10 text-center text-sm text-text-muted">
+          Nothing to show yet.
+        </p>
+      ) : view === 'preview' ? (
+        <div className="flex flex-1 flex-col gap-2">
+          <div className="flex-1 rounded-lg bg-white p-5 shadow-lg ring-1 ring-black/5 sm:p-8">
+            {titled && (
+              <header className="mb-6 text-center">
+                <p className="font-serif text-lg font-bold break-words text-neutral-900">
+                  {settings.title}
+                </p>
+                {settings.documentAuthor.trim() && (
+                  <p className="mt-1 font-serif text-sm break-words text-neutral-600">
+                    {settings.documentAuthor}
+                  </p>
+                )}
+              </header>
+            )}
+            <div
+              className="grid grid-cols-[repeat(var(--preview-columns),minmax(0,1fr))] gap-x-4 gap-y-1.5 [&>figure]:mb-6 max-sm:grid-cols-[repeat(min(var(--preview-columns),2),minmax(0,1fr))]"
+              style={{ '--preview-columns': columns } as CSSProperties}
+            >
+              {printable
+                .slice(page * perPage, (page + 1) * perPage)
+                .map((position, offset) => (
+                  <PreviewCard
+                    key={position.id}
+                    position={position}
+                    number={page * perPage + offset + 1}
+                    settings={settings}
+                  />
+                ))}
+            </div>
+          </div>
+          <p className="text-[11px] leading-relaxed text-text-muted">
+            An approximation of the printed page; fonts and spacing come from
+            LaTeX.
+          </p>
+        </div>
+      ) : (
+        <CodePage
+          lines={lines.slice(
+            page * CODE_PAGE_LINES,
+            (page + 1) * CODE_PAGE_LINES
+          )}
+          gutter={String(lines.length).length}
+        />
       )}
-    </div>
+    </section>
   );
 });

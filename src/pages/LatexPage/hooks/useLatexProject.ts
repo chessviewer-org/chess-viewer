@@ -44,12 +44,14 @@ export interface LatexProjectActions {
 }
 
 export type SharedFields = Partial<
-  Pick<StudioPosition, 'author' | 'source' | 'award' | 'stipulation' | 'remark'>
+  Pick<
+    StudioPosition,
+    'author' | 'source' | 'award' | 'stipulation' | 'remark' | 'event' | 'date'
+  >
 >;
 
 export interface LatexProjectState {
   project: LatexProject;
-  selected: StudioPosition;
   build: BuildResult;
   isFull: boolean;
   canUndo: boolean;
@@ -210,13 +212,6 @@ export function useLatexProject(): LatexProjectState {
     setSnapshot(null);
   }, [snapshot]);
 
-  const selected = useMemo(
-    () =>
-      project.positions.find((p) => p.id === project.selectedId) ??
-      project.positions[0]!,
-    [project.positions, project.selectedId]
-  );
-
   const actions = useMemo(
     () => ({
       select,
@@ -252,7 +247,6 @@ export function useLatexProject(): LatexProjectState {
 
   return {
     project,
-    selected,
     build,
     isFull: project.positions.length >= LATEX_MAX_POSITIONS,
     canUndo: snapshot !== null,
