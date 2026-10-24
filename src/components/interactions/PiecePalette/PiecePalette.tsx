@@ -24,6 +24,7 @@ export interface PiecePaletteProps {
   pieceImages: Record<string, HTMLImageElement | null>;
   groups?: readonly PaletteGroup[];
   className?: string;
+  adaptive?: boolean;
   onKeyboardPick?: ((piece: BoardCell) => void) | undefined;
   selectedPiece?: BoardCell | null | undefined;
   onSelect?: ((piece: BoardCell) => void) | undefined;
@@ -42,6 +43,7 @@ export const PiecePalette = memo(function PiecePalette({
   pieceImages,
   groups = STANDARD_GROUPS,
   className = '',
+  adaptive = false,
   onKeyboardPick,
   selectedPiece,
   onSelect
@@ -92,7 +94,9 @@ export const PiecePalette = memo(function PiecePalette({
   );
 
   return (
-    <div className={`${styles.root} ${className}`}>
+    <div
+      className={`${styles.root} ${adaptive ? styles.adaptive : ''} ${className}`}
+    >
       <div className={styles.stacked}>
         {rows.map((row) => (
           <div key={row[0]?.label} className={styles.stackedRow}>

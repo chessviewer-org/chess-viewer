@@ -233,6 +233,7 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
           hidden={tab !== 'symbols'}
         >
           <PiecePalette
+            adaptive
             pieceImages={pieceImages}
             groups={groups}
             selectedPiece={selectedPiece}
