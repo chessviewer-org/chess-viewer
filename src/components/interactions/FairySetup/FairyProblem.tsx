@@ -1,13 +1,16 @@
 import { memo, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { FAIRY_CONDITIONS } from '@constants/fairyCatalogue';
-import { ChevronRight } from '@/assets/icons';
+import { ChevronRight, Download, Upload } from '@/assets/icons';
 import {
   parseFEN,
   positionContext,
   serializePosition,
-  validateFEN
+  validateFEN,
+  validateFENDetailed
 } from '@/shared/utils/fenParser';
-import { AREA, CHIP, CONTROL, LABEL, PRIMARY } from './controls';
+import { MAX_COMPOSITION_LENGTH, serializePopeye } from '@/shared/utils/popeye';
+import { saveBlob } from '@/shared/utils/saveBlob';
+import { AREA, BUTTON, CHIP, CONTROL, LABEL, PRIMARY } from './controls';
 import { SearchField } from './SearchField';
 
 interface FairyProblemProps {
@@ -95,6 +98,7 @@ export const FairyProblem = memo(function FairyProblem({
   const id = useId();
   const stipulationRef = useRef<HTMLInputElement>(null);
   const conditionsRef = useRef<HTMLTextAreaElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
   const [error, setError] = useState<ProblemError | null>(null);
   const [appliedCommandsKey, setAppliedCommandsKey] = useState<string | null>(
@@ -230,6 +234,48 @@ export const FairyProblem = memo(function FairyProblem({
     onChange(value);
   };
 
+  const importFile = async (file: File) => {
+    if (file.size > MAX_COMPOSITION_LENGTH * 4) {
+      reportError('position', 'The composition file is too large.');
+      return;
+    }
+    const source = (await file.text()).trim();
+    const validation = validateFENDetailed(source);
+    if (!validation.isValid) {
+      reportError(
+        'position',
+        validation.errorMessage ?? 'This file is not a valid position.'
+      );
+      return;
+    }
+    onChange(source);
+  };
+
+  const saveFile = () => {
+    const validation = validateFENDetailed(fen);
+    if (!validation.isValid) {
+      reportError(
+        'position',
+        validation.errorMessage ?? 'Correct the position before saving.'
+      );
+      return;
+    }
+    const context = positionContext(fen);
+    saveBlob(
+      new Blob(
+        [
+          serializePopeye(parseFEN(fen), {
+            ...context,
+            commands: context.commands ?? []
+          })
+        ],
+        { type: 'text/plain;charset=utf-8' }
+      ),
+      'fairy-position',
+      'inp'
+    );
+  };
+
   const status = error
     ? error.field === 'position'
       ? error.message
@@ -242,9 +288,37 @@ export const FairyProblem = memo(function FairyProblem({
 
   return (
     <section aria-labelledby={`${id}-heading`} className="space-y-4">
-      <h2 id={`${id}-heading`} className="sr-only">
-        Problem
-      </h2>
+      <div className="flex items-center justify-between gap-2">
+        <h2 id={`${id}-heading`} className={LABEL}>
+          Popeye problem
+        </h2>
+        <div className="flex gap-1.5">
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".inp,.txt,.fen"
+            className="sr-only"
+            aria-label="Import a Popeye or FEN file"
+            onChange={(event) => {
+              const file = event.currentTarget.files?.[0];
+              if (file) void importFile(file);
+              event.currentTarget.value = '';
+            }}
+          />
+          <button
+            type="button"
+            className={`${BUTTON} h-8`}
+            onClick={() => fileRef.current?.click()}
+          >
+            <Upload className="size-3.5" aria-hidden="true" />
+            Import
+          </button>
+          <button type="button" className={`${BUTTON} h-8`} onClick={saveFile}>
+            <Download className="size-3.5" aria-hidden="true" />
+            Save .inp
+          </button>
+        </div>
+      </div>
 
       <div className="space-y-1.5">
         <div className="flex items-center justify-between gap-2">
