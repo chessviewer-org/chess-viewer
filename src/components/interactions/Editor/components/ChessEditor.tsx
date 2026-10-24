@@ -373,7 +373,7 @@ export const ChessEditor = memo(function ChessEditor({
           </div>
         </div>
 
-        <CompositionLegend fen={fen} />
+        <CompositionLegend fen={fen} pieceImages={pieceImages} />
         <div className={styles.editorDbRow}>
           <DatabaseSearchPanel
             fairyPosition={isFairyFEN(fen)}
