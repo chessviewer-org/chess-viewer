@@ -1,4 +1,4 @@
-import { memo, useId, useMemo, useState } from 'react';
+import { memo, useState } from 'react';
 import { ArrowLeft } from '@/assets/icons';
 import {
   FAIRY_ROTATIONS,
@@ -9,22 +9,17 @@ import {
 import type { BoardCell } from '@app-types';
 import { cellName, parseCellCode, symbolCell } from '@/shared/utils/boardCells';
 import { parseNamedCell } from '@/shared/utils/fairyCells';
-import { positionContext, validateFEN } from '@/shared/utils/fenParser';
 import { getPieceKey } from '@/shared/utils/pieceUtils';
 import { usePieceImages } from '@/shared/hooks/usePieceImages';
-import { FairyProblem } from '../FairySetup/FairyProblem';
+import { FairyCatalogue } from '../FairySetup/FairyCatalogue';
 import { Segmented } from '../FairySetup/Segmented';
 import { PiecePalette, type PaletteGroup } from './PiecePalette';
 
 interface FairySymbolPaletteProps {
-  fen: string;
   pieceStyle: string;
   selectedPiece: BoardCell | null;
   onSelect: (piece: BoardCell) => void;
   onKeyboardPick: (piece: BoardCell) => void;
-  onFenChange: (fen: string) => void;
-  rotation: FairyRotation;
-  onRotationChange: (rotation: FairyRotation) => void;
 }
 
 const PIECES: readonly FairyPieceType[] = ['K', 'Q', 'R', 'B', 'N', 'P'];
@@ -34,11 +29,6 @@ const COLORS: readonly { color: FairyColor; label: string }[] = [
   { color: 'b', label: 'Black' },
   { color: 'n', label: 'Neutral' }
 ];
-const TABS = [
-  { id: 'pieces', label: 'Pieces' },
-  { id: 'problem', label: 'Problem' }
-] as const;
-type PaletteTab = (typeof TABS)[number]['id'];
 const ROTATION_OPTIONS = FAIRY_ROTATIONS.map((value) => ({
   value: String(value) as `${FairyRotation}`,
   label: `${value}°`,
@@ -68,17 +58,12 @@ function pieceGroups(rotation: FairyRotation): PaletteGroup[] {
 }
 
 export const FairySymbolPalette = memo(function FairySymbolPalette({
-  fen,
   pieceStyle,
   selectedPiece,
   onSelect,
-  onKeyboardPick,
-  onFenChange,
-  rotation,
-  onRotationChange
+  onKeyboardPick
 }: FairySymbolPaletteProps) {
-  const id = useId();
-  const [tab, setTab] = useState<PaletteTab>('pieces');
+  const [rotation, setRotation] = useState<FairyRotation>(0);
   const [markerColor, setMarkerColor] = useState<FairyColor>('w');
   const groups: PaletteGroup[] = [
     ...pieceGroups(rotation),
@@ -124,19 +109,9 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
   const { pieceImages, error } = usePieceImages(pieceStyle, {
     board: visibleBoard
   });
-  const stipulation = useMemo(
-    () =>
-      validateFEN(fen)
-        ? positionContext(fen).commands?.find(({ keyword }) =>
-            ['stipulation', 'sstipulation'].includes(keyword)
-          )?.value
-        : undefined,
-    [fen]
-  );
-
   function restyle(nextMarkerColor: FairyColor, nextRotation: FairyRotation) {
     setMarkerColor(nextMarkerColor);
-    onRotationChange(nextRotation);
+    setRotation(nextRotation);
     if (!selectedPiece || parseNamedCell(selectedPiece)) return;
     const code = parseCellCode(getPieceKey(selectedPiece) ?? '');
     if (!code) return;
@@ -152,82 +127,38 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
   return (
     <div className="min-w-0" onClick={(event) => event.stopPropagation()}>
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <div role="tablist" aria-label="Fairy palette" className="flex gap-3">
-          {TABS.map(({ id: value, label }, index) => (
-            <button
-              key={value}
-              type="button"
-              role="tab"
-              id={`${id}-${value}-tab`}
-              aria-controls={`${id}-${value}-panel`}
-              aria-selected={tab === value}
-              tabIndex={tab === value ? 0 : -1}
-              className="flex h-8 cursor-pointer items-center gap-1.5 border-b-2 border-transparent text-xs font-semibold tracking-wide text-text-secondary uppercase hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent aria-selected:border-accent aria-selected:text-text-primary"
-              onClick={() => setTab(value)}
-              onKeyDown={(event) => {
-                const offset =
-                  event.key === 'ArrowRight'
-                    ? 1
-                    : event.key === 'ArrowLeft'
-                      ? -1
-                      : 0;
-                if (!offset) return;
-                event.preventDefault();
-                const next = TABS[(index + offset + TABS.length) % TABS.length];
-                if (!next) return;
-                setTab(next.id);
-                document.getElementById(`${id}-${next.id}-tab`)?.focus();
-              }}
-            >
-              {label}
-              {value === 'problem' && stipulation && (
-                <span className="max-w-16 truncate rounded bg-accent/15 px-1 font-mono text-[0.6875rem] text-accent normal-case">
-                  {stipulation}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-        {tab === 'pieces' && (
-          <Segmented
-            label="Rotation, clockwise"
-            value={String(rotation) as `${FairyRotation}`}
-            options={ROTATION_OPTIONS}
-            onChange={(value) =>
-              restyle(markerColor, Number(value) as FairyRotation)
-            }
-            className="font-mono"
-          />
-        )}
+        <span className="text-xs font-semibold tracking-[0.075em] text-text-secondary uppercase">
+          Symbols
+        </span>
+        <Segmented
+          label="Rotation, clockwise"
+          value={String(rotation) as `${FairyRotation}`}
+          options={ROTATION_OPTIONS}
+          onChange={(value) =>
+            restyle(markerColor, Number(value) as FairyRotation)
+          }
+          className="font-mono"
+        />
       </div>
-
-      <div
-        role="tabpanel"
-        id={`${id}-pieces-panel`}
-        aria-labelledby={`${id}-pieces-tab`}
-        hidden={tab !== 'pieces'}
-        className="space-y-3"
-      >
-        <PiecePalette
-          pieceImages={pieceImages}
-          groups={groups}
+      <PiecePalette
+        pieceImages={pieceImages}
+        groups={groups}
+        selectedPiece={selectedPiece}
+        onSelect={onSelect}
+        onKeyboardPick={onKeyboardPick}
+      />
+      {error && (
+        <p role="alert" className="mt-2 text-xs text-error">
+          {error}. Reload to try again.
+        </p>
+      )}
+      <div className="mt-3 border-t border-border/50 pt-3">
+        <FairyCatalogue
+          pieceStyle={pieceStyle}
           selectedPiece={selectedPiece}
           onSelect={onSelect}
           onKeyboardPick={onKeyboardPick}
         />
-        {error && (
-          <p role="alert" className="text-xs text-error">
-            {error}. Reload to try again.
-          </p>
-        )}
-      </div>
-      <div
-        role="tabpanel"
-        id={`${id}-problem-panel`}
-        aria-labelledby={`${id}-problem-tab`}
-        hidden={tab !== 'problem'}
-      >
-        <FairyProblem fen={fen} onChange={onFenChange} />
       </div>
     </div>
   );

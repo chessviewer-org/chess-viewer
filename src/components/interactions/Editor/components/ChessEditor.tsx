@@ -14,7 +14,6 @@ import { useEditorKeyboard } from '@/shared/hooks/useKeyboard';
 import { useInteractiveBoard } from '@/shared/hooks/useInteractiveBoard';
 import { usePieceImages } from '@/shared/hooks/usePieceImages';
 import type { BoardCell } from '@app-types';
-import type { FairyRotation } from '@constants/fairyPieces';
 import { isFairyFEN } from '@/shared/utils/fenParser';
 import {
   buildManualDatabaseUrl,
@@ -31,7 +30,7 @@ import {
 } from '../../Board';
 import { PiecePalette } from '../../PiecePalette';
 import { FairySymbolPalette } from '../../PiecePalette/FairySymbolPalette';
-import { FairyCatalogue } from '../../FairySetup/FairyCatalogue';
+import { FairyProblem } from '../../FairySetup/FairyProblem';
 import { CompositionLegend } from '../../FairySetup/CompositionLegend';
 import { CommandBar } from './CommandBar';
 import { DatabaseSearchPanel } from './DatabaseSearchPanel';
@@ -90,7 +89,6 @@ export const ChessEditor = memo(function ChessEditor({
   const paletteMode = variant;
   const [selectedPalettePiece, setSelectedPalettePiece] =
     useState<BoardCell | null>(null);
-  const [rotation, setRotation] = useState<FairyRotation>(0);
   const {
     board,
     handlePieceDrop,
@@ -334,14 +332,10 @@ export const ChessEditor = memo(function ChessEditor({
             <div className={styles.editorPaletteCard}>
               {variant === 'fairy' ? (
                 <FairySymbolPalette
-                  fen={fen}
                   pieceStyle={pieceStyle}
-                  rotation={rotation}
-                  onRotationChange={setRotation}
                   onKeyboardPick={handlePalettePick}
                   selectedPiece={selectedPalettePiece}
                   onSelect={handlePaletteSelect}
-                  onFenChange={onFenChange}
                 />
               ) : (
                 <PiecePalette
@@ -381,13 +375,7 @@ export const ChessEditor = memo(function ChessEditor({
         </div>
 
         {variant === 'fairy' && (
-          <FairyCatalogue
-            pieceStyle={pieceStyle}
-            rotation={rotation}
-            selectedPiece={selectedPalettePiece}
-            onSelect={handlePaletteSelect}
-            onKeyboardPick={handlePalettePick}
-          />
+          <FairyProblem fen={fen} onChange={onFenChange} />
         )}
         <CompositionLegend fen={fen} />
         <div className={styles.editorDbRow}>

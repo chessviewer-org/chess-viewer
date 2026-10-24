@@ -5,7 +5,7 @@ import {
   FAIRY_WALKS,
   type FairyWalk
 } from '@constants/fairyCatalogue';
-import type { FairyColor, FairyRotation } from '@constants/fairyPieces';
+import type { FairyColor } from '@constants/fairyPieces';
 import type { BoardCell } from '@app-types';
 import { getPieceKey } from '@/shared/utils/pieceUtils';
 import { namedCell, parseNamedCell } from '@/shared/utils/fairyCells';
@@ -17,18 +17,26 @@ import { Segmented } from './Segmented';
 
 interface FairyCatalogueProps {
   pieceStyle: string;
-  rotation: FairyRotation;
   selectedPiece: BoardCell | null;
   onSelect: (piece: BoardCell) => void;
   onKeyboardPick: (piece: BoardCell) => void;
 }
 
+const COLLAPSED_LIMIT = 30;
+const GLYPH_ORDER = 'KQRBNPC';
 const byName = new Intl.Collator('en').compare;
+const glyphRank = (glyph = '') =>
+  glyph
+    ? GLYPH_ORDER.indexOf(glyph[0] ?? '') * 4 + Number(glyph.slice(1) || 0) / 90
+    : Infinity;
 const WALKS = FAIRY_WALKS.map((walk) => ({
   walk,
-  turn: Number(walk.glyph?.slice(1) || 0),
   search: `${walk.name} ${walk.code}`.toLowerCase()
-})).sort((a, b) => byName(a.walk.name, b.walk.name));
+})).sort(
+  (a, b) =>
+    glyphRank(a.walk.glyph) - glyphRank(b.walk.glyph) ||
+    byName(a.walk.code, b.walk.code)
+);
 const COLORS = [
   { value: 'w', label: 'White' },
   { value: 'b', label: 'Black' },
@@ -42,7 +50,6 @@ const COLOR_NAMES: Record<FairyColor, string> = {
 
 export const FairyCatalogue = memo(function FairyCatalogue({
   pieceStyle,
-  rotation,
   selectedPiece,
   onSelect,
   onKeyboardPick
@@ -51,21 +58,27 @@ export const FairyCatalogue = memo(function FairyCatalogue({
   const [query, setQuery] = useState('');
   const [attributes, setAttributes] = useState<string[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   const term = query.trim().toLowerCase();
   const entries = useMemo(
     () =>
-      WALKS.filter(({ turn, search }) =>
-        term ? search.includes(term) : turn === rotation
-      ).flatMap(({ walk }) => {
-        const piece = namedCell(color, walk.code, attributes);
-        return parseNamedCell(piece) ? [{ walk, piece }] : [];
-      }),
-    [term, rotation, color, attributes]
+      WALKS.filter(({ search }) => search.includes(term)).flatMap(
+        ({ walk }) => {
+          const piece = namedCell(color, walk.code, attributes);
+          return parseNamedCell(piece) ? [{ walk, piece }] : [];
+        }
+      ),
+    [term, color, attributes]
+  );
+  const collapsed = !expanded && !term && entries.length > COLLAPSED_LIMIT;
+  const shown = useMemo(
+    () => (collapsed ? entries.slice(0, COLLAPSED_LIMIT) : entries),
+    [collapsed, entries]
   );
   const visibleBoard = useMemo(
-    () => [entries.map(({ piece }) => piece)],
-    [entries]
+    () => [shown.map(({ piece }) => piece)],
+    [shown]
   );
   const { pieceImages } = usePieceImages(pieceStyle, { board: visibleBoard });
   const prefix = attributes.length ? `${attributes.join(' ')} ` : '';
@@ -130,25 +143,14 @@ export const FairyCatalogue = memo(function FairyCatalogue({
   };
 
   return (
-    <section
-      aria-label="Named pieces"
-      className="rounded-xl border border-border/40 bg-surface-elevated/60 p-3"
-      onClick={(event) => event.stopPropagation()}
-    >
-      <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
+    <section aria-label="Named pieces">
+      <header className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <div className="flex min-w-0 items-baseline gap-2">
           <h3 className="text-xs font-semibold tracking-[0.075em] text-text-secondary uppercase">
             Named pieces
           </h3>
           <span className="rounded-full bg-bg/60 px-2 font-mono text-[0.6875rem] text-text-secondary">
             {entries.length}
-          </span>
-          <span className="truncate text-xs text-text-muted">
-            {term
-              ? 'matching your search'
-              : rotation
-                ? `drawn turned ${rotation}°`
-                : 'upright and lettered'}
           </span>
         </div>
         <Segmented
@@ -236,13 +238,23 @@ export const FairyCatalogue = memo(function FairyCatalogue({
         aria-label="Named fairy pieces"
         className="mt-3 grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-1"
       >
-        {entries.map(renderEntry)}
+        {shown.map(renderEntry)}
         {entries.length === 0 && (
           <p className="col-span-full py-6 text-center text-xs text-text-secondary">
             No named piece matches “{query.trim()}”.
           </p>
         )}
       </div>
+      {!term && entries.length > COLLAPSED_LIMIT && (
+        <button
+          type="button"
+          aria-expanded={expanded}
+          className="mt-2 h-8 w-full cursor-pointer rounded-md border border-border/50 text-xs font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          onClick={() => setExpanded((open) => !open)}
+        >
+          {expanded ? 'Show fewer' : `Show all ${entries.length}`}
+        </button>
+      )}
     </section>
   );
 });

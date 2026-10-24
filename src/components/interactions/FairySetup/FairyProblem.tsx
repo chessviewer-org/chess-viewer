@@ -287,9 +287,16 @@ export const FairyProblem = memo(function FairyProblem({
         : 'Up to date';
 
   return (
-    <section aria-labelledby={`${id}-heading`} className="space-y-4">
+    <section
+      aria-labelledby={`${id}-heading`}
+      className="@container space-y-4 rounded-xl border border-border/40 bg-surface-elevated p-3"
+      onClick={(event) => event.stopPropagation()}
+    >
       <div className="flex items-center justify-between gap-2">
-        <h2 id={`${id}-heading`} className={LABEL}>
+        <h2
+          id={`${id}-heading`}
+          className="text-xs font-bold tracking-[0.075em] text-text-secondary uppercase"
+        >
           Popeye problem
         </h2>
         <div className="flex gap-1.5">
@@ -320,124 +327,126 @@ export const FairyProblem = memo(function FairyProblem({
         </div>
       </div>
 
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between gap-2">
-          <label className={LABEL} htmlFor={`${id}-stipulation`}>
-            Stipulation
-          </label>
-          <button
-            type="button"
-            aria-pressed={draft.structured}
-            title="Write the stipulation as a Popeye SStipulation expression"
-            className={`${CHIP} h-7`}
-            onClick={() => updateDraft({ structured: !draft.structured })}
-          >
-            Structured
-          </button>
-        </div>
-        <input
-          ref={stipulationRef}
-          id={`${id}-stipulation`}
-          value={draft.stipulation}
-          onChange={(event) =>
-            updateDraft({ stipulation: event.currentTarget.value })
-          }
-          maxLength={200}
-          placeholder="#2, h#2, s#3…"
-          autoComplete="off"
-          spellCheck={false}
-          aria-invalid={error?.field === 'stipulation' || undefined}
-          aria-describedby={`${id}-stipulation-error`}
-          className={`${CONTROL} font-mono`}
-        />
-        <div className="flex flex-wrap gap-1.5">
-          {STIPULATION_PRESETS.map((preset) => (
+      <div className="grid gap-4 @3xl:grid-cols-2">
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between gap-2">
+            <label className={LABEL} htmlFor={`${id}-stipulation`}>
+              Stipulation
+            </label>
             <button
-              key={preset}
               type="button"
-              aria-pressed={draft.stipulation.trim() === preset}
-              className={`${CHIP} h-7 px-2.5 font-mono`}
-              onClick={() =>
-                updateDraft({ stipulation: preset, structured: false })
-              }
+              aria-pressed={draft.structured}
+              title="Write the stipulation as a Popeye SStipulation expression"
+              className={`${CHIP} h-7`}
+              onClick={() => updateDraft({ structured: !draft.structured })}
             >
-              {preset}
+              Structured
             </button>
-          ))}
-        </div>
-        {error?.field === 'stipulation' && (
-          <p id={`${id}-stipulation-error`} className="text-xs text-error">
-            {error.message}
-          </p>
-        )}
-      </div>
-
-      <div className="space-y-1.5">
-        <label className={LABEL} htmlFor={`${id}-conditions`}>
-          Conditions
-        </label>
-        <textarea
-          ref={conditionsRef}
-          id={`${id}-conditions`}
-          value={draft.conditions}
-          onChange={(event) =>
-            updateDraft({ conditions: event.currentTarget.value })
-          }
-          maxLength={4000}
-          rows={2}
-          placeholder={'One per line, e.g.\nMadrasi RexInclusive'}
-          spellCheck={false}
-          aria-invalid={error?.field === 'conditions' || undefined}
-          aria-describedby={`${id}-conditions-error`}
-          className={`${AREA} font-mono [field-sizing:content] min-h-16`}
-        />
-        {error?.field === 'conditions' && (
-          <p id={`${id}-conditions-error`} className="text-xs text-error">
-            {error.message}
-          </p>
-        )}
-        <details className="group/library rounded-lg border border-border/70">
-          <summary className="flex h-9 cursor-pointer list-none items-center gap-2 rounded-lg px-3 text-xs text-text-secondary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent [&::-webkit-details-marker]:hidden">
-            <ChevronRight
-              className="size-3.5 shrink-0 group-open/library:rotate-90"
-              aria-hidden="true"
-            />
-            <span className="flex-1">Condition library</span>
-            <span className="font-mono text-text-muted">
-              {CONDITIONS.length}
-            </span>
-          </summary>
-          <div className="space-y-2 border-t border-border/70 p-3">
-            <SearchField
-              label="Search fairy conditions"
-              placeholder="Search conditions"
-              value={query}
-              onChange={setQuery}
-            />
-            <div
-              role="group"
-              aria-label="Available fairy conditions"
-              className="flex max-h-48 flex-wrap content-start gap-1.5 overflow-y-auto overscroll-contain"
-            >
-              {conditionMatches.map(({ value, search }) => (
-                <button
-                  type="button"
-                  key={value}
-                  aria-pressed={selectedConditions.has(search)}
-                  className={`${CHIP} h-7 px-2.5`}
-                  onClick={() => toggleCondition(value)}
-                >
-                  {value}
-                </button>
-              ))}
-              {conditionMatches.length === 0 && (
-                <p className="w-full py-4 text-center text-xs text-text-secondary">
-                  No condition matches “{query.trim()}”.
-                </p>
-              )}
-            </div>
           </div>
-        </details>
+          <input
+            ref={stipulationRef}
+            id={`${id}-stipulation`}
+            value={draft.stipulation}
+            onChange={(event) =>
+              updateDraft({ stipulation: event.currentTarget.value })
+            }
+            maxLength={200}
+            placeholder="#2, h#2, s#3…"
+            autoComplete="off"
+            spellCheck={false}
+            aria-invalid={error?.field === 'stipulation' || undefined}
+            aria-describedby={`${id}-stipulation-error`}
+            className={`${CONTROL} font-mono`}
+          />
+          <div className="flex flex-wrap gap-1.5">
+            {STIPULATION_PRESETS.map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                aria-pressed={draft.stipulation.trim() === preset}
+                className={`${CHIP} h-7 px-2.5 font-mono`}
+                onClick={() =>
+                  updateDraft({ stipulation: preset, structured: false })
+                }
+              >
+                {preset}
+              </button>
+            ))}
+          </div>
+          {error?.field === 'stipulation' && (
+            <p id={`${id}-stipulation-error`} className="text-xs text-error">
+              {error.message}
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-1.5">
+          <label className={LABEL} htmlFor={`${id}-conditions`}>
+            Conditions
+          </label>
+          <textarea
+            ref={conditionsRef}
+            id={`${id}-conditions`}
+            value={draft.conditions}
+            onChange={(event) =>
+              updateDraft({ conditions: event.currentTarget.value })
+            }
+            maxLength={4000}
+            rows={2}
+            placeholder={'One per line, e.g.\nMadrasi RexInclusive'}
+            spellCheck={false}
+            aria-invalid={error?.field === 'conditions' || undefined}
+            aria-describedby={`${id}-conditions-error`}
+            className={`${AREA} font-mono [field-sizing:content] min-h-16`}
+          />
+          {error?.field === 'conditions' && (
+            <p id={`${id}-conditions-error`} className="text-xs text-error">
+              {error.message}
+            </p>
+          )}
+          <details className="group/library rounded-lg border border-border/70">
+            <summary className="flex h-9 cursor-pointer list-none items-center gap-2 rounded-lg px-3 text-xs text-text-secondary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent [&::-webkit-details-marker]:hidden">
+              <ChevronRight
+                className="size-3.5 shrink-0 group-open/library:rotate-90"
+                aria-hidden="true"
+              />
+              <span className="flex-1">Condition library</span>
+              <span className="font-mono text-text-muted">
+                {CONDITIONS.length}
+              </span>
+            </summary>
+            <div className="space-y-2 border-t border-border/70 p-3">
+              <SearchField
+                label="Search fairy conditions"
+                placeholder="Search conditions"
+                value={query}
+                onChange={setQuery}
+              />
+              <div
+                role="group"
+                aria-label="Available fairy conditions"
+                className="flex max-h-48 flex-wrap content-start gap-1.5 overflow-y-auto overscroll-contain"
+              >
+                {conditionMatches.map(({ value, search }) => (
+                  <button
+                    type="button"
+                    key={value}
+                    aria-pressed={selectedConditions.has(search)}
+                    className={`${CHIP} h-7 px-2.5`}
+                    onClick={() => toggleCondition(value)}
+                  >
+                    {value}
+                  </button>
+                ))}
+                {conditionMatches.length === 0 && (
+                  <p className="w-full py-4 text-center text-xs text-text-secondary">
+                    No condition matches “{query.trim()}”.
+                  </p>
+                )}
+              </div>
+            </div>
+          </details>
+        </div>
       </div>
 
       <details className="group/details rounded-lg border border-border/70">
