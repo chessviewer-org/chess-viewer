@@ -33,3 +33,28 @@ export function getSlots(page: number, pageCount: number): Slot[] {
   if (end < pageCount - 1) slots.push({ kind: 'ellipsis', side: 'end' });
   return slots;
 }
+
+export function getNumberSlots(page: number, pageCount: number): Slot[] {
+  if (pageCount < 5) return getSlots(page, pageCount);
+  const number = (value: number): Slot => ({
+    kind: 'dot',
+    page: value,
+    tone: value === page ? 'active' : 'normal'
+  });
+  if (page < 2 || page >= pageCount - 2) {
+    return [
+      number(0),
+      number(1),
+      { kind: 'ellipsis', side: 'end' },
+      number(pageCount - 2),
+      number(pageCount - 1)
+    ];
+  }
+  return [
+    number(0),
+    { kind: 'ellipsis', side: 'start' },
+    number(page),
+    { kind: 'ellipsis', side: 'end' },
+    number(pageCount - 1)
+  ];
+}
