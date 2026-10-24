@@ -178,7 +178,7 @@ export const FairyCatalogue = memo(function FairyCatalogue({
       <div
         role="group"
         aria-label="Named fairy pieces"
-        className="grid max-h-72 grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] content-start gap-1 overflow-y-auto overscroll-contain"
+        className="grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-1"
       >
         {entries.map(renderEntry)}
         {entries.length === 0 && (
