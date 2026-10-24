@@ -159,7 +159,7 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
 
   return (
     <div
-      className="@container min-w-0"
+      className={tab === 'named' ? '@container min-w-0' : 'min-w-0'}
       onClick={(event) => event.stopPropagation()}
     >
       <div
