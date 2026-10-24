@@ -1,0 +1,54 @@
+@use '../../../../styles/variables' as v;
+@use '../../../../styles/mixins' as m;
+
+$pad-block: 24px;
+$pad-block-sm: 32px;
+$sidebar-w-md: 208px;
+$sidebar-w-lg: 224px;
+$gutter-md: 32px;
+$gutter-lg: 40px;
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  padding-block: $pad-block;
+
+  @include m.viewport-up(v.$bp-sm) {
+    padding-block: $pad-block-sm;
+  }
+
+  @include m.viewport-up(v.$bp-md) {
+    flex-direction: row;
+    gap: $gutter-md;
+  }
+
+  @include m.viewport-up(v.$bp-lg) {
+    gap: $gutter-lg;
+  }
+}
+
+.aside {
+  min-width: 0;
+
+  @include m.viewport-up(v.$bp-md) {
+    position: sticky;
+    top: calc(var(--navbar-height) + #{$pad-block-sm});
+    align-self: flex-start;
+    flex-shrink: 0;
+    width: $sidebar-w-md + $gutter-md + 1px;
+    min-height: calc(100vh - var(--navbar-height) - #{2 * $pad-block-sm});
+    padding-inline-end: $gutter-md;
+    border-inline-end: 1px solid var(--color-border);
+  }
+
+  @include m.viewport-up(v.$bp-lg) {
+    width: $sidebar-w-lg + $gutter-lg + 1px;
+    padding-inline-end: $gutter-lg;
+  }
+}
+
+.content {
+  flex: 1 1 0%;
+  min-width: 0;
+  padding-bottom: 20px;
+}
