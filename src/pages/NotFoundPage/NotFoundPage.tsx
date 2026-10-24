@@ -1,50 +1,60 @@
-import { ArrowLeft, Crown, Home } from '@/assets/icons';
-import { Link } from 'wouter';
+import { ArrowLeft, Home } from '@/assets/icons';
+import { Link, useLocation } from 'wouter';
 
+import { Logo } from '@/shared/ui/Logo';
 import { Seo } from '@/shared/ui/Seo';
+import styles from './styles/not-found.module.scss';
+
+const LINKS = [
+  ['/', 'Standard editor'],
+  ['/fairy-chess', 'Fairy chess'],
+  ['/latex', 'LaTeX'],
+  ['/about', 'About']
+] as const;
 
 function NotFoundPage() {
+  const [location] = useLocation();
+  const canGoBack = window.history.length > 1;
+
   return (
-    <div className="w-full flex flex-col flex-1 items-center justify-center px-4 py-12 sm:py-16 bg-bg">
+    <div className={styles['page']}>
       <Seo name="Page Not Found" noindex />
-      <div className="text-center max-w-lg">
-        <div className="relative mb-8">
-          <div className="w-24 h-24 rounded-2xl bg-linear-to-br from-accent/20 to-accent/10 flex items-center justify-center mx-auto">
-            <Crown
-              className="w-12 h-12 text-text-secondary"
-              aria-hidden="true"
-            />
-          </div>
-        </div>
-
-        <span className="text-7xl sm:text-8xl lg:text-9xl font-display font-bold bg-linear-to-r from-accent via-text-primary to-accent bg-clip-text text-transparent block mb-6">
-          404
-        </span>
-
-        <h1 className="text-h1 font-display font-bold text-text-primary mb-4">
-          Page Not Found
-        </h1>
-        <p className="text-text-secondary text-fluid-base sm:text-lg mb-10 leading-relaxed">
+      <div className={styles['card']}>
+        <Logo className={styles['logo'] ?? ''} />
+        <p className={styles['code']}>Error 404</p>
+        <h1 className={styles['title']}>Page not found</h1>
+        <p className={styles['lead']}>
           The page you are looking for does not exist or has been moved.
         </p>
+        <code className={styles['path']} title={location}>
+          {location}
+        </code>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-linear-to-r from-accent to-accent-hover text-bg rounded-xl font-bold shadow-lg hover:shadow-xl transition-shadow duration-200 focus-ring"
-          >
-            <Home className="w-5 h-5" aria-hidden="true" />
-            Go Home
+        <div className={styles['actions']}>
+          <Link href="/" className={`${styles['button']} ${styles['primary']}`}>
+            <Home aria-hidden="true" />
+            Back to the editor
           </Link>
-          <button
-            type="button"
-            onClick={() => window.history.back()}
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-surface-elevated text-text-primary rounded-xl font-bold hover:bg-surface-hover transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            <ArrowLeft className="w-5 h-5" aria-hidden="true" />
-            Go Back
-          </button>
+          {canGoBack && (
+            <button
+              type="button"
+              onClick={() => window.history.back()}
+              className={`${styles['button']} ${styles['secondary']}`}
+            >
+              <ArrowLeft aria-hidden="true" />
+              Go back
+            </button>
+          )}
         </div>
+
+        <nav aria-label="Popular pages" className={styles['links']}>
+          <span className={styles['linksLabel']}>Popular pages</span>
+          {LINKS.map(([href, label]) => (
+            <Link key={href} href={href}>
+              {label}
+            </Link>
+          ))}
+        </nav>
       </div>
     </div>
   );
