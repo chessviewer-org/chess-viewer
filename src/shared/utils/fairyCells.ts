@@ -85,10 +85,12 @@ export const FAIRY_LETTER_PIECE_MAP: Record<string, string> =
 
 export function fairyLetterSVG(color: 'w' | 'b' | 'n', text: string): string {
   if (!/^[A-Z0-9]{1,2}$/.test(text)) throw new Error('Invalid fairy symbol.');
-  const fill =
-    color === 'w' ? 'white' : color === 'b' ? 'black' : 'url(#neutral-letter)';
-  const size = text.length === 1 ? 20 : 15;
-  const glyph = (paint: string) =>
-    `<text x="22.5" y="${22.5 + size * 0.36}" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="${size}" font-weight="700" stroke-linejoin="round" ${paint}>${text}</text>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 45 45"><defs><linearGradient id="neutral-letter" gradientUnits="userSpaceOnUse" x2="0" y2="45"><stop offset="50%" stop-color="white"/><stop offset="50%" stop-color="black"/></linearGradient></defs>${glyph('fill="white" stroke="white" stroke-width="2.5"')}${glyph(`fill="${fill}" stroke="black" stroke-width="0.8"`)}</svg>`;
+  const [fill, outline] =
+    color === 'w'
+      ? ['white', 'black']
+      : color === 'b'
+        ? ['black', 'white']
+        : ['url(#neutral-letter)', 'gray'];
+  const size = text.length === 1 ? 20 : 18;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 45 45"><defs><linearGradient id="neutral-letter" gradientUnits="userSpaceOnUse" x2="0" y2="45"><stop offset="50%" stop-color="white"/><stop offset="50%" stop-color="black"/></linearGradient></defs><text x="22.5" y="${22.5 + size * 0.36}" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="${size}" font-weight="700" letter-spacing="-0.5" fill="${fill}" stroke="${outline}" stroke-width="2" stroke-linejoin="round" paint-order="stroke">${text}</text></svg>`;
 }
