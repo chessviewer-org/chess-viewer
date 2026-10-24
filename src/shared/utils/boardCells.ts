@@ -5,10 +5,15 @@ import {
 } from '@chessviewer-org/chess-viewer';
 
 import type { BoardCell, ChessBoard, PieceSymbol } from '@app-types';
-import type { FairyPieceType } from '@constants/fairyPieces';
+import {
+  fairyCode,
+  type FairyColor,
+  type FairyPieceType,
+  type FairyRotation
+} from '@constants/fairyPieces';
 
 import { parseNamedCell } from './fairyCells';
-import { isCompositionSymbol } from './compositionSymbols';
+import { isCompositionSymbol, isTurnSymmetric } from './compositionSymbols';
 
 export type { BoardCell } from '@app-types';
 
@@ -79,6 +84,15 @@ export function cellToFenPiece(cell: BoardCell): PieceSymbol {
     : code.type;
   if (!type) return '';
   return code.color === 'b' ? (type.toLowerCase() as PieceSymbol) : type;
+}
+
+export function symbolCell(
+  color: FairyColor,
+  type: FairyPieceType,
+  rotation: FairyRotation
+): BoardCell {
+  const code = fairyCode(color, type, isTurnSymmetric(type) ? 0 : rotation);
+  return isFairyCell(code) ? code : cellToFenPiece(code);
 }
 
 export function baseCells(board: ChessBoard): PieceSymbol[][] {

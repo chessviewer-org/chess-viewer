@@ -8,7 +8,7 @@ import {
 
 import type { BoardCell, ChessBoard } from '@app-types';
 import { baseCells, boardToFEN } from './boardCells';
-import { isCompositionSymbol } from './compositionSymbols';
+import { isCompositionSymbol, isTurnSymmetric } from './compositionSymbols';
 import { parseNamedCell } from './fairyCells';
 import { memoizeString } from './memoize';
 import {
@@ -55,7 +55,9 @@ function parsePlacement(placement: string): ChessBoard {
         cells.push(...Array<BoardCell>(Number(token[0])).fill(''));
       } else {
         const symbol = token[3]!;
-        const rotation = Number(token[2] ?? 0) * 90;
+        const rotation = isTurnSymmetric(symbol.toUpperCase())
+          ? 0
+          : Number(token[2] ?? 0) * 90;
         const color = token[1]
           ? 'n'
           : symbol === symbol.toUpperCase()

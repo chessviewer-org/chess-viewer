@@ -13,6 +13,11 @@ export function isCompositionSymbol(
   return type === 'C' || type === 'X' || type === 'S' || type === 'T';
 }
 
+/** Circles, crosses and squares look the same after any quarter turn. */
+export function isTurnSymmetric(type: string): boolean {
+  return type === 'C' || type === 'X' || type === 'S';
+}
+
 const SHAPES: Record<CompositionSymbolType, string> = {
   C: '<circle cx="22.5" cy="22.5" r="11.5"/>',
   X: '<path d="m12 8 10.5 10.5L33 8l4 4-10.5 10.5L37 33l-4 4-10.5-10.5L12 37l-4-4 10.5-10.5L8 12z"/>',

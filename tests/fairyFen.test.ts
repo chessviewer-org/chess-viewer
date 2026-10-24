@@ -1,8 +1,12 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 import { MAX_FEN_LENGTH, STARTING_FEN } from '@chessviewer-org/chess-viewer';
-import { FAIRY_BOXES } from '@constants/fairyPieces';
-import { boardToFEN } from '@utils/boardCells';
+import {
+  FAIRY_COLORS,
+  FAIRY_PIECE_TYPES,
+  FAIRY_ROTATIONS
+} from '@constants/fairyPieces';
+import { boardToFEN, symbolCell } from '@utils/boardCells';
 import {
   isFairyFEN,
   MAX_POSITION_LENGTH,
@@ -31,16 +35,28 @@ describe('Fairy FEN (Joost de Heer syntax)', () => {
     );
   });
 
-  test('all 120 supported glyphs round trip, including geometric markers', () => {
-    for (const box of FAIRY_BOXES)
-      for (const variant of box.variants) {
-        const board = emptyBoard();
-        board[4]![3] = variant;
-        const placement = boardToFEN(board);
-        const decoded = parseFEN(placement);
-        assert.equal(boardToFEN(decoded), placement, variant);
-        assert.equal(validateFEN(`${placement} w - - 0 1`), true, variant);
-      }
+  test('all 93 distinct glyphs round trip, including geometric markers', () => {
+    const glyphs = new Set(
+      FAIRY_COLORS.flatMap((color) =>
+        FAIRY_PIECE_TYPES.flatMap((type) =>
+          FAIRY_ROTATIONS.map((rotation) => symbolCell(color, type, rotation))
+        )
+      )
+    );
+    assert.equal(glyphs.size, 93);
+    for (const variant of glyphs) {
+      const board = emptyBoard();
+      board[4]![3] = variant;
+      const placement = boardToFEN(board);
+      const decoded = parseFEN(placement);
+      assert.equal(boardToFEN(decoded), placement, variant);
+      assert.equal(validateFEN(`${placement} w - - 0 1`), true, variant);
+    }
+  });
+
+  test('turned circles, crosses and squares read as upright markers', () => {
+    const board = parseFEN('*1C*2x-*3S*1T4/8/8/8/8/8/8/8 w - - 0 1');
+    assert.deepEqual(board[0]!.slice(0, 4), ['wC', 'bX', 'nS', 'wT90']);
   });
 
   test('accepts published composition examples without inventing piece codes', () => {

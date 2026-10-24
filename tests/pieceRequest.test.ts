@@ -32,7 +32,7 @@ test('diagram markers load only their used artwork outside the visible palette',
     positions: 'C7/1x6/2-*2S5/3*3t4/8/8/8/8 w - - 0 1'
   });
   assert.equal(keys.length, 16);
-  for (const key of ['wC', 'bX', 'nS180', 'bT270'])
+  for (const key of ['wC', 'bX', 'nS', 'bT270'])
     assert.ok(keys.includes(key), key);
   assert.ok(!keys.includes('wC90'));
 });
