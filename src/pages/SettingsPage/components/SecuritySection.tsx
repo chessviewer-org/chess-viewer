@@ -2,12 +2,14 @@ import { memo, useState } from 'react';
 
 import { KeyRound, LogOut, RotateCcw, ShieldCheck } from '@/assets/icons';
 
-import { supabase, TwoFactor, useAuth } from '@/auth';
-import { useModal } from '@contexts';
-import { useLocalStorage } from '@hooks';
+import { supabase } from '@/auth/core/Supabase';
+import { TwoFactor } from '@/auth/mfa/components/TwoFactor';
+import { useAuth } from '@/auth/core/useAuth';
+import { useModal } from '@/shared/contexts/ModalContext';
+import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
 
-import { logger } from '@utils';
-import { Switch } from '@ui';
+import { logger } from '@/shared/utils/logger';
+import { Switch } from '@/shared/ui/Switch';
 import { SettingsHeading } from './parts';
 import { SecurityActivity } from './SecurityActivity';
 import { SecurityOverview } from './SecurityOverview';

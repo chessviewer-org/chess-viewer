@@ -1,7 +1,8 @@
 import { memo, useState } from 'react';
 import { LogIn, User as UserIcon, UserPlus } from '@/assets/icons';
-import { MEMBERSHIP_TIERS, useAuth } from '@/auth';
-import { useModal } from '@contexts';
+import { MEMBERSHIP_TIERS } from '@/auth/profile/membership';
+import { useAuth } from '@/auth/core/useAuth';
+import { useModal } from '@/shared/contexts/ModalContext';
 import { SettingsHeading } from './parts';
 import {
   AccountActions,

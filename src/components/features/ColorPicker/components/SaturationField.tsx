@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
 
-import { hsvToRgb, rgbToHex } from '@utils';
+import { hsvToRgb, rgbToHex } from '@chessviewer-org/chess-viewer';
 
 export function SaturationField({
   hue,

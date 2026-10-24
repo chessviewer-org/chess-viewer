@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-import { BoardStylePanel } from '@/components/features';
+import { BoardStylePanel } from '@/components/features/BoardStyle/BoardStylePanel';
 
 import type { useAdvancedFEN } from '../hooks/useAdvancedFEN';
 

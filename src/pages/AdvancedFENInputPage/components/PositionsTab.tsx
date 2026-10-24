@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 import { AlertCircle, Check, Clipboard, Star, Trash2 } from '@/assets/icons';
 
-import { MAX_FEN_LENGTH, validateFEN } from '@utils';
+import { MAX_POSITION_LENGTH, validateFEN } from '@/shared/utils/fenParser';
 import styles from '../styles/advanced-fen-layout.module.scss';
 
 interface PositionsTabProps {
@@ -140,7 +140,7 @@ const PositionsTab = memo(function PositionsTab({
                     autoCapitalize="off"
                     autoComplete="off"
                     placeholder="Paste FEN notation here…"
-                    maxLength={MAX_FEN_LENGTH}
+                    maxLength={MAX_POSITION_LENGTH}
                     className={`block w-full resize-none break-all [field-sizing:content] px-3 py-2.5 bg-surface text-text-primary border rounded-lg font-mono text-xs leading-relaxed transition-colors placeholder:text-text-muted/50 ${hasError ? 'border-error/60 focus:border-error focus:ring-1 focus:ring-error/30' : hasDuplicate ? 'border-warning/60 focus:border-warning focus:ring-1 focus:ring-warning/30' : 'border-border'} focus:outline-none`}
                   />
                   {hasError && (

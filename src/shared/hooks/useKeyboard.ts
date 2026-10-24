@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { isTextEntryTarget } from '@utils';
+import { isTextEntryTarget } from '@/shared/utils/pageScroll';
 
 export function useEscapeKey(onEscape: () => void): void {
   useEffect(() => {
@@ -38,7 +38,8 @@ export function useEditorKeyboard(
     if (!enabled) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (isTextEntryTarget(e.target)) return;
+      if (e.defaultPrevented || e.isComposing || isTextEntryTarget(e.target))
+        return;
 
       const mod = e.ctrlKey || e.metaKey;
       const a = actionsRef.current;

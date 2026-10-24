@@ -11,7 +11,8 @@ import {
   Search
 } from '@/assets/icons';
 
-import { CustomSelect, DatePicker } from '@ui';
+import { CustomSelect } from '@/shared/ui/CustomSelect';
+import { DatePicker } from '@/shared/ui/DatePicker';
 import uiStyles from '@/shared/styles/ui.module.scss';
 
 // Types

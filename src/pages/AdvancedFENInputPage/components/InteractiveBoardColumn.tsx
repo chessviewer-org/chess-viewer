@@ -3,10 +3,10 @@ import { useLocation } from 'wouter';
 
 import { Code2 } from '@/assets/icons';
 
-import { DisplayOptions } from '@/components/features';
+import { DisplayOptions } from '@/components/features/BoardStyle/DisplayOptions';
 import BoardPreviewCanvas from '@/pages/ExportPage/components/BoardPreviewCanvas';
 import { ADVANCED_FEN_CONFIG } from '@constants';
-import { stageLatexPositions } from '@utils';
+import { stageLatexPositions } from '@/shared/utils/latexHandoff';
 
 import styles from '../styles/advanced-fen-layout.module.scss';
 import type { ExportFormat, useAdvancedFEN } from '../hooks/useAdvancedFEN';

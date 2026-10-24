@@ -4,10 +4,10 @@ import {
   BoardThemePicker,
   PieceGridShared
 } from '@/components/features/ColorPicker';
-import { usePieceSort } from '@hooks';
+import { usePieceSort } from '@/shared/hooks/usePiece';
 import { PIECE_SORT_OPTIONS } from '@constants';
 
-import { CustomSelect } from '@ui';
+import { CustomSelect } from '@/shared/ui/CustomSelect';
 
 export interface BoardStylePanelProps {
   lightSquare: string;

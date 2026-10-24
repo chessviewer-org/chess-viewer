@@ -4,12 +4,14 @@ import { FileImage, Pause, Play, XCircle } from '@/assets/icons';
 
 import {
   type ExportConfig,
-  type ExportInfo,
+  type ExportInfo
+} from '@/shared/utils/canvasExporter';
+import {
   type FileSizeEstimates,
-  formatFileSize,
-  getExportInfo
-} from '@utils';
-import { ModalShell } from '@ui';
+  formatFileSize
+} from '@/shared/utils/imageOptimizer';
+import { getExportInfo } from '@/shared/utils/exportState';
+import { ModalShell } from '@/shared/ui/Modal/ModalShell';
 import uiStyles from '@/shared/styles/ui.module.scss';
 
 interface ExportProgressProps {

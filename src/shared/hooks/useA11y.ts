@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
-import { syncStorage } from '@/auth';
+import { syncStorage } from '@/auth/storage/syncStorage';
 import {
   applyColorVision,
   COLOR_VISION_CHANGE_EVENT,
@@ -23,10 +23,10 @@ import {
   DRAG_SENSITIVITY_STORAGE_KEY,
   type DragSensitivity,
   readDragSensitivity,
-  hydrateFromSync,
-  logger,
   resolveReducedMotion
-} from '@utils';
+} from '@/shared/utils/a11yUtils';
+import { hydrateFromSync } from '@/shared/utils/syncHydration';
+import { logger } from '@/shared/utils/logger';
 
 // Helpers
 function syncFromCloud(

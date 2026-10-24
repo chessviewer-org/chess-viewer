@@ -7,13 +7,12 @@ import {
   BoardThemePicker,
   PieceGridShared as PieceGrid
 } from '@/components/features/ColorPicker';
+import { useBoardPieceSet, usePieceSort } from '@/shared/hooks/usePiece';
 import {
-  useBoardPieceSet,
   useDebouncedCommit,
-  useLocalStorage,
-  usePieceImages,
-  usePieceSort
-} from '@hooks';
+  useLocalStorage
+} from '@/shared/hooks/useLocalStorage';
+import { usePieceImages } from '@/shared/hooks/usePieceImages';
 import {
   BOARD_COLOR_KEYS,
   DEFAULT_DARK_SQUARE,
@@ -23,8 +22,8 @@ import {
   STARTING_FEN
 } from '@constants';
 
-import { sanitizeHexColor } from '@utils';
-import { CustomSelect } from '@ui';
+import { sanitizeHexColor } from '@chessviewer-org/chess-viewer';
+import { CustomSelect } from '@/shared/ui/CustomSelect';
 import { SettingsBlock, SettingsHeading } from './parts';
 
 const BoardSection = memo(function BoardSection() {

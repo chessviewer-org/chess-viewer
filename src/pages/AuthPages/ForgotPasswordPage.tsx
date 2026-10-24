@@ -3,7 +3,7 @@ import { type FormEvent, useState } from 'react';
 import { Loader2, MailCheck } from '@/assets/icons';
 import { Link } from 'wouter';
 
-import { getAuthErrorMessage, supabase } from '@/auth';
+import { getAuthErrorMessage, supabase } from '@/auth/core/Supabase';
 
 import { AuthPage } from './AuthPage';
 import { EMAIL_PATTERN } from './utils/authUtils';

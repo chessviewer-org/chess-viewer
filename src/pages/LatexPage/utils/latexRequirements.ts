@@ -1,4 +1,4 @@
-import type { LatexPackage } from '@utils';
+import { type LatexPackage } from '@chessviewer-org/chess-viewer';
 import type { StudioSettings } from './latexProject';
 
 const CTAN_PACKAGE: Record<LatexPackage, string> = {

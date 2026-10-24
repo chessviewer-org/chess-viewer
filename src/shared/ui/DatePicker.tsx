@@ -10,7 +10,7 @@ import {
 import { createPortal } from 'react-dom';
 
 import { Calendar, ChevronLeft, ChevronRight } from '@/assets/icons';
-import { useOutsideClick } from '@hooks';
+import { useOutsideClick } from '@/shared/hooks/useDOM';
 import styles from '../styles/ui.module.scss';
 
 const VIEWPORT_MARGIN = 8;

@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 
 import { Clock, ShieldCheck, ShieldX } from '@/assets/icons';
 
-import { supabase } from '@/auth';
+import { supabase } from '@/auth/core/Supabase';
 
-import { logger } from '@utils';
+import { logger } from '@/shared/utils/logger';
 
 // Helpers
 function formatDateTime(iso: string | null | undefined): string | null {

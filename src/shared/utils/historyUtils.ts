@@ -1,4 +1,4 @@
-import { SAFE_SYNC_PLAINTEXT_BUDGET } from '@/auth';
+import { SAFE_SYNC_PLAINTEXT_BUDGET } from '@/auth/storage/syncStorage';
 import { SYNC_TRUNCATED_EVENT, type SyncTruncatedDetail } from '@constants';
 
 export function trimToSyncBudget<T>(entries: T[]): {

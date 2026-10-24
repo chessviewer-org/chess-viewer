@@ -14,14 +14,14 @@ import {
   useColorVisionSetting,
   useDragSensitivitySetting,
   useReducedMotionSetting
-} from '@hooks';
+} from '@/shared/hooks/useA11y';
 
-import type {
-  ColorVisionPreference,
-  DragSensitivity,
-  ReducedMotionPreference
-} from '@utils';
-import { CustomSelect } from '@ui';
+import {
+  type ColorVisionPreference,
+  type DragSensitivity,
+  type ReducedMotionPreference
+} from '@/shared/utils/a11yUtils';
+import { CustomSelect } from '@/shared/ui/CustomSelect';
 import { SettingsBlock, SettingsHeading } from './parts';
 
 const COLOR_VISION_OPTIONS: Array<{

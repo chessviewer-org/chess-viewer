@@ -1,7 +1,7 @@
 import { ArrowLeft, Crown, Home } from '@/assets/icons';
 import { Link } from 'wouter';
 
-import { Seo } from '@ui';
+import { Seo } from '@/shared/ui/Seo';
 
 function NotFoundPage() {
   return (

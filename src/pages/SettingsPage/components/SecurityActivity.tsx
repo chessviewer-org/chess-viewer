@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 
 import { History } from '@/assets/icons';
 
-import { type SecurityEvent, securityEventsService } from '@/auth';
+import {
+  type SecurityEvent,
+  securityEventsService
+} from '@/auth/security/securityEvents';
 
 // Constants
 const EVENT_LABELS: Record<string, string> = {

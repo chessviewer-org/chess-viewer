@@ -2,8 +2,8 @@ import { memo, useMemo } from 'react';
 
 import { Check, Copy, Download } from '@/assets/icons';
 
-import { useCopyToClipboard } from '@hooks';
-import { sanitizeFileName } from '@utils';
+import { useCopyToClipboard } from '@/shared/hooks/useDOM';
+import { sanitizeFileName } from '@chessviewer-org/chess-viewer';
 import type { BuildResult, StudioSettings } from '../utils/latexProject';
 import { latexRequirements } from '../utils/latexRequirements';
 
