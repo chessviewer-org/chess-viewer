@@ -24,8 +24,7 @@ export function useSearchParams() {
   const setSearchParams = useCallback(
     (
       params:
-        | Record<string, string>
-        | ((prev: URLSearchParams) => URLSearchParams),
+        Record<string, string> | ((prev: URLSearchParams) => URLSearchParams),
       options?: { replace?: boolean }
     ) => {
       const nextParams =

@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import ts from 'typescript';
+import { transformSync } from 'esbuild';
 
 const projectRoot = fileURLToPath(new URL('..', import.meta.url));
 
@@ -76,24 +76,18 @@ export function load(url, context, nextLoad) {
 
   const filePath = fileURLToPath(url);
   const source = readFileSync(filePath, 'utf8');
-  const { outputText } = ts.transpileModule(source, {
-    compilerOptions: {
-      module: ts.ModuleKind.ESNext,
-      target: ts.ScriptTarget.ES2022,
-      verbatimModuleSyntax: false,
-      isolatedModules: true,
-      jsx: url.endsWith('.tsx') ? ts.JsxEmit.ReactJSX : ts.JsxEmit.None,
-      jsxImportSource: 'react'
-    },
-    fileName: filePath
+  const { code } = transformSync(source, {
+    loader: url.endsWith('.tsx') ? 'tsx' : 'ts',
+    format: 'esm',
+    target: 'es2022',
+    jsx: 'automatic',
+    jsxImportSource: 'react',
+    sourcefile: filePath
   });
 
   return {
     format: 'module',
-    source: outputText.replaceAll(
-      'import.meta.env',
-      'globalThis.__VITE_TEST_ENV__'
-    ),
+    source: code.replaceAll('import.meta.env', 'globalThis.__VITE_TEST_ENV__'),
     shortCircuit: true
   };
 }

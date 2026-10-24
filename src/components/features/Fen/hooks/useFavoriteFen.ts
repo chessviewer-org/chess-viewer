@@ -6,8 +6,7 @@ import type { NotificationType } from '../components/FENInputField';
 interface UseFavoriteFenOptions {
   fen: string;
   onNotification?:
-    | ((message: string, type: NotificationType) => void)
-    | undefined;
+    ((message: string, type: NotificationType) => void) | undefined;
 }
 
 export function useFavoriteFen({ fen, onNotification }: UseFavoriteFenOptions) {

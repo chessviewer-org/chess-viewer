@@ -2,17 +2,9 @@
 
 // Types
 export type MembershipTierId =
-  | 'none'
-  | 'gold'
-  | 'platinum'
-  | 'diamond'
-  | 'patron';
+  'none' | 'gold' | 'platinum' | 'diamond' | 'patron';
 export type MembershipTone =
-  | 'muted'
-  | 'gold'
-  | 'platinum'
-  | 'diamond'
-  | 'patron';
+  'muted' | 'gold' | 'platinum' | 'diamond' | 'patron';
 
 export interface MembershipTier {
   id: MembershipTierId;

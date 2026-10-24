@@ -45,7 +45,7 @@ const FAQS: Array<{ q: string; a: ReactNode }> = [
   },
   {
     q: 'Can I install ChessViewer as an app on my computer or phone?',
-    a: 'Yes, because ChessViewer is also a PWA (Progressive Web App). Your browser will automatically offer you an "Install" or "Add to home screen" option. Do that, and it opens as a fully standalone app — and it’ll keep working perfectly even offline.'
+    a: 'Use your browser’s “Add to home screen” or “Install page as app” option when available. An internet connection is required to load the site; diagrams are edited locally in your browser.'
   },
   {
     q: 'What is a FEN string?',
