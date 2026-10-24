@@ -8,11 +8,10 @@ import {
 import type { FairyColor } from '@constants/fairyPieces';
 import type { BoardCell } from '@app-types';
 import { getPieceKey } from '@/shared/utils/pieceUtils';
-import { namedCell, parseNamedCell } from '@/shared/utils/fairyCells';
+import { namedCell } from '@/shared/utils/fairyCells';
 import { usePieceImages } from '@/shared/hooks/usePieceImages';
 import { DraggablePiece } from '../Board';
 import { BUTTON, CHIP } from './controls';
-import { SearchField } from './SearchField';
 import { Segmented } from './Segmented';
 
 interface FairyCatalogueProps {
@@ -23,9 +22,9 @@ interface FairyCatalogueProps {
 }
 
 const byCode = new Intl.Collator('en', { numeric: true }).compare;
-const WALKS = FAIRY_WALKS.filter((walk) => !walk.glyph)
-  .map((walk) => ({ walk, search: `${walk.name} ${walk.code}`.toLowerCase() }))
-  .sort((a, b) => byCode(a.walk.code, b.walk.code));
+const WALKS = FAIRY_WALKS.filter((walk) => !walk.glyph).sort((a, b) =>
+  byCode(a.code, b.code)
+);
 const COLORS = [
   { value: 'w', label: 'White' },
   { value: 'b', label: 'Black' },
@@ -44,20 +43,16 @@ export const FairyCatalogue = memo(function FairyCatalogue({
   onKeyboardPick
 }: FairyCatalogueProps) {
   const [color, setColor] = useState<FairyColor>('w');
-  const [query, setQuery] = useState('');
   const [attributes, setAttributes] = useState<string[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const term = query.trim().toLowerCase();
   const entries = useMemo(
     () =>
-      WALKS.filter(({ search }) => search.includes(term)).flatMap(
-        ({ walk }) => {
-          const piece = namedCell(color, walk.code, attributes);
-          return parseNamedCell(piece) ? [{ walk, piece }] : [];
-        }
-      ),
-    [term, color, attributes]
+      WALKS.map((walk) => ({
+        walk,
+        piece: namedCell(color, walk.code, attributes)
+      })),
+    [color, attributes]
   );
   const visibleBoard = useMemo(
     () => [entries.map(({ piece }) => piece)],
@@ -120,45 +115,29 @@ export const FairyCatalogue = memo(function FairyCatalogue({
 
   return (
     <section aria-label="Named pieces" className="@container">
-      <header className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <span className="text-xs text-text-muted">
-          {entries.length} {term ? 'matching' : 'pieces'}
-        </span>
+      <header className="flex flex-wrap items-center justify-between gap-2">
         <Segmented
           label="Named piece colour"
           value={color}
           options={COLORS}
           onChange={setColor}
         />
+        <button
+          type="button"
+          aria-expanded={menuOpen}
+          aria-haspopup="true"
+          onClick={() => setMenuOpen((open) => !open)}
+          className={`${BUTTON} ${attributes.length ? 'border-accent/60 text-accent' : ''}`}
+        >
+          <SlidersHorizontal className="size-3.5" aria-hidden="true" />
+          Attributes
+          {attributes.length > 0 && (
+            <span className="rounded-full bg-accent/15 px-1.5 font-mono text-[0.6875rem]">
+              {attributes.length}
+            </span>
+          )}
+        </button>
       </header>
-
-      <div className="flex gap-2">
-        <div className="min-w-0 flex-1">
-          <SearchField
-            label="Search all named pieces"
-            placeholder="Name or Popeye code"
-            value={query}
-            onChange={setQuery}
-          />
-        </div>
-        <div>
-          <button
-            type="button"
-            aria-expanded={menuOpen}
-            aria-haspopup="true"
-            onClick={() => setMenuOpen((open) => !open)}
-            className={`${BUTTON} ${attributes.length ? 'border-accent/60 text-accent' : ''}`}
-          >
-            <SlidersHorizontal className="size-3.5" aria-hidden="true" />
-            Attributes
-            {attributes.length > 0 && (
-              <span className="rounded-full bg-accent/15 px-1.5 font-mono text-[0.6875rem]">
-                {attributes.length}
-              </span>
-            )}
-          </button>
-        </div>
-      </div>
 
       {menuOpen && (
         <div
@@ -210,11 +189,6 @@ export const FairyCatalogue = memo(function FairyCatalogue({
         className="mt-3 grid grid-cols-6 gap-1 @md:grid-cols-8 @[36rem]:grid-cols-11"
       >
         {entries.map(renderEntry)}
-        {entries.length === 0 && (
-          <p className="col-span-full py-6 text-center text-xs text-text-secondary">
-            No named piece matches “{query.trim()}”.
-          </p>
-        )}
       </div>
     </section>
   );
