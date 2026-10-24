@@ -169,16 +169,16 @@ export default function ChangelogSection() {
           {totalPages > 1 && (
             <nav
               aria-label="Changelog years"
-              className="flex items-center justify-between gap-4 pt-2"
+              className="flex items-center justify-between gap-2 pt-2 sm:gap-4"
             >
               <button
                 type="button"
                 onClick={() => goTo(pageIndex - 1)}
                 disabled={pageIndex === 0}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-40 focus-ring"
+                className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-xl border border-border bg-surface px-3 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-40 focus-ring sm:px-4"
               >
                 <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-                Newer
+                <span className="max-sm:sr-only">Newer</span>
               </button>
 
               <div className="flex items-center gap-2">
@@ -203,9 +203,9 @@ export default function ChangelogSection() {
                 type="button"
                 onClick={() => goTo(pageIndex + 1)}
                 disabled={pageIndex === totalPages - 1}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-40 focus-ring"
+                className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-xl border border-border bg-surface px-3 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-40 focus-ring sm:px-4"
               >
-                Older
+                <span className="max-sm:sr-only">Older</span>
                 <ChevronRight className="h-4 w-4" aria-hidden="true" />
               </button>
             </nav>
