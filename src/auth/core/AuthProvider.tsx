@@ -1,4 +1,10 @@
-import React, { useCallback, useLayoutEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 
 import { supabase, type Session, type User } from './Supabase';
 import { getMembershipTier } from '../profile/membership';
@@ -19,116 +25,121 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState<Profile>(readGuestProfile);
 
+  const profileRequest = useRef(0);
   const loadProfile = useCallback(async (user: User | null) => {
-    if (!user) {
-      setProfile(readGuestProfile());
-      return;
-    }
-
-    const remoteProfile = await profileService.get(user.id);
-    setProfile(remoteProfile ?? DEFAULT_PROFILE);
+    const request = ++profileRequest.current;
+    const next = user
+      ? ((await profileService.get(user.id)) ?? DEFAULT_PROFILE)
+      : readGuestProfile();
+    if (request === profileRequest.current) setProfile(next);
   }, []);
 
   useLayoutEffect(() => {
     let mounted = true;
-
-    async function initializeAuth() {
-      const cachedSession = supabase.auth.getCurrentSession();
-      if (cachedSession && mounted) {
-        setSession(cachedSession);
-        if (cachedSession.user) setProfile(DEFAULT_PROFILE);
-      }
-
-      const { data } = await supabase.auth.getSession();
-      const currentSession = data.session;
-
-      if (!mounted) return;
-
-      setSession(currentSession);
-      await loadProfile(currentSession?.user ?? null);
-
-      if (currentSession?.user) {
-        dataMigration.migrateToCloud(currentSession.user.id);
-      }
-
-      setIsLoading(false);
-    }
-
-    initializeAuth();
-
+    const requestState = profileRequest;
+    let previousUserId: string | null | undefined;
+    // INITIAL_SESSION is delivered immediately by the client. A second manual
+    // initialization previously fetched the same profile and ran migration twice.
     const { data: listener } = supabase.auth.onAuthStateChange(
-      async (_, newSession) => {
+      async (event, newSession) => {
         setSession(newSession);
-        await loadProfile(newSession?.user ?? null);
-
-        if (newSession?.user) {
-          dataMigration.migrateToCloud(newSession.user.id);
+        const userId = newSession?.user?.id ?? null;
+        if (userId === previousUserId && event !== 'USER_UPDATED') return;
+        previousUserId = userId;
+        try {
+          await loadProfile(newSession?.user ?? null);
+          if (
+            mounted &&
+            userId &&
+            supabase.auth.getCurrentSession()?.user.id === userId
+          ) {
+            void dataMigration.migrateToCloud(userId);
+          }
+        } finally {
+          if (mounted) setIsLoading(false);
         }
       }
     );
-
     return () => {
       mounted = false;
+      requestState.current++;
       listener.subscription.unsubscribe();
     };
   }, [loadProfile]);
 
   // Actions
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     await supabase.auth.signOut();
     setSession(null);
-  };
+  }, []);
 
-  const setDisplayName = async (name: string) => {
-    const trimmedName = name.trim() || DEFAULT_PROFILE.displayName;
+  const setDisplayName = useCallback(
+    async (name: string) => {
+      const trimmedName = name.trim() || DEFAULT_PROFILE.displayName;
 
-    setProfile((prev) => ({ ...prev, displayName: trimmedName }));
+      setProfile((prev) => ({ ...prev, displayName: trimmedName }));
 
-    if (session?.user) {
-      await profileService.updateDisplayName(session.user.id, trimmedName);
-    } else {
-      writeGuestProfile({ ...profile, displayName: trimmedName });
-    }
-  };
+      if (session?.user) {
+        await profileService.updateDisplayName(session.user.id, trimmedName);
+      } else {
+        writeGuestProfile({ ...profile, displayName: trimmedName });
+      }
+    },
+    [session, profile]
+  );
 
-  const setSupporter = async (months = 1) => {
-    if (session?.user) {
-      const until = await profileService.setSupporter(months);
-      setProfile((prev) => ({ ...prev, supporterUntil: until }));
-      return;
-    }
+  const setSupporter = useCallback(
+    async (months = 1) => {
+      if (session?.user) {
+        const until = await profileService.setSupporter(months);
+        setProfile((prev) => ({ ...prev, supporterUntil: until }));
+        return;
+      }
 
-    const msPerMonth = 30 * 24 * 60 * 60 * 1000;
-    const until =
-      months > 0
-        ? new Date(Date.now() + months * msPerMonth).toISOString()
-        : null;
+      const msPerMonth = 30 * 24 * 60 * 60 * 1000;
+      const until =
+        months > 0
+          ? new Date(Date.now() + months * msPerMonth).toISOString()
+          : null;
 
-    setProfile((prev) => {
-      const nextProfile = { ...prev, supporterUntil: until };
-      writeGuestProfile(nextProfile);
-      return nextProfile;
-    });
-  };
+      setProfile((prev) => {
+        const nextProfile = { ...prev, supporterUntil: until };
+        writeGuestProfile(nextProfile);
+        return nextProfile;
+      });
+    },
+    [session]
+  );
 
   const refreshProfile = useCallback(() => {
     loadProfile(session?.user ?? null);
   }, [loadProfile, session]);
 
   // Context value
-  const value: AuthContextValue = {
-    session,
-    user: session?.user ?? null,
-    isLoading,
-    isAuthenticated: Boolean(session?.user),
-    profile,
-    isSupporter: isActiveSupporter(profile.supporterUntil),
-    membershipTier: getMembershipTier(profile.supporterMonthlyUsd),
-    signOut,
-    setDisplayName,
-    setSupporter,
-    refreshProfile
-  };
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      session,
+      user: session?.user ?? null,
+      isLoading,
+      isAuthenticated: Boolean(session?.user),
+      profile,
+      isSupporter: isActiveSupporter(profile.supporterUntil),
+      membershipTier: getMembershipTier(profile.supporterMonthlyUsd),
+      signOut,
+      setDisplayName,
+      setSupporter,
+      refreshProfile
+    }),
+    [
+      session,
+      isLoading,
+      profile,
+      signOut,
+      setDisplayName,
+      setSupporter,
+      refreshProfile
+    ]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

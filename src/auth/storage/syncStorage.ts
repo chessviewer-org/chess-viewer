@@ -1,4 +1,4 @@
-import { logger } from '@utils';
+import { logger } from '@utils/logger';
 import { supabase } from '../core/Supabase';
 
 // Types
@@ -23,35 +23,50 @@ function isTableMissing(code: string | undefined): boolean {
 }
 
 // Service
+const pendingReads = new Map<string, Promise<{ value: string } | null>>();
+
 export const syncStorage = {
   async get(key: string): Promise<{ value: string } | null> {
     const userId = await getUserId();
     if (!userId) return null;
 
-    try {
-      const { data, error } = await supabase
-        .from('user_data')
-        .select('value')
-        .eq('user_id', userId)
-        .eq('key', key)
-        .returns<{ value: string }>()
-        .maybeSingle();
+    const requestKey = JSON.stringify([userId, key]);
+    const pending = pendingReads.get(requestKey);
+    if (pending) return pending;
 
-      if (error && !isTableMissing(error.code)) {
-        logger.error(`syncStorage.get failed for key "${key}":`, error);
+    const request = (async () => {
+      try {
+        const { data, error } = await supabase
+          .from('user_data')
+          .select('value')
+          .eq('user_id', userId)
+          .eq('key', key)
+          .returns<{ value: string }>()
+          .maybeSingle();
+
+        if (error && !isTableMissing(error.code)) {
+          logger.error(`syncStorage.get failed for key "${key}":`, error);
+          return null;
+        }
+
+        return data?.value ? { value: data.value } : null;
+      } catch (err) {
+        logger.error(`syncStorage.get caught error for key "${key}":`, err);
         return null;
       }
-
-      return data?.value ? { value: data.value } : null;
-    } catch (err) {
-      logger.error(`syncStorage.get caught error for key "${key}":`, err);
-      return null;
-    }
+    })().finally(() => {
+      // Entries live only for the request, so later visits still read fresh data.
+      if (pendingReads.get(requestKey) === request)
+        pendingReads.delete(requestKey);
+    });
+    pendingReads.set(requestKey, request);
+    return request;
   },
 
   async set(key: string, value: string): Promise<SyncSetResult> {
     const userId = await getUserId();
     if (!userId) return 'skipped';
+    pendingReads.delete(JSON.stringify([userId, key]));
 
     if (value.length > MAX_VALUE_LENGTH) return 'too-large';
 
@@ -82,6 +97,7 @@ export const syncStorage = {
   async delete(key: string): Promise<void> {
     const userId = await getUserId();
     if (!userId) return;
+    pendingReads.delete(JSON.stringify([userId, key]));
 
     try {
       const { error } = await supabase
