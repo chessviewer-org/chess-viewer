@@ -15,8 +15,13 @@
 .stackedGroup {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  width: calc(100% * var(--cols, 6) / 6);
   min-width: 0;
+
+  @include m.editor-desktop {
+    flex: 0 0 calc((100% - 0.5rem) * var(--cols, 6) / 12);
+    width: auto;
+  }
 }
 
 .stackedGroupLabel {
@@ -40,13 +45,14 @@
 
   @include m.editor-desktop {
     flex-direction: row;
+    align-items: flex-start;
     gap: 0.5rem;
   }
 }
 
 .stackedPieceRow {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--cols, 6), minmax(0, 1fr));
   gap: clamp(0.1rem, 0.3vw, 0.2rem);
   padding: clamp(0.2rem, 0.3vw, 0.3rem);
   border-radius: 0.5rem;
