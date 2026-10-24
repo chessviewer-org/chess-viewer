@@ -7,7 +7,8 @@ import {
   cellName,
   cellToFenPiece,
   isFairyCell,
-  parseCellCode
+  parseCellCode,
+  positionPieceCounts
 } from '@utils/boardCells';
 import { getPieceKey, piecePath } from '@utils/pieceUtils';
 import { FAIRY_BOXES, FAIRY_PIECE_KEYS, FAIRY_PIECE_MAP } from '@constants';
@@ -48,7 +49,7 @@ describe('parseCellCode', () => {
   });
 
   test('rejects FEN letters, empty cells and malformed codes', () => {
-    for (const cell of ['K', 'p', '', 'wX', 'wK45', 'xK90', 'K90']) {
+    for (const cell of ['K', 'p', '', 'wZ', 'wK45', 'xK90', 'K90']) {
       assert.equal(parseCellCode(cell), null, `${cell} should not parse`);
     }
   });
@@ -65,6 +66,29 @@ describe('isFairyCell', () => {
     for (const cell of ['wK', 'bP', 'K', 'k', '']) {
       assert.equal(isFairyCell(cell), false, `${cell} should not be fairy`);
     }
+  });
+
+  test('recognises unrotated FFEN diagram symbols without treating them as men', () => {
+    for (const code of ['wC', 'bX', 'nS', 'wT270']) {
+      assert.equal(isFairyCell(code), true);
+      assert.equal(cellToFenPiece(code), '');
+      assert.equal(getPieceKey(code), code);
+    }
+    const board = boardWith({
+      a8: 'wC',
+      b8: 'bX',
+      c8: 'nS',
+      d8: 'wT270',
+      e8: 'K',
+      f8: 'p'
+    });
+    assert.deepEqual(positionPieceCounts(board), {
+      white: 1,
+      black: 1,
+      neutral: 0
+    });
+    assert.equal(boardToFEN(baseCells(board)), '4Kp2/8/8/8/8/8/8/8');
+    assert.equal(cellName('nT90'), 'neutral triangle (90°)');
   });
 });
 
@@ -154,24 +178,28 @@ describe('piecePath', () => {
 });
 
 describe('fairy piece constants', () => {
-  test('sixty fairy keys map to their files', () => {
-    assert.equal(FAIRY_PIECE_KEYS.length, 60);
-    assert.equal(Object.keys(FAIRY_PIECE_MAP).length, 60);
+  test('fairy artwork keys distinguish generated files from inline markers', () => {
+    assert.equal(FAIRY_PIECE_KEYS.length, 108);
+    assert.equal(Object.keys(FAIRY_PIECE_MAP).length, 108);
     for (const key of FAIRY_PIECE_KEYS) {
-      assert.equal(FAIRY_PIECE_MAP[key], `${key}.svg`);
+      if (/^[wbn][CXST]/.test(key)) {
+        assert.equal(FAIRY_PIECE_MAP[key], '');
+        assert.match(piecePath('cburnett', key), /^data:image\/svg\+xml/);
+        assert.equal(piecePath('cburnett', key), piecePath('merida', key));
+      } else assert.equal(FAIRY_PIECE_MAP[key], `${key}.svg`);
       assert.ok(!/^[wb][KQRBNP]$/.test(key), `${key} is a base piece`);
     }
   });
 
-  test('eighteen boxes ordered white, black, neutral then K Q R B N P', () => {
-    assert.equal(FAIRY_BOXES.length, 18);
+  test('thirty boxes ordered by colour, then pieces and diagram marks', () => {
+    assert.equal(FAIRY_BOXES.length, 30);
     assert.deepEqual(
       FAIRY_BOXES.map((box) => box.color),
-      ['w', 'b', 'n'].flatMap((color) => Array(6).fill(color))
+      ['w', 'b', 'n'].flatMap((color) => Array(10).fill(color))
     );
     assert.deepEqual(
-      FAIRY_BOXES.slice(0, 6).map((box) => box.type),
-      ['K', 'Q', 'R', 'B', 'N', 'P']
+      FAIRY_BOXES.slice(0, 10).map((box) => box.type),
+      ['K', 'Q', 'R', 'B', 'N', 'P', 'C', 'X', 'S', 'T']
     );
   });
 

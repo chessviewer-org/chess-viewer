@@ -31,7 +31,7 @@ describe('Fairy FEN (Joost de Heer syntax)', () => {
     );
   });
 
-  test('all 72 supported symbols round trip, including unrotated neutral pieces', () => {
+  test('all 120 supported glyphs round trip, including geometric markers', () => {
     for (const box of FAIRY_BOXES)
       for (const variant of box.variants) {
         const board = emptyBoard();
@@ -65,6 +65,27 @@ describe('Fairy FEN (Joost de Heer syntax)', () => {
     );
   });
 
+  test('uses published FFEN C/X/S/T marker codes, preserving colour and turns', () => {
+    const fen = 'CxSt4/8/8/8/8/8/8/8 b - - 12 34';
+    assert.equal(isFairyFEN(fen), true);
+    assert.equal(validateFEN(fen), true);
+    assert.deepEqual(parseFEN(fen)[0], [
+      'wC',
+      'bX',
+      'wS',
+      'bT',
+      '',
+      '',
+      '',
+      ''
+    ]);
+    assert.equal(normalizePositionFEN(fen), fen);
+    assert.equal(
+      normalizePositionFEN('-*0c7/8/8/8/8/8/8/8'),
+      '-C7/8/8/8/8/8/8/8 w - - 0 1'
+    );
+  });
+
   test('rejects truncated prefixes, invalid rotations, overflow and unsupported shapes', () => {
     for (const rank of [
       '-',
@@ -77,7 +98,7 @@ describe('Fairy FEN (Joost de Heer syntax)', () => {
       '-*2',
       '-Q8',
       '-Q6',
-      '-X7',
+      '-Z7',
       'nQ7'
     ]) {
       const fen = `${rank}/8/8/8/8/8/8/8 w - - 0 1`;

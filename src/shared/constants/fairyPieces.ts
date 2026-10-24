@@ -1,7 +1,9 @@
 export const FAIRY_DIR = 'fairypiece';
 
 export type FairyColor = 'w' | 'b' | 'n';
-export type FairyPieceType = 'K' | 'Q' | 'R' | 'B' | 'N' | 'P';
+export type CompositionSymbolType = 'C' | 'X' | 'S' | 'T';
+export type FairyPieceType =
+  'K' | 'Q' | 'R' | 'B' | 'N' | 'P' | CompositionSymbolType;
 export type FairyRotation = 0 | 90 | 180 | 270;
 
 export const FAIRY_ROTATIONS: readonly FairyRotation[] = [0, 90, 180, 270];
@@ -12,7 +14,11 @@ export const FAIRY_PIECE_TYPES: readonly FairyPieceType[] = [
   'R',
   'B',
   'N',
-  'P'
+  'P',
+  'C',
+  'X',
+  'S',
+  'T'
 ];
 
 const COLOR_WORDS: Record<FairyColor, string> = {
@@ -27,7 +33,11 @@ const TYPE_WORDS: Record<FairyPieceType, string> = {
   R: 'Rook',
   B: 'Bishop',
   N: 'Knight',
-  P: 'Pawn'
+  P: 'Pawn',
+  C: 'Circle',
+  X: 'Cross',
+  S: 'Square',
+  T: 'Triangle'
 };
 
 export function fairyCode(
@@ -63,5 +73,8 @@ export const FAIRY_PIECE_KEYS: string[] = FAIRY_BOXES.flatMap(
 ).filter((key) => !/^[wb][KQRBNP]$/.test(key));
 
 export const FAIRY_PIECE_MAP: Record<string, string> = Object.fromEntries(
-  FAIRY_PIECE_KEYS.map((key) => [key, `${key}.svg`])
+  FAIRY_PIECE_KEYS.map((key) => [
+    key,
+    /^[wbn][CXST]/.test(key) ? '' : `${key}.svg`
+  ])
 );

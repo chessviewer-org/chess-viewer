@@ -8,6 +8,7 @@ import {
 
 import type { BoardCell, ChessBoard } from '@app-types';
 import { baseCells, boardToFEN } from './boardCells';
+import { isCompositionSymbol } from './compositionSymbols';
 import { parseNamedCell } from './fairyCells';
 import { memoizeString } from './memoize';
 import {
@@ -26,10 +27,10 @@ export const MAX_POSITION_LENGTH = MAX_COMPOSITION_LENGTH;
 
 /** Joost de Heer's FFEN: '-' = neutral; '*1', '*2', '*3' = clockwise turns.
  * https://www.janko.at/Retros/d.htm#Fairy_FEN
- * This editor supports the six piece symbols on an 8 × 8 board.
+ * C/X/S/T are diagram circles, crosses, squares and triangles, not walks.
  */
 export function isFairyFEN(fen: string): boolean {
-  return isPopeye(fen) || /[-*]/.test(fen.trim().split(/\s+/)[0] ?? '');
+  return isPopeye(fen) || /[-*CXSTcxst]/.test(fen.trim().split(/\s+/)[0] ?? '');
 }
 
 function parsePlacement(placement: string): ChessBoard {
@@ -40,9 +41,10 @@ function parsePlacement(placement: string): ChessBoard {
     const cells: BoardCell[] = [];
     let offset = 0;
     while (offset < rank.length) {
-      const token = /^(?:[1-8]|(-)?(?:\*([0-3]))?([KQRBNPkqrbnp]))/.exec(
-        rank.slice(offset)
-      );
+      const token =
+        /^(?:[1-8]|(-)?(?:\*([0-3]))?([KQRBNPCXSTkqrbnpcxst]))/.exec(
+          rank.slice(offset)
+        );
       if (!token) {
         throw new FENParseError(
           `Invalid FFEN symbol in rank ${index + 1}. Use -B, *1B or -*2r.`
@@ -60,7 +62,7 @@ function parsePlacement(placement: string): ChessBoard {
             ? 'w'
             : 'b';
         cells.push(
-          color === 'n' || rotation
+          color === 'n' || rotation || isCompositionSymbol(symbol.toUpperCase())
             ? `${color}${symbol.toUpperCase()}${rotation || ''}`
             : symbol
         );
@@ -82,10 +84,12 @@ export function parseFEN(fen: string): ChessBoard {
   if (isPopeye(fen)) {
     const doc = parsePopeye(fen);
     for (const [square, symbol] of Object.entries(doc.symbols)) {
-      if (!/^[wbn][KQRBNP](?:90|180|270)?$/.test(symbol))
+      if (!/^[wbn][KQRBNPCXST](?:90|180|270)?$/.test(symbol))
         throw new FENParseError('Invalid diagram symbol override.');
       const row = 8 - Number(square[1]);
       const col = square.charCodeAt(0) - 97;
+      if (isCompositionSymbol(symbol[1]!) && doc.board[row]![col])
+        throw new FENParseError('A diagram marker cannot replace a piece.');
       if (parseNamedCell(doc.board[row]![col]!))
         throw new FENParseError(
           'A named fairy piece cannot be replaced by a visual-only symbol.'

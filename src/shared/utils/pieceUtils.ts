@@ -7,6 +7,10 @@ import type { ChessBoard, PieceSet } from '@app-types';
 import { logger } from './logger';
 import { isFairyCell, parseCellCode } from './boardCells';
 import { fairyLetterSVG, parseNamedCell } from './fairyCells';
+import {
+  compositionSymbolSVG,
+  isCompositionSymbol
+} from './compositionSymbols';
 import { parseFEN } from './fenParser';
 import { pieceSrc } from './pieceSources';
 
@@ -55,6 +59,9 @@ export function piecePath(style: string, piece: string): string {
       return piecePath(style, named.color + named.definition.glyph);
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(fairyLetterSVG(named.color, named.walk))}`;
   }
+  const code = parseCellCode(piece);
+  if (code && isCompositionSymbol(code.type))
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(compositionSymbolSVG(code.type, code.color, code.rotation))}`;
   return isFairyCell(piece)
     ? `/${FAIRY_DIR}/${style}/${piece}.svg`
     : `/piece/${style}/${piece}.svg`;

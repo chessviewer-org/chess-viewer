@@ -1,4 +1,6 @@
 import type { BoardCell, ChessBoard } from '@app-types';
+import { parseCellCode } from './boardCells';
+import { isCompositionSymbol } from './compositionSymbols';
 import {
   fairyAttribute,
   fairyWalk,
@@ -267,8 +269,13 @@ export function serializePopeye(
   board.forEach((rank, row) =>
     rank.forEach((cell, col) => {
       if (!cell) return;
-      const piece = popeyeCell(cell);
       const square = `${String.fromCharCode(97 + col)}${8 - row}`;
+      const code = parseCellCode(cell);
+      if (code && isCompositionSymbol(code.type) && !parseNamedCell(cell)) {
+        symbols.push(`${square}=${cell}`);
+        return;
+      }
+      const piece = popeyeCell(cell);
       if (piece.symbol) symbols.push(`${square}=${piece.symbol}`);
       const color = { w: 'White', b: 'Black', n: 'Neutral' }[piece.color];
       const key = [color, ...piece.attributes].join(' ');

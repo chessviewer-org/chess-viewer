@@ -545,7 +545,7 @@ export const FAIRY_WALKS: readonly FairyWalk[] = [
   {
     code: 'O',
     name: 'Orphan',
-    glyph: 'P270'
+    glyph: 'C'
   },
   {
     code: 'PA',

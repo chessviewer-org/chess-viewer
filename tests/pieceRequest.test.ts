@@ -6,11 +6,11 @@ import { parseFEN } from '../src/shared/utils/fenParser';
 test('standard and fairy load only currently visible palette artwork', () => {
   assert.equal(requestedPieceKeys({}).length, 12);
   const fairy = requestedPieceKeys({ palette: 'fairy' });
-  assert.equal(fairy.length, 18);
+  assert.equal(fairy.length, 30);
   assert.ok(fairy.includes('nQ'));
   assert.ok(!fairy.some((key) => /90|180|270/.test(key)));
   const turned = requestedPieceKeys({ palette: 'fairy', rotation: 90 });
-  assert.equal(turned.length, 30);
+  assert.equal(turned.length, 42);
   assert.ok(turned.includes('nQ90'));
   assert.ok(turned.includes('wK'));
   assert.ok(!turned.some((key) => /180|270/.test(key)));
@@ -25,6 +25,16 @@ test('imported positions retain each used rotation and neutral symbol', () => {
   assert.equal(keys.length, 16);
   for (const key of ['nB', 'wB90', 'nR180', 'bQ270'])
     assert.ok(keys.includes(key), key);
+});
+
+test('diagram markers load only their used artwork outside the visible palette', () => {
+  const keys = requestedPieceKeys({
+    positions: 'C7/1x6/2-*2S5/3*3t4/8/8/8/8 w - - 0 1'
+  });
+  assert.equal(keys.length, 16);
+  for (const key of ['wC', 'bX', 'nS180', 'bT270'])
+    assert.ok(keys.includes(key), key);
+  assert.ok(!keys.includes('wC90'));
 });
 
 test('actual board stays authoritative while input is incomplete', () => {
