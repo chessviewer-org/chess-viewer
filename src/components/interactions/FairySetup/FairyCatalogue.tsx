@@ -186,7 +186,7 @@ export const FairyCatalogue = memo(function FairyCatalogue({
       <div
         role="group"
         aria-label="Named fairy pieces"
-        className="mt-3 grid grid-cols-6 gap-1 @md:grid-cols-8 @[36rem]:grid-cols-11"
+        className="mt-3 grid grid-cols-8 gap-1 @md:grid-cols-11 @[36rem]:grid-cols-15"
       >
         {entries.map(renderEntry)}
       </div>
