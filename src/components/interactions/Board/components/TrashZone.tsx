@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-import { useDragActive, useDroppable } from '@hooks';
+import { useDragSelector, useDroppable } from '@/shared/hooks/useDragDrop';
 
 interface TrashZoneProps {
   className?: string;
@@ -9,8 +9,9 @@ interface TrashZoneProps {
 export const TrashZone = memo(function TrashZone({
   className = ''
 }: TrashZoneProps) {
-  const active = useDragActive();
-  const canDrop = !!active && !active.isFromPalette;
+  const canDrop = useDragSelector(
+    (active) => !!active && !active.isFromPalette
+  );
 
   const setNodeRef = useDroppable({ id: 'trash', data: {} });
 

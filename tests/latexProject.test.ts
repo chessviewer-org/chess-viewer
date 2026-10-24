@@ -3,6 +3,7 @@ import { describe, test } from 'node:test';
 
 import {
   DEFAULT_SETTINGS,
+  LATEX_STORAGE_KEY,
   addPositions,
   buildLatex,
   createDefaultProject,
@@ -13,6 +14,7 @@ import {
   parseBulkInput,
   parseSquareList,
   positionAnnotations,
+  saveProject,
   sanitizeProject,
   usableFen
 } from '../src/pages/LatexPage/utils/latexProject.ts';
@@ -21,6 +23,43 @@ import { latexRequirements } from '../src/pages/LatexPage/utils/latexRequirement
 
 const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 const ENDGAME_FEN = '8/8/8/3k4/8/4K3/3Q4/8 w - - 0 1';
+
+describe('project persistence', () => {
+  test('reports a failed write and allows retrying the current project', () => {
+    const originalWindow = Object.getOwnPropertyDescriptor(
+      globalThis,
+      'window'
+    );
+    let fail = true;
+    const writes: Array<[string, string]> = [];
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true,
+      value: {
+        localStorage: {
+          setItem(key: string, value: string) {
+            if (fail) throw new Error('Temporary storage failure');
+            writes.push([key, value]);
+          }
+        }
+      }
+    });
+    try {
+      const project = createDefaultProject();
+      assert.equal(saveProject(project), false);
+      assert.equal(writes.length, 0);
+      fail = false;
+      assert.equal(saveProject(project), true);
+      assert.equal(writes[0]?.[0], LATEX_STORAGE_KEY);
+      assert.deepEqual(JSON.parse(writes[0]![1]), project);
+    } finally {
+      if (originalWindow) {
+        Object.defineProperty(globalThis, 'window', originalWindow);
+      } else {
+        Reflect.deleteProperty(globalThis, 'window');
+      }
+    }
+  });
+});
 
 describe('square and arrow parsing', () => {
   test('accepts separators, lowercases and de-duplicates squares', () => {

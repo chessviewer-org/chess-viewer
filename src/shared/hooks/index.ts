@@ -22,9 +22,8 @@ export type { DragApi, DragSession } from './useDragDrop';
 export {
   DRAG_OVER_ATTR,
   DROP_ID_ATTR,
-  DragActiveCtx,
   DragApiCtx,
-  useDragActive,
+  useDragSelector,
   useDraggable,
   useDroppable
 } from './useDragDrop';

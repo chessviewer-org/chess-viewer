@@ -2,11 +2,13 @@ import { memo, useMemo, useState } from 'react';
 
 import { Clipboard, History, Plus, Search } from '@/assets/icons';
 
-import { useFENHistory } from '@hooks';
-import { LATEX_MAX_POSITIONS } from '@utils';
+import { useFENHistory } from '@/shared/hooks/useFENHistory';
+import { LATEX_MAX_POSITIONS } from '@chessviewer-org/chess-viewer';
 import {
   type LatexProject,
   type StudioPosition,
+  type StudioSettings,
+  boardPreviewPosition,
   fenProblem
 } from '../utils/latexProject';
 import type { LatexProjectActions } from '../hooks/useLatexProject';
@@ -23,7 +25,7 @@ interface RowProps {
   position: StudioPosition;
   index: number;
   selected: boolean;
-  project: LatexProject;
+  settings: StudioSettings;
   onSelect: (id: string) => void;
 }
 
@@ -31,12 +33,11 @@ const DiagramRow = memo(function DiagramRow({
   position,
   index,
   selected,
-  project,
+  settings,
   onSelect
 }: RowProps) {
   const problem = useMemo(() => fenProblem(position.fen), [position.fen]);
-  const isGame =
-    (position.captionStyle ?? project.settings.captionStyle) === 'game';
+  const isGame = (position.captionStyle ?? settings.captionStyle) === 'game';
   const players = [position.white, position.black].filter(Boolean).join(' – ');
   const title =
     (isGame
@@ -64,8 +65,9 @@ const DiagramRow = memo(function DiagramRow({
           {index + 1}
         </span>
         <PaperBoard
-          position={position}
-          settings={project.settings}
+          {...boardPreviewPosition(position)}
+          latexPackage={settings.latexPackage}
+          showCoords={settings.showCoords}
           alt=""
           plain
           className="size-10 shrink-0 rounded-sm"
@@ -224,7 +226,7 @@ export const DiagramNavigator = memo(function DiagramNavigator({
               position={position}
               index={index}
               selected={position.id === project.selectedId}
-              project={project}
+              settings={project.settings}
               onSelect={onOpen}
             />
           ))}

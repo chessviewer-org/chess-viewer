@@ -1,9 +1,13 @@
 import { useCallback, useId, useState } from 'react';
 
 import { getRouteSeo } from '@constants';
-import { useCopyToClipboard, useNotifications } from '@hooks';
-import { NotificationContainer, Seo } from '@ui';
-import { STARTING_FEN, saveBlob } from '@utils';
+import { useCopyToClipboard } from '@/shared/hooks/useDOM';
+import { useNotifications } from '@/shared/hooks/useNotifications';
+import { NotificationContainer } from '@/shared/ui/NotificationContainer';
+import { Seo } from '@/shared/ui/Seo';
+import { isFairyFEN } from '@utils/fenParser';
+import { STARTING_FEN } from '@chessviewer-org/chess-viewer';
+import { saveBlob } from '@/shared/utils/saveBlob';
 import { DiagramEditor } from './components/DiagramEditor';
 import { DiagramNavigator } from './components/DiagramNavigator';
 import { ExportCard } from './components/ExportCard';
@@ -29,11 +33,12 @@ const TABS: ReadonlyArray<{ id: Tab; label: string }> = [
 ];
 
 const LatexPage = () => {
-  const { project, build, isFull, canUndo, actions } = useLatexProject();
+  const [tab, setTab] = useState<Tab>('diagrams');
+  const { project, build, invalidCount, isFull, canUndo, actions } =
+    useLatexProject(tab === 'export');
   const { notifications, success, error, removeNotification } =
     useNotifications();
   const [copied, copy] = useCopyToClipboard();
-  const [tab, setTab] = useState<Tab>('diagrams');
   const [editing, setEditing] = useState(false);
   const [fileName, setFileName] = useState(DEFAULT_FILE_NAME);
   const tabsId = useId();
@@ -58,20 +63,20 @@ const LatexPage = () => {
   }, [actions]);
 
   const handleCopy = useCallback(() => {
-    if (!build.code) return;
+    if (!build?.code) return;
     copy(build.code);
     success('LaTeX copied to clipboard');
-  }, [build.code, copy, success]);
+  }, [build?.code, copy, success]);
 
   const handleDownload = useCallback(() => {
-    if (!build.code) return;
+    if (!build?.code) return;
     saveBlob(
       new Blob([build.code], { type: 'application/x-tex;charset=utf-8' }),
       fileName.trim() || DEFAULT_FILE_NAME,
       'tex'
     );
     success('LaTeX file downloaded');
-  }, [build.code, fileName, success]);
+  }, [build?.code, fileName, success]);
 
   const handleSave = useCallback(() => {
     saveBlob(
@@ -160,10 +165,10 @@ const LatexPage = () => {
                     {project.positions.length}
                   </span>
                 )}
-                {id === 'export' && build.skipped.length > 0 && (
+                {id === 'export' && invalidCount > 0 && (
                   <span
                     className="size-2 rounded-full bg-warning"
-                    aria-label={`${build.skipped.length} left out`}
+                    aria-label={`${invalidCount} left out`}
                   />
                 )}
               </button>
@@ -208,13 +213,16 @@ const LatexPage = () => {
           {tab === 'document' && (
             <div className="grid gap-6 lg:grid-cols-2">
               <SettingsPanel
+                fairyPosition={project.positions.some((position) =>
+                  isFairyFEN(position.fen)
+                )}
                 settings={project.settings}
                 onChange={actions.updateSettings}
               />
             </div>
           )}
 
-          {tab === 'export' && (
+          {tab === 'export' && build && (
             <div className="grid gap-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,24rem)_minmax(0,1fr)]">
               <ExportCard
                 build={build}

@@ -1,20 +1,18 @@
 import {
   useCallback,
-  useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
-  useState,
   type ReactNode
 } from 'react';
 import type { ChessDragData } from '@constants';
 import {
   DRAG_OVER_ATTR,
   DROP_ID_ATTR,
-  DragActiveCtx,
   DragApiCtx,
   type DragApi,
   type DragSession
-} from '@hooks';
+} from '@/shared/hooks/useDragDrop';
 
 const CLICK_SUPPRESS_MS = 50;
 
@@ -47,7 +45,13 @@ function suppressNextClick() {
 }
 
 export function DragProvider({ children, onDragEnd }: DragProviderProps) {
-  const [active, setActive] = useState<ChessDragData | null>(null);
+  const activeRef = useRef<ChessDragData | null>(null);
+  const listeners = useRef(new Set<() => void>());
+  const setActive = useCallback((next: ChessDragData | null) => {
+    if (activeRef.current === next) return;
+    activeRef.current = next;
+    listeners.current.forEach((listener) => listener());
+  }, []);
 
   const sessionRef = useRef<DragSession | null>(null);
   const overIdRef = useRef<string | null>(null);
@@ -65,7 +69,7 @@ export function DragProvider({ children, onDragEnd }: DragProviderProps) {
     overIdRef.current = id;
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     let frame = 0;
     let lastX = 0;
     let lastY = 0;
@@ -132,8 +136,9 @@ export function DragProvider({ children, onDragEnd }: DragProviderProps) {
       window.removeEventListener('blur', onBlur);
       sessionRef.current?.ghost.remove();
       sessionRef.current = null;
+      setActive(null);
     };
-  }, [setOver]);
+  }, [setOver, setActive]);
 
   const api = useMemo<DragApi>(
     () => ({
@@ -143,6 +148,11 @@ export function DragProvider({ children, onDragEnd }: DragProviderProps) {
         setActive(session.dragData);
       },
       isDragging: () => sessionRef.current !== null,
+      getActive: () => activeRef.current,
+      subscribe(listener) {
+        listeners.current.add(listener);
+        return () => listeners.current.delete(listener);
+      },
       registerDropTarget(id, el, data) {
         el.setAttribute(DROP_ID_ATTR, id);
         targets.current.set(id, { el, data });
@@ -151,12 +161,8 @@ export function DragProvider({ children, onDragEnd }: DragProviderProps) {
         targets.current.delete(id);
       }
     }),
-    []
+    [setActive]
   );
 
-  return (
-    <DragApiCtx.Provider value={api}>
-      <DragActiveCtx.Provider value={active}>{children}</DragActiveCtx.Provider>
-    </DragApiCtx.Provider>
-  );
+  return <DragApiCtx.Provider value={api}>{children}</DragApiCtx.Provider>;
 }
