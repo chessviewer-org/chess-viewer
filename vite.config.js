@@ -1,12 +1,36 @@
 import preact from '@preact/preset-vite';
+import { buildSync } from 'esbuild';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const BOOT_SCRIPT = /<script src="\/src\/boot\/([a-z-]+)\.js"><\/script>/g;
+
+function inlineBootScripts() {
+  return {
+    name: 'inline-boot-scripts',
+    transformIndexHtml: {
+      order: 'pre',
+      handler: (html) =>
+        html.replace(BOOT_SCRIPT, (_tag, name) => {
+          const [bundle] = buildSync({
+            entryPoints: [path.resolve(__dirname, 'src/boot', `${name}.js`)],
+            bundle: true,
+            minify: true,
+            format: 'iife',
+            target: 'es2020',
+            write: false
+          }).outputFiles;
+          return `<script>${bundle.text.trim()}</script>`;
+        })
+    }
+  };
+}
+
 export default defineConfig({
-  plugins: [preact()],
+  plugins: [inlineBootScripts(), preact()],
 
   resolve: {
     alias: {

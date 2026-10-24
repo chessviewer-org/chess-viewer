@@ -1,13 +1,13 @@
 import { memo } from 'react';
 
-import defaultLogo from '@/assets/logo/Logo.png';
+import logoSrc from '@/assets/logo/Logo.svg?inline';
 
 interface LogoProps {
   className?: string;
 }
 
 const LogoComponent = ({ className }: LogoProps) => {
-  return <img src={defaultLogo} alt="ChessViewer" className={className} />;
+  return <img src={logoSrc} alt="ChessViewer" className={className} />;
 };
 
 export const Logo = memo(LogoComponent);

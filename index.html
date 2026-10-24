@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="/src/boot/theme-init.js"></script>
+    <script src="/src/boot/route-guard.js"></script>
     <meta name="author" content="ChessViewer" />
     <meta
       name="google-site-verification"
@@ -108,58 +110,63 @@
       html.prerender-stale #main-content {
         visibility: hidden;
       }
-
-      #app-splash {
-        position: fixed;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 2147483647;
-        opacity: 1;
-        transition: opacity 0.25s ease;
-        pointer-events: none;
-      }
-      html.app-ready #app-splash {
-        opacity: 0;
-      }
-      #app-splash .app-splash-spinner {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        border: 3px solid rgb(255 255 255 / 0.15);
-        border-top-color: rgb(59 130 246);
-        animation: app-splash-spin 0.8s linear infinite;
-      }
-      html[data-theme='light'] #app-splash .app-splash-spinner {
-        border-color: rgb(0 0 0 / 0.1);
-        border-top-color: rgb(59 130 246);
-      }
-      @keyframes app-splash-spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        #app-splash .app-splash-spinner {
-          animation-duration: 1.6s;
-        }
+      html.prerender-restored #root {
+        display: none;
       }
     </style>
 
     <title>ChessViewer • Free Chess Diagram Generator</title>
   </head>
-  <body class="preload">
-    <script src="/theme-init.js"></script>
-    <script src="/route-guard.js"></script>
-
+  <body>
     <div id="root"></div>
-
-    <div id="app-splash" aria-hidden="true">
-      <div class="app-splash-spinner"></div>
+    <!-- prerender:strip:start -->
+    <style>
+      #app-loader {
+        position: fixed;
+        inset: 0;
+        display: none;
+        place-items: center;
+        pointer-events: none;
+      }
+      #root:empty ~ #app-loader {
+        display: grid;
+        animation: app-loader-in 0.2s ease 0.25s both;
+      }
+      #app-loader > div {
+        width: 2.85rem;
+        height: 4rem;
+        mask: url('/src/assets/logo/Logo.svg') center / contain no-repeat;
+        background: linear-gradient(
+            rgb(169 132 52) 48%,
+            rgb(169 132 52 / 0.18) 52%
+          )
+          0 100% / 100% 200%;
+        animation: app-loader-fill 1.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+      }
+      @keyframes app-loader-in {
+        from {
+          opacity: 0;
+        }
+      }
+      @keyframes app-loader-fill {
+        75%,
+        to {
+          background-position-y: 0;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #app-loader > div {
+          animation: none;
+          background-position-y: 0;
+        }
+      }
+    </style>
+    <div id="app-loader" role="status" aria-label="Loading ChessViewer">
+      <div></div>
     </div>
+    <!-- prerender:strip:end -->
 
     <script type="module" src="/src/index.tsx"></script>
-    <script src="/preload-cleanup.js" defer></script>
+    <script src="/src/boot/retire-service-worker.js"></script>
   </body>
 </html>
