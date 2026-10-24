@@ -1,7 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import DiagramWorkspace from '@/components/interactions/Editor/DiagramWorkspace';
 import { FairySetup } from '@/components/interactions/FairySetup/FairySetup';
-import { BoardStylePanel } from '@/components/features/BoardStyle/BoardStylePanel';
 import { useHome } from '@/pages/HomePage/hooks/useHome';
 import {
   parseFEN,
@@ -104,74 +103,59 @@ export default function FairyChessPage() {
         </div>
       }
     >
-      <>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
-          <section
-            id="fairy-catalogue"
-            className="min-w-0 rounded-xl border border-border/40 bg-surface p-fluid-sm scroll-mt-20"
-          >
-            <FairySetup
-              section="pieces"
-              fen={home.fen}
-              pieceImages={images}
-              selectedPiece={palettePiece}
-              onPick={(piece) => {
-                setPalettePiece(piece);
-                document
-                  .querySelector('[data-palette-mode="fairy"]')
-                  ?.scrollIntoView({
-                    block: 'start',
-                    behavior: window.matchMedia(
-                      '(prefers-reduced-motion: reduce)'
-                    ).matches
-                      ? 'instant'
-                      : 'smooth'
-                  });
-              }}
-              onUseSymbols={() => setPalettePiece(null)}
-              onChange={home.handleEditorFenChange}
-            />
-          </section>
-          <section
-            id="fairy-problem"
-            className="min-w-0 rounded-xl border border-border/40 bg-surface p-fluid-sm scroll-mt-20"
-          >
-            <FairySetup
-              section="problem"
-              fen={home.fen}
-              pieceImages={images}
-              onPick={(piece) => {
-                setPalettePiece(piece);
-                document
-                  .querySelector('[data-palette-mode="fairy"]')
-                  ?.scrollIntoView({
-                    block: 'start',
-                    behavior: window.matchMedia(
-                      '(prefers-reduced-motion: reduce)'
-                    ).matches
-                      ? 'instant'
-                      : 'smooth'
-                  });
-              }}
-              onUseSymbols={() => setPalettePiece(null)}
-              onChange={home.handleEditorFenChange}
-            />
-          </section>
-        </div>
-        <section className="rounded-xl border border-border/40 bg-surface p-fluid-sm">
-          <h2 className="font-semibold text-text-primary mb-4">Board style</h2>
-          <BoardStylePanel
-            lightSquare={home.lightSquare}
-            darkSquare={home.darkSquare}
-            pieceStyle={home.pieceStyle}
-            onApplyTheme={(light, dark) => {
-              home.setLightSquare(light);
-              home.setDarkSquare(dark);
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
+        <section
+          id="fairy-catalogue"
+          className="min-w-0 rounded-xl border border-border/40 bg-surface p-fluid-sm scroll-mt-20"
+        >
+          <FairySetup
+            section="pieces"
+            fen={home.fen}
+            pieceImages={images}
+            selectedPiece={palettePiece}
+            onPick={(piece) => {
+              setPalettePiece(piece);
+              document
+                .querySelector('[data-palette-mode="fairy"]')
+                ?.scrollIntoView({
+                  block: 'start',
+                  behavior: window.matchMedia(
+                    '(prefers-reduced-motion: reduce)'
+                  ).matches
+                    ? 'instant'
+                    : 'smooth'
+                });
             }}
-            onSelectPiece={home.setPieceStyle}
+            onUseSymbols={() => setPalettePiece(null)}
+            onChange={home.handleEditorFenChange}
           />
         </section>
-      </>
+        <section
+          id="fairy-problem"
+          className="min-w-0 rounded-xl border border-border/40 bg-surface p-fluid-sm scroll-mt-20"
+        >
+          <FairySetup
+            section="problem"
+            fen={home.fen}
+            pieceImages={images}
+            onPick={(piece) => {
+              setPalettePiece(piece);
+              document
+                .querySelector('[data-palette-mode="fairy"]')
+                ?.scrollIntoView({
+                  block: 'start',
+                  behavior: window.matchMedia(
+                    '(prefers-reduced-motion: reduce)'
+                  ).matches
+                    ? 'instant'
+                    : 'smooth'
+                });
+            }}
+            onUseSymbols={() => setPalettePiece(null)}
+            onChange={home.handleEditorFenChange}
+          />
+        </section>
+      </div>
     </DiagramWorkspace>
   );
 }
