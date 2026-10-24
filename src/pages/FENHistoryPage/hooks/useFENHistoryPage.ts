@@ -1,16 +1,16 @@
+import { isFairyFEN } from '@utils/fenParser';
+import { isPopeye } from '@utils/popeye';
 import { useLocation } from 'wouter';
 import { useEffect, useMemo, useState } from 'react';
 
 import type { HistoryFilterState } from '@/components/features/History';
-import {
-  useBoardPieceSet,
-  useEscapeKey,
-  useFENHistory,
-  useSyncedBoardColors
-} from '@hooks';
+import { useBoardPieceSet } from '@/shared/hooks/usePiece';
+import { useEscapeKey } from '@/shared/hooks/useKeyboard';
+import { useFENHistory } from '@/shared/hooks/useFENHistory';
+import { useSyncedBoardColors } from '@/shared/hooks/useTheme';
 import { ActiveHistoryEntry, HistoryFilters } from '@app-types';
 
-import { logger } from '@utils';
+import { logger } from '@/shared/utils/logger';
 
 // Types
 export type TabType = 'active' | 'favorites' | 'archive';
@@ -69,7 +69,11 @@ export const useFENHistoryPage = () => {
   }
 
   function handleLoad(fen: string) {
-    navigate('/', { state: { loadFEN: fen } });
+    navigate(
+      isFairyFEN(fen)
+        ? `/fairy-chess#position=${encodeURIComponent(fen)}`
+        : `/?fen=${encodeURIComponent(fen)}`
+    );
   }
 
   async function handleDelete(id: number) {
@@ -133,7 +137,9 @@ export const useFENHistoryPage = () => {
     const seen = new Set<string>();
     const unique: ActiveHistoryEntry[] = [];
     for (const entry of sorted) {
-      const key = entry.fen.split(' ')[0] ?? entry.fen;
+      const key = isPopeye(entry.fen)
+        ? entry.fen.trim()
+        : (entry.fen.split(' ')[0] ?? entry.fen);
       if (seen.has(key)) continue;
       seen.add(key);
       unique.push(entry);

@@ -16,7 +16,31 @@ export * from './logger';
 export * from './pageScroll';
 export * from './viewTransition';
 export * from './pieceUtils';
+export {
+  baseCells,
+  boardToFEN,
+  cellName,
+  describeBoardPosition,
+  cellToFenPiece,
+  isFairyCell,
+  parseCellCode
+} from './boardCells';
 export * from './saveBlob';
 export * from './svgExporter';
 export * from './syncHydration';
 export * from './themeMode';
+
+export {
+  parseFEN,
+  validateFEN,
+  validateFENDetailed,
+  getFENValidationError,
+  isFairyFEN,
+  MAX_POSITION_LENGTH,
+  MAX_FFEN_LENGTH,
+  positionContext,
+  serializePosition
+} from './fenParser';
+
+export * from './fairyCells';
+export * from './popeye';

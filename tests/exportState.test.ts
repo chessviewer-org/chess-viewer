@@ -86,7 +86,7 @@ describe('validateExportConfig', () => {
   });
 
   test('FEN exactly 93 chars is valid', () => {
-    const fen93 = 'r'.repeat(93);
+    const fen93 = VALID_CONFIG.fen.padEnd(93, ' ');
     assert.doesNotThrow(() =>
       validateExportConfig({ ...VALID_CONFIG, fen: fen93 })
     );

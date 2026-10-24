@@ -1,131 +1,88 @@
-import { useEffect, useRef, useState } from 'react';
-
-import { PIECE_MAP } from '@constants';
+import { useEffect, useMemo, useState } from 'react';
 
 import {
   getCachedPieceStyle,
-  logger,
-  piecePath,
+  getPieceImages,
   preloadPieceStyle
-} from '@utils';
+} from '@/shared/utils/pieceUtils';
+import { logger } from '@/shared/utils/logger';
+import {
+  requestedPieceKeys,
+  type PieceImageRequest
+} from '@/shared/utils/pieceRequest';
 
-function placeholderImages(
-  style: string,
-  pieceMap: Record<string, string>
-): Record<string, HTMLImageElement> {
-  const result: Record<string, HTMLImageElement> = {};
-  for (const piece of Object.keys(pieceMap)) {
-    const img = new Image();
-    img.src = piecePath(style, piece);
-    result[piece] = img;
-  }
-  return result;
-}
-
-export function usePieceImages(pieceStyle: string): {
+export function usePieceImages(
+  pieceStyle: string,
+  { positions, board, palette, rotation, selectedPiece }: PieceImageRequest = {}
+): {
   pieceImages: Record<string, HTMLImageElement>;
   isLoading: boolean;
   error: string | null;
-  loadProgress: number;
 } {
-  const cached = getCachedPieceStyle(pieceStyle, PIECE_MAP);
-  const [pieceImages, setPieceImages] = useState<
-    Record<string, HTMLImageElement>
-  >(() => cached ?? placeholderImages(pieceStyle, PIECE_MAP));
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [loadProgress, setLoadProgress] = useState(cached ? 100 : 0);
-  const currentStyleRef = useRef(pieceStyle);
-  const syncedStyleRef = useRef(cached ? pieceStyle : null);
+  const keys = useMemo(
+    () =>
+      requestedPieceKeys({
+        ...(positions !== undefined ? { positions } : {}),
+        ...(board ? { board } : {}),
+        ...(palette ? { palette } : {}),
+        ...(rotation !== undefined ? { rotation } : {}),
+        ...(selectedPiece ? { selectedPiece } : {})
+      }).join('|'),
+    [positions, board, palette, rotation, selectedPiece]
+  );
+  // A board edit with the same kinds of pieces keeps the same map and images.
+  const pieceMap = useMemo(
+    () => Object.fromEntries(keys.split('|').map((key) => [key, ''])),
+    [keys]
+  );
+  const cacheKey = `${pieceStyle}:${keys}`;
+  const request = useMemo(() => {
+    const cached = getCachedPieceStyle(pieceStyle, pieceMap);
+    return {
+      images: cached ?? getPieceImages(pieceStyle, pieceMap),
+      ready: Boolean(cached)
+    };
+  }, [pieceStyle, pieceMap]);
+  const [loaded, setLoaded] = useState<{
+    key: string;
+    images: Record<string, HTMLImageElement>;
+    error: string | null;
+  } | null>(null);
 
   useEffect(() => {
-    currentStyleRef.current = pieceStyle;
+    if (request.ready) return;
+    const controller = new AbortController();
+    void preloadPieceStyle(pieceStyle, pieceMap, controller.signal)
+      .then((images) => {
+        if (controller.signal.aborted) return;
+        const missing =
+          Object.keys(pieceMap).length - Object.keys(images).length;
+        if (missing)
+          logger.warn(`Missing ${missing} piece images for ${pieceStyle}`);
+        setLoaded({
+          key: cacheKey,
+          images,
+          error: missing ? 'Some piece images failed to load' : null
+        });
+      })
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) return;
+        logger.error('Piece loading failed:', error);
+        setLoaded({
+          key: cacheKey,
+          images: {},
+          error: 'Failed to load pieces'
+        });
+      });
+    return () => controller.abort();
+  }, [pieceStyle, pieceMap, cacheKey, request]);
 
-    const cachedForStyle = getCachedPieceStyle(pieceStyle, PIECE_MAP);
-    if (cachedForStyle) {
-      if (syncedStyleRef.current !== pieceStyle) {
-        syncedStyleRef.current = pieceStyle;
-        setPieceImages(cachedForStyle);
-        setError(null);
-        setLoadProgress(100);
-        setIsLoading(false);
-      }
-      return;
-    }
-
-    const abortController = new AbortController();
-
-    const loadPieces = async () => {
-      const styleToLoad = pieceStyle;
-      setIsLoading(true);
-      setError(null);
-      setLoadProgress(0);
-
-      try {
-        const loadedImages = await preloadPieceStyle(
-          styleToLoad,
-          PIECE_MAP,
-          (progress: number) => {
-            if (
-              !abortController.signal.aborted &&
-              currentStyleRef.current === styleToLoad
-            ) {
-              setLoadProgress(progress);
-            }
-          },
-          abortController.signal
-        );
-
-        if (
-          !abortController.signal.aborted &&
-          currentStyleRef.current === styleToLoad
-        ) {
-          const images: Record<string, HTMLImageElement> = {};
-          let missingCount = 0;
-
-          Object.keys(PIECE_MAP).forEach((key) => {
-            const img = loadedImages[key];
-            if (img) {
-              images[key] = img;
-            } else {
-              missingCount++;
-            }
-          });
-
-          if (missingCount > 0) {
-            const totalPieces = Object.keys(PIECE_MAP).length;
-            if (missingCount === totalPieces) {
-              setError('Failed to load pieces');
-            } else {
-              logger.warn(
-                `usePieceImages: ${missingCount}/${totalPieces} pieces failed to load for style "${styleToLoad}"`
-              );
-            }
-          }
-
-          syncedStyleRef.current = styleToLoad;
-          setPieceImages(images);
-          setIsLoading(false);
-          setLoadProgress(100);
-        }
-      } catch (err: unknown) {
-        if (
-          !abortController.signal.aborted &&
-          currentStyleRef.current === styleToLoad
-        ) {
-          logger.error('Critical piece loading error:', err);
-          setError('Failed to load pieces');
-          setIsLoading(false);
-        }
-      }
-    };
-
-    loadPieces();
-
-    return () => {
-      abortController.abort();
-    };
-  }, [pieceStyle]);
-
-  return { pieceImages, isLoading, error, loadProgress };
+  const current = loaded?.key === cacheKey ? loaded : null;
+  return {
+    pieceImages: request.ready
+      ? request.images
+      : (current?.images ?? request.images),
+    isLoading: !request.ready && !current,
+    error: request.ready ? null : (current?.error ?? null)
+  };
 }

@@ -9,11 +9,12 @@ import {
 
 import { AlertCircle } from '@/assets/icons';
 
-import { useFENBatch } from '@contexts';
-import { useFenValidation } from '@hooks';
+import { useFENBatch } from '@/shared/contexts/FENBatchContext';
+import { useFenValidation } from '@/shared/hooks/useFenValidation';
 import { EMPTY_FEN, STARTING_FEN } from '@constants';
 
-import { MAX_FEN_LENGTH, validateFEN } from '@utils';
+import { isPopeye } from '@/shared/utils/popeye';
+import { MAX_POSITION_LENGTH, validateFEN } from '@/shared/utils/fenParser';
 import { FENInputToolbar } from './FENInputToolbar';
 import { useFavoriteFen } from '../hooks/useFavoriteFen';
 import styles from '../styles/fen-toolbar.module.scss';
@@ -49,6 +50,8 @@ export const FENInputField = memo(
 
     const [localFen, setLocalFen] = useState<string>(fen);
     const lastEmittedFenRef = useRef<string>(fen);
+    const localFenRef = useRef(localFen);
+    localFenRef.current = localFen;
 
     useEffect(() => {
       if (fen !== localFen && fen !== lastEmittedFenRef.current) {
@@ -70,7 +73,7 @@ export const FENInputField = memo(
     const visibleError = fenError || externalError || '';
 
     const handleAddToBatch = useCallback(() => {
-      const currentFen = localFen.trim();
+      const currentFen = localFenRef.current.trim();
       if (!currentFen) {
         onNotification?.('FEN is empty', 'error');
         return;
@@ -89,11 +92,11 @@ export const FENInputField = memo(
       } else {
         onNotification?.('Invalid FEN - cannot add to batch', 'error');
       }
-    }, [localFen, addToBatch, onNotification]);
+    }, [addToBatch, onNotification]);
 
     const handleToggleFavorite = useCallback(
-      () => toggleFavorite(localFen),
-      [localFen, toggleFavorite]
+      () => toggleFavorite(localFenRef.current),
+      [toggleFavorite]
     );
 
     const handleTextareaChange = useCallback(
@@ -126,7 +129,10 @@ export const FENInputField = memo(
 
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (e.key === 'Enter') {
+        if (
+          e.key === 'Enter' &&
+          (!isPopeye(e.currentTarget.value) || e.ctrlKey || e.metaKey)
+        ) {
           e.preventDefault();
           e.currentTarget.blur();
         }
@@ -156,14 +162,19 @@ export const FENInputField = memo(
               onChange={handleTextareaChange}
               onBlur={handleBlur}
               onKeyDown={handleKeyDown}
-              rows={1}
+              rows={isPopeye(localFen) ? 5 : 1}
               wrap="off"
               aria-label="FEN notation input"
               aria-describedby={visibleError ? 'fen-error' : undefined}
               aria-invalid={visibleError ? 'true' : 'false'}
-              className={`${styles['textareaField']} ${visibleError ? styles['textareaFieldError'] : ''}`}
+              style={
+                isPopeye(localFen)
+                  ? { height: '8rem', whiteSpace: 'pre' }
+                  : undefined
+              }
+              className={`resize-none ${styles['textareaField']} ${visibleError ? styles['textareaFieldError'] : ''}`}
               placeholder="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-              maxLength={MAX_FEN_LENGTH}
+              maxLength={MAX_POSITION_LENGTH}
               spellCheck="false"
               autoComplete="off"
             />

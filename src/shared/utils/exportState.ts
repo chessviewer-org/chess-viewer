@@ -1,6 +1,7 @@
+import { MAX_POSITION_LENGTH, isFairyFEN, validateFEN } from './fenParser';
+import { calculatePositionSurfaceSize } from './compositionCaption';
 import { ExportConfig, ExportInfo, ProgressCallback } from './canvasExporter';
 import {
-  calculateRenderSurfaceSize,
   estimateFileSizes,
   getExportMode,
   getMaxCanvasSize,
@@ -73,11 +74,12 @@ export function getExportInfo(config: ExportConfig): ExportInfo {
     showThinFrame = false
   } = config;
 
-  const exportSize = calculateRenderSurfaceSize(
+  const exportSize = calculatePositionSurfaceSize(
     boardSize,
     showCoords,
     exportQuality,
-    showThinFrame
+    showThinFrame,
+    config.fen
   );
 
   const maxSize = getMaxCanvasSize();
@@ -123,9 +125,15 @@ export function validateExportConfig(config: ExportConfig) {
     }
     if (!config.fen) {
       errors.push('FEN is missing');
-    } else if (config.fen.length > MAX_FEN_LENGTH) {
-      errors.push(`FEN exceeds maximum length of ${MAX_FEN_LENGTH} characters`);
+    } else {
+      const maxLength = isFairyFEN(config.fen)
+        ? MAX_POSITION_LENGTH
+        : MAX_FEN_LENGTH;
+      if (config.fen.length > maxLength)
+        errors.push(`FEN exceeds maximum length of ${maxLength} characters`);
     }
+    if (config.fen && !validateFEN(config.fen))
+      errors.push('Invalid FEN or Fairy FEN');
     if (!config.lightSquare || !config.darkSquare) {
       errors.push('Square colors are missing');
     } else {

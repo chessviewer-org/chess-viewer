@@ -1,25 +1,42 @@
 import { useEffect } from 'react';
 
-import { useLocalStorage, useSyncedBoardColors } from '@hooks';
+import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
+import { useSyncedBoardColors } from '@/shared/hooks/useTheme';
 
-import { MAX_FEN_LENGTH, validateFEN } from '@utils';
+import {
+  MAX_POSITION_LENGTH,
+  validateFEN,
+  isFairyFEN
+} from '@/shared/utils/fenParser';
 
-export function useHomeBoardState() {
+export function useHomeBoardState(variant: 'standard' | 'fairy' = 'standard') {
   const [fen, setFen] = useLocalStorage<string>(
-    'chess-fen',
-    'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+    variant === 'fairy' ? 'fairy-position' : 'chess-fen',
+    variant === 'fairy'
+      ? '8/8/8/8/8/8/8/8 w - - 0 1'
+      : 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
   );
 
   useEffect(() => {
-    const shared = new URLSearchParams(window.location.search).get('fen');
+    const fragment = new URLSearchParams(window.location.hash.slice(1));
+    const shared =
+      new URLSearchParams(window.location.search).get('fen') ??
+      fragment.get('position');
     if (!shared) return;
-    if (shared.length <= MAX_FEN_LENGTH && validateFEN(shared)) {
+    if (variant === 'standard' && isFairyFEN(shared)) {
+      window.location.replace(
+        `/fairy-chess#position=${encodeURIComponent(shared)}`
+      );
+      return;
+    }
+    if (shared.length <= MAX_POSITION_LENGTH && validateFEN(shared)) {
       setFen(shared);
     }
     const url = new URL(window.location.href);
     url.searchParams.delete('fen');
+    if (fragment.has('position')) url.hash = '';
     window.history.replaceState({}, document.title, url.toString());
-  }, [setFen]);
+  }, [setFen, variant]);
 
   const [pieceStyle, setPieceStyle] = useLocalStorage<string>(
     'chess-piece-style',
@@ -64,7 +81,10 @@ export function useHomeBoardState() {
   );
 
   return {
-    fen,
+    fen:
+      variant === 'standard' && isFairyFEN(fen)
+        ? 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+        : fen,
     setFen,
     pieceStyle,
     setPieceStyle,

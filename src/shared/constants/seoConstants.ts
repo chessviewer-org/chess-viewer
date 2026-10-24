@@ -214,6 +214,12 @@ export const ADVANCED_FEN_BREADCRUMB_SCHEMA = {
 };
 
 const ROUTE_SEO: Record<string, SeoMeta> = {
+  '/fairy-chess': {
+    name: 'Fairy Chess Diagram Editor',
+    description:
+      'Create 8×8 fairy chess diagrams with neutral pieces, rotated symbols, Popeye pieces and conditions. Import, save, share and export compositions.',
+    path: '/fairy-chess'
+  },
   '/': {
     name: 'Free Chess Diagram Generator',
     path: '/',

@@ -1,8 +1,9 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-import type { PieceSymbol } from '@app-types';
+import type { BoardCell } from '@app-types';
 
-import { indicesToSquare as squareName, pieceToName } from '@utils';
+import { cellName } from '@/shared/utils/boardCells';
+import { indicesToSquare as squareName } from '@chessviewer-org/chess-viewer';
 
 interface Cell {
   row: number;
@@ -10,15 +11,15 @@ interface Cell {
 }
 
 interface HeldPiece {
-  piece: PieceSymbol;
+  piece: BoardCell;
   from: Cell | null;
 }
 
 export interface UseBoardKeyboardParams {
-  board: (PieceSymbol | '')[][];
+  board: BoardCell[][];
   flipped: boolean;
   onPieceDrop?: (
-    piece: PieceSymbol,
+    piece: BoardCell,
     fromRow: number | undefined,
     fromCol: number | undefined,
     toRow: number,
@@ -35,7 +36,7 @@ export interface UseBoardKeyboardResult {
   announcement: string;
   onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
   onBlur: () => void;
-  pickUpFromPalette: (piece: PieceSymbol) => void;
+  pickUpFromPalette: (piece: BoardCell) => void;
   clearHeld: () => void;
 }
 
@@ -65,7 +66,7 @@ export function useBoardKeyboard({
           const row = flipped ? 7 : 0;
           const col = flipped ? 7 : 0;
           const piece = board[row]?.[col] || '';
-          const name = piece ? `${pieceToName(piece)}, ` : '';
+          const name = piece ? `${cellName(piece)}, ` : '';
           announce(`${name}${squareName(row, col)}`);
           return { row, col };
         }
@@ -77,7 +78,7 @@ export function useBoardKeyboard({
         const col = flipped ? 7 - nextDispCol : nextDispCol;
         if (row === cur.row && col === cur.col) return cur;
         const piece = board[row]?.[col] || '';
-        const name = piece ? `${pieceToName(piece)}, ` : '';
+        const name = piece ? `${cellName(piece)}, ` : '';
         announce(`${name}${squareName(row, col)}`);
         return { row, col };
       });
@@ -100,7 +101,7 @@ export function useBoardKeyboard({
       );
       setHeld(null);
       announce(
-        `${pieceToName(carried.piece)} placed on ${squareName(cur.row, cur.col)}`
+        `${cellName(carried.piece)} placed on ${squareName(cur.row, cur.col)}`
       );
       return;
     }
@@ -111,7 +112,7 @@ export function useBoardKeyboard({
     }
     setHeld({ piece, from: { row: cur.row, col: cur.col } });
     announce(
-      `${pieceToName(piece)} picked up from ${squareName(cur.row, cur.col)}. Move with arrow keys, press Enter to place, Escape to cancel.`
+      `${cellName(piece)} picked up from ${squareName(cur.row, cur.col)}. Move with arrow keys, press Enter to place, Escape to cancel.`
     );
   }, [board, onPieceDrop, announce]);
 
@@ -128,9 +129,7 @@ export function useBoardKeyboard({
     const piece = board[cur.row]?.[cur.col] || '';
     if (!piece) return;
     onPieceRemove?.(cur.row, cur.col);
-    announce(
-      `${pieceToName(piece)} removed from ${squareName(cur.row, cur.col)}`
-    );
+    announce(`${cellName(piece)} removed from ${squareName(cur.row, cur.col)}`);
   }, [board, onPieceRemove, announce]);
 
   const onKeyDown = useCallback(
@@ -184,11 +183,11 @@ export function useBoardKeyboard({
   }, []);
 
   const pickUpFromPalette = useCallback(
-    (piece: PieceSymbol) => {
+    (piece: BoardCell) => {
       setHeld({ piece, from: null });
       setCursor((cur) => cur ?? { row: flipped ? 7 : 0, col: flipped ? 7 : 0 });
       announce(
-        `${pieceToName(piece)} selected. Move to a square with arrow keys, press Enter to place, Escape to cancel.`
+        `${cellName(piece)} selected. Move to a square with arrow keys, press Enter to place, Escape to cancel.`
       );
     },
     [announce, flipped]

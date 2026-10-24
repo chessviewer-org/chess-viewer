@@ -1,3 +1,4 @@
+import { isPopeye } from '@utils/popeye';
 import { useCallback, useMemo } from 'react';
 
 export interface SharePayload {
@@ -8,7 +9,9 @@ export interface SharePayload {
 // Helpers
 function buildPositionUrl(fen: string): string {
   const url = new URL(window.location.origin + window.location.pathname);
-  url.searchParams.set('fen', fen);
+  if (isPopeye(fen))
+    url.hash = new URLSearchParams({ position: fen }).toString();
+  else url.searchParams.set('fen', fen);
   return url.toString();
 }
 

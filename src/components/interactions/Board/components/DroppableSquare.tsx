@@ -1,23 +1,22 @@
 import { memo, useCallback } from 'react';
 
-import type { PieceSymbol } from '@app-types';
-import { indicesToSquare, pieceToName } from '@utils';
-import { useDroppable } from '@hooks';
+import type { BoardCell } from '@app-types';
+import { cellName } from '@/shared/utils/boardCells';
+import { indicesToSquare } from '@chessviewer-org/chess-viewer';
+import { useDroppable } from '@/shared/hooks/useDragDrop';
 import { DraggablePiece } from './DraggablePiece';
 
 interface DroppableSquareProps {
   row: number;
   col: number;
-  piece: PieceSymbol | '';
+  piece: BoardCell;
   isLight: boolean;
-  lightColor: string;
-  darkColor: string;
+  backgroundColor: string;
   pieceImage: HTMLImageElement | null;
   onSelect?: ((row: number, col: number) => void) | undefined;
   isSelected?: boolean;
   isCursor?: boolean;
   isHeldSource?: boolean;
-  isLoading: boolean;
 }
 
 export const DroppableSquare = memo(
@@ -26,20 +25,16 @@ export const DroppableSquare = memo(
     col,
     piece,
     isLight,
-    lightColor,
-    darkColor,
+    backgroundColor,
     pieceImage,
     onSelect,
     isSelected = false,
     isCursor = false,
-    isHeldSource = false,
-    isLoading
+    isHeldSource = false
   }: DroppableSquareProps) {
-    const bgColor = isLight ? lightColor : darkColor;
-
     const squareName = indicesToSquare(row, col);
     const ariaLabel = piece
-      ? `${pieceToName(piece)}, ${squareName}`
+      ? `${cellName(piece)}, ${squareName}`
       : `${squareName}, empty`;
 
     const handleSelect = useCallback(
@@ -65,7 +60,7 @@ export const DroppableSquare = memo(
         aria-selected={isSelected || isCursor}
         className="w-full h-full flex items-center justify-center relative cursor-pointer data-drag-over:z-2 data-drag-over:shadow-[inset_0_0_0_2px_rgba(255,255,255,0.85)]"
         style={{
-          backgroundColor: bgColor,
+          backgroundColor,
           outline: 'none',
           minWidth: 0,
           minHeight: 0
@@ -74,7 +69,7 @@ export const DroppableSquare = memo(
         data-col={col}
         data-shade={isLight ? 'light' : 'dark'}
       >
-        {piece && pieceImage && !isLoading && (
+        {piece && pieceImage && (
           <div
             key={piece}
             className="w-full h-full flex items-center justify-center"
@@ -100,9 +95,7 @@ export const DroppableSquare = memo(
     return (
       prevProps.piece === nextProps.piece &&
       prevProps.isLight === nextProps.isLight &&
-      prevProps.lightColor === nextProps.lightColor &&
-      prevProps.darkColor === nextProps.darkColor &&
-      prevProps.isLoading === nextProps.isLoading &&
+      prevProps.backgroundColor === nextProps.backgroundColor &&
       prevProps.row === nextProps.row &&
       prevProps.col === nextProps.col &&
       prevProps.onSelect === nextProps.onSelect &&

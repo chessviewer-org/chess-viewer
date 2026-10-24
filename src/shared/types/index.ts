@@ -1,6 +1,8 @@
-import type { BoardMatrix } from '@chessviewer-org/chess-viewer';
+import type { PieceSymbol } from '@chessviewer-org/chess-viewer';
 
 export * from '@chessviewer-org/chess-viewer';
+
+export type BoardCell = PieceSymbol | (string & {});
 
 interface AdvancedFenIntervalOption {
   value: number;
@@ -23,7 +25,7 @@ export interface AdvancedFenConfig {
   };
 }
 
-export type ChessBoard = BoardMatrix;
+export type ChessBoard = BoardCell[][];
 export function isChessBoard(b: unknown): b is ChessBoard {
   return (
     Array.isArray(b) &&

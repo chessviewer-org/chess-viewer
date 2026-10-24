@@ -1,6 +1,12 @@
-import { PIECE_SET_POPULARITY, PIECE_SETS as ALL_PIECE_SETS } from '@constants';
-import type { PieceSet } from '@app-types';
+import {
+  FAIRY_DIR,
+  PIECE_SET_POPULARITY,
+  PIECE_SETS as ALL_PIECE_SETS
+} from '@constants';
+import type { ChessBoard, PieceSet } from '@app-types';
 import { logger } from './logger';
+import { isFairyCell, parseCellCode } from './boardCells';
+import { fairyLetterSVG, parseNamedCell } from './fairyCells';
 
 // Types
 export type PieceSort = 'popular' | 'name';
@@ -37,74 +43,84 @@ function evictOldest(cache: Map<string, unknown>, maxSize: number): void {
   }
 }
 
-const MAX_CACHED_IMAGES = 36;
+const MAX_CACHED_IMAGES = 216;
 const pieceCache = new Map<string, HTMLImageElement>();
 
 export function piecePath(style: string, piece: string): string {
-  return `/piece/${style}/${piece}.svg`;
+  const named = parseNamedCell(piece);
+  if (named) {
+    if (named.definition.glyph)
+      return piecePath(style, named.color + named.definition.glyph);
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(fairyLetterSVG(named.color, named.walk))}`;
+  }
+  return isFairyCell(piece)
+    ? `/${FAIRY_DIR}/${style}/${piece}.svg`
+    : `/piece/${style}/${piece}.svg`;
+}
+
+const pendingImages = new Map<
+  string,
+  {
+    image: HTMLImageElement;
+    ready: Promise<HTMLImageElement | undefined>;
+  }
+>();
+
+function loadPiece(style: string, piece: string) {
+  // Letter artwork is style-independent; glyph aliases share their source too.
+  const source = piecePath(style, piece);
+  const cached = pieceCache.get(source);
+  if (cached) return { image: cached, ready: Promise.resolve(cached) };
+  const pending = pendingImages.get(source);
+  if (pending) return pending;
+
+  const image = new Image();
+  const ready = new Promise<HTMLImageElement | undefined>((resolve) => {
+    const finish = (loaded: boolean) => {
+      image.onload = image.onerror = null;
+      pendingImages.delete(source);
+      if (loaded) {
+        pieceCache.set(source, image);
+        evictOldest(pieceCache, MAX_CACHED_IMAGES);
+      } else
+        logger.error(`Failed to load piece image: ${piece} for style ${style}`);
+      resolve(loaded ? image : undefined);
+    };
+    image.onload = () => finish(true);
+    image.onerror = () => finish(false);
+  });
+  const entry = { image, ready };
+  pendingImages.set(source, entry);
+  image.src = source;
+  return entry;
+}
+
+/** Share the very same images with the board while their loading completes. */
+export function getPieceImages(
+  style: string,
+  pieceMap: Record<string, string>
+) {
+  return Object.fromEntries(
+    Object.keys(pieceMap).map((piece) => [piece, loadPiece(style, piece).image])
+  );
 }
 
 export async function preloadPieceStyle(
   style: string,
   pieceMap: Record<string, string>,
-  onProgress?: (progress: number) => void,
   signal?: AbortSignal
 ): Promise<Record<string, HTMLImageElement>> {
   const pieces = Object.keys(pieceMap);
-  const total = pieces.length;
-  let loadedCount = 0;
   const result: Record<string, HTMLImageElement> = {};
-
-  const promises = pieces.map(async (piece) => {
-    const key = `${style}_${piece}`;
-
-    const finishOne = (img?: HTMLImageElement) => {
-      loadedCount++;
-      if (img) result[piece] = img;
-      if (onProgress && !signal?.aborted) {
-        onProgress(Math.round((loadedCount / total) * 100));
-      }
-    };
-
-    const cached = pieceCache.get(key);
-    if (cached) {
-      finishOne(cached);
-      return;
-    }
-
-    await new Promise<void>((resolve) => {
-      const img = new Image();
-      img.onload = () => {
-        img.onload = null;
-        img.onerror = null;
-        pieceCache.set(key, img);
-        evictOldest(pieceCache, MAX_CACHED_IMAGES);
-        finishOne(img);
-        resolve();
-      };
-      img.onerror = () => {
-        img.onload = null;
-        img.onerror = null;
-        logger.error(`Failed to load piece image: ${piece} for style ${style}`);
-        finishOne();
-        resolve();
-      };
-      img.src = piecePath(style, piece);
-    });
-  });
-
-  await Promise.all(promises);
+  await Promise.all(
+    pieces.map(async (piece) => {
+      if (signal?.aborted) return;
+      const image = await loadPiece(style, piece).ready;
+      if (signal?.aborted) return;
+      if (image) result[piece] = image;
+    })
+  );
   return result;
-}
-
-export function setCachedPieces(
-  style: string,
-  pieces: Record<string, HTMLImageElement>
-): void {
-  Object.entries(pieces).forEach(([key, img]) => {
-    pieceCache.set(`${style}_${key}`, img);
-  });
-  evictOldest(pieceCache, MAX_CACHED_IMAGES);
 }
 
 export function getCachedPieceStyle(
@@ -113,7 +129,7 @@ export function getCachedPieceStyle(
 ): Record<string, HTMLImageElement> | null {
   const result: Record<string, HTMLImageElement> = {};
   for (const piece of Object.keys(pieceMap)) {
-    const img = pieceCache.get(`${style}_${piece}`);
+    const img = pieceCache.get(piecePath(style, piece));
     if (!img) return null;
     result[piece] = img;
   }
@@ -121,7 +137,10 @@ export function getCachedPieceStyle(
 }
 
 const MAX_DATA_URL_CACHE = 48;
+const MAX_DATA_URL_CHARS = 4 * 1024 * 1024;
 const pieceDataUrlCache = new Map<string, string>();
+const pendingDataUrls = new Map<string, Promise<string>>();
+let pieceDataUrlCacheChars = 0;
 
 const MIN_PIECE_INTRINSIC_PX = 64;
 const MAX_PIECE_INTRINSIC_PX = 2048;
@@ -136,8 +155,30 @@ const FALLBACK_PIECE_DATA_URL = `data:image/svg+xml;base64,${btoa(FALLBACK_PIECE
 
 export function getPieceKey(fenPiece: string): string | null {
   if (!fenPiece) return null;
+  const named = parseNamedCell(fenPiece);
+  if (named)
+    return named.definition.glyph
+      ? named.color + named.definition.glyph
+      : `${named.color}@${named.walk}`;
+  if (parseCellCode(fenPiece)) return fenPiece;
   const isWhite = fenPiece === fenPiece.toUpperCase();
   return (isWhite ? 'w' : 'b') + fenPiece.toUpperCase();
+}
+
+export function assertBoardArtwork(
+  board: ChessBoard,
+  images: Record<string, HTMLImageElement>
+): void {
+  for (const cell of board.flat()) {
+    const key = getPieceKey(cell);
+    if (!key) continue;
+    const image = images[key];
+    if (!image?.complete || !image.naturalWidth) {
+      throw new Error(
+        `Piece artwork is not ready: ${key}. Wait for loading or reload and try again.`
+      );
+    }
+  }
 }
 
 function imageToDataURL(img: HTMLImageElement): Promise<string> {
@@ -164,24 +205,21 @@ function imageToDataURL(img: HTMLImageElement): Promise<string> {
   });
 }
 
-export function waitForPieceImage(img: HTMLImageElement): Promise<void> {
+export function waitForPieceImage(
+  img: HTMLImageElement,
+  timeoutMs = 2000
+): Promise<void> {
   if (!img || img.complete) return Promise.resolve();
   return new Promise<void>((resolve) => {
-    const timeout = setTimeout(resolve, 2000);
-    const onLoad = () => {
+    const done = () => {
       clearTimeout(timeout);
-      img.removeEventListener('load', onLoad);
-      img.removeEventListener('error', onError);
+      img.removeEventListener('load', done);
+      img.removeEventListener('error', done);
       resolve();
     };
-    const onError = () => {
-      clearTimeout(timeout);
-      img.removeEventListener('load', onLoad);
-      img.removeEventListener('error', onError);
-      resolve();
-    };
-    img.addEventListener('load', onLoad, { once: true });
-    img.addEventListener('error', onError, { once: true });
+    const timeout = setTimeout(done, timeoutMs);
+    img.addEventListener('load', done, { once: true });
+    img.addEventListener('error', done, { once: true });
   });
 }
 
@@ -231,8 +269,24 @@ export function resizePieceSvg(svgText: string, targetPx: number): string {
   return resized === svgText ? svgText : resized;
 }
 
+const MAX_SVG_TEXT_CACHE = 216;
+const MAX_SVG_TEXT_CHARS = 1024 * 1024;
+const svgTextCache = new Map<string, string>();
+const pendingSvgText = new Map<string, Promise<string | null>>();
+let svgTextCacheChars = 0;
+
 export async function fetchPieceSvgText(src: string): Promise<string | null> {
   if (!src) return null;
+  if (/^data:image\/svg\+xml(?:;[^,]*)?,/i.test(src)) {
+    const comma = src.indexOf(',');
+    try {
+      return src.slice(0, comma).includes(';base64')
+        ? atob(src.slice(comma + 1))
+        : decodeURIComponent(src.slice(comma + 1));
+    } catch {
+      return null;
+    }
+  }
   let parsedUrl: URL;
   try {
     parsedUrl = new URL(src);
@@ -246,6 +300,35 @@ export async function fetchPieceSvgText(src: string): Promise<string | null> {
   if (!lowerSrc.endsWith('.svg') && !lowerSrc.includes('image/svg+xml')) {
     return null;
   }
+  const cached = svgTextCache.get(src);
+  if (cached !== undefined) return cached;
+  const pending = pendingSvgText.get(src);
+  if (pending) return pending;
+
+  const request = fetchSvgText(src);
+  pendingSvgText.set(src, request);
+  try {
+    const text = await request;
+    if (text !== null && text.length <= MAX_SVG_TEXT_CHARS) {
+      svgTextCache.set(src, text);
+      svgTextCacheChars += text.length;
+      while (
+        svgTextCache.size > MAX_SVG_TEXT_CACHE ||
+        svgTextCacheChars > MAX_SVG_TEXT_CHARS
+      ) {
+        const oldestKey = svgTextCache.keys().next().value;
+        if (oldestKey === undefined) break;
+        svgTextCacheChars -= svgTextCache.get(oldestKey)!.length;
+        svgTextCache.delete(oldestKey);
+      }
+    }
+    return text;
+  } finally {
+    pendingSvgText.delete(src);
+  }
+}
+
+async function fetchSvgText(src: string): Promise<string | null> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 2000);
   try {
@@ -329,7 +412,10 @@ export function namespacePieceIds(vector: PieceVector, prefix: string): string {
 }
 
 const MAX_HIRES_CACHE = 48;
+const MAX_HIRES_CACHE_PIXELS = 16 * 1024 * 1024;
 const hiResPieceCache = new Map<string, HTMLImageElement>();
+const pendingHiResPieces = new Map<string, Promise<HTMLImageElement>>();
+let hiResCachePixels = 0;
 
 export async function ensurePieceResolution(
   img: HTMLImageElement,
@@ -340,32 +426,75 @@ export async function ensurePieceResolution(
     return img;
   }
   const src = img.currentSrc || img.src || '';
-  if (!src || src.startsWith('data:') || src.startsWith('blob:')) return img;
+  if (!src || src.startsWith('blob:')) return img;
 
-  const cacheKey = `${src}|${Math.round(targetPx)}`;
+  const size = Math.max(1, Math.ceil(targetPx));
+  const cacheKey = `${src}|${size}`;
   const cached = hiResPieceCache.get(cacheKey);
   if (cached && cached.complete && cached.naturalWidth > 0) return cached;
+  const pending = pendingHiResPieces.get(cacheKey);
+  if (pending) return pending;
 
+  const request = upgradePieceResolution(img, src, size);
+  pendingHiResPieces.set(cacheKey, request);
+  try {
+    const upgraded = await request;
+    if (upgraded !== img) {
+      const pixels = upgraded.naturalWidth * upgraded.naturalHeight;
+      if (pixels <= MAX_HIRES_CACHE_PIXELS) {
+        hiResPieceCache.set(cacheKey, upgraded);
+        hiResCachePixels += pixels;
+        while (
+          hiResPieceCache.size > MAX_HIRES_CACHE ||
+          hiResCachePixels > MAX_HIRES_CACHE_PIXELS
+        ) {
+          const oldestKey = hiResPieceCache.keys().next().value;
+          if (oldestKey === undefined) break;
+          const oldest = hiResPieceCache.get(oldestKey)!;
+          hiResCachePixels -= oldest.naturalWidth * oldest.naturalHeight;
+          hiResPieceCache.delete(oldestKey);
+        }
+      }
+    }
+    return upgraded;
+  } finally {
+    pendingHiResPieces.delete(cacheKey);
+  }
+}
+
+async function upgradePieceResolution(
+  img: HTMLImageElement,
+  src: string,
+  size: number
+): Promise<HTMLImageElement> {
   const svgText = await fetchPieceSvgText(src);
   if (!svgText || !/viewBox\s*=\s*"/i.test(svgText)) return img;
-  const resized = resizePieceSvg(svgText, Math.round(targetPx));
+  const resized = resizePieceSvg(svgText, size);
 
+  let url: string | undefined;
   try {
     const blob = new Blob([resized], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
+    url = URL.createObjectURL(blob);
+    const objectUrl = url;
     const upgraded = await new Promise<HTMLImageElement>((resolve, reject) => {
       const next = new Image();
-      next.onload = () => resolve(next);
-      next.onerror = () =>
-        reject(new Error('Upgraded piece image failed to load'));
-      next.src = url;
+      const finish = (loaded: boolean) => {
+        clearTimeout(timer);
+        next.onload = next.onerror = null;
+        if (loaded) resolve(next);
+        else reject(new Error('Upgraded piece image failed to load'));
+      };
+      const timer = setTimeout(() => finish(false), 10000);
+      next.onload = () => finish(true);
+      next.onerror = () => finish(false);
+      next.src = objectUrl;
     });
-    hiResPieceCache.set(cacheKey, upgraded);
-    evictOldest(hiResPieceCache, MAX_HIRES_CACHE);
     return upgraded;
   } catch (err: unknown) {
     logger.warn('Export: failed to upgrade piece resolution:', err);
     return img;
+  } finally {
+    if (url !== undefined) URL.revokeObjectURL(url);
   }
 }
 
@@ -380,7 +509,37 @@ export async function imageToEmbeddableDataURL(
   const cacheKey = targetSize > 0 ? `${src}|${targetSize}` : src;
   const cached = pieceDataUrlCache.get(cacheKey);
   if (cached) return cached;
+  const pending = pendingDataUrls.get(cacheKey);
+  if (pending) return pending;
 
+  const request = embedPieceImage(img, src, targetSize);
+  pendingDataUrls.set(cacheKey, request);
+  try {
+    const dataUrl = await request;
+    if (dataUrl && dataUrl.length <= MAX_DATA_URL_CHARS) {
+      pieceDataUrlCache.set(cacheKey, dataUrl);
+      pieceDataUrlCacheChars += dataUrl.length;
+      while (
+        pieceDataUrlCache.size > MAX_DATA_URL_CACHE ||
+        pieceDataUrlCacheChars > MAX_DATA_URL_CHARS
+      ) {
+        const oldestKey = pieceDataUrlCache.keys().next().value;
+        if (oldestKey === undefined) break;
+        pieceDataUrlCacheChars -= pieceDataUrlCache.get(oldestKey)!.length;
+        pieceDataUrlCache.delete(oldestKey);
+      }
+    }
+    return dataUrl;
+  } finally {
+    pendingDataUrls.delete(cacheKey);
+  }
+}
+
+async function embedPieceImage(
+  img: HTMLImageElement,
+  src: string,
+  targetSize: number
+): Promise<string> {
   let dataUrl = '';
   if (src.startsWith('data:')) {
     dataUrl = src;
@@ -428,7 +587,5 @@ export async function imageToEmbeddableDataURL(
   if (!dataUrl) dataUrl = await imageToDataURL(img);
   if (!dataUrl) dataUrl = FALLBACK_PIECE_DATA_URL;
 
-  pieceDataUrlCache.set(cacheKey, dataUrl);
-  evictOldest(pieceDataUrlCache, MAX_DATA_URL_CACHE);
   return dataUrl;
 }

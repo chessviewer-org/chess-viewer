@@ -1,8 +1,8 @@
-import type { PieceSymbol } from '@app-types';
+import type { BoardCell } from '@app-types';
 
 // Types
 export interface ChessDragData {
-  piece: PieceSymbol;
+  piece: BoardCell;
 
   pieceKey: string | null;
 
@@ -13,7 +13,7 @@ export interface ChessDragData {
 
 export interface PalettePiece {
   id: string;
-  piece: PieceSymbol;
+  piece: BoardCell;
   color: 'w' | 'b';
   name: string;
 }

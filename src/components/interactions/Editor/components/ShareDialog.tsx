@@ -1,8 +1,9 @@
+import { isPopeye } from '@utils/popeye';
 import { memo, useEffect, useRef } from 'react';
 
 import { Link2, Share2, X } from '@/assets/icons';
 
-import { useFocusTrap, useScrollLock } from '@hooks';
+import { useFocusTrap, useScrollLock } from '@/shared/hooks/useDOM';
 import uiStyles from '@/shared/styles/ui.module.scss';
 
 interface ShareDialogProps {
@@ -78,7 +79,7 @@ export const ShareDialog = memo(function ShareDialog({
           <div className="h-px bg-border/50" />
           <div className="flex flex-col gap-0.5">
             <span className="text-[10px] uppercase font-bold tracking-wider text-text-muted">
-              FEN
+              {isPopeye(fen) ? 'Popeye' : 'FEN'}
             </span>
             <p className="text-xs font-mono text-text-secondary break-all leading-relaxed">
               {fen}

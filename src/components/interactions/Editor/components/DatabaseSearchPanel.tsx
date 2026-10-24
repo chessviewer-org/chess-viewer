@@ -11,12 +11,16 @@ import {
   Search
 } from '@/assets/icons';
 
-import type { ProviderState } from '@hooks';
-import { MANUAL_PROVIDER_LABEL, type ManualDatabaseProvider } from '@utils';
+import { type ProviderState } from '@/shared/hooks/useDatabaseSearch';
+import {
+  MANUAL_PROVIDER_LABEL,
+  type ManualDatabaseProvider
+} from '@/shared/utils/databaseSearch';
 
 import styles from '../styles/database-search.module.scss';
 
 interface DatabaseSearchPanelProps {
+  fairyPosition?: boolean;
   lichess: ProviderState;
   chessdb: ProviderState;
   onOpenManualProvider: (provider: ManualDatabaseProvider) => void;
@@ -162,17 +166,26 @@ const ManualProviderRow = memo(function ManualProviderRow({
 export const DatabaseSearchPanel = memo(function DatabaseSearchPanel({
   lichess,
   chessdb,
-  onOpenManualProvider
+  onOpenManualProvider,
+  fairyPosition = false
 }: DatabaseSearchPanelProps) {
   return (
     <div className={styles.panel}>
       <span className={styles.title}>Database Search</span>
-      <div className={styles.grid}>
+      <fieldset
+        className={styles.grid}
+        disabled={fairyPosition}
+        title={
+          fairyPosition
+            ? 'These database searches require standard chess positions.'
+            : undefined
+        }
+      >
         <ProviderRow state={lichess} Icon={Globe} />
         <ProviderRow state={chessdb} Icon={Database} />
         <ManualProviderRow provider="pdb" onOpen={onOpenManualProvider} />
         <ManualProviderRow provider="yacpdb" onOpen={onOpenManualProvider} />
-      </div>
+      </fieldset>
     </div>
   );
 });

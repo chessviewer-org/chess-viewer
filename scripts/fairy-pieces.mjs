@@ -3,6 +3,9 @@ export const PIECE_TYPES = ['K', 'Q', 'R', 'B', 'N', 'P'];
 export const BASE_COLORS = ['w', 'b'];
 export const NEUTRAL_COLOR = 'n';
 
+// Directory under public that holds the generated fairy variants.
+export const FAIRY_DIR = 'fairypiece';
+
 const SIZE = 100;
 const HALF = SIZE / 2;
 const PIXELS = 512;

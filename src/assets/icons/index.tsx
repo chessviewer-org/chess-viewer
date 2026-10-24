@@ -618,6 +618,22 @@ export const Lock = createLucideIcon('lock', [
   ['path', { d: 'M7 11V7a5 5 0 0 1 10 0v4', key: 'fwvmzm' }]
 ]);
 
+export const Unlock = createLucideIcon('lock-open', [
+  [
+    'rect',
+    {
+      width: '18',
+      height: '11',
+      x: '3',
+      y: '11',
+      rx: '2',
+      ry: '2',
+      key: 'unlock-body'
+    }
+  ],
+  ['path', { d: 'M7 11V7a5 5 0 0 1 9.9-1', key: 'unlock-shackle' }]
+]);
+
 export const LogIn = createLucideIcon('log-in', [
   ['path', { d: 'm10 17 5-5-5-5', key: '1bsop3' }],
   ['path', { d: 'M15 12H3', key: '6jk70r' }],
