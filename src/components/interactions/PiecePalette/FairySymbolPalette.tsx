@@ -1,4 +1,5 @@
 import { memo, useId, useMemo, useState } from 'react';
+import { ArrowLeft } from '@/assets/icons';
 import {
   FAIRY_ROTATIONS,
   type FairyColor,
@@ -52,20 +53,17 @@ function entry(
   return { piece, name: cellName(piece) };
 }
 
-function paletteGroups(rotation: FairyRotation): PaletteGroup[] {
-  return [
-    ...COLORS.map(({ color, label }) => ({
-      label,
-      entries: PIECES.map((type) => entry(color, type, rotation))
-    })),
-    {
-      label: 'Markers',
-      columns: MARKERS.length,
-      entries: COLORS.flatMap(({ color }) =>
-        MARKERS.map((type) => entry(color, type, rotation))
-      )
-    }
-  ];
+const DOTS: Record<FairyColor, string> = {
+  w: 'bg-white',
+  b: 'bg-black',
+  n: 'bg-linear-to-r from-white from-50% to-black to-50%'
+};
+
+function pieceGroups(rotation: FairyRotation): PaletteGroup[] {
+  return COLORS.map(({ color, label }) => ({
+    label,
+    entries: PIECES.map((type) => entry(color, type, rotation))
+  }));
 }
 
 export const FairySymbolPalette = memo(function FairySymbolPalette({
@@ -79,10 +77,47 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
   const id = useId();
   const [tab, setTab] = useState<PaletteTab>('pieces');
   const [rotation, setRotation] = useState<FairyRotation>(0);
-  const groups = useMemo(() => paletteGroups(rotation), [rotation]);
-  const visibleBoard = useMemo(
-    () => groups.map(({ entries }) => entries.map(({ piece }) => piece)),
-    [groups]
+  const [markerColor, setMarkerColor] = useState<FairyColor>('w');
+  const groups: PaletteGroup[] = [
+    ...pieceGroups(rotation),
+    {
+      label: 'Markers',
+      entries: MARKERS.map((type) => entry(markerColor, type, rotation)),
+      trail: (
+        <>
+          <span
+            className="grid min-w-0 place-items-center text-accent"
+            aria-hidden="true"
+          >
+            <ArrowLeft className="size-1/2" />
+          </span>
+          <div
+            role="group"
+            aria-label="Marker colour"
+            className="flex aspect-square min-w-0 flex-col items-stretch justify-evenly rounded-md border border-border/50 bg-surface-elevated px-[18%]"
+          >
+            {COLORS.map(({ color, label }) => (
+              <button
+                key={color}
+                type="button"
+                title={`${label} markers`}
+                aria-label={`${label} markers`}
+                aria-pressed={markerColor === color}
+                onClick={() => restyle(color, rotation)}
+                className="h-[26%] min-h-0! min-w-0! cursor-pointer rounded-full border border-border p-px opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:border-accent aria-pressed:border-2 aria-pressed:border-accent aria-pressed:opacity-100"
+              >
+                <span
+                  className={`block size-full rounded-full ${DOTS[color]}`}
+                />
+              </button>
+            ))}
+          </div>
+        </>
+      )
+    }
+  ];
+  const visibleBoard = groups.map(({ entries }) =>
+    entries.map(({ piece }) => piece)
   );
   const { pieceImages, error } = usePieceImages(pieceStyle, {
     board: visibleBoard
@@ -97,12 +132,20 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
     [fen]
   );
 
-  const rotate = (next: FairyRotation) => {
-    setRotation(next);
+  function restyle(nextMarkerColor: FairyColor, nextRotation: FairyRotation) {
+    setMarkerColor(nextMarkerColor);
+    setRotation(nextRotation);
     if (!selectedPiece || parseNamedCell(selectedPiece)) return;
     const code = parseCellCode(getPieceKey(selectedPiece) ?? '');
-    if (code) onSelect(symbolCell(code.color, code.type, next));
-  };
+    if (!code) return;
+    const marker = MARKERS.includes(code.type);
+    const next = symbolCell(
+      marker ? nextMarkerColor : code.color,
+      code.type,
+      nextRotation
+    );
+    if (next !== selectedPiece) onSelect(next);
+  }
 
   return (
     <div className="min-w-0" onClick={(event) => event.stopPropagation()}>
@@ -148,7 +191,9 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
             label="Rotation, clockwise"
             value={String(rotation) as `${FairyRotation}`}
             options={ROTATION_OPTIONS}
-            onChange={(value) => rotate(Number(value) as FairyRotation)}
+            onChange={(value) =>
+              restyle(markerColor, Number(value) as FairyRotation)
+            }
             className="font-mono"
           />
         )}

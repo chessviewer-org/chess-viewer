@@ -1,4 +1,4 @@
-import { memo, useCallback, type CSSProperties } from 'react';
+import { memo, useCallback, type CSSProperties, type ReactNode } from 'react';
 
 import { PALETTE_PIECES } from '@constants';
 import type { BoardCell } from '@app-types';
@@ -17,6 +17,7 @@ export interface PaletteGroup {
   label: string;
   entries: readonly PaletteEntry[];
   columns?: number;
+  trail?: ReactNode;
 }
 
 export interface PiecePaletteProps {
@@ -95,7 +96,7 @@ export const PiecePalette = memo(function PiecePalette({
       <div className={styles.stacked}>
         {rows.map((row) => (
           <div key={row[0]?.label} className={styles.stackedRow}>
-            {row.map(({ label, entries, columns = 6 }) => (
+            {row.map(({ label, entries, columns = 6, trail }) => (
               <div
                 key={label}
                 role="group"
@@ -106,6 +107,7 @@ export const PiecePalette = memo(function PiecePalette({
                 <span className={styles.stackedGroupLabel}>{label}</span>
                 <div className={styles.stackedPieceRow}>
                   {entries.map(renderStackedPiece)}
+                  {trail}
                 </div>
               </div>
             ))}
