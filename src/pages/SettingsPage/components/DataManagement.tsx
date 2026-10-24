@@ -10,9 +10,10 @@ import {
   Upload
 } from '@/assets/icons';
 
-import { useModal } from '@contexts';
+import { useModal } from '@/shared/contexts/ModalContext';
 
-import { safeJSONParse, saveBlob } from '@utils';
+import { safeJSONParse } from '@chessviewer-org/chess-viewer';
+import { saveBlob } from '@/shared/utils/saveBlob';
 
 const STORAGE_CATEGORIES = [
   {

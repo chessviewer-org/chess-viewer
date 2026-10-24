@@ -1,4 +1,4 @@
-import { syncStorage } from '@/auth';
+import { syncStorage } from '@/auth/storage/syncStorage';
 import { ActiveHistoryEntry, ArchivedHistoryEntry } from '@app-types';
 
 import {

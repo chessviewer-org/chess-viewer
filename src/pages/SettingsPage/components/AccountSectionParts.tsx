@@ -17,13 +17,17 @@ import {
   User as UserIcon
 } from '@/assets/icons';
 
-import { MembershipTier, supabase, useAuth } from '@/auth';
+import { MembershipTier } from '@/auth/profile/membership';
+import { supabase } from '@/auth/core/Supabase';
+import { useAuth } from '@/auth/core/useAuth';
 import { CONTACT_EMAIL } from '@/pages/AboutPage/utils/aboutConstants';
 
-import { MembershipBadge, Modal } from '@ui';
+import { MembershipBadge } from '@/shared/ui/MembershipIdentity/MembershipBadge';
+import { Modal } from '@/shared/ui/Modal/Modal';
 
-import { useCopyToClipboard } from '@hooks';
-import { logger, sanitizeInput } from '@utils';
+import { useCopyToClipboard } from '@/shared/hooks/useDOM';
+import { logger } from '@/shared/utils/logger';
+import { sanitizeInput } from '@chessviewer-org/chess-viewer';
 
 export function AccountActions({
   onDeleteClick

@@ -1,4 +1,5 @@
-import { logger, safeJSONParse } from '@utils';
+import { safeJSONParse } from '@chessviewer-org/chess-viewer';
+import { logger } from '@utils/logger';
 
 // Minimal hand-rolled client mirroring the official @supabase/supabase-js API surface, not the real SDK.
 
@@ -618,7 +619,18 @@ export class AuthClient {
     }
   }
 
-  private async checkAndRefreshSession() {
+  private refreshPending: Promise<void> | null = null;
+
+  private checkAndRefreshSession(): Promise<void> {
+    if (this.refreshPending) return this.refreshPending;
+    const pending = this.refreshSession().finally(() => {
+      if (this.refreshPending === pending) this.refreshPending = null;
+    });
+    this.refreshPending = pending;
+    return pending;
+  }
+
+  private async refreshSession() {
     const session = this.fetchClient.getSession();
     if (!session?.refresh_token) return;
 
@@ -637,6 +649,8 @@ export class AuthClient {
         refresh_token: session.refresh_token
       }
     );
+
+    if (this.fetchClient.getSession() !== session) return;
 
     if (error || !data?.access_token) {
       logger.warn('Token refresh failed', error);

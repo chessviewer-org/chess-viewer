@@ -2,9 +2,9 @@ import { useCallback } from 'react';
 
 import { Code2, Copy, Heart, Megaphone } from '@/assets/icons';
 
-import { useNotifications } from '@hooks';
+import { useNotifications } from '@/shared/hooks/useNotifications';
 
-import { NotificationContainer } from '@ui';
+import { NotificationContainer } from '@/shared/ui/NotificationContainer';
 import { CRYPTO_WALLET_ADDRESS, REPO_URL } from '../utils/aboutConstants';
 import {
   Callout,

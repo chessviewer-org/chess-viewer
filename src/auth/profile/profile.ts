@@ -1,4 +1,5 @@
-import { logger, safeJSONParse } from '@utils';
+import { logger } from '@/shared/utils/logger';
+import { safeJSONParse } from '@chessviewer-org/chess-viewer';
 import { supabase } from '../core/Supabase';
 
 // Types

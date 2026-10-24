@@ -1,12 +1,12 @@
 import { useCallback, useMemo, useRef, useEffect } from 'react';
 import {
   AVAILABLE_PIECE_SETS,
-  hydrateFromSync,
-  logger,
   sortPieceSets,
   type PieceSort
-} from '@utils';
-import { syncStorage } from '@/auth';
+} from '@/shared/utils/pieceUtils';
+import { hydrateFromSync } from '@/shared/utils/syncHydration';
+import { logger } from '@/shared/utils/logger';
+import { syncStorage } from '@/auth/storage/syncStorage';
 import { useLocalStorage } from './useLocalStorage';
 
 export function usePieceSort() {

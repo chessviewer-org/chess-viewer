@@ -3,7 +3,7 @@ import { type FormEvent, useState } from 'react';
 import { Eye, EyeOff, Loader2 } from '@/assets/icons';
 import { Link, useLocation } from 'wouter';
 
-import { getAuthErrorMessage, supabase } from '@/auth';
+import { getAuthErrorMessage, supabase } from '@/auth/core/Supabase';
 
 import { AuthPage } from './AuthPage';
 import { EMAIL_PATTERN } from './utils/authUtils';

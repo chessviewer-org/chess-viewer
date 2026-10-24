@@ -2,7 +2,7 @@ import { memo } from 'react';
 
 import { CircleCheck, Clock, Hourglass } from '@/assets/icons';
 
-import { calculateStatus } from '@utils';
+import { calculateStatus } from '@chessviewer-org/chess-viewer';
 
 interface StatusBadgeProps {
   lastActiveAt: number;

@@ -2,10 +2,12 @@ import { memo } from 'react';
 
 import { Check, Contrast, Monitor, Moon, Sparkles, Sun } from '@/assets/icons';
 
-import { useContrastSetting, useThemeMode } from '@hooks';
+import { useContrastSetting } from '@/shared/hooks/useA11y';
+import { useThemeMode } from '@/shared/hooks/useTheme';
 
-import type { ContrastPreference, ThemeModePreference } from '@utils';
-import { CustomSelect } from '@ui';
+import { type ContrastPreference } from '@/shared/utils/a11yUtils';
+import { type ThemeModePreference } from '@/shared/utils/themeMode';
+import { CustomSelect } from '@/shared/ui/CustomSelect';
 import { SettingsBlock } from './parts';
 
 const THEME_MODE_OPTIONS: Array<{

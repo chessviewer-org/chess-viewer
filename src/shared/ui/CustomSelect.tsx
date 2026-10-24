@@ -2,7 +2,8 @@ import { memo, useCallback, useEffect, useId, useRef, useState } from 'react';
 
 import { Check, ChevronDown } from '@/assets/icons';
 
-import { useListboxKeyboard, useOutsideClick, useScrollLock } from '@hooks';
+import { useListboxKeyboard } from '@/shared/hooks/useKeyboard';
+import { useOutsideClick, useScrollLock } from '@/shared/hooks/useDOM';
 import styles from '../styles/ui.module.scss';
 
 interface CustomSelectProps<T extends string | number> {

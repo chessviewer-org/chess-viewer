@@ -2,12 +2,12 @@ import React, { memo, useRef } from 'react';
 
 import { Eye, Globe, List, Sliders } from '@/assets/icons';
 
-import { ExportProgress } from '@/components/features';
+import { ExportProgress } from '@/components/features/Export/ExportProgress';
 import {
   type PageTabGroup,
-  PageSidebarLayout,
   PageTabs
-} from '@/components/layout';
+} from '@/components/layout/Sidebar/PageTabs';
+import { PageSidebarLayout } from '@/components/layout/Sidebar/PageSidebarLayout';
 import {
   ADVANCED_FEN_BREADCRUMB_SCHEMA,
   ADVANCED_FEN_CONFIG,
@@ -15,7 +15,7 @@ import {
   SOFTWARE_APP_SCHEMA
 } from '@constants';
 
-import { Seo } from '@ui';
+import { Seo } from '@/shared/ui/Seo';
 import styles from './styles/advanced-fen-layout.module.scss';
 import InteractiveBoardColumn from './components/InteractiveBoardColumn';
 import NoValidPositions from './components/NoValidPositions';

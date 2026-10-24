@@ -1,4 +1,4 @@
-import { syncStorage } from '@/auth';
+import { syncStorage } from '@/auth/storage/syncStorage';
 
 import { logger } from './logger';
 import { safeJSONParse } from '@chessviewer-org/chess-viewer';

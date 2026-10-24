@@ -2,11 +2,11 @@ import { LogIn, UserPlus } from '@/assets/icons';
 import { useRef, type ReactNode } from 'react';
 import { useLocation } from 'wouter';
 
+import { PageSidebarLayout } from '@/components/layout/Sidebar/PageSidebarLayout';
 import {
-  PageSidebarLayout,
   PageTabs,
   type PageTabGroup
-} from '@/components/layout';
+} from '@/components/layout/Sidebar/PageTabs';
 
 // Constants
 const GROUPS: PageTabGroup[] = [

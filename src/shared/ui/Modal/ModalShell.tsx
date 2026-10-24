@@ -2,7 +2,7 @@ import React, { memo, useRef } from 'react';
 
 import { LucideIcon, X } from '@/assets/icons';
 
-import { useFocusTrap, useScrollLock } from '@hooks';
+import { useFocusTrap, useScrollLock } from '@/shared/hooks/useDOM';
 
 interface ModalShellProps {
   isOpen: boolean;

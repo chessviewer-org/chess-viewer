@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { validateFENDetailed } from '@utils';
+import { validateFENDetailed } from '@/shared/utils/fenParser';
 
 export function useFenValidation(
   localFen: string,

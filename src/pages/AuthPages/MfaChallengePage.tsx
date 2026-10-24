@@ -3,8 +3,8 @@ import { type FormEvent, useState } from 'react';
 import { KeyRound, Loader2, ShieldAlert } from '@/assets/icons';
 import { Link, useLocation } from 'wouter';
 
-import { supabase } from '@/auth';
-import { logger } from '@utils';
+import { supabase } from '@/auth/core/Supabase';
+import { logger } from '@/shared/utils/logger';
 import { AuthPage } from './AuthPage';
 import styles from './styles/auth-forms.module.scss';
 

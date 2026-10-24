@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMfa } from '../useMfa';
-import { logger } from '@utils';
+import { logger } from '@/shared/utils/logger';
 import {
   BackupCodesCard,
   EnabledCard,

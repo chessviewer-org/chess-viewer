@@ -3,7 +3,7 @@ import { supabase } from '../core/Supabase';
 import { MfaStatus, VerifiedFactor } from './types';
 import { mfaApi } from './api';
 import { isProjectMfaDisabledError } from './errors';
-import { logger } from '@utils';
+import { logger } from '@/shared/utils/logger';
 import {
   STATUS_VERIFIED,
   STATUS_UNVERIFIED,

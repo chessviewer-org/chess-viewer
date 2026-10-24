@@ -1,4 +1,7 @@
-import type { MembershipTier, MembershipTone } from '@/auth';
+import {
+  type MembershipTier,
+  type MembershipTone
+} from '@/auth/profile/membership';
 
 import { Crown, Gem, Heart, ShieldAlert, Sparkles } from '@/assets/icons';
 

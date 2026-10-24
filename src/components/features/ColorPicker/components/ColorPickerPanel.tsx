@@ -9,7 +9,7 @@ import {
   rgbToHsv,
   sanitizeHexColor,
   sanitizeInput
-} from '@utils';
+} from '@chessviewer-org/chess-viewer';
 import { SaturationField } from './SaturationField';
 import styles from '../styles/color-picker.module.scss';
 

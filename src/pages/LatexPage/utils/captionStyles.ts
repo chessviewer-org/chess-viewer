@@ -1,4 +1,4 @@
-import type { LatexCaptionStyle } from '@utils';
+import { type LatexCaptionStyle } from '@chessviewer-org/chess-viewer';
 
 export const CAPTION_STYLE_OPTIONS: ReadonlyArray<{
   value: LatexCaptionStyle;

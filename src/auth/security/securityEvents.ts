@@ -1,4 +1,4 @@
-import { logger } from '@utils';
+import { logger } from '@/shared/utils/logger';
 import { supabase } from '../core/Supabase';
 
 // Types
