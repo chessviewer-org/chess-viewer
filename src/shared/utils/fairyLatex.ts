@@ -13,6 +13,7 @@ import { isCompositionSymbol } from './compositionSymbols';
 import { parseNamedCell } from './fairyCells';
 import { compositionCaption } from './compositionCaption';
 import { isFairyFEN, parseFEN, positionContext } from './fenParser';
+import { standInBoard } from './standInGlyphs';
 
 const DIAGRAM_TYPES = {
   K: 'K',
@@ -61,7 +62,7 @@ export function fairyDiagramPieces(fen: string): string {
   const entries: string[] = [];
   const fields: string[] = [];
   const counts = { w: 0, b: 0, n: 0 };
-  parseFEN(fen).forEach((rank, row) =>
+  standInBoard(parseFEN(fen)).forEach((rank, row) =>
     rank.forEach((cell, col) => {
       if (!cell) return;
       const code = parseCellCode(cell) ?? {

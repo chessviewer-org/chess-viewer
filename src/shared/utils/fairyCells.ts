@@ -75,14 +75,6 @@ export function parseNamedCell(cell: BoardCell): NamedCell | null {
   };
 }
 
-/** Only pieces without a conventional Popeye diagram glyph need letter artwork. */
-export const FAIRY_LETTER_PIECE_MAP: Record<string, string> =
-  Object.fromEntries(
-    FAIRY_WALKS.filter((walk) => !walk.glyph).flatMap((walk) =>
-      ['w', 'b', 'n'].map((color) => [`${color}@${walk.code}`, ''])
-    )
-  );
-
 const SVG_OPEN =
   '<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 45 45">';
 const LETTER_INKS = {

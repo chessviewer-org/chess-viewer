@@ -2,6 +2,7 @@ import { PIECE_MAP } from '@constants';
 import type { BoardCell } from '@app-types';
 import { getPieceKey } from './pieceUtils';
 import { isFairyFEN, parseFEN } from './fenParser';
+import { standInCell, standInGlyphs } from './standInGlyphs';
 
 export interface PieceImageRequest {
   readonly positions?: string | readonly string[];
@@ -9,31 +10,45 @@ export interface PieceImageRequest {
   readonly selectedPiece?: BoardCell | null;
 }
 
-/** Include the standard palette, the actual board artwork and the held piece. */
-export function requestedPieceKeys({
+function requestedCells({
   positions = '',
   board,
   selectedPiece
-}: PieceImageRequest): string[] {
-  const keys = new Set(Object.keys(PIECE_MAP));
-  const add = (cell: BoardCell) => {
-    const key = getPieceKey(cell);
-    if (key) keys.add(key);
-  };
+}: PieceImageRequest): BoardCell[] {
+  const cells: BoardCell[] = [];
   if (board) {
-    for (const row of board) for (const cell of row) add(cell);
+    for (const row of board) cells.push(...row);
   } else {
     for (const position of typeof positions === 'string'
       ? [positions]
       : positions) {
       if (!isFairyFEN(position)) continue;
       try {
-        for (const row of parseFEN(position)) for (const cell of row) add(cell);
+        cells.push(...parseFEN(position).flat());
       } catch {
         /* Keep validation and error feedback in the owning editor. */
       }
     }
   }
-  if (selectedPiece) add(selectedPiece);
-  return [...keys].sort();
+  if (selectedPiece) cells.push(selectedPiece);
+  return cells;
+}
+
+export function requestedPieceMap(
+  request: PieceImageRequest
+): Record<string, string> {
+  const cells = requestedCells(request);
+  const glyphs = standInGlyphs(cells);
+  const map: Record<string, string> = Object.fromEntries(
+    Object.keys(PIECE_MAP).map((key) => [key, ''])
+  );
+  for (const cell of cells) {
+    const key = getPieceKey(cell);
+    if (!key) continue;
+    const source = getPieceKey(standInCell(cell, glyphs));
+    map[key] = source && source !== key ? source : '';
+  }
+  return Object.fromEntries(
+    Object.entries(map).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+  );
 }

@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { requestedPieceKeys } from '../src/shared/utils/pieceRequest';
+import { requestedPieceMap } from '../src/shared/utils/pieceRequest';
 import { parseFEN } from '../src/shared/utils/fenParser';
+
+const requestedPieceKeys = (request: Parameters<typeof requestedPieceMap>[0]) =>
+  Object.keys(requestedPieceMap(request));
 
 test('an empty request loads only the standard palette artwork', () => {
   const keys = requestedPieceKeys({});
@@ -56,4 +59,17 @@ test('artwork identity ignores cell attributes and is independent of square orde
   assert.deepEqual(requestedPieceKeys({ board }), before);
   assert.equal(before.length, 13);
   assert.ok(before.includes('w@WR'));
+});
+
+test('a walk without a Popeye glyph borrows a turned piece no other walk uses', () => {
+  const board = Array.from({ length: 8 }, () => Array<string>(8).fill(''));
+  board[0]![0] = 'w@B1';
+  board[0]![1] = 'b@B1';
+  board[0]![2] = 'w@G';
+  board[0]![3] = 'n@SK';
+  const map = requestedPieceMap({ board });
+  assert.equal(map['w@B1'], 'wR180');
+  assert.equal(map['b@B1'], 'bR180');
+  assert.equal(map['n@SK'], 'nB180');
+  assert.equal(map['wQ180'], '');
 });

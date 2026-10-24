@@ -169,12 +169,13 @@ describe('Popeye composition notation', () => {
     assert.ok(layout.height > 0);
     assert.ok(layout.lines.every((line) => line.length <= 54));
   });
-  test('LaTeX uses real diagram glyphs and labelled field text for unassigned symbols', () => {
+  test('LaTeX draws a walk without a glyph as a free turned piece named in the remark', () => {
     const source = SOURCE.replace('Ge4', 'Ge4 NAf4');
     const pieces = fairyDiagramPieces(source);
     assert.match(pieces, /wDUe4/);
     assert.match(pieces, /sSUe5/);
-    assert.match(pieces, /\\fieldtext\{\{wNA\}f4\}/);
+    assert.match(pieces, /wTUf4/);
+    assert.doesNotMatch(pieces, /fieldtext/);
     const output = generatePositionLatex({
       positions: [{ fen: source }],
       latexPackage: 'diagram'
@@ -182,9 +183,11 @@ describe('Popeye composition notation', () => {
     assert.match(output, /\\pieces/);
     assert.match(output, /Circe/);
     assert.match(output, /Grasshopper/);
+    assert.match(output, /Nao \(NA\): f4/);
     assert.doesNotMatch(output, /\\fen\[/);
     const svg = generatePositionPreview({ fen: source });
-    assert.match(svg, />NA<\/text>/);
+    assert.doesNotMatch(svg, />NA<\/text>/);
+    assert.equal(svg.match(/rotate\(180 22\.5 22\.5\)/g)?.length, 3);
   });
   test('studio preserves full compositions through multiline import and persistence', () => {
     const source = SOURCE.replace(

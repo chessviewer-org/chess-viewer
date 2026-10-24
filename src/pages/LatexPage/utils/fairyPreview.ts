@@ -9,6 +9,7 @@ import {
 import { parseNamedCell, fairyLetterSVG } from '@utils/fairyCells';
 import { cellToFenPiece, parseCellCode } from '@utils/boardCells';
 import { isFairyFEN, parseFEN } from '@utils/fenParser';
+import { standInBoard } from '@utils/standInGlyphs';
 import {
   compositionSymbolSVG,
   isCompositionSymbol
@@ -17,7 +18,7 @@ import {
 /** The studio uses fixed problem-font artwork rather than the editor's selected set. */
 export function generatePositionPreview(options: DiagramOptions): string {
   if (!isFairyFEN(options.fen)) return generateDiagram(options);
-  const board = parseFEN(options.fen);
+  const board = standInBoard(parseFEN(options.fen));
   const size = options.size ?? 400;
   const square = size / 8;
   const inset = boardOutlineWidth(size);

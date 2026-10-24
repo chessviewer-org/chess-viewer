@@ -110,7 +110,10 @@ export function getPieceImages(
   pieceMap: Record<string, string>
 ) {
   return Object.fromEntries(
-    Object.keys(pieceMap).map((piece) => [piece, loadPiece(style, piece).image])
+    Object.entries(pieceMap).map(([piece, source]) => [
+      piece,
+      loadPiece(style, source || piece).image
+    ])
   );
 }
 
@@ -119,12 +122,11 @@ export async function preloadPieceStyle(
   pieceMap: Record<string, string>,
   signal?: AbortSignal
 ): Promise<Record<string, HTMLImageElement>> {
-  const pieces = Object.keys(pieceMap);
   const result: Record<string, HTMLImageElement> = {};
   await Promise.all(
-    pieces.map(async (piece) => {
+    Object.entries(pieceMap).map(async ([piece, source]) => {
       if (signal?.aborted) return;
-      const image = await loadPiece(style, piece).ready;
+      const image = await loadPiece(style, source || piece).ready;
       if (signal?.aborted) return;
       if (image) result[piece] = image;
     })
@@ -137,8 +139,8 @@ export function getCachedPieceStyle(
   pieceMap: Record<string, string>
 ): Record<string, HTMLImageElement> | null {
   const result: Record<string, HTMLImageElement> = {};
-  for (const piece of Object.keys(pieceMap)) {
-    const img = pieceCache.get(piecePath(style, piece));
+  for (const [piece, source] of Object.entries(pieceMap)) {
+    const img = pieceCache.get(piecePath(style, source || piece));
     if (!img) return null;
     result[piece] = img;
   }
