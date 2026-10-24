@@ -201,10 +201,6 @@ $board-scale: 0.95;
   flex-shrink: 0;
   height: 2.5rem;
 
-  @include m.touch {
-    height: 2.75rem;
-  }
-
   @include m.editor-single-col {
     order: 2;
   }

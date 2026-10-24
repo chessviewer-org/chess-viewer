@@ -22,7 +22,7 @@
 }
 
 .actionBtn {
-  @apply flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-3 py-1 min-h-8 coarse:min-h-11 rounded-lg text-accent text-fluid-xs font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent;
+  @apply flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-3 py-1 min-h-8 rounded-lg text-accent text-fluid-xs font-medium transition-colors duration-150 border border-accent/20 bg-accent/5 hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent;
 }
 
 .actionIcon {
@@ -98,7 +98,7 @@
 }
 
 .toolbarBtnBase {
-  @apply flex items-center gap-1 px-1.5 sm:px-2 py-1 rounded-md transition duration-150 ease-out active:scale-95 text-[11px] sm:text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-[1.75rem] coarse:min-h-[2.75rem];
+  @apply flex items-center gap-1 px-1.5 sm:px-2 py-1 rounded-md transition duration-150 ease-out active:scale-95 text-[11px] sm:text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent min-h-[1.75rem];
 }
 
 .toolbarBtnNeutral {

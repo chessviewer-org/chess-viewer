@@ -64,14 +64,6 @@ html {
   text-size-adjust: 100%;
 }
 
-@media (pointer: coarse) {
-  button,
-  a,
-  [role='button'] {
-    min-height: 44px;
-  }
-}
-
 [role='grid'],
 [role='grid'] [role='gridcell'],
 [role='grid'] [role='gridcell'] * {
