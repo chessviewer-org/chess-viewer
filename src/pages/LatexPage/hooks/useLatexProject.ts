@@ -1,13 +1,14 @@
 import {
   useCallback,
-  useDeferredValue,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState
 } from 'react';
 
-import { LATEX_MAX_POSITIONS } from '@utils';
+import { isFairyFEN } from '@utils/fenParser';
+import { LATEX_MAX_POSITIONS } from '@chessviewer-org/chess-viewer';
 import {
   type BuildResult,
   type LatexProject,
@@ -22,6 +23,7 @@ import {
   loadProject,
   parseBulkInput,
   saveProject,
+  usableFen,
   takeStagedPositions
 } from '../utils/latexProject';
 
@@ -52,18 +54,35 @@ export type SharedFields = Partial<
 
 export interface LatexProjectState {
   project: LatexProject;
-  build: BuildResult;
+  build: BuildResult | null;
+  invalidCount: number;
   isFull: boolean;
   canUndo: boolean;
   actions: LatexProjectActions;
 }
 
-export function useLatexProject(): LatexProjectState {
-  const [project, setProject] = useState<LatexProject>(loadProject);
+export function useLatexProject(buildEnabled: boolean): LatexProjectState {
+  const [storedProject, setProject] = useState<LatexProject>(loadProject);
+  const project = useMemo<LatexProject>(
+    () =>
+      storedProject.settings.latexPackage !== 'diagram' &&
+      storedProject.positions.some((position) => isFairyFEN(position.fen))
+        ? {
+            ...storedProject,
+            settings: { ...storedProject.settings, latexPackage: 'diagram' }
+          }
+        : storedProject,
+    [storedProject]
+  );
   const [snapshot, setSnapshot] = useState<LatexProject | null>(null);
-  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latest = useRef(project);
+  const saved = useRef(project);
   latest.current = project;
+
+  const flushSave = useCallback(() => {
+    if (saved.current === latest.current) return;
+    if (saveProject(latest.current)) saved.current = latest.current;
+  }, []);
 
   const withSnapshot = useCallback(
     (change: (current: LatexProject) => LatexProject) => {
@@ -84,20 +103,36 @@ export function useLatexProject(): LatexProjectState {
   }, []);
 
   useEffect(() => {
-    saveTimer.current = setTimeout(() => saveProject(project), SAVE_DELAY_MS);
+    if (saved.current === project) return;
+    const timer = setTimeout(flushSave, SAVE_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [project, flushSave]);
+
+  useLayoutEffect(() => {
+    window.addEventListener('pagehide', flushSave);
     return () => {
-      if (saveTimer.current) clearTimeout(saveTimer.current);
+      window.removeEventListener('pagehide', flushSave);
+      flushSave();
     };
-  }, [project]);
+  }, [flushSave]);
 
-  useEffect(() => () => saveProject(latest.current), []);
+  const invalidCount = useMemo(
+    () => project.positions.filter(({ fen }) => usableFen(fen) === null).length,
+    [project.positions]
+  );
 
-  const deferred = useDeferredValue(project);
-  const build = useMemo(() => buildLatex(deferred), [deferred]);
+  const buildInput = useMemo(
+    () => ({ positions: project.positions, settings: project.settings }),
+    [project.positions, project.settings]
+  );
+  const build = useMemo(
+    () => (buildEnabled ? buildLatex(buildInput) : null),
+    [buildEnabled, buildInput]
+  );
 
   const select = useCallback((id: string) => {
     setProject((current) =>
-      current.positions.some((p) => p.id === id)
+      current.selectedId !== id && current.positions.some((p) => p.id === id)
         ? { ...current, selectedId: id }
         : current
     );
@@ -105,21 +140,32 @@ export function useLatexProject(): LatexProjectState {
 
   const updatePosition = useCallback(
     (id: string, patch: Partial<StudioPosition>) => {
-      setProject((current) => ({
-        ...current,
-        positions: current.positions.map((p) =>
-          p.id === id ? { ...p, ...patch, id: p.id } : p
+      setProject((current) => {
+        const index = current.positions.findIndex((p) => p.id === id);
+        const position = current.positions[index];
+        if (
+          !position ||
+          !(Object.keys(patch) as (keyof StudioPosition)[]).some(
+            (key) => key !== 'id' && patch[key] !== position[key]
+          )
         )
-      }));
+          return current;
+        const positions = [...current.positions];
+        positions[index] = { ...position, ...patch, id: position.id };
+        return { ...current, positions };
+      });
     },
     []
   );
 
   const updateSettings = useCallback((patch: Partial<StudioSettings>) => {
-    setProject((current) => ({
-      ...current,
-      settings: { ...current.settings, ...patch }
-    }));
+    setProject((current) =>
+      (Object.keys(patch) as (keyof StudioSettings)[]).some(
+        (key) => patch[key] !== current.settings[key]
+      )
+        ? { ...current, settings: { ...current.settings, ...patch } }
+        : current
+    );
   }, []);
 
   const addFen = useCallback((fen: string) => {
@@ -200,10 +246,16 @@ export function useLatexProject(): LatexProjectState {
   );
 
   const applyToAll = useCallback((patch: SharedFields) => {
-    setProject((current) => ({
-      ...current,
-      positions: current.positions.map((p) => ({ ...p, ...patch }))
-    }));
+    const keys = Object.keys(patch) as (keyof SharedFields)[];
+    setProject((current) => {
+      let changed = false;
+      const positions = current.positions.map((position) => {
+        if (!keys.some((key) => patch[key] !== position[key])) return position;
+        changed = true;
+        return { ...position, ...patch };
+      });
+      return changed ? { ...current, positions } : current;
+    });
   }, []);
 
   const undo = useCallback(() => {
@@ -248,6 +300,7 @@ export function useLatexProject(): LatexProjectState {
   return {
     project,
     build,
+    invalidCount,
     isFull: project.positions.length >= LATEX_MAX_POSITIONS,
     canUndo: snapshot !== null,
     actions

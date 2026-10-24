@@ -1,9 +1,9 @@
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { boardOutlineWidth } from '@chessviewer-org/chess-viewer';
-import { LATEX_PACKAGE_META } from '@utils';
+import { LATEX_PACKAGE_META } from '@chessviewer-org/chess-viewer';
 import {
-  type StudioPosition,
+  type BoardPreviewPosition,
   type StudioSettings,
   previewDataUri
 } from '../utils/latexProject';
@@ -16,13 +16,15 @@ function useSquareWidth() {
   const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const observer = new ResizeObserver(([entry]) => {
-      const measured = entry?.contentRect.width ?? 0;
-      setWidth(Math.max(MIN_BOARD_PX, Math.floor(measured)));
-    });
+    const update = (measured: number) =>
+      setWidth(measured > 0 ? Math.max(MIN_BOARD_PX, Math.floor(measured)) : 0);
+    update(el.getBoundingClientRect().width);
+    const observer = new ResizeObserver(([entry]) =>
+      update(entry?.contentRect.width ?? 0)
+    );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
@@ -30,26 +32,37 @@ function useSquareWidth() {
   return [ref, width] as const;
 }
 
-interface PaperBoardProps {
-  position: StudioPosition;
-  settings: StudioSettings;
+interface PaperBoardProps extends BoardPreviewPosition {
+  latexPackage: StudioSettings['latexPackage'];
+  showCoords: boolean;
   alt: string;
   plain?: boolean;
   className?: string;
 }
 
 export const PaperBoard = memo(function PaperBoard({
-  position,
-  settings,
+  fen,
+  flipped: positionFlipped,
+  squares,
+  rings,
+  arrows,
+  squareColor,
+  ringColor,
+  arrowColor,
+  latexPackage,
+  showCoords,
   alt,
   plain = false,
   className = ''
 }: PaperBoardProps) {
   const [ref, width] = useSquareWidth();
-  const meta = LATEX_PACKAGE_META[settings.latexPackage];
-  const coords =
-    !plain && settings.latexPackage !== 'diagram' && settings.showCoords;
-  const flipped = meta.supportsFlip && position.flipped;
+  const meta = LATEX_PACKAGE_META[latexPackage];
+  const coords = !plain && latexPackage !== 'diagram' && showCoords;
+  const flipped = meta.supportsFlip && positionFlipped;
+  const showAnnotations = !plain && meta.supportsMarks;
+  const previewSquares = showAnnotations ? squares : '';
+  const previewRings = showAnnotations ? rings : '';
+  const previewArrows = showAnnotations ? arrows : '';
 
   const boardPx = width
     ? Math.floor((width - boardOutlineWidth(width) * 2) / 8) * 8
@@ -59,10 +72,30 @@ export const PaperBoard = memo(function PaperBoard({
   const src = useMemo(() => {
     if (!boardPx) return null;
     return previewDataUri(
-      meta.supportsFlip ? position : { ...position, flipped: false },
-      { size: boardPx, showAnnotations: !plain && meta.supportsMarks }
+      {
+        fen,
+        flipped,
+        squares: previewSquares,
+        rings: previewRings,
+        arrows: previewArrows,
+        squareColor,
+        ringColor,
+        arrowColor
+      },
+      { size: boardPx, showAnnotations }
     );
-  }, [position, meta, plain, boardPx]);
+  }, [
+    fen,
+    flipped,
+    previewSquares,
+    previewRings,
+    previewArrows,
+    squareColor,
+    ringColor,
+    arrowColor,
+    boardPx,
+    showAnnotations
+  ]);
 
   const labelStyle = { fontSize: `${Math.max(9, width / 30)}px` };
   const files = flipped ? [...FILES].reverse() : FILES;
@@ -86,25 +119,20 @@ export const PaperBoard = memo(function PaperBoard({
         </div>
       )}
       <div ref={ref} className="min-w-0">
-        <div
-          className="grid place-items-center bg-white"
-          style={{ width: width || '100%', height: width || undefined }}
-        >
-          {src ? (
+        <div className="grid aspect-square w-full place-items-center bg-white">
+          {src || !width ? (
             <img
-              src={src}
+              src={src ?? undefined}
               alt={alt}
-              width={imagePx}
-              height={imagePx}
+              width={imagePx || undefined}
+              height={imagePx || undefined}
               decoding="async"
               className="block"
             />
           ) : (
-            width > 0 && (
-              <span className="px-2 text-center text-[11px] font-semibold text-red-700">
-                Invalid FEN
-              </span>
-            )
+            <span className="px-2 text-center text-[11px] font-semibold text-red-700">
+              Invalid FEN
+            </span>
           )}
         </div>
       </div>
