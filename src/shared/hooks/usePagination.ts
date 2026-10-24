@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const SWIPE_THRESHOLD = 40;
 
@@ -40,23 +40,23 @@ export function usePagination(
     setPage((p) => (p - 1 + pageCount) % pageCount);
   }, [pageCount]);
 
-  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const touchStartX = useRef<number | null>(null);
 
   const onTouchStart = useCallback((e: React.TouchEvent) => {
-    setTouchStartX(e.touches[0]?.clientX ?? null);
+    touchStartX.current = e.touches[0]?.clientX ?? null;
   }, []);
 
   const onTouchEnd = useCallback(
     (e: React.TouchEvent) => {
-      if (touchStartX === null) return;
-      const endX = e.changedTouches[0]?.clientX ?? touchStartX;
-      const delta = endX - touchStartX;
-      setTouchStartX(null);
+      if (touchStartX.current === null) return;
+      const endX = e.changedTouches[0]?.clientX ?? touchStartX.current;
+      const delta = endX - touchStartX.current;
+      touchStartX.current = null;
       if (Math.abs(delta) < SWIPE_THRESHOLD) return;
       if (delta < 0) next();
       else prev();
     },
-    [touchStartX, next, prev]
+    [next, prev]
   );
 
   return {

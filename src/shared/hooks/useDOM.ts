@@ -64,6 +64,13 @@ export function useScrollLock(isLocked: boolean): void {
     if (!isLocked) return;
 
     scrollYRef.current = window.scrollY;
+    const root = document.documentElement;
+    const previousGutter = root.style.scrollbarGutter;
+    const previousWidth = root.style.getPropertyValue('--shell-viewport-width');
+    // A stable gutter changes vw units. Keep the shell at its pre-lock width.
+    root.style.setProperty('--shell-viewport-width', `${window.innerWidth}px`);
+    if (window.innerWidth > root.clientWidth)
+      root.style.scrollbarGutter = 'stable';
     document.documentElement.classList.add('modal-open');
     document.body.classList.add('modal-open');
     document.body.style.position = 'fixed';
@@ -90,6 +97,10 @@ export function useScrollLock(isLocked: boolean): void {
       document.body.style.right = '';
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
+      root.style.scrollbarGutter = previousGutter;
+      if (previousWidth)
+        root.style.setProperty('--shell-viewport-width', previousWidth);
+      else root.style.removeProperty('--shell-viewport-width');
       window.scrollTo(0, scrollYRef.current);
     };
   }, [isLocked]);

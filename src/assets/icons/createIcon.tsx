@@ -1,4 +1,4 @@
-import { forwardRef, SVGProps, createElement } from 'react';
+import { forwardRef, memo, SVGProps, createElement } from 'react';
 
 // Types
 export type LucideIcon = React.FC<React.SVGProps<SVGSVGElement>>;
@@ -63,5 +63,5 @@ export const createLucideIcon = (
     }
   );
   Component.displayName = iconName;
-  return Component as LucideIcon;
+  return memo(Component) as LucideIcon;
 };

@@ -20,14 +20,14 @@ export function useNotifications() {
     };
   }, []);
 
-  function removeNotification(id: number): void {
+  const removeNotification = useCallback((id: number): void => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
     const timeout = timeoutRefs.current[id];
     if (timeout) {
       clearTimeout(timeout);
       delete timeoutRefs.current[id];
     }
-  }
+  }, []);
 
   const addNotification = useCallback(
     (
@@ -47,24 +47,36 @@ export function useNotifications() {
         );
       }
     },
-    []
+    [removeNotification]
   );
 
-  function success(message: string, duration = 5000): void {
-    addNotification(message, 'success', duration);
-  }
+  const success = useCallback(
+    (message: string, duration = 5000): void => {
+      addNotification(message, 'success', duration);
+    },
+    [addNotification]
+  );
 
-  function error(message: string, duration = 5000): void {
-    addNotification(message, 'error', duration);
-  }
+  const error = useCallback(
+    (message: string, duration = 5000): void => {
+      addNotification(message, 'error', duration);
+    },
+    [addNotification]
+  );
 
-  function info(message: string, duration = 5000): void {
-    addNotification(message, 'info', duration);
-  }
+  const info = useCallback(
+    (message: string, duration = 5000): void => {
+      addNotification(message, 'info', duration);
+    },
+    [addNotification]
+  );
 
-  function warning(message: string, duration = 5000): void {
-    addNotification(message, 'warning', duration);
-  }
+  const warning = useCallback(
+    (message: string, duration = 5000): void => {
+      addNotification(message, 'warning', duration);
+    },
+    [addNotification]
+  );
 
   useEffect(() => {
     const onTruncated = (event: Event): void => {
