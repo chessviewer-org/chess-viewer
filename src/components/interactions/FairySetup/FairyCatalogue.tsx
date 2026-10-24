@@ -1,5 +1,5 @@
 import { memo, useMemo, useState } from 'react';
-import { ChevronDown } from '@/assets/icons';
+import { SlidersHorizontal, X } from '@/assets/icons';
 import {
   FAIRY_ATTRIBUTES,
   FAIRY_WALKS,
@@ -11,7 +11,7 @@ import { getPieceKey } from '@/shared/utils/pieceUtils';
 import { namedCell, parseNamedCell } from '@/shared/utils/fairyCells';
 import { usePieceImages } from '@/shared/hooks/usePieceImages';
 import { DraggablePiece } from '../Board';
-import { CHIP } from './controls';
+import { BUTTON, CHIP } from './controls';
 import { SearchField } from './SearchField';
 import { Segmented } from './Segmented';
 
@@ -50,21 +50,32 @@ export const FairyCatalogue = memo(function FairyCatalogue({
   const [color, setColor] = useState<FairyColor>('w');
   const [query, setQuery] = useState('');
   const [attributes, setAttributes] = useState<string[]>([]);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const entries = useMemo(() => {
-    const term = query.trim().toLowerCase();
-    return WALKS.filter(({ turn, search }) =>
-      term ? search.includes(term) : turn === rotation
-    ).flatMap(({ walk }) => {
-      const piece = namedCell(color, walk.code, attributes);
-      return parseNamedCell(piece) ? [{ walk, piece }] : [];
-    });
-  }, [query, rotation, color, attributes]);
+  const term = query.trim().toLowerCase();
+  const entries = useMemo(
+    () =>
+      WALKS.filter(({ turn, search }) =>
+        term ? search.includes(term) : turn === rotation
+      ).flatMap(({ walk }) => {
+        const piece = namedCell(color, walk.code, attributes);
+        return parseNamedCell(piece) ? [{ walk, piece }] : [];
+      }),
+    [term, rotation, color, attributes]
+  );
   const visibleBoard = useMemo(
     () => [entries.map(({ piece }) => piece)],
     [entries]
   );
   const { pieceImages } = usePieceImages(pieceStyle, { board: visibleBoard });
+  const prefix = attributes.length ? `${attributes.join(' ')} ` : '';
+
+  const toggleAttribute = (attribute: string) =>
+    setAttributes((current) =>
+      current.includes(attribute)
+        ? current.filter((value) => value !== attribute)
+        : [...current, attribute]
+    );
 
   const renderEntry = ({
     walk,
@@ -79,10 +90,10 @@ export const FairyCatalogue = memo(function FairyCatalogue({
       <button
         key={walk.code}
         type="button"
-        title={walk.name}
-        aria-label={`Place ${COLOR_NAMES[color]} ${walk.name} (${walk.code})`}
+        title={`${prefix}${walk.name} (${walk.code})`}
+        aria-label={`Place ${COLOR_NAMES[color]} ${prefix}${walk.name} (${walk.code})`}
         aria-pressed={selectedPiece === piece}
-        className="flex min-w-0 cursor-pointer flex-col items-center rounded-md border border-border/50 bg-surface-elevated px-0.5 pt-1 pb-0.5 hover:border-border hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent aria-pressed:border-text-primary aria-pressed:bg-surface-hover"
+        className="relative flex min-w-0 cursor-pointer flex-col items-center rounded-md border border-border/50 bg-surface-elevated px-0.5 pt-1 pb-0.5 transition-colors hover:border-border hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent aria-pressed:border-text-primary aria-pressed:bg-surface-hover"
         onClick={(event) => {
           event.stopPropagation();
           onSelect(piece);
@@ -95,6 +106,12 @@ export const FairyCatalogue = memo(function FairyCatalogue({
           }
         }}
       >
+        {attributes.length > 0 && (
+          <span
+            className="absolute top-1 right-1 size-1.5 rounded-full bg-accent"
+            aria-hidden="true"
+          />
+        )}
         <span className="grid aspect-square w-full place-items-center">
           <DraggablePiece
             piece={piece}
@@ -113,48 +130,68 @@ export const FairyCatalogue = memo(function FairyCatalogue({
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-xs font-semibold tracking-[0.075em] text-text-secondary uppercase">
-          Named pieces · {entries.length}
-          {!query.trim() && (
-            <span className="ml-1 font-mono font-normal normal-case text-text-muted">
-              {rotation ? `drawn at ${rotation}°` : 'upright and lettered'}
-            </span>
-          )}
-        </span>
+    <section
+      aria-label="Named pieces"
+      className="rounded-xl border border-border/40 bg-surface-elevated/60 p-3"
+      onClick={(event) => event.stopPropagation()}
+    >
+      <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex min-w-0 items-baseline gap-2">
+          <h3 className="text-xs font-semibold tracking-[0.075em] text-text-secondary uppercase">
+            Named pieces
+          </h3>
+          <span className="rounded-full bg-bg/60 px-2 font-mono text-[0.6875rem] text-text-secondary">
+            {entries.length}
+          </span>
+          <span className="truncate text-xs text-text-muted">
+            {term
+              ? 'matching your search'
+              : rotation
+                ? `drawn turned ${rotation}°`
+                : 'upright and lettered'}
+          </span>
+        </div>
         <Segmented
           label="Named piece colour"
           value={color}
           options={COLORS}
           onChange={setColor}
         />
-      </div>
-      <SearchField
-        label="Search all named pieces"
-        placeholder={`Search ${FAIRY_WALKS.length} pieces by name or code`}
-        value={query}
-        onChange={setQuery}
-      />
-      <details className="group/attrs rounded-lg border border-border/60">
-        <summary className="flex h-8 cursor-pointer list-none items-center gap-2 rounded-lg px-3 text-xs text-text-secondary hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent [&::-webkit-details-marker]:hidden">
-          <span className="flex-1">
+      </header>
+
+      <div className="flex gap-2">
+        <div className="min-w-0 flex-1">
+          <SearchField
+            label="Search all named pieces"
+            placeholder="Name or Popeye code"
+            value={query}
+            onChange={setQuery}
+          />
+        </div>
+        <div>
+          <button
+            type="button"
+            aria-expanded={menuOpen}
+            aria-haspopup="true"
+            onClick={() => setMenuOpen((open) => !open)}
+            className={`${BUTTON} ${attributes.length ? 'border-accent/60 text-accent' : ''}`}
+          >
+            <SlidersHorizontal className="size-3.5" aria-hidden="true" />
             Attributes
             {attributes.length > 0 && (
-              <span className="ml-1.5 text-accent">
-                {attributes.join(', ')}
+              <span className="rounded-full bg-accent/15 px-1.5 font-mono text-[0.6875rem]">
+                {attributes.length}
               </span>
             )}
-          </span>
-          <ChevronDown
-            className="size-3.5 group-open/attrs:rotate-180"
-            aria-hidden="true"
-          />
-        </summary>
+          </button>
+        </div>
+      </div>
+
+      {menuOpen && (
         <div
           role="group"
           aria-label="Attributes for named pieces"
-          className="flex flex-wrap gap-1.5 border-t border-border/60 p-2"
+          className="mt-2 flex flex-wrap gap-1.5 rounded-lg border border-border/60 bg-bg/30 p-2"
         >
           {FAIRY_ATTRIBUTES.map((attribute) => (
             <button
@@ -162,23 +199,42 @@ export const FairyCatalogue = memo(function FairyCatalogue({
               type="button"
               aria-pressed={attributes.includes(attribute)}
               className={`${CHIP} h-7 px-2.5`}
-              onClick={() =>
-                setAttributes((current) =>
-                  current.includes(attribute)
-                    ? current.filter((value) => value !== attribute)
-                    : [...current, attribute]
-                )
-              }
+              onClick={() => toggleAttribute(attribute)}
             >
               {attribute}
             </button>
           ))}
         </div>
-      </details>
+      )}
+
+      {attributes.length > 0 && !menuOpen && (
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          {attributes.map((attribute) => (
+            <button
+              key={attribute}
+              type="button"
+              aria-label={`Remove ${attribute}`}
+              className={`${CHIP} h-7 border-accent/60 bg-accent/10 px-2.5 text-accent`}
+              onClick={() => toggleAttribute(attribute)}
+            >
+              {attribute}
+              <X className="size-3" aria-hidden="true" />
+            </button>
+          ))}
+          <button
+            type="button"
+            className="h-7 cursor-pointer rounded px-1.5 text-xs text-text-muted hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            onClick={() => setAttributes([])}
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
       <div
         role="group"
         aria-label="Named fairy pieces"
-        className="grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-1"
+        className="mt-3 grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-1"
       >
         {entries.map(renderEntry)}
         {entries.length === 0 && (
@@ -187,6 +243,6 @@ export const FairyCatalogue = memo(function FairyCatalogue({
           </p>
         )}
       </div>
-    </div>
+    </section>
   );
 });

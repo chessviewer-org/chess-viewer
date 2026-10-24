@@ -12,7 +12,6 @@ import { parseNamedCell } from '@/shared/utils/fairyCells';
 import { positionContext, validateFEN } from '@/shared/utils/fenParser';
 import { getPieceKey } from '@/shared/utils/pieceUtils';
 import { usePieceImages } from '@/shared/hooks/usePieceImages';
-import { FairyCatalogue } from '../FairySetup/FairyCatalogue';
 import { FairyProblem } from '../FairySetup/FairyProblem';
 import { Segmented } from '../FairySetup/Segmented';
 import { PiecePalette, type PaletteGroup } from './PiecePalette';
@@ -24,6 +23,8 @@ interface FairySymbolPaletteProps {
   onSelect: (piece: BoardCell) => void;
   onKeyboardPick: (piece: BoardCell) => void;
   onFenChange: (fen: string) => void;
+  rotation: FairyRotation;
+  onRotationChange: (rotation: FairyRotation) => void;
 }
 
 const PIECES: readonly FairyPieceType[] = ['K', 'Q', 'R', 'B', 'N', 'P'];
@@ -72,11 +73,12 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
   selectedPiece,
   onSelect,
   onKeyboardPick,
-  onFenChange
+  onFenChange,
+  rotation,
+  onRotationChange
 }: FairySymbolPaletteProps) {
   const id = useId();
   const [tab, setTab] = useState<PaletteTab>('pieces');
-  const [rotation, setRotation] = useState<FairyRotation>(0);
   const [markerColor, setMarkerColor] = useState<FairyColor>('w');
   const groups: PaletteGroup[] = [
     ...pieceGroups(rotation),
@@ -134,7 +136,7 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
 
   function restyle(nextMarkerColor: FairyColor, nextRotation: FairyRotation) {
     setMarkerColor(nextMarkerColor);
-    setRotation(nextRotation);
+    onRotationChange(nextRotation);
     if (!selectedPiece || parseNamedCell(selectedPiece)) return;
     const code = parseCellCode(getPieceKey(selectedPiece) ?? '');
     if (!code) return;
@@ -218,15 +220,6 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
             {error}. Reload to try again.
           </p>
         )}
-        <div className="border-t border-border/50 pt-3">
-          <FairyCatalogue
-            pieceStyle={pieceStyle}
-            rotation={rotation}
-            selectedPiece={selectedPiece}
-            onSelect={onSelect}
-            onKeyboardPick={onKeyboardPick}
-          />
-        </div>
       </div>
       <div
         role="tabpanel"
