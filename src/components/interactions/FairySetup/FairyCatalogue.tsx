@@ -9,6 +9,7 @@ import type { FairyColor } from '@constants/fairyPieces';
 import type { BoardCell } from '@app-types';
 import { getPieceKey } from '@/shared/utils/pieceUtils';
 import { namedCell } from '@/shared/utils/fairyCells';
+import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
 import { usePieceImages } from '@/shared/hooks/usePieceImages';
 import { DraggablePiece } from '../Board';
 import { BUTTON, CHIP } from './controls';
@@ -38,7 +39,17 @@ export const FairyCatalogue = memo(function FairyCatalogue({
   onSelect,
   onKeyboardPick
 }: FairyCatalogueProps) {
-  const [attributes, setAttributes] = useState<string[]>([]);
+  const [storedAttributes, setAttributes] = useLocalStorage<string[]>(
+    'fairy-named-attributes',
+    []
+  );
+  const attributes: string[] = useMemo(
+    () =>
+      Array.isArray(storedAttributes)
+        ? FAIRY_ATTRIBUTES.filter((value) => storedAttributes.includes(value))
+        : [],
+    [storedAttributes]
+  );
   const [menuOpen, setMenuOpen] = useState(false);
 
   const entries = useMemo(
@@ -57,10 +68,10 @@ export const FairyCatalogue = memo(function FairyCatalogue({
   const prefix = attributes.length ? `${attributes.join(' ')} ` : '';
 
   const toggleAttribute = (attribute: string) =>
-    setAttributes((current) =>
-      current.includes(attribute)
-        ? current.filter((value) => value !== attribute)
-        : [...current, attribute]
+    setAttributes(
+      attributes.includes(attribute)
+        ? attributes.filter((value) => value !== attribute)
+        : [...attributes, attribute]
     );
 
   const renderEntry = ({

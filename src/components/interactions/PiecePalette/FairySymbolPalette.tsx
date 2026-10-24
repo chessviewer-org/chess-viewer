@@ -1,4 +1,4 @@
-import { memo, useId, useState } from 'react';
+import { memo, useId } from 'react';
 import { ArrowLeft } from '@/assets/icons';
 import {
   FAIRY_ROTATIONS,
@@ -10,6 +10,7 @@ import type { BoardCell } from '@app-types';
 import { cellName, parseCellCode, symbolCell } from '@/shared/utils/boardCells';
 import { parseNamedCell } from '@/shared/utils/fairyCells';
 import { getPieceKey } from '@/shared/utils/pieceUtils';
+import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
 import { usePieceImages } from '@/shared/hooks/usePieceImages';
 import { FairyCatalogue } from '../FairySetup/FairyCatalogue';
 import { Segmented } from '../FairySetup/Segmented';
@@ -53,6 +54,9 @@ function entry(
   return { piece, name: cellName(piece) };
 }
 
+const asColor = (value: unknown): FairyColor =>
+  value === 'b' || value === 'n' ? value : 'w';
+
 const DOTS: Record<FairyColor, string> = {
   w: 'bg-white',
   b: 'bg-black',
@@ -73,10 +77,27 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
   onKeyboardPick
 }: FairySymbolPaletteProps) {
   const id = useId();
-  const [tab, setTab] = useState<PaletteTab>('symbols');
-  const [rotation, setRotation] = useState<FairyRotation>(0);
-  const [markerColor, setMarkerColor] = useState<FairyColor>('w');
-  const [namedColor, setNamedColor] = useState<FairyColor>('w');
+  const [storedTab, setTab] = useLocalStorage<string>(
+    'fairy-palette-tab',
+    'symbols'
+  );
+  const [storedRotation, setRotation] = useLocalStorage<number>(
+    'fairy-palette-rotation',
+    0
+  );
+  const [storedMarkerColor, setMarkerColor] = useLocalStorage<string>(
+    'fairy-marker-color',
+    'w'
+  );
+  const [storedNamedColor, setNamedColor] = useLocalStorage<string>(
+    'fairy-named-color',
+    'w'
+  );
+  const tab: PaletteTab = storedTab === 'named' ? 'named' : 'symbols';
+  const rotation =
+    FAIRY_ROTATIONS.find((value) => value === storedRotation) ?? 0;
+  const markerColor = asColor(storedMarkerColor);
+  const namedColor = asColor(storedNamedColor);
   const groups: PaletteGroup[] = [
     ...pieceGroups(rotation),
     {
