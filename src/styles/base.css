@@ -5,7 +5,6 @@
 
   html {
     min-height: 100%;
-    scrollbar-gutter: stable;
 
     font-size: clamp(15px, 0.35vw + 13.6px, 17.5px);
 
@@ -122,4 +121,10 @@ body.modal-open {
 body.modal-open #root {
   overflow: hidden;
   height: 100%;
+}
+
+html.instant *,
+html.instant *::before,
+html.instant *::after {
+  transition: none !important;
 }

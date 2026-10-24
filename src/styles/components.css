@@ -3,15 +3,15 @@
     margin-top: calc(var(--navbar-height) + max(0px, env(safe-area-inset-top)));
   }
 
-  @media (min-width: 640px) {
-    :root {
-      --navbar-height: 5rem;
-    }
-  }
-  @media (min-width: 1024px) {
-    :root {
-      --navbar-height: 5.5rem;
-    }
+  .home-workspace {
+    min-height: max(
+      0px,
+      calc(
+        100dvh - var(--navbar-height) - env(safe-area-inset-top) -
+          env(safe-area-inset-bottom)
+      )
+    );
+    justify-content: center;
   }
 
   .page-container {

@@ -16,15 +16,14 @@ import {
   X
 } from '@/assets/icons';
 
-import {
-  useNotifications,
-  usePagination,
-  useSquarePatternSetting,
-  useThemePresets
-} from '@hooks';
+import { useNotifications } from '@/shared/hooks/useNotifications';
+import { usePagination } from '@/shared/hooks/usePagination';
+import { useSquarePatternSetting } from '@/shared/hooks/useSquarePattern';
+import { useThemePresets } from '@/shared/hooks/useTheme';
 import { BOARD_THEMES } from '@constants';
 
-import { Pagination, Switch } from '@ui';
+import { Pagination } from '@/shared/ui/Pagination/Pagination';
+import { Switch } from '@/shared/ui/Switch';
 
 import { ColorPickerPanel } from './ColorPickerPanel';
 import { Swatch } from './Swatch';
@@ -64,6 +63,22 @@ function rowsFromWidth(px: number): number {
   return px < 480 ? 3 : 4;
 }
 
+function gridForWidth(width: number, maxRows: number | undefined) {
+  const rows = rowsFromWidth(width);
+  return {
+    cols: colsFromWidth(width),
+    rows: maxRows !== undefined ? Math.min(rows, maxRows) : rows
+  };
+}
+
+function initialGrid(maxRows: number | undefined) {
+  const width =
+    document
+      .querySelector(`.${styles['pickerContainer']}`)
+      ?.getBoundingClientRect().width ?? 0;
+  return width > 0 ? gridForWidth(width, maxRows) : { cols: 8, rows: 4 };
+}
+
 type ActiveTab = 'main' | 'custom';
 
 export const BoardThemePicker = memo(function BoardThemePicker({
@@ -87,16 +102,16 @@ export const BoardThemePicker = memo(function BoardThemePicker({
 
   const returnToPageRef = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [cols, setCols] = useState(8);
-  const [rows, setRows] = useState(4);
+  const [{ cols, rows }, setGrid] = useState(() => initialGrid(maxRows));
 
   useLayoutEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const apply = (width: number) => {
-      setCols(colsFromWidth(width));
-      const computed = rowsFromWidth(width);
-      setRows(maxRows !== undefined ? Math.min(computed, maxRows) : computed);
+      const next = gridForWidth(width, maxRows);
+      setGrid((prev) =>
+        prev.cols === next.cols && prev.rows === next.rows ? prev : next
+      );
     };
     apply(el.getBoundingClientRect().width);
     const obs = new ResizeObserver(([entry]) => {

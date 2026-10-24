@@ -1,4 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState
+} from 'react';
 import type {
   ActiveHistoryEntry,
   ArchivedHistoryEntry,
@@ -7,23 +13,28 @@ import type {
 } from '@app-types';
 import {
   applyFilters,
-  archiveEntries as archiveEntriesUtil,
-  clearArchive as clearArchiveUtil,
   createHistoryEntry,
-  deleteArchivedEntry as deleteArchivedEntryUtil,
-  emitSyncTruncation,
-  loadArchive,
-  logger,
   mergeById,
-  performAutoArchival,
-  reactivateEntry as reactivateEntryUtil,
   safeJSONParse,
   sortByMostRecent,
-  touchEntry,
-  trimToSyncBudget,
-  validateFEN
-} from '@utils';
-import { syncStorage } from '@/auth';
+  touchEntry
+} from '@chessviewer-org/chess-viewer';
+import {
+  archiveEntries as archiveEntriesUtil,
+  clearArchive as clearArchiveUtil,
+  deleteArchivedEntry as deleteArchivedEntryUtil,
+  loadArchive,
+  performAutoArchival,
+  reactivateEntry as reactivateEntryUtil
+} from '@/shared/utils/archiveManager';
+import {
+  emitSyncTruncation,
+  trimToSyncBudget
+} from '@/shared/utils/historyUtils';
+import { isHydrating } from '@/shared/utils/hydration';
+import { logger } from '@/shared/utils/logger';
+import { validateFEN } from '@/shared/utils/fenParser';
+import { syncStorage } from '@/auth/storage/syncStorage';
 
 // Helpers
 export const persistHistory = (
@@ -72,12 +83,18 @@ const capHistory = (arr: ActiveHistoryEntry[]) => {
   });
 };
 
+function readLocalHistory(): ActiveHistoryEntry[] {
+  return safeJSONParse(window.localStorage.getItem('fen-history') || '[]', []);
+}
+
 export function useFENHistory(
   fen: string,
   onFavChange?: (isFav: boolean) => void
 ) {
   // State
-  const [history, setHistory] = useState<ActiveHistoryEntry[]>([]);
+  const [history, setHistory] = useState<ActiveHistoryEntry[]>(() =>
+    isHydrating() ? [] : sortByMostRecent(readLocalHistory())
+  );
   const [archive, setArchive] = useState<ArchivedHistoryEntry[]>([]);
 
   const [isLoadingArchive, setIsLoadingArchive] = useState(false);
@@ -86,15 +103,16 @@ export function useFENHistory(
   const [historyFilters, setHistoryFilters] = useState<HistoryFilters>({});
   const [archiveFilters, setArchiveFilters] = useState<HistoryFilters>({});
 
+  const savedHistory = useRef<string | null>(null);
+
   useLayoutEffect(() => {
     let isMounted = true;
 
-    const localData = safeJSONParse(
-      window.localStorage.getItem('fen-history') || '[]',
-      []
-    );
+    const localData = readLocalHistory();
     if (localData.length > 0) {
-      setHistory(sortByMostRecent(localData));
+      setHistory((prev) =>
+        prev.length > 0 ? prev : sortByMostRecent(localData)
+      );
     }
 
     async function loadCloud() {
@@ -103,7 +121,13 @@ export function useFENHistory(
         const cloudData = cloud?.value ? safeJSONParse(cloud.value, []) : [];
 
         if (isMounted) {
-          setHistory(sortByMostRecent(mergeById(cloudData, localData)));
+          const merged = sortByMostRecent(mergeById(cloudData, localData));
+          const serialized = JSON.stringify(merged);
+          const matches = (entries: ActiveHistoryEntry[]) =>
+            JSON.stringify(sortByMostRecent(entries)) === serialized;
+          if (matches(localData) && (!cloud || matches(cloudData)))
+            savedHistory.current = serialized;
+          setHistory(merged);
         }
       } finally {
         if (isMounted) setIsHydrated(true);
@@ -123,7 +147,11 @@ export function useFENHistory(
     if (!isHydrated) return;
 
     const timer = setTimeout(() => {
-      persistHistory(history, !isFirstSave.current);
+      const serialized = JSON.stringify(history);
+      if (serialized !== savedHistory.current) {
+        persistHistory(history, !isFirstSave.current);
+        savedHistory.current = serialized;
+      }
       isFirstSave.current = false;
     }, 500);
 
@@ -164,42 +192,81 @@ export function useFENHistory(
   }, [isFav, isHydrated, onFavChange]);
 
   // Actions
-  function commitNewFen(f: string, source: HistorySource, dragId?: string) {
-    if (!validateFEN(f)) return;
+  const commitNewFen = useCallback(
+    (f: string, source: HistorySource, dragId?: string) => {
+      if (!validateFEN(f)) return;
 
-    setHistory((prevHistory) => {
-      if (prevHistory[0]?.fen === f) {
-        return prevHistory.map((entry, index) =>
-          index === 0 ? touchEntry(entry) : entry
-        );
-      }
+      setHistory((prevHistory) => {
+        if (prevHistory[0]?.fen === f) {
+          return prevHistory.map((entry, index) =>
+            index === 0 ? touchEntry(entry) : entry
+          );
+        }
 
-      const newEntry = createHistoryEntry(f, source, dragId);
-      return capHistory(sortByMostRecent([newEntry, ...prevHistory]));
-    });
-  }
+        const newEntry = createHistoryEntry(f, source, dragId);
+        return capHistory(sortByMostRecent([newEntry, ...prevHistory]));
+      });
+    },
+    []
+  );
 
   const dragTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dragIdRef = useRef<string | null>(null);
   const currentFenRef = useRef(fen);
   currentFenRef.current = fen;
 
-  const notifyDragAction = () => {
+  const notifyDragAction = useCallback(() => {
     if (!dragIdRef.current) dragIdRef.current = `drag-${Date.now()}`;
     if (dragTimerRef.current) clearTimeout(dragTimerRef.current);
 
     dragTimerRef.current = setTimeout(() => {
+      dragTimerRef.current = null;
       commitNewFen(currentFenRef.current, 'drag', dragIdRef.current!);
       dragIdRef.current = null;
     }, 60000);
-  };
+  }, [commitNewFen]);
 
-  const saveManualFen = (f: string) => {
-    if (dragTimerRef.current) clearTimeout(dragTimerRef.current);
-    commitNewFen(f, 'manual');
-  };
+  useLayoutEffect(
+    () => () => {
+      // Do not leave a minute-long timer attached to an editor that has unmounted.
+      if (!dragTimerRef.current) return;
+      clearTimeout(dragTimerRef.current);
+      dragTimerRef.current = null;
+      const position = currentFenRef.current;
+      if (!validateFEN(position)) return;
+      const current = historyRef.current;
+      const next =
+        current[0]?.fen === position
+          ? current
+          : capHistory(
+              sortByMostRecent([
+                createHistoryEntry(
+                  position,
+                  'drag',
+                  dragIdRef.current ?? undefined
+                ),
+                ...current
+              ])
+            );
+      persistHistory(next, false);
+    },
+    []
+  );
 
-  const saveExportFen = (f: string) => commitNewFen(f, 'export');
+  const saveManualFen = useCallback(
+    (f: string) => {
+      if (dragTimerRef.current) clearTimeout(dragTimerRef.current);
+      dragTimerRef.current = null;
+      dragIdRef.current = null;
+      commitNewFen(f, 'manual');
+    },
+    [commitNewFen]
+  );
+
+  const saveExportFen = useCallback(
+    (f: string) => commitNewFen(f, 'export'),
+    [commitNewFen]
+  );
 
   const toggleFavorite = (id: number) => {
     setHistory((prev) =>
@@ -213,6 +280,7 @@ export function useFENHistory(
 
   const clearHistory = async () => {
     setHistory([]);
+    savedHistory.current = '[]';
     window.localStorage.removeItem('fen-history');
     await syncStorage.delete('fen-history').catch(() => {});
   };

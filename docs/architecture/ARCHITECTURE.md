@@ -16,7 +16,7 @@
 
 ## Overview
 
-ChessViewer is a **PWA** (Progressive Web App) built with Preact. It runs entirely in the browser — there is no server-side rendering. A service worker (via `vite-plugin-pwa`) enables offline use. URL-based navigation is handled client-side by **wouter**; the server serves the same `index.html` for every path.
+ChessViewer is a Preact SPA with build-time prerendering for public routes. Interactive editing runs in the browser. wouter handles client navigation; hosting serves prerendered HTML when available and falls back to `index.html` for other paths. There is no active service worker: `public/sw.js` retires legacy workers and the inline boot script `src/boot/retire-service-worker.js` removes old registrations without reloading open editors.
 
 It parses FEN notation, renders chess positions on an HTML5 Canvas, and exports high-resolution raster or vector images. Optional user authentication enables cloud sync via a custom Supabase client with row-level security.
 
@@ -27,7 +27,7 @@ It parses FEN notation, renders chess positions on an HTML5 Canvas, and exports 
 - Canvas-based board rendering and image export
 - All local state persisted to localStorage; cloud sync is opt-in
 - All pages lazy-loaded with code splitting
-- TypeScript 6 strict mode throughout
+- TypeScript 7 strict mode throughout (the TypeScript 6 API is retained only for ESLint)
 
 ---
 
@@ -35,8 +35,8 @@ It parses FEN notation, renders chess positions on an HTML5 Canvas, and exports 
 
 | Category        | Library / Tool                                               | Version |
 | --------------- | ------------------------------------------------------------ | ------- |
-| UI framework    | Preact (via `@preact/preset-vite`)                           | 10.x    |
-| Language        | TypeScript                                                   | 6.x     |
+| UI framework    | Preact (via `@preact/preset-vite`)                           | 11.x    |
+| Language        | TypeScript                                                   | 7.x     |
 | Build tool      | Vite                                                         | 8.x     |
 | Styling         | Tailwind CSS                                                 | 4.x     |
 | Routing         | wouter                                                       | 3.x     |
@@ -47,8 +47,7 @@ It parses FEN notation, renders chess positions on an HTML5 Canvas, and exports 
 | QR codes        | uqr                                                          | 0.1.x   |
 | Fonts           | @fontsource-variable/inter                                   | 5.x     |
 | Backend / Auth  | Custom Supabase client (`src/auth/Supabase.ts`)              | —       |
-| PWA             | vite-plugin-pwa (Workbox service worker)                     | 1.3.x   |
-| Package manager | pnpm                                                         | 10.x    |
+| Package manager | pnpm                                                         | 12.x    |
 
 > **Preact instead of React** — `@preact/preset-vite` aliases `react` and `react-dom` to Preact at build time. All source code uses the React API; Preact provides it with a smaller runtime. `preact` and `@types/react` coexist in `package.json` for this reason.
 
@@ -57,6 +56,16 @@ It parses FEN notation, renders chess positions on an HTML5 Canvas, and exports 
 > **Supabase client — custom implementation, not `@supabase/supabase-js`** — `src/auth/Supabase.ts` contains a hand-written HTTP client (~940 lines) that covers only the Supabase APIs we use: Auth (sign-in/sign-up/MFA/session management), PostgREST queries, and RPC calls. This avoids the full SDK bundle weight. The `supabase` singleton exported from that file is the only approved entry point for all Supabase access.
 
 > **Page animations — View Transitions API, not Framer Motion** — `framer-motion` is not installed. `src/routes/navigation.ts` passes `navigateWithTransition` to wouter's `<Router aroundNav>`: a navigation that changes the path runs inside `document.startViewTransition`, scrolls the window to the top and cross-fades the old and new page for 180 ms (`::view-transition-old/new(root)` in `theme.css`). It falls back to an instant navigation when the browser lacks the API or the user prefers reduced motion (`canAnimateViewTransition`). The theme toggle reuses the same API with its own circular reveal, scoped by `html[data-theme-transition]`.
+
+Route commits reset scroll before rendering the destination, in the same synchronous
+update. Only opacity changes during route transitions; the navbar snapshot never
+animates its position or dimensions. The app shell and navbar use viewport width
+so scrollbar appearance cannot shift navigation or page gutters sideways.
+
+Navbar menu state belongs to Navbar, not AppShell or the page providers. Shared
+notification and editor callbacks retain their identity between unrelated updates.
+Piece loading publishes the completed image map rather than rendering once per
+image for an unused progress value; cache lookup runs once per style/mode change.
 
 > **Chess domain logic — private package** — `@chessviewer-org/chess-viewer` provides `ChessBoard`, `PieceSymbol`, `validateFEN`, `parseFEN`, `boardToFEN`, and related types. It is published on npm and developed in [chess-viewer-utils](https://github.com/chessviewer-org/chess-viewer-utils); it also generates the SVG diagrams and all LaTeX markup.
 
@@ -167,7 +176,7 @@ src/
 │   │   ├── PiecePalette/          # Off-board piece picker
 │   │   └── TrashZone.tsx          # Drop-to-delete zone
 │   └── layout/
-│       └── Navbar/                # App shell nav (desktop dropdown, mobile menu)
+│       └── Navbar/                # App shell nav (section drawer, responsive account dropdown)
 │
 ├── pages/
 │   ├── HomePage/                  # Primary board workspace
@@ -224,7 +233,7 @@ Convention: use `@/x` for app-structure paths (`@/components`, `@/auth`). Use ba
 
 ## Routing
 
-Routing is handled by **wouter** (not React Router). All routes are in `src/routes/Router.tsx`; page components are exported from `src/routes/pages.ts`.
+Routing is handled by **wouter** (not React Router). All routes are in `src/routes/Router.tsx`; `src/routes/pages.ts` resolves each page through one cached dynamic import. The current page loads before hydration; navigation loads destination JS/CSS before starting its transition. Unvisited browser-history destinations use Suspense, and failed imports reach the existing error boundary. Internal imports point to leaf modules so shared barrels do not pull unrelated features into the shell.
 
 Page changes run through `navigateWithTransition` (see Page animations above). The document itself scrolls: `#main-content` is a flex column without its own overflow, so pages size themselves with `flex-1`, sticky elements are positioned against the viewport, and the browser handles Arrow, Page Up/Down, Home, End and Space scrolling natively.
 
@@ -266,7 +275,7 @@ Drag state lives exclusively in `useInteractiveBoard.ts` and the custom `useDrag
 
 ### Display Board
 
-The interactive board is rendered as a grid of `DroppableSquare` components, each containing a `DraggablePiece`. Squares use Tailwind CSS utilities backed by CSS custom properties. Piece images are loaded from Lichess CDN, rasterized to 256 px blob URLs, and passed down as a stable `Record<string, HTMLImageElement>`.
+The interactive board is rendered as a grid of `DroppableSquare` components, each containing a `DraggablePiece`. Squares use Tailwind CSS utilities backed by CSS custom properties. Piece images are same-origin SVGs in `/piece/` and `/fairypiece/`. A bounded source-keyed cache shares loaded and in-flight images; the board and exporter use the same `HTMLImageElement`. Catalogue letter SVGs are decoded only when needed by the board or selected palette.
 
 ### Export Canvas
 

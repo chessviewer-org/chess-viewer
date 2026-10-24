@@ -6,7 +6,19 @@ import {
   useState
 } from 'react';
 
-import { logger, safeJSONParse } from '@utils';
+import { isHydrating } from '@/shared/utils/hydration';
+import { logger } from '@/shared/utils/logger';
+import { trackPendingWrite } from '@/shared/utils/pendingWrites';
+import { safeJSONParse } from '@chessviewer-org/chess-viewer';
+
+function readStoredItem(storageKey: string): string | null {
+  try {
+    return window.localStorage.getItem(storageKey);
+  } catch (error: unknown) {
+    logger.error(`Error loading ${storageKey} from localStorage:`, error);
+    return null;
+  }
+}
 
 function writeToStorage<T>(storageKey: string, value: T) {
   try {
@@ -27,26 +39,36 @@ export function useLocalStorage<T>(
   initialValue: T
 ): [T, React.Dispatch<React.SetStateAction<T>>] {
   const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pendingValueRef = useRef<T | null>(null);
+  const pendingValueRef = useRef<{ value: T } | null>(null);
 
-  const [storedValue, setStoredValue] = useState<T>(initialValue);
+  const loadedKeyRef = useRef(isHydrating() ? null : key);
+  const [storedValue, setStoredValue] = useState<T>(() => {
+    const item = loadedKeyRef.current === null ? null : readStoredItem(key);
+    return item === null ? initialValue : safeJSONParse<T>(item, initialValue);
+  });
 
   useLayoutEffect(() => {
-    try {
-      const item = window.localStorage.getItem(key);
-      if (item !== null) setStoredValue(safeJSONParse<T>(item, initialValue));
-    } catch (error: unknown) {
-      logger.error(`Error loading ${key} from localStorage:`, error);
-    }
+    if (loadedKeyRef.current === key) return;
+    loadedKeyRef.current = key;
+    const item = readStoredItem(key);
+    if (item !== null) setStoredValue(safeJSONParse<T>(item, initialValue));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
-  useEffect(() => {
-    return () => {
+  // Flush before the next page reads settings (Preact 11 defers passive cleanup).
+  useLayoutEffect(() => {
+    const flush = () => {
       if (debounceTimeoutRef.current && pendingValueRef.current !== null) {
         clearTimeout(debounceTimeoutRef.current);
-        writeToStorage(key, pendingValueRef.current);
+        writeToStorage(key, pendingValueRef.current.value);
+        debounceTimeoutRef.current = null;
+        pendingValueRef.current = null;
       }
+    };
+    const untrack = trackPendingWrite(flush);
+    return () => {
+      untrack();
+      flush();
     };
   }, [key]);
 
@@ -55,12 +77,15 @@ export function useLocalStorage<T>(
       setStoredValue((prev) => {
         const valueToStore = value instanceof Function ? value(prev) : value;
 
+        if (Object.is(prev, valueToStore)) return prev;
+
         if (debounceTimeoutRef.current)
           clearTimeout(debounceTimeoutRef.current);
-        pendingValueRef.current = valueToStore;
+        pendingValueRef.current = { value: valueToStore };
         debounceTimeoutRef.current = setTimeout(() => {
           writeToStorage(key, valueToStore);
           pendingValueRef.current = null;
+          debounceTimeoutRef.current = null;
         }, 300);
 
         return valueToStore;
@@ -76,17 +101,32 @@ export function useDebouncedCommit(
   delayMs: number
 ): (commit: () => void) => void {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
-    return () => {
+    const flush = () => {
       if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = null;
+      const commit = pendingRef.current;
+      pendingRef.current = null;
+      commit?.();
+    };
+    const untrack = trackPendingWrite(flush);
+    return () => {
+      untrack();
+      flush();
     };
   }, []);
 
   return useCallback(
     (commit: () => void) => {
       if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(commit, delayMs);
+      pendingRef.current = commit;
+      timerRef.current = setTimeout(() => {
+        timerRef.current = null;
+        pendingRef.current = null;
+        commit();
+      }, delayMs);
     },
     [delayMs]
   );

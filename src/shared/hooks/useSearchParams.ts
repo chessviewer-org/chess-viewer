@@ -1,13 +1,9 @@
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 
 export function useSearchParams() {
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(() => window.location.search);
   const [path] = useLocation();
-
-  useLayoutEffect(() => {
-    setSearch(window.location.search);
-  }, []);
 
   useEffect(() => {
     const handlePopState = () => setSearch(window.location.search);

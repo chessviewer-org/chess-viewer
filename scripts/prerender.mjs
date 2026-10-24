@@ -11,16 +11,23 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const DIST = join(__dirname, '..', 'dist');
 const PORT = 4178;
 
-function startServer() {
+function startServer(template) {
   const server = createServer(async (req, res) => {
     try {
       const urlPath = decodeURIComponent((req.url ?? '/').split('?')[0]);
       let filePath = join(DIST, urlPath);
       if (urlPath.endsWith('/')) filePath = join(filePath, 'index.html');
-      if (!existsSync(filePath) || extname(filePath) === '') {
+      if (
+        !existsSync(filePath) ||
+        extname(filePath) === '' ||
+        extname(filePath) === '.html'
+      ) {
         filePath = join(DIST, 'index.html');
       }
-      const body = await readFile(filePath);
+      const body =
+        filePath === join(DIST, 'index.html')
+          ? template
+          : await readFile(filePath);
       const mime = extname(filePath);
       res.writeHead(200, {
         'Content-Type':
@@ -68,7 +75,14 @@ async function prerender() {
     throw new Error('dist/index.html not found — run `vite build` first.');
   }
 
-  const server = await startServer();
+  const template = await readFile(join(DIST, 'index.html'));
+  if (template.includes('data-prerendered-route=')) {
+    throw new Error(
+      'dist/index.html is already prerendered — run `vite build` first.'
+    );
+  }
+
+  const server = await startServer(template);
   const browser = await puppeteer.launch({
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox']
@@ -77,6 +91,7 @@ async function prerender() {
   try {
     for (const route of PRERENDERED_ROUTES) {
       const page = await browser.newPage();
+      await page.setViewport({ width: 1280, height: 800 });
       await page.goto(`http://localhost:${PORT}${route}`, {
         waitUntil: 'domcontentloaded',
         timeout: 30_000
@@ -88,7 +103,34 @@ async function prerender() {
         () => document.querySelector('main')?.children.length > 0,
         { timeout: 30_000 }
       );
-      await new Promise((r) => setTimeout(r, 500));
+      await page.waitForNetworkIdle({ idleTime: 300, timeout: 30_000 });
+
+      await page.evaluate(() => {
+        window.dispatchEvent(new Event('pagehide'));
+        const snapshot = sessionStorage.getItem('cv_page_snapshot');
+        if (!snapshot) throw new Error('page snapshot was not saved');
+        const { html, pieces } = JSON.parse(snapshot);
+        document.getElementById('root').innerHTML = html;
+        if (Object.keys(pieces).length > 0) {
+          const sources = document.createElement('script');
+          sources.type = 'application/json';
+          sources.id = 'cv-piece-sources';
+          sources.textContent = JSON.stringify({ pieces }).replaceAll(
+            '<',
+            '\\u003c'
+          );
+          document.body.append(sources);
+        }
+        sessionStorage.clear();
+        return new Promise((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(resolve))
+        );
+      });
+      await page.evaluate(() => {
+        const root = document.documentElement;
+        root.style.removeProperty('--navbar-height');
+        if (!root.getAttribute('style')) root.removeAttribute('style');
+      });
 
       let html = await page.content();
       html = html.replaceAll(`http://localhost:${PORT}`, '');
@@ -106,12 +148,13 @@ async function prerender() {
       html = html.replace(/<title>[\s\S]*?<\/title>/g, (match) =>
         seenTitle ? '' : ((seenTitle = true), match)
       );
-      html = html.replace(/<div id="app-splash"[\s\S]*?<\/div>\s*<\/div>/, '');
 
-      const outDir =
-        route === '/' ? DIST : join(DIST, route.replace(/^\//, ''));
-      await mkdir(outDir, { recursive: true });
-      await writeFile(join(outDir, 'index.html'), html, 'utf-8');
+      const outFile =
+        route === '/'
+          ? join(DIST, 'index.html')
+          : join(DIST, `${route.slice(1)}.html`);
+      await mkdir(dirname(outFile), { recursive: true });
+      await writeFile(outFile, html, 'utf-8');
 
       console.log(`  prerendered ${route}`);
       await page.close();

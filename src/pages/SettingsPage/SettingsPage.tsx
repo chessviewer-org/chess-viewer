@@ -9,16 +9,17 @@ import {
   ShieldCheck,
   User
 } from '@/assets/icons';
-import { useEscapeKey, useSearchParams } from '@hooks';
+import { useEscapeKey } from '@/shared/hooks/useKeyboard';
+import { useSearchParams } from '@/shared/hooks/useSearchParams';
 
 import {
   type PageTabGroup,
-  PageSidebarLayout,
   PageTabs
-} from '@/components/layout';
-import { useAuth } from '@/auth';
+} from '@/components/layout/Sidebar/PageTabs';
+import { PageSidebarLayout } from '@/components/layout/Sidebar/PageSidebarLayout';
+import { useAuth } from '@/auth/core/useAuth';
 
-import { Seo } from '@ui';
+import { Seo } from '@/shared/ui/Seo';
 import {
   AccessibilitySection,
   AccountSection,
@@ -53,7 +54,7 @@ const getValidTabIds = (groups: PageTabGroup[]) =>
   new Set(groups.flatMap((g) => g.items).map((s) => s.id));
 
 const SettingsPage = memo(function SettingsPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [, navigate] = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -70,10 +71,10 @@ const SettingsPage = memo(function SettingsPage() {
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (requestedTab && !validTabIds.has(requestedTab)) {
+    if (!authLoading && requestedTab && !validTabIds.has(requestedTab)) {
       setSearchParams({ tab: defaultTab }, { replace: true });
     }
-  }, [requestedTab, validTabIds, setSearchParams]);
+  }, [authLoading, requestedTab, validTabIds, setSearchParams]);
 
   const handleBack = useCallback(() => navigate('/'), [navigate]);
   useEscapeKey(handleBack);
