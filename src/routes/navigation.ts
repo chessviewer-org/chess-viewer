@@ -1,7 +1,7 @@
-import { flushSync } from 'react-dom';
+import { flushSync } from 'preact/compat';
 import type { AroundNavHandler } from 'wouter';
 
-import { canAnimateViewTransition } from '@utils';
+import { withViewTransition } from '@utils/viewTransition';
 
 export const navigateWithTransition: AroundNavHandler = (
   navigate,
@@ -11,12 +11,12 @@ export const navigateWithTransition: AroundNavHandler = (
   const changesPage =
     new URL(to, window.location.href).pathname !== window.location.pathname;
   const go = () => {
-    navigate(to, options);
-    if (changesPage) window.scrollTo(0, 0);
+    flushSync(() => {
+      // Destination layout effects must see the new scroll position.
+      if (changesPage) window.scrollTo(0, 0);
+      navigate(to, options);
+    });
   };
-  if (!changesPage || !canAnimateViewTransition()) {
-    go();
-    return;
-  }
-  document.startViewTransition(() => flushSync(go));
+  if (changesPage) withViewTransition(go);
+  else go();
 };
