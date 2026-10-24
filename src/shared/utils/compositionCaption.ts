@@ -1,3 +1,4 @@
+import type { BoardCell } from '@app-types';
 import { parseFEN } from './fenParser';
 import { parseNamedCell } from './fairyCells';
 import { isPopeye, parsePopeye } from './popeye';
@@ -7,18 +8,28 @@ import {
   type RenderSurfaceSize
 } from './imageOptimizer';
 
-export function compositionCaption(source: string): string[] {
+export interface CaptionPiece {
+  label: string;
+  squares: string[];
+  cell: BoardCell;
+}
+
+export function compositionNotes(source: string): string[] {
   if (!isPopeye(source)) return [];
-  const doc = parsePopeye(source);
   const lines: string[] = [];
-  for (const command of doc.commands) {
+  for (const command of parsePopeye(source).commands) {
     if (['author', 'title', 'origin', 'remark'].includes(command.keyword))
       lines.push(command.value);
     if (['condition', 'stipulation', 'sstipulation'].includes(command.keyword))
       lines.push(command.value);
     if (command.keyword === 'twin') lines.push(`Twin: ${command.value}`);
   }
-  const types = new Map<string, string[]>();
+  return lines.filter(Boolean);
+}
+
+export function compositionPieces(source: string): CaptionPiece[] {
+  if (!isPopeye(source)) return [];
+  const pieces = new Map<string, CaptionPiece>();
   parseFEN(source).forEach((rank, row) =>
     rank.forEach((cell, col) => {
       const piece = parseNamedCell(cell);
@@ -28,14 +39,21 @@ export function compositionCaption(source: string): string[] {
           /\s+/g,
           ' '
         );
-      const squares = types.get(label) ?? [];
-      squares.push(`${String.fromCharCode(97 + col)}${8 - row}`);
-      types.set(label, squares);
+      const entry = pieces.get(label) ?? { label, squares: [], cell };
+      entry.squares.push(`${String.fromCharCode(97 + col)}${8 - row}`);
+      pieces.set(label, entry);
     })
   );
-  for (const [label, squares] of types)
-    lines.push(`${label}: ${squares.join(', ')}`);
-  return lines.filter(Boolean);
+  return [...pieces.values()];
+}
+
+export function compositionCaption(source: string): string[] {
+  return [
+    ...compositionNotes(source),
+    ...compositionPieces(source).map(
+      ({ label, squares }) => `${label}: ${squares.join(', ')}`
+    )
+  ];
 }
 
 export interface CaptionLayout {

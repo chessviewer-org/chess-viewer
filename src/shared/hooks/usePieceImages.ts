@@ -7,13 +7,13 @@ import {
 } from '@/shared/utils/pieceUtils';
 import { logger } from '@/shared/utils/logger';
 import {
-  requestedPieceKeys,
+  requestedPieceMap,
   type PieceImageRequest
 } from '@/shared/utils/pieceRequest';
 
 export function usePieceImages(
   pieceStyle: string,
-  { positions, board, palette, rotation, selectedPiece }: PieceImageRequest = {}
+  { positions, board, selectedPiece }: PieceImageRequest = {}
 ): {
   pieceImages: Record<string, HTMLImageElement>;
   isLoading: boolean;
@@ -21,18 +21,18 @@ export function usePieceImages(
 } {
   const keys = useMemo(
     () =>
-      requestedPieceKeys({
-        ...(positions !== undefined ? { positions } : {}),
-        ...(board ? { board } : {}),
-        ...(palette ? { palette } : {}),
-        ...(rotation !== undefined ? { rotation } : {}),
-        ...(selectedPiece ? { selectedPiece } : {})
-      }).join('|'),
-    [positions, board, palette, rotation, selectedPiece]
+      JSON.stringify(
+        requestedPieceMap({
+          ...(positions !== undefined ? { positions } : {}),
+          ...(board ? { board } : {}),
+          ...(selectedPiece ? { selectedPiece } : {})
+        })
+      ),
+    [positions, board, selectedPiece]
   );
   // A board edit with the same kinds of pieces keeps the same map and images.
   const pieceMap = useMemo(
-    () => Object.fromEntries(keys.split('|').map((key) => [key, ''])),
+    () => JSON.parse(keys) as Record<string, string>,
     [keys]
   );
   const cacheKey = `${pieceStyle}:${keys}`;

@@ -7,10 +7,16 @@ import {
   cellName,
   cellToFenPiece,
   isFairyCell,
-  parseCellCode
+  parseCellCode,
+  positionPieceCounts
 } from '@utils/boardCells';
 import { getPieceKey, piecePath } from '@utils/pieceUtils';
-import { FAIRY_BOXES, FAIRY_PIECE_KEYS, FAIRY_PIECE_MAP } from '@constants';
+import {
+  FAIRY_COLORS,
+  FAIRY_PIECE_TYPES,
+  FAIRY_ROTATIONS,
+  fairyCode
+} from '@constants';
 import type { ChessBoard, PieceSymbol } from '@app-types';
 
 const EMPTY: PieceSymbol[][] = Array.from({ length: 8 }, () =>
@@ -48,7 +54,7 @@ describe('parseCellCode', () => {
   });
 
   test('rejects FEN letters, empty cells and malformed codes', () => {
-    for (const cell of ['K', 'p', '', 'wX', 'wK45', 'xK90', 'K90']) {
+    for (const cell of ['K', 'p', '', 'wZ', 'wK45', 'xK90', 'K90']) {
       assert.equal(parseCellCode(cell), null, `${cell} should not parse`);
     }
   });
@@ -65,6 +71,29 @@ describe('isFairyCell', () => {
     for (const cell of ['wK', 'bP', 'K', 'k', '']) {
       assert.equal(isFairyCell(cell), false, `${cell} should not be fairy`);
     }
+  });
+
+  test('recognises unrotated FFEN diagram symbols without treating them as men', () => {
+    for (const code of ['wC', 'bX', 'nS', 'wT270']) {
+      assert.equal(isFairyCell(code), true);
+      assert.equal(cellToFenPiece(code), '');
+      assert.equal(getPieceKey(code), code);
+    }
+    const board = boardWith({
+      a8: 'wC',
+      b8: 'bX',
+      c8: 'nS',
+      d8: 'wT270',
+      e8: 'K',
+      f8: 'p'
+    });
+    assert.deepEqual(positionPieceCounts(board), {
+      white: 1,
+      black: 1,
+      neutral: 0
+    });
+    assert.equal(boardToFEN(baseCells(board)), '4Kp2/8/8/8/8/8/8/8');
+    assert.equal(cellName('nT90'), 'neutral triangle (90°)');
   });
 });
 
@@ -153,38 +182,23 @@ describe('piecePath', () => {
   });
 });
 
-describe('fairy piece constants', () => {
-  test('sixty fairy keys map to their files', () => {
-    assert.equal(FAIRY_PIECE_KEYS.length, 60);
-    assert.equal(Object.keys(FAIRY_PIECE_MAP).length, 60);
-    for (const key of FAIRY_PIECE_KEYS) {
-      assert.equal(FAIRY_PIECE_MAP[key], `${key}.svg`);
-      assert.ok(!/^[wb][KQRBNP]$/.test(key), `${key} is a base piece`);
-    }
-  });
-
-  test('eighteen boxes ordered white, black, neutral then K Q R B N P', () => {
-    assert.equal(FAIRY_BOXES.length, 18);
-    assert.deepEqual(
-      FAIRY_BOXES.map((box) => box.color),
-      ['w', 'b', 'n'].flatMap((color) => Array(6).fill(color))
-    );
-    assert.deepEqual(
-      FAIRY_BOXES.slice(0, 6).map((box) => box.type),
-      ['K', 'Q', 'R', 'B', 'N', 'P']
-    );
-  });
-
-  test('every box exposes four ascending rotation variants', () => {
-    for (const box of FAIRY_BOXES) {
-      assert.equal(box.variants[0], box.key);
-      assert.deepEqual(box.variants, [
-        box.key,
-        `${box.key}90`,
-        `${box.key}180`,
-        `${box.key}270`
-      ]);
-      assert.equal(new Set(box.variants).size, 4);
+describe('fairy piece glyphs', () => {
+  test('rotated and neutral pieces use generated files, markers draw inline', () => {
+    const glyphs = FAIRY_COLORS.flatMap((color) =>
+      FAIRY_PIECE_TYPES.flatMap((type) =>
+        FAIRY_ROTATIONS.map((rotation) => fairyCode(color, type, rotation))
+      )
+    ).filter((key) => !/^[wb][KQRBNP]$/.test(key));
+    assert.equal(glyphs.length, 108);
+    for (const key of glyphs) {
+      if (/^[wbn][CXST]/.test(key)) {
+        assert.match(piecePath('cburnett', key), /^data:image\/svg\+xml/);
+        assert.equal(piecePath('cburnett', key), piecePath('merida', key));
+      } else
+        assert.equal(
+          piecePath('cburnett', key),
+          `/fairypiece/cburnett/${key}.svg`
+        );
     }
   });
 });

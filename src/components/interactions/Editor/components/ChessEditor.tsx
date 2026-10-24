@@ -14,7 +14,6 @@ import { useEditorKeyboard } from '@/shared/hooks/useKeyboard';
 import { useInteractiveBoard } from '@/shared/hooks/useInteractiveBoard';
 import { usePieceImages } from '@/shared/hooks/usePieceImages';
 import type { BoardCell } from '@app-types';
-import type { FairyRotation } from '@constants/fairyPieces';
 import { isFairyFEN } from '@/shared/utils/fenParser';
 import {
   buildManualDatabaseUrl,
@@ -43,7 +42,6 @@ import { ShareDialog } from './ShareDialog';
 export interface ChessEditorProps {
   fen: string;
   variant?: 'standard' | 'fairy';
-  palettePiece?: BoardCell | null;
   onFenChange: (fen: string) => void;
   pieceStyle: string;
   showCoords: boolean;
@@ -71,7 +69,6 @@ export interface ChessEditorProps {
 export const ChessEditor = memo(function ChessEditor({
   fen,
   variant = 'standard',
-  palettePiece,
   onFenChange,
   pieceStyle,
   showCoords,
@@ -89,7 +86,8 @@ export const ChessEditor = memo(function ChessEditor({
   className = ''
 }: ChessEditorProps) {
   const paletteMode = variant;
-  const [rotation, setRotation] = useState<FairyRotation>(0);
+  const [selectedPalettePiece, setSelectedPalettePiece] =
+    useState<BoardCell | null>(null);
   const {
     board,
     handlePieceDrop,
@@ -103,9 +101,7 @@ export const ChessEditor = memo(function ChessEditor({
 
   const { pieceImages, error: pieceError } = usePieceImages(pieceStyle, {
     board,
-    palette: variant,
-    rotation,
-    selectedPiece: palettePiece ?? null
+    selectedPiece: selectedPalettePiece
   });
 
   const { DragProvider: Provider, onDragEnd } = useDragState({
@@ -130,8 +126,6 @@ export const ChessEditor = memo(function ChessEditor({
     });
   }, [handlePieceRemove]);
 
-  const [selectedPalettePiece, setSelectedPalettePiece] =
-    useState<BoardCell | null>(null);
   const boardKeyboardApiRef = useRef<BoardKeyboardApi | null>(null);
   const handleKeyboardApi = useCallback((api: BoardKeyboardApi) => {
     boardKeyboardApiRef.current = api;
@@ -212,13 +206,6 @@ export const ChessEditor = memo(function ChessEditor({
     },
     [fen, onNotify]
   );
-
-  useEffect(() => {
-    if (variant !== 'fairy') return;
-    boardKeyboardApiRef.current?.clearHeld();
-    setSelectedSquare(null);
-    setSelectedPalettePiece(palettePiece ?? null);
-  }, [palettePiece, variant]);
 
   const [isShareOpen, setIsShareOpen] = useState(false);
   const handleShare = useCallback(() => setIsShareOpen(true), []);
@@ -344,13 +331,10 @@ export const ChessEditor = memo(function ChessEditor({
             <div className={styles.editorPaletteCard}>
               {variant === 'fairy' ? (
                 <FairySymbolPalette
-                  rotation={rotation}
-                  onRotationChange={setRotation}
-                  pieceImages={pieceImages}
+                  pieceStyle={pieceStyle}
                   onKeyboardPick={handlePalettePick}
                   selectedPiece={selectedPalettePiece}
                   onSelect={handlePaletteSelect}
-                  cataloguePiece={palettePiece ?? null}
                 />
               ) : (
                 <PiecePalette
@@ -389,7 +373,7 @@ export const ChessEditor = memo(function ChessEditor({
           </div>
         </div>
 
-        <CompositionLegend fen={fen} />
+        <CompositionLegend fen={fen} pieceImages={pieceImages} />
         <div className={styles.editorDbRow}>
           <DatabaseSearchPanel
             fairyPosition={isFairyFEN(fen)}

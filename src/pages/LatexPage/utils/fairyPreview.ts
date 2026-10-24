@@ -9,11 +9,16 @@ import {
 import { parseNamedCell, fairyLetterSVG } from '@utils/fairyCells';
 import { cellToFenPiece, parseCellCode } from '@utils/boardCells';
 import { isFairyFEN, parseFEN } from '@utils/fenParser';
+import { standInBoard } from '@utils/standInGlyphs';
+import {
+  compositionSymbolSVG,
+  isCompositionSymbol
+} from '@utils/compositionSymbols';
 
 /** The studio uses fixed problem-font artwork rather than the editor's selected set. */
 export function generatePositionPreview(options: DiagramOptions): string {
   if (!isFairyFEN(options.fen)) return generateDiagram(options);
-  const board = parseFEN(options.fen);
+  const board = standInBoard(parseFEN(options.fen));
   const size = options.size ?? 400;
   const square = size / 8;
   const inset = boardOutlineWidth(size);
@@ -35,14 +40,19 @@ export function generatePositionPreview(options: DiagramOptions): string {
       const id = `cv-neutral-${row}-${col}`;
       const named = parseNamedCell(cell);
       const content =
-        named && !named.definition.glyph
-          ? fairyLetterSVG(named.color, named.walk)
+        code && isCompositionSymbol(code.type)
+          ? compositionSymbolSVG(code.type, code.color)
               .replace(/^<svg[^>]*>/, '')
               .replace(/<\/svg>$/, '')
-              .replaceAll('neutral-letter', `neutral-letter-${row}-${col}`)
-          : code?.color === 'n'
-            ? `<defs><clipPath id="${id}-w"><rect width="22.5" height="45"/></clipPath><clipPath id="${id}-b"><rect x="22.5" width="22.5" height="45"/></clipPath></defs><g clip-path="url(#${id}-w)">${glyph(code.type)}</g><g clip-path="url(#${id}-b)">${glyph(code.type.toLowerCase())}</g>`
-            : glyph(cellToFenPiece(cell));
+              .replaceAll('symbol-fill', `symbol-fill-${row}-${col}`)
+          : named && !named.definition.glyph
+            ? fairyLetterSVG(named.color, named.walk)
+                .replace(/^<svg[^>]*>/, '')
+                .replace(/<\/svg>$/, '')
+                .replaceAll('neutral-letter', `neutral-letter-${row}-${col}`)
+            : code?.color === 'n'
+              ? `<defs><clipPath id="${id}-w"><rect width="22.5" height="45"/></clipPath><clipPath id="${id}-b"><rect x="22.5" width="22.5" height="45"/></clipPath></defs><g clip-path="url(#${id}-w)">${glyph(code.type)}</g><g clip-path="url(#${id}-b)">${glyph(code.type.toLowerCase())}</g>`
+              : glyph(cellToFenPiece(cell));
       const displayRow = options.flipped ? 7 - row : row;
       const displayCol = options.flipped ? 7 - col : col;
       const rotated = code?.rotation

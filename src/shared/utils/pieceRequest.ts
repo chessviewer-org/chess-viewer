@@ -1,60 +1,54 @@
 import { PIECE_MAP } from '@constants';
-import {
-  FAIRY_COLORS,
-  FAIRY_PIECE_TYPES,
-  fairyCode,
-  type FairyRotation
-} from '@constants/fairyPieces';
 import type { BoardCell } from '@app-types';
 import { getPieceKey } from './pieceUtils';
 import { isFairyFEN, parseFEN } from './fenParser';
+import { standInCell, standInGlyphs } from './standInGlyphs';
 
 export interface PieceImageRequest {
   readonly positions?: string | readonly string[];
   readonly board?: readonly (readonly BoardCell[])[];
-  readonly palette?: 'standard' | 'fairy';
-  readonly rotation?: FairyRotation;
   readonly selectedPiece?: BoardCell | null;
 }
 
-/** Include visible palette symbols and actual board artwork, never hidden turns. */
-export function requestedPieceKeys({
+function requestedCells({
   positions = '',
   board,
-  palette = 'standard',
-  rotation = 0,
   selectedPiece
-}: PieceImageRequest): string[] {
-  const keys = new Set(Object.keys(PIECE_MAP));
-  const add = (cell: BoardCell) => {
-    const key = getPieceKey(cell);
-    if (key) keys.add(key);
-  };
-  if (palette === 'fairy') {
-    for (const color of FAIRY_COLORS)
-      for (const type of FAIRY_PIECE_TYPES)
-        keys.add(fairyCode(color, type, rotation));
-  }
+}: PieceImageRequest): BoardCell[] {
+  const cells: BoardCell[] = [];
   if (board) {
-    for (const row of board) for (const cell of row) add(cell);
+    for (const row of board) cells.push(...row);
   } else {
     for (const position of typeof positions === 'string'
       ? [positions]
       : positions) {
       if (!isFairyFEN(position)) continue;
       try {
-        for (const row of parseFEN(position)) for (const cell of row) add(cell);
+        cells.push(...parseFEN(position).flat());
       } catch {
         /* Keep validation and error feedback in the owning editor. */
       }
     }
   }
-  if (selectedPiece) {
-    const key = getPieceKey(selectedPiece);
-    if (key) {
-      // A catalogue selection replaces one slot in each colour's palette.
-      for (const color of FAIRY_COLORS) keys.add(color + key.slice(1));
-    }
+  if (selectedPiece) cells.push(selectedPiece);
+  return cells;
+}
+
+export function requestedPieceMap(
+  request: PieceImageRequest
+): Record<string, string> {
+  const cells = requestedCells(request);
+  const glyphs = standInGlyphs(cells);
+  const map: Record<string, string> = Object.fromEntries(
+    Object.keys(PIECE_MAP).map((key) => [key, ''])
+  );
+  for (const cell of cells) {
+    const key = getPieceKey(cell);
+    if (!key) continue;
+    const source = getPieceKey(standInCell(cell, glyphs));
+    map[key] = source && source !== key ? source : '';
   }
-  return [...keys].sort();
+  return Object.fromEntries(
+    Object.entries(map).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+  );
 }

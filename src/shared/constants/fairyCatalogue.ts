@@ -222,10 +222,6 @@ export const FAIRY_WALKS: readonly FairyWalk[] = [
     glyph: 'R90'
   },
   {
-    code: 'IN',
-    name: 'Direction of the homebase like an Y;'
-  },
-  {
     code: 'DO',
     name: 'Dolphin'
   },
@@ -437,7 +433,7 @@ export const FAIRY_WALKS: readonly FairyWalk[] = [
   },
   {
     code: 'AH',
-    name: 'MAoHopper',
+    name: 'Mao hopper',
     glyph: 'N270'
   },
   {
@@ -475,7 +471,7 @@ export const FAIRY_WALKS: readonly FairyWalk[] = [
   },
   {
     code: 'OH',
-    name: 'MOaHopper',
+    name: 'Moa hopper',
     glyph: 'N90'
   },
   {
@@ -545,7 +541,7 @@ export const FAIRY_WALKS: readonly FairyWalk[] = [
   {
     code: 'O',
     name: 'Orphan',
-    glyph: 'P270'
+    glyph: 'C'
   },
   {
     code: 'PA',
@@ -578,7 +574,7 @@ export const FAIRY_WALKS: readonly FairyWalk[] = [
   },
   {
     code: 'QN',
-    name: 'Quintessence ='
+    name: 'Quintessence'
   },
   {
     code: 'RT',

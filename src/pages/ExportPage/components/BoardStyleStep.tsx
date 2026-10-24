@@ -71,7 +71,7 @@ export default function BoardStyleStep({ homeState }: BoardStyleStepProps) {
             showThinFrame={homeState.showThinFrame}
             flipped={homeState.flipped}
           />
-          <CompositionLegend fen={homeState.fen} />
+          <CompositionLegend fen={homeState.fen} pieceImages={pieceImages} />
         </div>
 
         <div className={styles.displayBeside}>

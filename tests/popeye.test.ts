@@ -12,8 +12,13 @@ import {
   validateFEN,
   normalizePositionFEN
 } from '../src/shared/utils/fenParser.ts';
-import { parsePopeye, serializePopeye } from '../src/shared/utils/popeye.ts';
+import {
+  parsePopeye,
+  popeyeStipulation,
+  serializePopeye
+} from '../src/shared/utils/popeye.ts';
 import { getPieceKey, piecePath } from '../src/shared/utils/pieceUtils.ts';
+import { positionPieceCounts } from '../src/shared/utils/boardCells.ts';
 import {
   compositionCaption,
   compositionCaptionLayout
@@ -39,6 +44,34 @@ Pieces Neutral PAa4
 EndProblem`;
 
 describe('Popeye composition notation', () => {
+  test('the last stipulation takes effect across plain and structured commands', () => {
+    for (const [declarations, expected] of [
+      [
+        'Stipulation #2\nStipulation h#3',
+        { keyword: 'stipulation', value: 'h#3' }
+      ],
+      [
+        'Stipulation #2\nSStipulation h#3',
+        { keyword: 'sstipulation', value: 'h#3' }
+      ],
+      [
+        'SStipulation h#3\nStipulation #2',
+        { keyword: 'stipulation', value: '#2' }
+      ]
+    ] as const) {
+      const source = `BeginProblem\n${declarations}\nCondition Circe\nPieces White Ka1\nEndProblem`;
+      const document = parsePopeye(source);
+      assert.deepEqual(popeyeStipulation(document.commands), expected);
+      assert.deepEqual(
+        popeyeStipulation(
+          parsePopeye(serializePopeye(document.board, document)).commands
+        ),
+        expected
+      );
+    }
+    assert.equal(popeyeStipulation([]), undefined);
+  });
+
   test('uses Popeye N for nightrider and S for orthodox knight', () => {
     const board = parseFEN(SOURCE);
     assert.equal(board[4]?.[4], 'w@G');
@@ -96,6 +129,52 @@ describe('Popeye composition notation', () => {
       'h#2'
     );
   });
+
+  test('round trips geometric diagram marks without inventing Popeye piece walks', () => {
+    const board = parseFEN(SOURCE);
+    board[0]![0] = 'wC';
+    board[0]![1] = 'bX90';
+    board[0]![2] = 'nS180';
+    board[0]![3] = 'nT270';
+    const source = serializePosition(board, positionContext(SOURCE));
+    assert.equal(validateFEN(source), true);
+    assert.deepEqual(parseFEN(source), board);
+    assert.match(
+      source,
+      /Remark ChessViewerSymbols a8=wC b8=bX90 c8=nS180 d8=nT270/
+    );
+    assert.doesNotMatch(source, /Pieces [^\n]*(?:Ca8|Xb8|Sc8|Td8)/);
+    assert.equal(
+      positionContext(source).commands?.some((command) =>
+        /imitator/i.test(command.value)
+      ),
+      false
+    );
+    assert.equal(
+      validateFEN(
+        'BeginProblem\nPieces White Ka1\nRemark ChessViewerSymbols a1=wC\nEndProblem'
+      ),
+      false
+    );
+    assert.equal(
+      validateFEN('BeginProblem\nRemark ChessViewerSymbols a1=wZ\nEndProblem'),
+      false
+    );
+  });
+
+  test('an Orphan uses a circle glyph while retaining its real walk and piece count', () => {
+    const source = 'BeginProblem\nPieces White Oa1\nEndProblem';
+    const board = parseFEN(source);
+    assert.equal(board[7]?.[0], 'w@O');
+    assert.equal(getPieceKey('w@O'), 'wC');
+    assert.deepEqual(positionPieceCounts(board), {
+      white: 1,
+      black: 0,
+      neutral: 0
+    });
+    assert.match(serializePopeye(board), /Pieces White Oa1/);
+    assert.doesNotMatch(serializePopeye(board), /ChessViewerSymbols/);
+  });
   test('rejects malformed and overlapping input instead of silently losing it', () => {
     for (const source of [
       'BeginProblem\nBeginProblem\nEndProblem',
@@ -122,12 +201,13 @@ describe('Popeye composition notation', () => {
     assert.ok(layout.height > 0);
     assert.ok(layout.lines.every((line) => line.length <= 54));
   });
-  test('LaTeX uses real diagram glyphs and labelled field text for unassigned symbols', () => {
+  test('LaTeX draws a walk without a glyph as a free turned piece named in the remark', () => {
     const source = SOURCE.replace('Ge4', 'Ge4 NAf4');
     const pieces = fairyDiagramPieces(source);
     assert.match(pieces, /wDUe4/);
     assert.match(pieces, /sSUe5/);
-    assert.match(pieces, /\\fieldtext\{\{wNA\}f4\}/);
+    assert.match(pieces, /w[KDTLSB][RUL]f4/);
+    assert.doesNotMatch(pieces, /fieldtext/);
     const output = generatePositionLatex({
       positions: [{ fen: source }],
       latexPackage: 'diagram'
@@ -135,9 +215,11 @@ describe('Popeye composition notation', () => {
     assert.match(output, /\\pieces/);
     assert.match(output, /Circe/);
     assert.match(output, /Grasshopper/);
+    assert.match(output, /Nao \(NA\): f4/);
     assert.doesNotMatch(output, /\\fen\[/);
     const svg = generatePositionPreview({ fen: source });
-    assert.match(svg, />NA<\/text>/);
+    assert.doesNotMatch(svg, />NA<\/text>/);
+    assert.equal(svg.match(/rotate\((?:90|180|270) 22\.5 22\.5\)/g)?.length, 4);
   });
   test('studio preserves full compositions through multiline import and persistence', () => {
     const source = SOURCE.replace(
