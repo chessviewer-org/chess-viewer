@@ -1,5 +1,4 @@
 export { default as AboutMainSection } from './AboutSection';
-export { default as ChangelogSection } from './ChangelogSection';
 export { default as ContactSection } from './ContactSection';
 export { default as ContributeSection } from './ContributeSection';
 export { default as DonateSection } from './DonateSection';

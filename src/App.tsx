@@ -10,7 +10,7 @@ import { flushSync } from 'react-dom';
 import { Router } from 'wouter';
 
 import { Navbar } from '@/components/layout/Navbar/Navbar';
-import { navigateWithTransition } from '@/routes/navigation';
+import { navigateWithLoadedPage, useLoadedLocation } from '@/routes/pages';
 import Routes from '@/routes/Router';
 import { FENBatchProvider } from '@/shared/contexts/FENBatchContext';
 import { ModalProvider } from '@/shared/contexts/ModalContext';
@@ -154,7 +154,7 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <Router aroundNav={navigateWithTransition}>
+      <Router hook={useLoadedLocation} aroundNav={navigateWithLoadedPage}>
         <AppShell />
       </Router>
     </ErrorBoundary>

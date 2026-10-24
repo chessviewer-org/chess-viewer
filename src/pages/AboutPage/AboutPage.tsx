@@ -1,6 +1,7 @@
 import { useLocation } from 'wouter';
-import { memo, useCallback, useEffect, useRef } from 'react';
-import { useEscapeKey, useSearchParams } from '@hooks';
+import { Suspense, memo, useCallback, useEffect, useRef } from 'react';
+import { useEscapeKey } from '@/shared/hooks/useKeyboard';
+import { useSearchParams } from '@/shared/hooks/useSearchParams';
 
 import {
   Code2,
@@ -15,15 +16,14 @@ import {
 
 import {
   type PageTabGroup,
-  PageSidebarLayout,
   PageTabs
-} from '@/components/layout';
+} from '@/components/layout/Sidebar/PageTabs';
+import { PageSidebarLayout } from '@/components/layout/Sidebar/PageSidebarLayout';
 import { getRouteSeo, ORGANIZATION_SCHEMA, WEBSITE_SCHEMA } from '@constants';
 
-import { Seo } from '@ui';
+import { Seo } from '@/shared/ui/Seo';
 import {
   AboutMainSection,
-  ChangelogSection,
   ContactSection,
   ContributeSection,
   DonateSection,
@@ -31,6 +31,12 @@ import {
   PrivacySection,
   ThanksSection
 } from './components';
+
+import { pageModule } from '@/routes/pageModule';
+
+const ChangelogSection = pageModule(
+  () => import('./components/ChangelogSection')
+).Component;
 
 // Constants
 const groups: readonly PageTabGroup[] = [
@@ -110,7 +116,17 @@ const AboutPage = memo(function AboutPage() {
         }
       >
         {activeTab === 'about' && <AboutMainSection />}
-        {activeTab === 'changelog' && <ChangelogSection />}
+        {activeTab === 'changelog' && (
+          <Suspense
+            fallback={
+              <p role="status" className="py-8 text-text-secondary">
+                Loading changelog…
+              </p>
+            }
+          >
+            <ChangelogSection />
+          </Suspense>
+        )}
         {activeTab === 'faq' && <FaqSection />}
         {activeTab === 'contact' && <ContactSection />}
         {activeTab === 'privacy' && <PrivacySection />}
