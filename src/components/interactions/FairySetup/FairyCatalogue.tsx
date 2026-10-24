@@ -9,10 +9,12 @@ import type { FairyColor } from '@constants/fairyPieces';
 import type { BoardCell } from '@app-types';
 import { fairyDiscSVG, namedCell } from '@/shared/utils/fairyCells';
 import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
+import { usePagination } from '@/shared/hooks/usePagination';
 import { Pagination } from '@/shared/ui/Pagination/Pagination';
 import { DraggablePiece } from '../Board';
 import { BUTTON, CHIP } from './controls';
 import { SearchField } from './SearchField';
+import styles from './styles/fairy-catalogue.module.scss';
 
 interface FairyCatalogueProps {
   color: FairyColor;
@@ -25,7 +27,7 @@ const byCode = new Intl.Collator('en', { numeric: true }).compare;
 const WALKS = [...FAIRY_WALKS]
   .sort((a, b) => byCode(a.code, b.code))
   .map((walk) => ({ walk, search: `${walk.code} ${walk.name}`.toLowerCase() }));
-const PAGE_ROWS = 3;
+const PAGE_ROWS = 2;
 const COLOR_NAMES: Record<FairyColor, string> = {
   w: 'white',
   b: 'black',
@@ -57,7 +59,6 @@ export const FairyCatalogue = memo(function FairyCatalogue({
   );
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const [page, setPage] = useState(0);
   const gridRef = useRef<HTMLDivElement>(null);
   const [columns, setColumns] = useState(8);
   useLayoutEffect(() => {
@@ -81,9 +82,11 @@ export const FairyCatalogue = memo(function FairyCatalogue({
     const term = query.trim().toLowerCase();
     return WALKS.filter(({ search }) => search.includes(term));
   }, [query]);
-  const pageCount = Math.ceil(matches.length / pageSize);
-  const currentPage = Math.min(page, Math.max(0, pageCount - 1));
-  const start = currentPage * pageSize;
+  const { page, pageCount, goTo, next, prev, swipeHandlers } = usePagination(
+    matches.length,
+    pageSize
+  );
+  const start = Math.min(page, pageCount - 1) * pageSize;
   const visibleWalks = useMemo(
     () => matches.slice(start, start + pageSize),
     [matches, start, pageSize]
@@ -114,7 +117,7 @@ export const FairyCatalogue = memo(function FairyCatalogue({
     );
   const searchPieces = (value: string) => {
     setQuery(value);
-    setPage(0);
+    goTo(0);
   };
 
   const renderEntry = ({
@@ -131,7 +134,7 @@ export const FairyCatalogue = memo(function FairyCatalogue({
         title={`${prefix}${walk.name} (${walk.code})`}
         aria-label={`Place ${COLOR_NAMES[color]} ${prefix}${walk.name} (${walk.code})`}
         aria-pressed={selectedPiece === piece}
-        className="relative grid aspect-square min-w-0 cursor-pointer place-items-center rounded-md border border-border/50 bg-surface-elevated p-[6%] transition-colors hover:border-border hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent aria-pressed:border-text-primary aria-pressed:bg-surface-hover"
+        className={styles.tile}
         onClick={(event) => {
           event.stopPropagation();
           onSelect(piece);
@@ -145,10 +148,7 @@ export const FairyCatalogue = memo(function FairyCatalogue({
         }}
       >
         {attributes.length > 0 && (
-          <span
-            className="absolute top-1 right-1 size-1.5 rounded-full bg-accent"
-            aria-hidden="true"
-          />
+          <span className={styles.badge} aria-hidden="true" />
         )}
         <DraggablePiece
           piece={piece}
@@ -236,7 +236,14 @@ export const FairyCatalogue = memo(function FairyCatalogue({
           ref={gridRef}
           role="group"
           aria-label="Named fairy pieces"
-          className="grid grid-cols-8 gap-1 @md:grid-cols-11 @[36rem]:grid-cols-15"
+          onKeyDown={(event) => {
+            if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+            event.preventDefault();
+            if (event.key === 'ArrowRight') next();
+            else prev();
+          }}
+          {...swipeHandlers}
+          className={styles.grid}
         >
           {entries.map(renderEntry)}
         </div>
@@ -248,20 +255,13 @@ export const FairyCatalogue = memo(function FairyCatalogue({
             </p>
           </div>
         )}
-        <footer className="mt-3 flex flex-col items-center gap-2">
-          <p role="status" className="text-xs tabular-nums text-text-muted">
-            {matches.length
-              ? `${start + 1}–${Math.min(start + pageSize, matches.length)} of ${matches.length} pieces`
-              : '0 pieces'}
-          </p>
-          <Pagination
-            page={currentPage}
-            pageCount={pageCount}
-            onChange={setPage}
-            label="Named pieces pages"
-            appearance="numbers"
-          />
-        </footer>
+        <Pagination
+          page={page}
+          pageCount={pageCount}
+          onChange={goTo}
+          label="Named pieces pages"
+          className="mt-3"
+        />
       </div>
     </section>
   );

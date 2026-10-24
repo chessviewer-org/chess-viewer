@@ -10,6 +10,7 @@ export interface PaginationState {
   prev: () => void;
   swipeHandlers: {
     onTouchStart: (e: React.TouchEvent) => void;
+    onTouchMove: (e: React.TouchEvent) => void;
     onTouchEnd: (e: React.TouchEvent) => void;
   };
 }
@@ -40,20 +41,28 @@ export function usePagination(
     setPage((p) => (p - 1 + pageCount) % pageCount);
   }, [pageCount]);
 
-  const touchStartX = useRef<number | null>(null);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
 
   const onTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0]?.clientX ?? null;
+    const touch = e.touches[0];
+    touchStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null;
+  }, []);
+
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    if (e.defaultPrevented) touchStart.current = null;
   }, []);
 
   const onTouchEnd = useCallback(
     (e: React.TouchEvent) => {
-      if (touchStartX.current === null) return;
-      const endX = e.changedTouches[0]?.clientX ?? touchStartX.current;
-      const delta = endX - touchStartX.current;
-      touchStartX.current = null;
-      if (Math.abs(delta) < SWIPE_THRESHOLD) return;
-      if (delta < 0) next();
+      const start = touchStart.current;
+      touchStart.current = null;
+      const touch = e.changedTouches[0];
+      if (!start || !touch) return;
+      const deltaX = touch.clientX - start.x;
+      const deltaY = touch.clientY - start.y;
+      if (Math.abs(deltaX) < SWIPE_THRESHOLD) return;
+      if (Math.abs(deltaY) > Math.abs(deltaX)) return;
+      if (deltaX < 0) next();
       else prev();
     },
     [next, prev]
@@ -65,6 +74,6 @@ export function usePagination(
     goTo,
     next,
     prev,
-    swipeHandlers: { onTouchStart, onTouchEnd }
+    swipeHandlers: { onTouchStart, onTouchMove, onTouchEnd }
   };
 }
