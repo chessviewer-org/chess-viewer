@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
-import { dirname, extname, join } from 'node:path';
+import { dirname, extname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
 
@@ -11,24 +11,20 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const DIST = join(__dirname, '..', 'dist');
 const PORT = 4178;
 
+function staticAsset(urlPath) {
+  const filePath = resolve(DIST, `.${urlPath}`);
+  if (!filePath.startsWith(DIST + sep)) return null;
+  const ext = extname(filePath);
+  return ext && ext !== '.html' && existsSync(filePath) ? filePath : null;
+}
+
 function startServer(template) {
   const server = createServer(async (req, res) => {
     try {
       const urlPath = decodeURIComponent((req.url ?? '/').split('?')[0]);
-      let filePath = join(DIST, urlPath);
-      if (urlPath.endsWith('/')) filePath = join(filePath, 'index.html');
-      if (
-        !existsSync(filePath) ||
-        extname(filePath) === '' ||
-        extname(filePath) === '.html'
-      ) {
-        filePath = join(DIST, 'index.html');
-      }
-      const body =
-        filePath === join(DIST, 'index.html')
-          ? template
-          : await readFile(filePath);
-      const mime = extname(filePath);
+      const filePath = staticAsset(urlPath);
+      const body = filePath ? await readFile(filePath) : template;
+      const mime = filePath ? extname(filePath) : '.html';
       res.writeHead(200, {
         'Content-Type':
           mime === '.html'
