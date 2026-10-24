@@ -1,69 +1,32 @@
 import { useLocation } from 'wouter';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 
-import { useAuth } from '@/auth';
-import { useOutsideClick } from '@hooks';
-
-// Constants
-const AUTH_ROUTE: Record<'signin' | 'signup' | 'security', string> = {
-  signin: '/auth/sign-in',
-  signup: '/auth/sign-up',
-  security: '/settings?tab=security'
-};
+import { useAuth } from '@/auth/core/useAuth';
 
 export function useNavbarState() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isDesktopDropdownOpen, setIsDesktopDropdownOpen] = useState(false);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
+  const { isAuthenticated, signOut } = useAuth();
+  const accountRef = useRef<HTMLDivElement>(null);
+  const [location, navigate] = useLocation();
 
-  const { session, isAuthenticated, signOut } = useAuth();
-
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const [, navigate] = useLocation();
-
-  useOutsideClick(
-    dropdownRef,
-    () => setIsDesktopDropdownOpen(false),
-    isDesktopDropdownOpen
-  );
+  useLayoutEffect(() => setIsAccountOpen(false), [location]);
 
   const handleLogoClick = useCallback(() => {
+    setIsAccountOpen(false);
     navigate('/');
-    setIsMobileMenuOpen(false);
   }, [navigate]);
 
-  const toggleMobileMenu = useCallback(() => {
-    setIsMobileMenuOpen((prev) => !prev);
-    setIsDesktopDropdownOpen(false);
-  }, []);
-
-  const openAuthModal = useCallback(
-    (tab: 'signin' | 'signup' | 'security') => {
-      setIsDesktopDropdownOpen(false);
-      setIsMobileMenuOpen(false);
-      navigate(AUTH_ROUTE[tab]);
-    },
-    [navigate]
-  );
-
   const handleSignOut = useCallback(async () => {
+    setIsAccountOpen(false);
     await signOut();
-    setIsDesktopDropdownOpen(false);
-    setIsMobileMenuOpen(false);
   }, [signOut]);
 
   return {
-    isMobileMenuOpen,
-    setIsMobileMenuOpen,
-    session,
+    isAccountOpen,
+    setIsAccountOpen,
     isAuthenticated,
-    signOut,
-    isDesktopDropdownOpen,
-    setIsDesktopDropdownOpen,
-    dropdownRef,
+    accountRef,
     handleLogoClick,
-    toggleMobileMenu,
-    openAuthModal,
     handleSignOut
   };
 }
