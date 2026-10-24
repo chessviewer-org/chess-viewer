@@ -145,14 +145,9 @@ export const FairyCatalogue = memo(function FairyCatalogue({
   return (
     <section aria-label="Named pieces">
       <header className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <div className="flex min-w-0 items-baseline gap-2">
-          <h3 className="text-xs font-semibold tracking-[0.075em] text-text-secondary uppercase">
-            Named pieces
-          </h3>
-          <span className="rounded-full bg-bg/60 px-2 font-mono text-[0.6875rem] text-text-secondary">
-            {entries.length}
-          </span>
-        </div>
+        <span className="text-xs text-text-muted">
+          {entries.length} {term ? 'matching' : 'pieces'}
+        </span>
         <Segmented
           label="Named piece colour"
           value={color}

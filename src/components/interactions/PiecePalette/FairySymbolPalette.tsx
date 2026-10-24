@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useId, useState } from 'react';
 import { ArrowLeft } from '@/assets/icons';
 import {
   FAIRY_ROTATIONS,
@@ -29,6 +29,11 @@ const COLORS: readonly { color: FairyColor; label: string }[] = [
   { color: 'b', label: 'Black' },
   { color: 'n', label: 'Neutral' }
 ];
+const TABS = [
+  { id: 'symbols', label: 'Symbols' },
+  { id: 'named', label: 'Named pieces' }
+] as const;
+type PaletteTab = (typeof TABS)[number]['id'];
 const ROTATION_OPTIONS = FAIRY_ROTATIONS.map((value) => ({
   value: String(value) as `${FairyRotation}`,
   label: `${value}°`,
@@ -63,6 +68,8 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
   onSelect,
   onKeyboardPick
 }: FairySymbolPaletteProps) {
+  const id = useId();
+  const [tab, setTab] = useState<PaletteTab>('symbols');
   const [rotation, setRotation] = useState<FairyRotation>(0);
   const [markerColor, setMarkerColor] = useState<FairyColor>('w');
   const groups: PaletteGroup[] = [
@@ -127,32 +134,69 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
   return (
     <div className="min-w-0" onClick={(event) => event.stopPropagation()}>
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <span className="text-xs font-semibold tracking-[0.075em] text-text-secondary uppercase">
-          Symbols
-        </span>
-        <Segmented
-          label="Rotation, clockwise"
-          value={String(rotation) as `${FairyRotation}`}
-          options={ROTATION_OPTIONS}
-          onChange={(value) =>
-            restyle(markerColor, Number(value) as FairyRotation)
-          }
-          className="font-mono"
-        />
+        <div role="tablist" aria-label="Fairy pieces" className="flex gap-4">
+          {TABS.map((item, index) => (
+            <button
+              key={item.id}
+              type="button"
+              role="tab"
+              id={`${id}-${item.id}-tab`}
+              aria-controls={`${id}-${item.id}-panel`}
+              aria-selected={tab === item.id}
+              tabIndex={tab === item.id ? 0 : -1}
+              className="flex h-8 cursor-pointer items-center gap-1.5 border-b-2 border-transparent text-xs font-semibold tracking-[0.075em] text-text-secondary uppercase hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent aria-selected:border-accent aria-selected:text-text-primary"
+              onClick={() => setTab(item.id)}
+              onKeyDown={(event) => {
+                if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft')
+                  return;
+                event.preventDefault();
+                const next = TABS[(index + 1) % TABS.length];
+                if (!next) return;
+                setTab(next.id);
+                document.getElementById(`${id}-${next.id}-tab`)?.focus();
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+        {tab === 'symbols' && (
+          <Segmented
+            label="Rotation, clockwise"
+            value={String(rotation) as `${FairyRotation}`}
+            options={ROTATION_OPTIONS}
+            onChange={(value) =>
+              restyle(markerColor, Number(value) as FairyRotation)
+            }
+            className="font-mono"
+          />
+        )}
       </div>
-      <PiecePalette
-        pieceImages={pieceImages}
-        groups={groups}
-        selectedPiece={selectedPiece}
-        onSelect={onSelect}
-        onKeyboardPick={onKeyboardPick}
-      />
-      {error && (
-        <p role="alert" className="mt-2 text-xs text-error">
-          {error}. Reload to try again.
-        </p>
-      )}
-      <div className="mt-3 border-t border-border/50 pt-3">
+      <div
+        role="tabpanel"
+        id={`${id}-symbols-panel`}
+        aria-labelledby={`${id}-symbols-tab`}
+        hidden={tab !== 'symbols'}
+      >
+        <PiecePalette
+          pieceImages={pieceImages}
+          groups={groups}
+          selectedPiece={selectedPiece}
+          onSelect={onSelect}
+          onKeyboardPick={onKeyboardPick}
+        />
+        {error && (
+          <p role="alert" className="mt-2 text-xs text-error">
+            {error}. Reload to try again.
+          </p>
+        )}
+      </div>
+      <div
+        role="tabpanel"
+        id={`${id}-named-panel`}
+        aria-labelledby={`${id}-named-tab`}
+        hidden={tab !== 'named'}
+      >
         <FairyCatalogue
           pieceStyle={pieceStyle}
           selectedPiece={selectedPiece}
