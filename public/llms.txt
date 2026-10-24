@@ -1,0 +1,19 @@
+# ChessViewer
+
+> Free, open-source chess diagram generator at chessvision.org. Paste a FEN position or set up the board, then export a print-ready PNG, JPEG or SVG diagram. Works in the browser with no sign-up.
+
+To open a position directly, pass a URL-encoded FEN in the `fen` query parameter, for example `https://chessvision.org/?fen=8%2F8%2F8%2F4k3%2F8%2F8%2F8%2F4K3%20w%20-%20-%200%201`, or in the `position` fragment (`#position=...`). Fairy chess positions open in the fairy chess editor.
+
+## Tools
+
+- [Chess diagram generator](https://chessvision.org/): Convert a FEN position to a PNG, JPEG or SVG chess diagram.
+- [Fairy chess editor](https://chessvision.org/fairy-chess): Create 8×8 fairy chess diagrams with neutral pieces, rotated symbols, Popeye pieces and conditions.
+- [Batch export](https://chessvision.org/advanced-fen): Convert many FEN positions at once and download them as a ZIP archive.
+- [LaTeX studio](https://chessvision.org/latex): Generate LaTeX for chess diagrams and problem collections with the skak, chessboard or chess-problem-diagrams packages.
+- [Export settings](https://chessvision.org/export): Choose DPI, board size, background and file format for the exported diagram.
+- [FEN history](https://chessvision.org/fen-history): Browse, search and re-export saved positions.
+
+## About
+
+- [About ChessViewer](https://chessvision.org/about): Project background, privacy approach and support.
+- [Source code](https://github.com/chessviewer-org/chess-viewer): The open-source repository.

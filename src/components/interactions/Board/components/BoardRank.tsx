@@ -33,7 +33,7 @@ export const BoardRank = memo(function BoardRank({
   onSelect
 }: BoardRankProps) {
   return (
-    <>
+    <div role="row" className="contents">
       {BOARD_INDICES.map((displayCol) => {
         const col = flipped ? 7 - displayCol : displayCol;
         const piece = rank[col] || '';
@@ -55,7 +55,7 @@ export const BoardRank = memo(function BoardRank({
           />
         );
       })}
-    </>
+    </div>
   );
 });
 

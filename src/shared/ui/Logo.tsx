@@ -7,7 +7,7 @@ interface LogoProps {
 }
 
 const LogoComponent = ({ className }: LogoProps) => {
-  return <img src={logoSrc} alt="ChessViewer" className={className} />;
+  return <img src={logoSrc} alt="" className={className} />;
 };
 
 export const Logo = memo(LogoComponent);

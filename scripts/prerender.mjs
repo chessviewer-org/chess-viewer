@@ -18,6 +18,26 @@ function staticAsset(urlPath) {
   return ext && ext !== '.html' && existsSync(filePath) ? filePath : null;
 }
 
+const STYLESHEET_LINK =
+  /<link rel="stylesheet" crossorigin="" href="([^"]+\.css)">/g;
+
+async function inlineStylesheets(html) {
+  const sheets = await Promise.all(
+    [...html.matchAll(STYLESHEET_LINK)].map(async ([link, href]) => {
+      const filePath = staticAsset(href);
+      if (!filePath) throw new Error(`Stylesheet ${href} is not in dist.`);
+      const css = await readFile(filePath, 'utf8');
+      if (/<\/style/i.test(css))
+        throw new Error(`Stylesheet ${href} cannot be inlined.`);
+      return [link, `<style>${css}</style>${link.slice(0, -1)} disabled="">`];
+    })
+  );
+  return sheets.reduce(
+    (out, [link, inlined]) => out.replace(link, () => inlined),
+    html
+  );
+}
+
 function startServer(template) {
   const server = createServer(async (req, res) => {
     try {
@@ -139,6 +159,8 @@ async function prerender() {
         (_match, attrs) =>
           `<html${attrs.replace(/\s*data-prerendered-route="[^"]*"/g, '')} data-prerendered-route="${route}">`
       );
+
+      html = await inlineStylesheets(html);
 
       let seenTitle = false;
       html = html.replace(/<title>[\s\S]*?<\/title>/g, (match) =>

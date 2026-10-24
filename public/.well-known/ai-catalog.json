@@ -1,0 +1,9 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "ChessViewer",
+    "documentationUrl": "https://chessvision.org/llms.txt",
+    "logoUrl": "https://chessvision.org/logo512.png"
+  },
+  "entries": []
+}

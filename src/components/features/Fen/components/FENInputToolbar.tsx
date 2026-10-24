@@ -73,7 +73,9 @@ export const FENInputToolbar = memo(function FENInputToolbar({
               : styles['toolbarBtnNeutral']
           }`}
           title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          aria-label={
+            isFavorite ? 'Saved, remove from favorites' : 'Save to favorites'
+          }
           type="button"
         >
           <Star
@@ -97,7 +99,7 @@ export const FENInputToolbar = memo(function FENInputToolbar({
           onClick={onStartPosition}
           className={`${styles['toolbarBtnBase']} ${styles['toolbarBtnNeutral']}`}
           title="Load the starting position"
-          aria-label="Load starting position"
+          aria-label="Reset to starting position"
           type="button"
         >
           <RotateCcw
