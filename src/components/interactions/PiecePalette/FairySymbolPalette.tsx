@@ -29,6 +29,10 @@ const COLORS: readonly { color: FairyColor; label: string }[] = [
   { color: 'b', label: 'Black' },
   { color: 'n', label: 'Neutral' }
 ];
+const COLOR_OPTIONS = COLORS.map(({ color, label }) => ({
+  value: color,
+  label
+}));
 const TABS = [
   { id: 'symbols', label: 'Symbols' },
   { id: 'named', label: 'Named pieces' }
@@ -72,6 +76,7 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
   const [tab, setTab] = useState<PaletteTab>('symbols');
   const [rotation, setRotation] = useState<FairyRotation>(0);
   const [markerColor, setMarkerColor] = useState<FairyColor>('w');
+  const [namedColor, setNamedColor] = useState<FairyColor>('w');
   const groups: PaletteGroup[] = [
     ...pieceGroups(rotation),
     {
@@ -160,7 +165,7 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
             </button>
           ))}
         </div>
-        {tab === 'symbols' && (
+        {tab === 'symbols' ? (
           <Segmented
             label="Rotation, clockwise"
             value={String(rotation) as `${FairyRotation}`}
@@ -168,7 +173,15 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
             onChange={(value) =>
               restyle(markerColor, Number(value) as FairyRotation)
             }
-            className="font-mono"
+            className="ml-auto font-mono"
+          />
+        ) : (
+          <Segmented
+            label="Named piece colour"
+            value={namedColor}
+            options={COLOR_OPTIONS}
+            onChange={setNamedColor}
+            className="ml-auto"
           />
         )}
       </div>
@@ -199,6 +212,7 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
       >
         <FairyCatalogue
           pieceStyle={pieceStyle}
+          color={namedColor}
           selectedPiece={selectedPiece}
           onSelect={onSelect}
           onKeyboardPick={onKeyboardPick}

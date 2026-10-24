@@ -12,10 +12,10 @@ import { namedCell } from '@/shared/utils/fairyCells';
 import { usePieceImages } from '@/shared/hooks/usePieceImages';
 import { DraggablePiece } from '../Board';
 import { BUTTON, CHIP } from './controls';
-import { Segmented } from './Segmented';
 
 interface FairyCatalogueProps {
   pieceStyle: string;
+  color: FairyColor;
   selectedPiece: BoardCell | null;
   onSelect: (piece: BoardCell) => void;
   onKeyboardPick: (piece: BoardCell) => void;
@@ -25,11 +25,6 @@ const byCode = new Intl.Collator('en', { numeric: true }).compare;
 const WALKS = FAIRY_WALKS.filter((walk) => !walk.glyph).sort((a, b) =>
   byCode(a.code, b.code)
 );
-const COLORS = [
-  { value: 'w', label: 'White' },
-  { value: 'b', label: 'Black' },
-  { value: 'n', label: 'Neutral' }
-] as const;
 const COLOR_NAMES: Record<FairyColor, string> = {
   w: 'white',
   b: 'black',
@@ -38,11 +33,11 @@ const COLOR_NAMES: Record<FairyColor, string> = {
 
 export const FairyCatalogue = memo(function FairyCatalogue({
   pieceStyle,
+  color,
   selectedPiece,
   onSelect,
   onKeyboardPick
 }: FairyCatalogueProps) {
-  const [color, setColor] = useState<FairyColor>('w');
   const [attributes, setAttributes] = useState<string[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -115,13 +110,7 @@ export const FairyCatalogue = memo(function FairyCatalogue({
 
   return (
     <section aria-label="Named pieces" className="@container">
-      <header className="flex flex-wrap items-center justify-between gap-2">
-        <Segmented
-          label="Named piece colour"
-          value={color}
-          options={COLORS}
-          onChange={setColor}
-        />
+      <header className="flex flex-wrap items-center gap-1.5">
         <button
           type="button"
           aria-expanded={menuOpen}
@@ -137,6 +126,28 @@ export const FairyCatalogue = memo(function FairyCatalogue({
             </span>
           )}
         </button>
+        {!menuOpen &&
+          attributes.map((attribute) => (
+            <button
+              key={attribute}
+              type="button"
+              aria-label={`Remove ${attribute}`}
+              className={`${CHIP} h-7 border-accent/60 bg-accent/10 px-2.5 text-accent`}
+              onClick={() => toggleAttribute(attribute)}
+            >
+              {attribute}
+              <X className="size-3" aria-hidden="true" />
+            </button>
+          ))}
+        {!menuOpen && attributes.length > 0 && (
+          <button
+            type="button"
+            className="h-7 cursor-pointer rounded px-1.5 text-xs text-text-muted hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            onClick={() => setAttributes([])}
+          >
+            Clear
+          </button>
+        )}
       </header>
 
       {menuOpen && (
@@ -156,30 +167,6 @@ export const FairyCatalogue = memo(function FairyCatalogue({
               {attribute}
             </button>
           ))}
-        </div>
-      )}
-
-      {attributes.length > 0 && !menuOpen && (
-        <div className="mt-2 flex flex-wrap items-center gap-1.5">
-          {attributes.map((attribute) => (
-            <button
-              key={attribute}
-              type="button"
-              aria-label={`Remove ${attribute}`}
-              className={`${CHIP} h-7 border-accent/60 bg-accent/10 px-2.5 text-accent`}
-              onClick={() => toggleAttribute(attribute)}
-            >
-              {attribute}
-              <X className="size-3" aria-hidden="true" />
-            </button>
-          ))}
-          <button
-            type="button"
-            className="h-7 cursor-pointer rounded px-1.5 text-xs text-text-muted hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            onClick={() => setAttributes([])}
-          >
-            Clear
-          </button>
         </div>
       )}
 
