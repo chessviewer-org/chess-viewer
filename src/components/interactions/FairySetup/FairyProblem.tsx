@@ -8,7 +8,11 @@ import {
   validateFEN,
   validateFENDetailed
 } from '@/shared/utils/fenParser';
-import { MAX_COMPOSITION_LENGTH, serializePopeye } from '@/shared/utils/popeye';
+import {
+  MAX_COMPOSITION_LENGTH,
+  popeyeStipulation,
+  serializePopeye
+} from '@/shared/utils/popeye';
 import { saveBlob } from '@/shared/utils/saveBlob';
 import { AREA, BUTTON, CHIP, CONTROL, LABEL, PRIMARY } from './controls';
 import { SearchField } from './SearchField';
@@ -65,12 +69,10 @@ function readProblem(commandsKey: string | null): ProblemFields {
     keyword: string;
     value: string;
   }>;
+  const stipulation = popeyeStipulation(commands);
   return {
-    stipulation:
-      commands.find((command) =>
-        ['stipulation', 'sstipulation'].includes(command.keyword)
-      )?.value ?? '',
-    structured: commands.some((command) => command.keyword === 'sstipulation'),
+    stipulation: stipulation?.value ?? '',
+    structured: stipulation?.keyword === 'sstipulation',
     conditions: commands
       .filter((command) => command.keyword === 'condition')
       .map((command) => command.value)

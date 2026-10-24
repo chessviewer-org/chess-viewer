@@ -29,6 +29,16 @@ const KEYWORDS =
 export const MAX_COMPOSITION_LENGTH = 32768;
 export const DEFAULT_FEN_METADATA = 'w - - 0 1';
 
+export function popeyeStipulation(commands: PopeyeDocument['commands']) {
+  // Popeye uses the last stipulation, including switches to/from SStipulation.
+  for (let index = commands.length - 1; index >= 0; index--) {
+    const command = commands[index]!;
+    if (command.keyword === 'stipulation' || command.keyword === 'sstipulation')
+      return command;
+  }
+  return undefined;
+}
+
 export function isPopeye(source: string): boolean {
   return /^\s*beginproblem\b/i.test(source);
 }

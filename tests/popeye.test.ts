@@ -12,7 +12,11 @@ import {
   validateFEN,
   normalizePositionFEN
 } from '../src/shared/utils/fenParser.ts';
-import { parsePopeye, serializePopeye } from '../src/shared/utils/popeye.ts';
+import {
+  parsePopeye,
+  popeyeStipulation,
+  serializePopeye
+} from '../src/shared/utils/popeye.ts';
 import { getPieceKey, piecePath } from '../src/shared/utils/pieceUtils.ts';
 import { positionPieceCounts } from '../src/shared/utils/boardCells.ts';
 import {
@@ -40,6 +44,34 @@ Pieces Neutral PAa4
 EndProblem`;
 
 describe('Popeye composition notation', () => {
+  test('the last stipulation takes effect across plain and structured commands', () => {
+    for (const [declarations, expected] of [
+      [
+        'Stipulation #2\nStipulation h#3',
+        { keyword: 'stipulation', value: 'h#3' }
+      ],
+      [
+        'Stipulation #2\nSStipulation h#3',
+        { keyword: 'sstipulation', value: 'h#3' }
+      ],
+      [
+        'SStipulation h#3\nStipulation #2',
+        { keyword: 'stipulation', value: '#2' }
+      ]
+    ] as const) {
+      const source = `BeginProblem\n${declarations}\nCondition Circe\nPieces White Ka1\nEndProblem`;
+      const document = parsePopeye(source);
+      assert.deepEqual(popeyeStipulation(document.commands), expected);
+      assert.deepEqual(
+        popeyeStipulation(
+          parsePopeye(serializePopeye(document.board, document)).commands
+        ),
+        expected
+      );
+    }
+    assert.equal(popeyeStipulation([]), undefined);
+  });
+
   test('uses Popeye N for nightrider and S for orthodox knight', () => {
     const board = parseFEN(SOURCE);
     assert.equal(board[4]?.[4], 'w@G');
