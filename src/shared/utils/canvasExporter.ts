@@ -1,10 +1,8 @@
-import { createUltraQualityCanvas } from './canvasRenderer';
 import { changeDPI, type SquarePattern } from '@chessviewer-org/chess-viewer';
 import { createRasterBlob } from './exportRaster';
 import {
   cancelExport,
   checkCancellation,
-  exportState,
   getExportInfo,
   pauseExport,
   resetExportState,
@@ -123,29 +121,9 @@ export function downloadJPEG(
 
 export async function copyToClipboard(config: ExportConfig): Promise<boolean> {
   resetExportState();
-  let canvas: HTMLCanvasElement | null = null;
   try {
     validateExportConfig(config);
-    canvas = await createUltraQualityCanvas(config);
-    if (!canvas) throw new Error('Canvas creation returned null');
-    checkCancellation();
-
-    const blob = await new Promise<Blob>((resolve, reject) => {
-      if (!canvas) return reject(new Error('Canvas is null'));
-      canvas.toBlob(
-        (b) => {
-          if (exportState.cancelled) {
-            reject(new Error('Export cancelled'));
-            return;
-          }
-          if (!b) reject(new Error('Failed to create blob for clipboard'));
-          else resolve(b);
-        },
-        'image/png',
-        1.0
-      );
-    });
-
+    const blob = await createRasterBlob(config, 'png');
     checkCancellation();
     await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
     return true;
@@ -158,10 +136,6 @@ export async function copyToClipboard(config: ExportConfig): Promise<boolean> {
       { cause: error instanceof Error ? error : undefined }
     );
   } finally {
-    if (canvas) {
-      canvas.width = 0;
-      canvas.height = 0;
-    }
     resetExportState();
   }
 }
