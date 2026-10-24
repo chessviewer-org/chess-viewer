@@ -50,7 +50,7 @@ export function AuthPage({ children }: AuthPageProps) {
           />
         }
       >
-        <div className="flex w-full h-full items-center justify-center p-4">
+        <div className="flex w-full h-full items-center justify-center md:p-4">
           <div className="w-full max-w-sm">{children}</div>
         </div>
       </PageSidebarLayout>
