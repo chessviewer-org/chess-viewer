@@ -5,16 +5,23 @@ import {
 } from '@chessviewer-org/chess-viewer';
 
 import type { BoardCell, ChessBoard, PieceSymbol } from '@app-types';
+import {
+  fairyCode,
+  type FairyColor,
+  type FairyPieceType,
+  type FairyRotation
+} from '@constants/fairyPieces';
 
 import { parseNamedCell } from './fairyCells';
+import { isCompositionSymbol, isTurnSymmetric } from './compositionSymbols';
 
 export type { BoardCell } from '@app-types';
 
-const CELL_CODE = /^([wbn])([KQRBNP])(90|180|270)?$/;
+const CELL_CODE = /^([wbn])([KQRBNPCXST])(90|180|270)?$/;
 
 export interface CellCode {
   color: 'w' | 'b' | 'n';
-  type: 'K' | 'Q' | 'R' | 'B' | 'N' | 'P';
+  type: FairyPieceType;
   rotation: 0 | 90 | 180 | 270;
 }
 
@@ -30,7 +37,11 @@ const TYPE_WORDS: Record<CellCode['type'], string> = {
   R: 'rook',
   B: 'bishop',
   N: 'knight',
-  P: 'pawn'
+  P: 'pawn',
+  C: 'circle',
+  X: 'cross',
+  S: 'square',
+  T: 'triangle'
 };
 
 export function parseCellCode(cell: BoardCell): CellCode | null {
@@ -55,15 +66,33 @@ export function parseCellCode(cell: BoardCell): CellCode | null {
 export function isFairyCell(cell: BoardCell): boolean {
   if (parseNamedCell(cell)) return true;
   const code = parseCellCode(cell);
-  return !!code && (code.color === 'n' || code.rotation !== 0);
+  return (
+    !!code &&
+    (isCompositionSymbol(code.type) ||
+      code.color === 'n' ||
+      code.rotation !== 0)
+  );
 }
 
 export function cellToFenPiece(cell: BoardCell): PieceSymbol {
   const code = parseCellCode(cell);
   if (!code) return cell as PieceSymbol;
-  return code.color === 'b'
-    ? (code.type.toLowerCase() as PieceSymbol)
+  const type = isCompositionSymbol(code.type)
+    ? parseNamedCell(cell)
+      ? 'P'
+      : ''
     : code.type;
+  if (!type) return '';
+  return code.color === 'b' ? (type.toLowerCase() as PieceSymbol) : type;
+}
+
+export function symbolCell(
+  color: FairyColor,
+  type: FairyPieceType,
+  rotation: FairyRotation
+): BoardCell {
+  const code = fairyCode(color, type, isTurnSymmetric(type) ? 0 : rotation);
+  return isFairyCell(code) ? code : cellToFenPiece(code);
 }
 
 export function baseCells(board: ChessBoard): PieceSymbol[][] {
@@ -142,6 +171,8 @@ export function positionPieceCounts(fenBoard: ChessBoard): {
   for (const cell of fenBoard.flat()) {
     if (!cell) continue;
     const code = parseCellCode(cell);
+    if (code && isCompositionSymbol(code.type) && !parseNamedCell(cell))
+      continue;
     const color = code?.color ?? (cell === cell.toUpperCase() ? 'w' : 'b');
     counts[color === 'w' ? 'white' : color === 'b' ? 'black' : 'neutral']++;
   }

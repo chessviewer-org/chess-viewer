@@ -1,19 +1,15 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { requestedPieceKeys } from '../src/shared/utils/pieceRequest';
+import { requestedPieceMap } from '../src/shared/utils/pieceRequest';
 import { parseFEN } from '../src/shared/utils/fenParser';
 
-test('standard and fairy load only currently visible palette artwork', () => {
-  assert.equal(requestedPieceKeys({}).length, 12);
-  const fairy = requestedPieceKeys({ palette: 'fairy' });
-  assert.equal(fairy.length, 18);
-  assert.ok(fairy.includes('nQ'));
-  assert.ok(!fairy.some((key) => /90|180|270/.test(key)));
-  const turned = requestedPieceKeys({ palette: 'fairy', rotation: 90 });
-  assert.equal(turned.length, 30);
-  assert.ok(turned.includes('nQ90'));
-  assert.ok(turned.includes('wK'));
-  assert.ok(!turned.some((key) => /180|270/.test(key)));
+const requestedPieceKeys = (request: Parameters<typeof requestedPieceMap>[0]) =>
+  Object.keys(requestedPieceMap(request));
+
+test('an empty request loads only the standard palette artwork', () => {
+  const keys = requestedPieceKeys({});
+  assert.equal(keys.length, 12);
+  assert.ok(!keys.some((key) => /^n|90|180|270/.test(key)));
 });
 
 test('imported positions retain each used rotation and neutral symbol', () => {
@@ -27,6 +23,16 @@ test('imported positions retain each used rotation and neutral symbol', () => {
     assert.ok(keys.includes(key), key);
 });
 
+test('diagram markers load only their used artwork outside the visible palette', () => {
+  const keys = requestedPieceKeys({
+    positions: 'C7/1x6/2-*2S5/3*3t4/8/8/8/8 w - - 0 1'
+  });
+  assert.equal(keys.length, 16);
+  for (const key of ['wC', 'bX', 'nS', 'bT270'])
+    assert.ok(keys.includes(key), key);
+  assert.ok(!keys.includes('wC90'));
+});
+
 test('actual board stays authoritative while input is incomplete', () => {
   const board = parseFEN('-*3Q7/8/8/8/8/8/8/8 w - - 0 1');
   const keys = requestedPieceKeys({ board, positions: '-*' });
@@ -35,12 +41,13 @@ test('actual board stays authoritative while input is incomplete', () => {
   assert.equal(requestedPieceKeys({ positions: '-*' }).length, 12);
 });
 
-test('catalogue selection loads all three colours without loading the catalogue', () => {
+test('the held piece loads without loading the rest of the catalogue', () => {
   const board = Array.from({ length: 8 }, () => Array<string>(8).fill(''));
   board[0]![0] = 'n@WR';
   const keys = requestedPieceKeys({ board, selectedPiece: 'w@WR' });
-  assert.equal(keys.length, 15);
-  for (const color of ['w', 'b', 'n']) assert.ok(keys.includes(`${color}@WR`));
+  assert.equal(keys.length, 14);
+  for (const key of ['w@WR', 'n@WR']) assert.ok(keys.includes(key), key);
+  assert.ok(!keys.includes('b@WR'));
 });
 
 test('artwork identity ignores cell attributes and is independent of square order', () => {
@@ -52,4 +59,45 @@ test('artwork identity ignores cell attributes and is independent of square orde
   assert.deepEqual(requestedPieceKeys({ board }), before);
   assert.equal(before.length, 13);
   assert.ok(before.includes('w@WR'));
+});
+
+test('a walk without a Popeye glyph keeps its own turned piece as others join', () => {
+  const board = Array.from({ length: 8 }, () => Array<string>(8).fill(''));
+  board[0]![0] = 'w@B1';
+  const alone = requestedPieceMap({ board })['w@B1'];
+  board[0]![1] = 'b@B1';
+  board[0]![2] = 'n@SK';
+  board[0]![3] = 'w@B2';
+  board[0]![4] = 'w@G';
+  const map = requestedPieceMap({ board });
+  assert.equal(map['w@B1'], alone);
+  assert.equal(map['b@B1'], `b${alone?.slice(1)}`);
+  const shapes = ['w@B1', 'n@SK', 'w@B2'].map((key) => map[key]?.slice(1));
+  assert.equal(new Set(shapes).size, 3);
+  assert.ok(!shapes.includes('Q180'));
+});
+
+test('a named piece yields its shape only to a piece whose shape is fixed', () => {
+  const board = Array.from({ length: 8 }, () => Array<string>(8).fill(''));
+  board[0]![0] = 'w@B1';
+  const own = requestedPieceMap({ board })['w@B1']!.slice(1);
+  board[0]![1] = `b${own}`;
+  const moved = requestedPieceMap({ board })['w@B1']!.slice(1);
+  assert.notEqual(moved, own);
+  board[0]![2] = 'n@SK';
+  assert.equal(requestedPieceMap({ board })['w@B1'], `w${moved}`);
+});
+
+test('a newly placed walk takes a shape no piece on the board uses', () => {
+  const shapes = ['K', 'Q', 'R', 'B', 'N', 'P'].flatMap((type) =>
+    ['90', '180', '270'].map((turn) => `${type}${turn}`)
+  );
+  const board = Array.from({ length: 8 }, () => Array<string>(8).fill(''));
+  shapes
+    .filter((shape) => shape !== 'P270')
+    .forEach((shape, index) => {
+      board[Math.floor(index / 8)]![index % 8] = `b${shape}`;
+    });
+  board[7]![7] = 'w@TH';
+  assert.equal(requestedPieceMap({ board })['w@TH'], 'wP270');
 });

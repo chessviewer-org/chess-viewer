@@ -7,6 +7,10 @@ import type { ChessBoard, PieceSet } from '@app-types';
 import { logger } from './logger';
 import { isFairyCell, parseCellCode } from './boardCells';
 import { fairyLetterSVG, parseNamedCell } from './fairyCells';
+import {
+  compositionSymbolSVG,
+  isCompositionSymbol
+} from './compositionSymbols';
 import { parseFEN } from './fenParser';
 import { pieceSrc } from './pieceSources';
 
@@ -55,6 +59,9 @@ export function piecePath(style: string, piece: string): string {
       return piecePath(style, named.color + named.definition.glyph);
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(fairyLetterSVG(named.color, named.walk))}`;
   }
+  const code = parseCellCode(piece);
+  if (code && isCompositionSymbol(code.type))
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(compositionSymbolSVG(code.type, code.color, code.rotation))}`;
   return isFairyCell(piece)
     ? `/${FAIRY_DIR}/${style}/${piece}.svg`
     : `/piece/${style}/${piece}.svg`;
@@ -103,7 +110,10 @@ export function getPieceImages(
   pieceMap: Record<string, string>
 ) {
   return Object.fromEntries(
-    Object.keys(pieceMap).map((piece) => [piece, loadPiece(style, piece).image])
+    Object.entries(pieceMap).map(([piece, source]) => [
+      piece,
+      loadPiece(style, source || piece).image
+    ])
   );
 }
 
@@ -112,12 +122,11 @@ export async function preloadPieceStyle(
   pieceMap: Record<string, string>,
   signal?: AbortSignal
 ): Promise<Record<string, HTMLImageElement>> {
-  const pieces = Object.keys(pieceMap);
   const result: Record<string, HTMLImageElement> = {};
   await Promise.all(
-    pieces.map(async (piece) => {
+    Object.entries(pieceMap).map(async ([piece, source]) => {
       if (signal?.aborted) return;
-      const image = await loadPiece(style, piece).ready;
+      const image = await loadPiece(style, source || piece).ready;
       if (signal?.aborted) return;
       if (image) result[piece] = image;
     })
@@ -130,8 +139,8 @@ export function getCachedPieceStyle(
   pieceMap: Record<string, string>
 ): Record<string, HTMLImageElement> | null {
   const result: Record<string, HTMLImageElement> = {};
-  for (const piece of Object.keys(pieceMap)) {
-    const img = pieceCache.get(piecePath(style, piece));
+  for (const [piece, source] of Object.entries(pieceMap)) {
+    const img = pieceCache.get(piecePath(style, source || piece));
     if (!img) return null;
     result[piece] = img;
   }
