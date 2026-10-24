@@ -1,17 +1,17 @@
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useLayoutEffect, useRef, useState } from 'react';
 
 import { BOARD_THEMES } from '@constants';
-import { useSquarePatternSetting } from '@hooks';
+import { useSquarePatternSetting } from '@/shared/hooks/useSquarePattern';
 
 import {
   drawBoardPiece,
   fillBoardSquare,
-  getPieceKey,
-  isHatchedSquare,
-  isLightSquare,
-  logger,
-  parseFEN
-} from '@utils';
+  isHatchedSquare
+} from '@/shared/utils/boardPattern';
+import { boardImagesReady, getPieceKey } from '@/shared/utils/pieceUtils';
+import { isLightSquare } from '@chessviewer-org/chess-viewer';
+import { logger } from '@/shared/utils/logger';
+import { parseFEN } from '@/shared/utils/fenParser';
 
 interface MiniPreviewProps {
   fen: string;
@@ -35,13 +35,21 @@ export const MiniPreview = memo(
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [hasError, setHasError] = useState(false);
     const [squarePattern] = useSquarePatternSetting();
-    const hasImages = Object.keys(pieceImages).length > 0;
-    const isLoading = piecesLoading && !hasImages;
 
-    useEffect(() => {
+    useLayoutEffect(() => {
+      const canvas = canvasRef.current;
+      return () => {
+        if (!canvas) return;
+        canvas.width = 0;
+        canvas.height = 0;
+      };
+    }, []);
+
+    useLayoutEffect(() => {
       if (!canvasRef.current || !fen || Object.keys(pieceImages).length === 0) {
         return;
       }
+      if (piecesLoading && !boardImagesReady(fen, pieceImages)) return;
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d', {
         alpha: false,
@@ -62,9 +70,8 @@ export const MiniPreview = memo(
         style.getPropertyValue('--color-dark-square').trim() ||
         (BOARD_THEMES['classic']?.dark ?? '#b58863');
 
-      const cssSize = Math.max(
-        size,
-        Math.round(canvas.clientWidth || canvas.parentElement?.clientWidth || 0)
+      const cssSize = Math.round(
+        canvas.clientWidth || canvas.parentElement?.clientWidth || size
       );
       const dpr = Math.min(window.devicePixelRatio || 1, 3);
       setHasError(false);
@@ -129,16 +136,20 @@ export const MiniPreview = memo(
         logger.error('Preview render error:', err);
         setHasError(true);
       }
-      return () => {
-        canvas.width = 0;
-        canvas.height = 0;
-      };
-    }, [fen, lightSquare, darkSquare, squarePattern, pieceImages, size]);
+    }, [
+      fen,
+      lightSquare,
+      darkSquare,
+      squarePattern,
+      pieceImages,
+      piecesLoading,
+      size
+    ]);
     return (
       <div className="relative w-full" style={{ aspectRatio: '1 / 1' }}>
         <canvas
           ref={canvasRef}
-          className={`absolute inset-0 w-full h-full transition-opacity duration-200 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+          className="absolute inset-0 w-full h-full"
           style={{
             imageRendering: 'auto',
             display: 'block',
@@ -146,13 +157,7 @@ export const MiniPreview = memo(
           }}
         />
 
-        {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-surface/60">
-            <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        )}
-
-        {hasError && !isLoading && (
+        {hasError && (
           <div className="absolute inset-0 flex items-center justify-center bg-error/10 border border-error/30">
             <div className="text-center px-2">
               <p className="text-[10px] text-error font-medium">Invalid FEN</p>

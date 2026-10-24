@@ -1,8 +1,16 @@
 import { hydrate, render } from 'preact';
 import { StrictMode } from 'react';
 
-import { AuthProvider } from '@/auth';
-import { loadAnalyticsBeacon } from '@utils';
+import { AuthProvider } from '@/auth/core/AuthProvider';
+import { loadAnalyticsBeacon } from '@utils/analytics';
+import { duringHydration } from '@/shared/utils/hydration';
+import { suppressTransitionsUntilPainted } from '@/shared/utils/viewTransition';
+import {
+  inlineDocumentPieces,
+  restoreSnapshot,
+  snapshotOnHide
+} from '@/shared/utils/pageSnapshot';
+import { prefetchOnIntent, prefetchPages, preloadPage } from './routes/pages';
 
 import App from './App';
 
@@ -18,22 +26,41 @@ const app = (
   </StrictMode>
 );
 
+const PRERENDER_MISMATCH = [
+  'prerender-stale',
+  'prerender-dirty',
+  'prerender-restored'
+];
+
 function canHydrate(): boolean {
+  const { classList } = document.documentElement;
   return (
     root.hasChildNodes() &&
-    !document.documentElement.classList.contains('prerender-stale')
+    !PRERENDER_MISMATCH.some((c) => classList.contains(c))
   );
 }
 
-if (canHydrate()) {
-  hydrate(app, root);
-} else {
-  render(app, root);
+async function mount() {
+  await preloadPage(window.location.pathname).catch(() => {});
+  inlineDocumentPieces();
+  const restored = restoreSnapshot(root);
+  const prerendered = !restored && canHydrate();
+  document.documentElement.classList.remove(...PRERENDER_MISMATCH);
+  suppressTransitionsUntilPainted();
+  if (restored) hydrate(app, root);
+  else if (prerendered) duringHydration(() => hydrate(app, root));
+  else render(app, root);
+  for (const event of ['pointerover', 'focusin', 'touchstart'])
+    document.addEventListener(event, prefetchOnIntent, { passive: true });
+  if ('requestIdleCallback' in window)
+    requestIdleCallback(prefetchPages, { timeout: 5000 });
+  else setTimeout(prefetchPages, 2000);
 }
 
-document.documentElement.classList.remove('prerender-stale');
+void mount();
 
 if (import.meta.env.PROD) {
   window.addEventListener('vite:preloadError', () => window.location.reload());
+  snapshotOnHide(root);
   loadAnalyticsBeacon();
 }

@@ -8,6 +8,7 @@ import {
 } from 'react';
 
 import { isFairyFEN } from '@utils/fenParser';
+import { trackPendingWrite } from '@/shared/utils/pendingWrites';
 import { LATEX_MAX_POSITIONS } from '@chessviewer-org/chess-viewer';
 import {
   type BuildResult,
@@ -109,9 +110,9 @@ export function useLatexProject(buildEnabled: boolean): LatexProjectState {
   }, [project, flushSave]);
 
   useLayoutEffect(() => {
-    window.addEventListener('pagehide', flushSave);
+    const untrack = trackPendingWrite(flushSave);
     return () => {
-      window.removeEventListener('pagehide', flushSave);
+      untrack();
       flushSave();
     };
   }, [flushSave]);

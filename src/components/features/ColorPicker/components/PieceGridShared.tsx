@@ -1,20 +1,29 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
-import { usePagination } from '@hooks';
+import { usePagination } from '@/shared/hooks/usePagination';
+import { pieceSrc } from '@/shared/utils/pieceSources';
 import type { PieceSet } from '@app-types';
 
-import { Pagination } from '@ui';
+import { Pagination } from '@/shared/ui/Pagination/Pagination';
 
 // Constants
 const DEFAULT_PIECE_ROWS = 2;
 const DEFAULT_COLS = 4;
+const SM_COLS = 6;
+const LG_COLS = 8;
 
 // Helpers
 function colsForViewport(): number {
   if (typeof window === 'undefined') return DEFAULT_COLS;
-  if (window.matchMedia('(min-width: 1024px)').matches) return 8; // lg
-  if (window.matchMedia('(min-width: 640px)').matches) return 6; // sm
+  if (window.matchMedia('(min-width: 1024px)').matches) return LG_COLS; // lg
+  if (window.matchMedia('(min-width: 640px)').matches) return SM_COLS; // sm
   return DEFAULT_COLS; // mobile
+}
+
+function slotVisibility(slot: number, rows: number): string {
+  if (slot >= SM_COLS * rows) return 'max-lg:hidden';
+  if (slot >= DEFAULT_COLS * rows) return 'max-sm:hidden';
+  return '';
 }
 
 // Types
@@ -35,11 +44,10 @@ function PieceGridSharedComponent({
   onSelect,
   rows = DEFAULT_PIECE_ROWS
 }: PieceGridSharedProps) {
-  const [cols, setCols] = useState(DEFAULT_COLS);
+  const [cols, setCols] = useState(colsForViewport);
 
   useLayoutEffect(() => {
     const update = () => setCols(colsForViewport());
-    update();
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
   }, []);
@@ -83,7 +91,7 @@ function PieceGridSharedComponent({
         className="touch-pan-y rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
         <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
-          {pageSets.map((set) => (
+          {pageSets.map((set, index) => (
             <button
               key={set.id}
               type="button"
@@ -91,19 +99,18 @@ function PieceGridSharedComponent({
               onMouseDown={(e) => e.preventDefault()}
               aria-pressed={pieceStyle === set.id}
               aria-label={set.name}
-              className={`flex flex-col items-center gap-1 rounded-lg p-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+              className={`flex flex-col items-center gap-1 rounded-lg p-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${slotVisibility(index, rows)} ${
                 pieceStyle === set.id
                   ? 'bg-accent/15'
                   : 'hover:bg-surface-elevated'
               }`}
             >
               <img
-                src={`/piece/${set.id}/wN.svg`}
+                src={pieceSrc(`/piece/${set.id}/wN.svg`)}
                 alt={set.name}
                 width={44}
                 height={44}
                 className="h-11 w-11 object-contain"
-                loading="lazy"
               />
               <span className="w-full truncate text-center text-[10px] font-semibold text-text-secondary">
                 {set.name}
@@ -114,7 +121,7 @@ function PieceGridSharedComponent({
             <div
               key={`ph-${i}`}
               aria-hidden="true"
-              className="flex flex-col items-center gap-1 rounded-lg p-1.5 invisible"
+              className={`flex flex-col items-center gap-1 rounded-lg p-1.5 invisible ${slotVisibility(pageSets.length + i, rows)}`}
             >
               <div className="h-11 w-11" />
               <span className="w-full text-center text-[10px] font-semibold">

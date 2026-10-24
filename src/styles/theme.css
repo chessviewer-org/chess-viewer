@@ -101,7 +101,7 @@
   --animation-curve: cubic-bezier(0.22, 1, 0.36, 1);
   --animation-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
-  --navbar-height: 4.5rem;
+  --navbar-height: 3.25rem;
 
   --theme-reveal-x: 100vw;
   --theme-reveal-y: 0px;
@@ -153,14 +153,10 @@ html:not([data-theme-transition]) .vt-nav {
   view-transition-name: site-nav;
 }
 
-html:not([data-theme-transition]) .vt-page {
-  view-transition-name: page;
-}
-
-::view-transition-old(root),
-::view-transition-new(root),
 ::view-transition-old(site-nav),
-::view-transition-new(site-nav) {
+::view-transition-new(site-nav),
+::view-transition-group(site-nav),
+::view-transition-group(root) {
   animation: none;
 }
 
@@ -168,29 +164,23 @@ html:not([data-theme-transition]) .vt-page {
   z-index: 1;
 }
 
-::view-transition-group(page) {
-  animation-duration: 0s;
+html:not([data-theme-transition])::view-transition-old(root) {
+  animation: route-fade-out 180ms ease both;
 }
 
-::view-transition-old(page) {
-  animation: page-out 160ms cubic-bezier(0.4, 0, 1, 1) both;
+html:not([data-theme-transition])::view-transition-new(root) {
+  animation: route-fade-in 180ms ease both;
 }
 
-::view-transition-new(page) {
-  animation: page-in 340ms cubic-bezier(0.16, 1, 0.3, 1) 60ms both;
-}
-
-@keyframes page-out {
+@keyframes route-fade-out {
   to {
     opacity: 0;
-    transform: translateY(-6px);
   }
 }
 
-@keyframes page-in {
+@keyframes route-fade-in {
   from {
     opacity: 0;
-    transform: translateY(14px);
   }
 }
 
@@ -251,18 +241,14 @@ html[data-theme-transition='to-dark'] {
 @media (prefers-reduced-motion: reduce) {
   html:not([data-reduced-motion='full']) ::view-transition-group(root),
   html:not([data-reduced-motion='full']) ::view-transition-old(root),
-  html:not([data-reduced-motion='full']) ::view-transition-new(root),
-  html:not([data-reduced-motion='full']) ::view-transition-old(page),
-  html:not([data-reduced-motion='full']) ::view-transition-new(page) {
+  html:not([data-reduced-motion='full']) ::view-transition-new(root) {
     animation-duration: 1ms;
   }
 }
 
 html[data-reduced-motion='reduce'] ::view-transition-group(root),
 html[data-reduced-motion='reduce'] ::view-transition-old(root),
-html[data-reduced-motion='reduce'] ::view-transition-new(root),
-html[data-reduced-motion='reduce'] ::view-transition-old(page),
-html[data-reduced-motion='reduce'] ::view-transition-new(page) {
+html[data-reduced-motion='reduce'] ::view-transition-new(root) {
   animation-duration: 1ms;
 }
 

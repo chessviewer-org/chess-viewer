@@ -46,6 +46,7 @@
 }
 .isolate-root {
   isolation: isolate;
+  width: var(--shell-viewport-width, 100vw);
 }
 .workspace-container {
   container-type: inline-size;

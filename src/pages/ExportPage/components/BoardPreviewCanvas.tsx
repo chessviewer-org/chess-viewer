@@ -1,20 +1,22 @@
 import { memo, useLayoutEffect, useRef, useState } from 'react';
 
 import { BOARD_THEMES } from '@constants';
-import { useSquarePatternSetting } from '@hooks';
+import { useSquarePatternSetting } from '@/shared/hooks/useSquarePattern';
 
 import {
   boardOutlineWidth,
+  getDisplayCoordinates,
+  getSquareBounds,
+  isLightSquare
+} from '@chessviewer-org/chess-viewer';
+import {
   drawBoardPiece,
   fillBoardSquare,
-  getDisplayCoordinates,
-  isHatchedSquare,
-  getPieceKey,
-  getSquareBounds,
-  isLightSquare,
-  logger,
-  parseFEN
-} from '@utils';
+  isHatchedSquare
+} from '@/shared/utils/boardPattern';
+import { boardImagesReady, getPieceKey } from '@/shared/utils/pieceUtils';
+import { logger } from '@/shared/utils/logger';
+import { parseFEN } from '@/shared/utils/fenParser';
 
 // Constants
 const DEFAULT_LIGHT = BOARD_THEMES['classic']?.light ?? '#f0d9b5';
@@ -65,15 +67,23 @@ const BoardPreviewCanvas = memo(
 
     const gutter = wrapperPx > 0 ? Math.round(wrapperPx * GUTTER_RATIO) : 0;
     const boardPx = Math.max(0, wrapperPx - gutter);
-    const cellSize = boardPx > 0 ? boardPx / 8 : 0;
     const outlinePx = boardOutlineWidth(boardPx);
 
     const hasImages = Object.keys(pieceImages).length > 0;
-    const isLoading = piecesLoading && !hasImages;
+
+    useLayoutEffect(() => {
+      const canvas = canvasRef.current;
+      return () => {
+        if (!canvas) return;
+        canvas.width = 0;
+        canvas.height = 0;
+      };
+    }, []);
 
     useLayoutEffect(() => {
       const canvas = canvasRef.current;
       if (!canvas || boardPx <= 0 || !fen || !hasImages) return;
+      if (piecesLoading && !boardImagesReady(fen, pieceImages)) return;
 
       const ctx = canvas.getContext('2d', { alpha: false });
       if (!ctx) {
@@ -146,17 +156,13 @@ const BoardPreviewCanvas = memo(
         logger.error('BoardPreviewCanvas render error:', err);
         setHasError(true);
       }
-
-      return () => {
-        canvas.width = 0;
-        canvas.height = 0;
-      };
     }, [
       fen,
       lightSquare,
       darkSquare,
       squarePattern,
       pieceImages,
+      piecesLoading,
       flipped,
       hasImages,
       boardPx
@@ -190,7 +196,7 @@ const BoardPreviewCanvas = memo(
           <canvas
             ref={canvasRef}
             aria-hidden="true"
-            className={`block transition-opacity duration-200 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+            className="block"
             style={{ boxShadow: `0 0 0 ${outlinePx}px #000` }}
           />
           {showThinFrame && (
@@ -203,19 +209,14 @@ const BoardPreviewCanvas = memo(
               }}
             />
           )}
-          {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-surface/60">
-              <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-            </div>
-          )}
-          {hasError && !isLoading && (
+          {hasError && (
             <div className="absolute inset-0 flex items-center justify-center bg-error/10 border border-error/30">
               <p className="text-[10px] text-error font-medium">Invalid FEN</p>
             </div>
           )}
         </div>
 
-        {showCoords && cellSize > 0 && (
+        {showCoords && (
           <div
             className="absolute top-0 left-0 flex flex-col pr-1"
             style={{ width: '5%', height: '95%' }}
@@ -233,7 +234,7 @@ const BoardPreviewCanvas = memo(
           </div>
         )}
 
-        {showCoords && cellSize > 0 && (
+        {showCoords && (
           <div
             className="absolute bottom-0 right-0 flex pt-1"
             style={{ width: '95%', height: '5%' }}

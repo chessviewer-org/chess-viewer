@@ -7,6 +7,8 @@ import type { ChessBoard, PieceSet } from '@app-types';
 import { logger } from './logger';
 import { isFairyCell, parseCellCode } from './boardCells';
 import { fairyLetterSVG, parseNamedCell } from './fairyCells';
+import { parseFEN } from './fenParser';
+import { pieceSrc } from './pieceSources';
 
 // Types
 export type PieceSort = 'popular' | 'name';
@@ -91,7 +93,7 @@ function loadPiece(style: string, piece: string) {
   });
   const entry = { image, ready };
   pendingImages.set(source, entry);
-  image.src = source;
+  image.src = pieceSrc(source);
   return entry;
 }
 
@@ -163,6 +165,23 @@ export function getPieceKey(fenPiece: string): string | null {
   if (parseCellCode(fenPiece)) return fenPiece;
   const isWhite = fenPiece === fenPiece.toUpperCase();
   return (isWhite ? 'w' : 'b') + fenPiece.toUpperCase();
+}
+
+export function boardImagesReady(
+  fen: string,
+  pieceImages: Record<string, HTMLImageElement>
+): boolean {
+  try {
+    return parseFEN(fen)
+      .flat()
+      .every((cell) => {
+        const key = getPieceKey(cell ?? '');
+        const img = key ? pieceImages[key] : null;
+        return !key || (!!img && img.complete && img.naturalWidth > 0);
+      });
+  } catch {
+    return true;
+  }
 }
 
 export function assertBoardArtwork(

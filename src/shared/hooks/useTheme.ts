@@ -1,17 +1,17 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
-import { syncStorage } from '@/auth';
+import { syncStorage } from '@/auth/storage/syncStorage';
+import { hydrateFromSync } from '@/shared/utils/syncHydration';
 import {
-  hydrateFromSync,
   isThemeModePreference,
-  logger,
   readThemeModePreference,
-  safeJSONParse,
-  sanitizeHexColor,
   THEME_MODE_CHANGE_EVENT,
   THEME_MODE_STORAGE_KEY,
   type ThemeModePreference
-} from '@utils';
+} from '@/shared/utils/themeMode';
+import { isHydrating } from '@/shared/utils/hydration';
+import { logger } from '@/shared/utils/logger';
+import { safeJSONParse, sanitizeHexColor } from '@chessviewer-org/chess-viewer';
 
 // Types
 export interface UseThemeResult {
@@ -202,17 +202,26 @@ export interface UseThemePresetsResult {
   ) => void;
 }
 
+function readLocalPresets(): ThemePreset[] {
+  try {
+    const local = window.localStorage.getItem(CUSTOM_THEME_PRESETS_KEY);
+    const presets = local ? safeJSONParse<ThemePreset[]>(local, []) : [];
+    return Array.isArray(presets) ? presets : [];
+  } catch {
+    return [];
+  }
+}
+
 export function useThemePresets(): UseThemePresetsResult {
-  const [customPresets, setCustomPresets] = useState<ThemePreset[]>([]);
+  const [customPresets, setCustomPresets] = useState<ThemePreset[]>(() =>
+    isHydrating() ? [] : readLocalPresets()
+  );
 
   useEffect(() => {
     const load = async () => {
       try {
-        const local = window.localStorage.getItem(CUSTOM_THEME_PRESETS_KEY);
-        const localPresets = local
-          ? safeJSONParse<ThemePreset[]>(local, [])
-          : [];
-        if (Array.isArray(localPresets)) setCustomPresets(localPresets);
+        const localPresets = readLocalPresets();
+        setCustomPresets((prev) => (prev.length > 0 ? prev : localPresets));
 
         const cloud = await syncStorage.get(CUSTOM_THEME_PRESETS_KEY);
         if (cloud && typeof cloud.value === 'string') {
