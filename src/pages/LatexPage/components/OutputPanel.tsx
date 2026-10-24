@@ -19,7 +19,7 @@ const TOKEN_CLASS: Record<LatexTokenKind, string> = {
 };
 
 const PRE_CLASS =
-  'scrollbar-native max-h-[70vh] min-h-64 overflow-auto p-3 font-mono text-[12px] leading-relaxed text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent';
+  'max-h-[70vh] min-h-64 overflow-auto p-3 font-mono text-[12px] leading-relaxed text-text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent';
 
 const PRIMARY_BUTTON =
   'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-bold text-bg transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:cursor-not-allowed disabled:opacity-50';

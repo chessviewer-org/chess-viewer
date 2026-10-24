@@ -36,7 +36,7 @@ function Navbar({
     }`;
 
   return (
-    <nav className={styles['nav']}>
+    <nav className={`vt-nav ${styles['nav']}`}>
       <div className={styles['navInner']}>
         <div className="page-container">
           <div className={styles['navContainer']}>

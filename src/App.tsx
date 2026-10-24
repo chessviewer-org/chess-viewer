@@ -63,6 +63,35 @@ function primeThemeReveal(next: ThemeMode): void {
   root.setAttribute('data-theme-transition', `to-${next}`);
 }
 
+function AppShell() {
+  const { openAuthModal, ...navState } = useNavbarState();
+
+  return (
+    <FENBatchProvider>
+      <ModalProvider openAuthModal={openAuthModal}>
+        <div className="isolate-root shell-safe-area min-h-dvh flex flex-col bg-bg text-fluid-base transition-colors duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
+          <a
+            href="#main-content"
+            className="sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:top-4 focus-visible:left-4 focus-visible:z-100 focus-visible:px-6 focus-visible:py-3 focus-visible:bg-accent focus-visible:text-bg focus-visible:rounded-xl focus-visible:shadow-lg focus-visible:font-semibold"
+          >
+            Skip to main content
+          </a>
+
+          <Navbar {...navState} />
+
+          <main
+            id="main-content"
+            tabIndex={-1}
+            className="vt-page main-content-offset flex-1 flex flex-col w-full min-w-0 focus:outline-none"
+          >
+            <Routes />
+          </main>
+        </div>
+      </ModalProvider>
+    </FENBatchProvider>
+  );
+}
+
 function App() {
   const [theme, setTheme] = useState<ThemeMode>(getInitialTheme);
   const themeRef = useRef<ThemeMode>(theme);
@@ -129,33 +158,10 @@ function App() {
 
   useReducedMotionPreference();
 
-  const { openAuthModal, ...navState } = useNavbarState();
-
   return (
     <ErrorBoundary>
       <Router aroundNav={navigateWithTransition}>
-        <FENBatchProvider>
-          <ModalProvider openAuthModal={openAuthModal}>
-            <div className="isolate-root shell-safe-area min-h-dvh flex flex-col bg-bg text-fluid-base transition-colors duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
-              <a
-                href="#main-content"
-                className="sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:top-4 focus-visible:left-4 focus-visible:z-100 focus-visible:px-6 focus-visible:py-3 focus-visible:bg-accent focus-visible:text-bg focus-visible:rounded-xl focus-visible:shadow-lg focus-visible:font-semibold"
-              >
-                Skip to main content
-              </a>
-
-              <Navbar {...navState} />
-
-              <main
-                id="main-content"
-                tabIndex={-1}
-                className="main-content-offset flex-1 flex flex-col w-full min-w-0 focus:outline-none"
-              >
-                <Routes />
-              </main>
-            </div>
-          </ModalProvider>
-        </FENBatchProvider>
+        <AppShell />
       </Router>
     </ErrorBoundary>
   );
