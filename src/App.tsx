@@ -1,4 +1,5 @@
 import {
+  memo,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -8,27 +9,28 @@ import {
 import { flushSync } from 'react-dom';
 import { Router } from 'wouter';
 
-import { Navbar, useNavbarState } from '@/components/layout';
+import { Navbar } from '@/components/layout/Navbar/Navbar';
 import { navigateWithTransition } from '@/routes/navigation';
 import Routes from '@/routes/Router';
-import { FENBatchProvider, ModalProvider } from '@contexts';
+import { FENBatchProvider } from '@/shared/contexts/FENBatchContext';
+import { ModalProvider } from '@/shared/contexts/ModalContext';
 import {
   useColorVision,
   useContrast,
-  useReducedMotionPreference,
-  useThemeModeSync
-} from '@hooks';
+  useReducedMotionPreference
+} from '@/shared/hooks/useA11y';
+import { useThemeModeSync } from '@/shared/hooks/useTheme';
 
+import { canAnimateViewTransition } from '@/shared/utils/viewTransition';
 import {
-  canAnimateViewTransition,
   isFollowingSystem,
   readThemeModePreference,
   resolveThemeMode,
   systemThemeMode,
   THEME_MODE_CHANGE_EVENT,
   type ThemeMode
-} from '@utils';
-import { ErrorBoundary } from '@ui';
+} from '@/shared/utils/themeMode';
+import { ErrorBoundary } from '@/shared/ui/ErrorBoundary';
 
 declare global {
   interface Window {
@@ -63,12 +65,10 @@ function primeThemeReveal(next: ThemeMode): void {
   root.setAttribute('data-theme-transition', `to-${next}`);
 }
 
-function AppShell() {
-  const { openAuthModal, ...navState } = useNavbarState();
-
+const AppShell = memo(function AppShell() {
   return (
     <FENBatchProvider>
-      <ModalProvider openAuthModal={openAuthModal}>
+      <ModalProvider>
         <div className="isolate-root shell-safe-area min-h-dvh flex flex-col bg-bg text-fluid-base transition-colors duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
           <a
             href="#main-content"
@@ -77,12 +77,12 @@ function AppShell() {
             Skip to main content
           </a>
 
-          <Navbar {...navState} />
+          <Navbar />
 
           <main
             id="main-content"
             tabIndex={-1}
-            className="vt-page main-content-offset flex-1 flex flex-col w-full min-w-0 focus:outline-none"
+            className="main-content-offset flex-1 flex flex-col w-full min-w-0 focus:outline-none"
           >
             <Routes />
           </main>
@@ -90,7 +90,7 @@ function AppShell() {
       </ModalProvider>
     </FENBatchProvider>
   );
-}
+});
 
 function App() {
   const [theme, setTheme] = useState<ThemeMode>(getInitialTheme);
@@ -131,12 +131,6 @@ function App() {
 
   useEffect(() => {
     document.documentElement.classList.add('app-ready');
-    const splash = document.getElementById('app-splash');
-    if (!splash) return;
-    const remove = () => splash.remove();
-    const timer = window.setTimeout(remove, 400);
-    splash.addEventListener('transitionend', remove, { once: true });
-    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {

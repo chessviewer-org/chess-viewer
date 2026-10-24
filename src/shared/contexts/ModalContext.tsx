@@ -6,8 +6,9 @@ import React, {
   useMemo,
   useState
 } from 'react';
+import { useLocation } from 'wouter';
 
-import { Modal, type ModalType } from '@ui';
+import { Modal, type ModalType } from '@/shared/ui/Modal/Modal';
 
 // Types
 interface ModalState {
@@ -35,14 +36,20 @@ interface ModalContextType {
 
 // Context
 const ModalContext = createContext<ModalContextType | undefined>(undefined);
+const AUTH_ROUTES = {
+  signin: '/auth/sign-in',
+  signup: '/auth/sign-up',
+  security: '/settings?tab=security'
+} as const;
 
-export function ModalProvider({
-  children,
-  openAuthModal
-}: {
-  children: React.ReactNode;
-  openAuthModal: (tab: 'signin' | 'signup' | 'security') => void;
-}) {
+export function ModalProvider({ children }: { children: React.ReactNode }) {
+  const [, navigate] = useLocation();
+  const openAuthModal = useCallback(
+    (tab: 'signin' | 'signup' | 'security') => {
+      navigate(AUTH_ROUTES[tab]);
+    },
+    [navigate]
+  );
   // State
   const [modalState, setModalState] = useState<ModalState>({
     isOpen: false,

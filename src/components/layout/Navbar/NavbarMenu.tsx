@@ -1,5 +1,6 @@
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useId, useRef, useLayoutEffect } from 'react';
 import { Link } from 'wouter';
+import { useOutsideClick } from '@/shared/hooks/useDOM';
 
 import {
   Info,
@@ -7,29 +8,22 @@ import {
   LogOut,
   Settings,
   UserPlus,
-  UserCircle,
-  X
+  UserCircle
 } from '@/assets/icons';
 
-import { useAuth, type MembershipTier } from '@/auth';
-import { useScrollLock } from '@hooks';
-import { MembershipBadge, AvatarInitial } from '@ui';
+import { useAuth } from '@/auth/core/useAuth';
+import { type MembershipTier } from '@/auth/profile/membership';
+import { MembershipBadge } from '@/shared/ui/MembershipIdentity/MembershipBadge';
+import { AvatarInitial } from '@/shared/ui/MembershipIdentity/AvatarInitial';
 
 import styles from './styles/navbar.module.scss';
 
 // Types
-interface NavbarDesktopMenuProps {
+interface NavbarAccountMenuProps {
   isAuthenticated: boolean;
-  isDesktopDropdownOpen: boolean;
-  setIsDesktopDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  dropdownRef: React.RefObject<HTMLDivElement | null>;
-  handleSignOut: () => void;
-}
-
-interface NavbarMobileMenuProps {
   isOpen: boolean;
-  isAuthenticated: boolean;
-  setIsMobileMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  onOpenChange: (open: boolean) => void;
+  accountRef: React.RefObject<HTMLDivElement | null>;
   handleSignOut: () => void;
 }
 
@@ -52,7 +46,9 @@ function ProfileHeader({
         <p className={styles['profileName']}>
           {displayName || (isAuthenticated ? 'ChessViewer user' : 'Local user')}
         </p>
-        <MembershipBadge tier={membershipTier} variant="plain" />
+        {membershipTier.id !== 'none' && (
+          <MembershipBadge tier={membershipTier} variant="plain" />
+        )}
       </div>
     </div>
   );
@@ -76,7 +72,7 @@ function NavItem({
   onNavigate
 }: NavItemProps) {
   return (
-    <Link href={to} onClick={onNavigate} className={className}>
+    <Link href={to} role="menuitem" onClick={onNavigate} className={className}>
       <Icon className={iconSize} aria-hidden="true" />
       <span>{label}</span>
     </Link>
@@ -132,6 +128,7 @@ function AuthActions({
     return (
       <button
         type="button"
+        role="menuitem"
         onClick={() => {
           onNavigate();
           handleSignOut();
@@ -166,151 +163,163 @@ function AuthActions({
   );
 }
 
-export const NavbarDesktopMenu = memo(function NavbarDesktopMenu({
+/** One anchored account dropdown at every screen size. */
+export const NavbarAccountMenu = memo(function NavbarAccountMenu({
   isAuthenticated,
-  isDesktopDropdownOpen,
-  setIsDesktopDropdownOpen,
-  dropdownRef,
+  isOpen,
+  onOpenChange,
+  accountRef,
   handleSignOut
-}: NavbarDesktopMenuProps) {
+}: NavbarAccountMenuProps) {
   const { profile, membershipTier } = useAuth();
-  const displayName = profile.displayName;
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const keyboardEntry = useRef<'first' | 'last' | null>(null);
+  const id = useId();
+  useLayoutEffect(() => {
+    if (!isOpen || !keyboardEntry.current) return;
+    const items =
+      panelRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]');
+    const item =
+      keyboardEntry.current === 'last' ? items?.[items.length - 1] : items?.[0];
+    item?.focus();
+    keyboardEntry.current = null;
+  }, [isOpen]);
 
-  const itemClass = styles['menuItem'];
+  useOutsideClick(
+    [accountRef, panelRef],
+    (event) => {
+      onOpenChange(false);
+      if (event.type === 'keydown') {
+        event.preventDefault();
+        event.stopPropagation();
+        buttonRef.current?.focus();
+      }
+    },
+    isOpen
+  );
 
-  const closeDropdown = () => setIsDesktopDropdownOpen(false);
+  useEffect(() => {
+    if (!isOpen) return;
+    const onFocus = (event: FocusEvent) => {
+      const target = event.target as Node | null;
+      if (
+        !accountRef.current?.contains(target) &&
+        !panelRef.current?.contains(target)
+      )
+        onOpenChange(false);
+    };
+    document.addEventListener('focusin', onFocus);
+    return () => document.removeEventListener('focusin', onFocus);
+  }, [isOpen, onOpenChange, accountRef]);
+
+  const close = () => onOpenChange(false);
 
   return (
-    <div className={styles['desktopDropdownWrapper']} ref={dropdownRef}>
+    <div className={styles['accountWrapper']} ref={accountRef}>
       <button
+        ref={buttonRef}
+        id={`${id}-button`}
         type="button"
-        onClick={() => setIsDesktopDropdownOpen(!isDesktopDropdownOpen)}
-        className={`${styles['desktopDropdownToggle']} ${isDesktopDropdownOpen ? styles['desktopDropdownToggleActive'] : ''}`}
+        onClick={() => onOpenChange(!isOpen)}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape' && isOpen) {
+            event.preventDefault();
+            event.stopPropagation();
+            close();
+            return;
+          }
+          if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            keyboardEntry.current = event.key === 'ArrowUp' ? 'last' : 'first';
+            if (isOpen) {
+              const items =
+                panelRef.current?.querySelectorAll<HTMLElement>(
+                  '[role="menuitem"]'
+                );
+              (event.key === 'ArrowUp'
+                ? items?.[items.length - 1]
+                : items?.[0]
+              )?.focus();
+              keyboardEntry.current = null;
+            } else onOpenChange(true);
+          }
+        }}
+        className={styles['accountToggle']}
         aria-label="Account menu"
-        aria-expanded={isDesktopDropdownOpen}
+        aria-expanded={isOpen}
         aria-haspopup="menu"
+        aria-controls={`${id}-panel`}
       >
-        {isDesktopDropdownOpen ? (
-          <X className="w-6 h-6" aria-hidden="true" />
-        ) : (
-          <UserCircle className="w-6 h-6" aria-hidden="true" />
-        )}
+        <UserCircle className="w-6 h-6" aria-hidden="true" />
       </button>
-
-      <div
-        className={`${styles['desktopDropdownPanel']} ${styles['desktopDropdown']}`}
-        data-state={isDesktopDropdownOpen ? 'open' : 'closed'}
-        role="menu"
-      >
-        <div className="px-2 pb-1">
-          <ProfileHeader
-            displayName={displayName}
-            membershipTier={membershipTier}
-            isAuthenticated={isAuthenticated}
-            avatarSize="md"
-          />
+      {isOpen && (
+        <div
+          id={`${id}-panel`}
+          ref={panelRef}
+          className={styles['accountPanel']}
+          role="menu"
+          aria-labelledby={`${id}-button`}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') {
+              event.preventDefault();
+              event.stopPropagation();
+              close();
+              buttonRef.current?.focus();
+              return;
+            }
+            const items = Array.from(
+              panelRef.current?.querySelectorAll<HTMLElement>(
+                '[role="menuitem"]'
+              ) ?? []
+            );
+            const index = items.indexOf(document.activeElement as HTMLElement);
+            let next: number | undefined;
+            if (event.key === 'ArrowDown') next = (index + 1) % items.length;
+            if (event.key === 'ArrowUp')
+              next = (index - 1 + items.length) % items.length;
+            if (event.key === 'Home') next = 0;
+            if (event.key === 'End') next = items.length - 1;
+            if (next !== undefined) {
+              event.preventDefault();
+              items[next]?.focus();
+            } else if (
+              event.key === ' ' &&
+              document.activeElement instanceof HTMLAnchorElement
+            ) {
+              event.preventDefault();
+              document.activeElement.click();
+            }
+          }}
+        >
+          <div className={styles['accountHeader']} role="presentation">
+            <ProfileHeader
+              displayName={profile.displayName}
+              membershipTier={membershipTier}
+              isAuthenticated={isAuthenticated}
+              avatarSize="sm"
+            />
+          </div>
+          <div className={styles['accountLinks']} role="presentation">
+            <NavLinks
+              className={styles['menuItem'] ?? ''}
+              iconSize="w-4 h-4 text-text-secondary"
+              onNavigate={close}
+            />
+          </div>
+          <div className={styles['accountLinks']} role="presentation">
+            <AuthActions
+              isAuthenticated={isAuthenticated}
+              className={styles['menuItem'] ?? ''}
+              iconSize="w-4 h-4 text-text-secondary"
+              onNavigate={close}
+              handleSignOut={handleSignOut}
+            />
+          </div>
         </div>
-
-        <div className="h-px bg-border my-3" />
-
-        <div className="flex flex-col gap-0.5">
-          <NavLinks
-            className={itemClass ?? ''}
-            iconSize="w-4 h-4 text-text-secondary"
-            onNavigate={closeDropdown}
-          />
-        </div>
-
-        <div className="h-px bg-border my-3" />
-
-        <div className="flex flex-col gap-0.5">
-          <AuthActions
-            isAuthenticated={isAuthenticated}
-            className={itemClass ?? ''}
-            iconSize="w-4 h-4 text-text-secondary"
-            onNavigate={closeDropdown}
-            handleSignOut={handleSignOut}
-          />
-        </div>
-      </div>
+      )}
     </div>
   );
 });
 
-NavbarDesktopMenu.displayName = 'NavbarDesktopMenu';
-
-export const NavbarMobileMenu = memo(function NavbarMobileMenu({
-  isOpen,
-  isAuthenticated,
-  setIsMobileMenuOpen,
-  handleSignOut
-}: NavbarMobileMenuProps) {
-  const { profile, membershipTier } = useAuth();
-  const displayName = profile.displayName;
-
-  useScrollLock(isOpen);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsMobileMenuOpen(false);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [isOpen, setIsMobileMenuOpen]);
-
-  const closeMenu = () => setIsMobileMenuOpen(false);
-
-  return (
-    <>
-      <div
-        className={`${styles['mobileBackdrop']} fixed inset-0 z-40 bg-bg/80 backdrop-blur-sm lg:hidden`}
-        data-state={isOpen ? 'open' : 'closed'}
-        aria-hidden="true"
-        onClick={() => setIsMobileMenuOpen(false)}
-      />
-
-      <div
-        className={`${styles['mobileMenuContainer']} ${styles['mobilePanel']}`}
-        data-state={isOpen ? 'open' : 'closed'}
-      >
-        <div className="page-container">
-          <div className={styles['mobileMenuContent']}>
-            <div className={styles['menuSection']}>
-              <ProfileHeader
-                displayName={displayName}
-                membershipTier={membershipTier}
-                isAuthenticated={isAuthenticated}
-                avatarSize="sm"
-              />
-            </div>
-
-            <div className={styles['menuDivider']} />
-
-            <div className={styles['menuSection']}>
-              <NavLinks
-                className={styles['menuItem'] ?? ''}
-                iconSize="w-5 h-5"
-                onNavigate={closeMenu}
-              />
-            </div>
-
-            <div className={styles['menuDivider']} />
-
-            <div className={styles['menuSection']}>
-              <AuthActions
-                isAuthenticated={isAuthenticated}
-                className={styles['menuItem'] ?? ''}
-                iconSize="w-5 h-5"
-                onNavigate={closeMenu}
-                handleSignOut={handleSignOut}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-});
-
-NavbarMobileMenu.displayName = 'NavbarMobileMenu';
+NavbarAccountMenu.displayName = 'NavbarAccountMenu';
