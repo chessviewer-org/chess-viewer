@@ -140,7 +140,7 @@ const LatexPage = () => {
         <div
           role="tablist"
           aria-label="Studio sections"
-          className="hide-scrollbar flex gap-1 overflow-x-auto border-b border-border"
+          className="hide-scrollbar flex overflow-x-auto border-b border-border min-[360px]:gap-1"
         >
           {TABS.map(({ id, label }) => {
             const active = tab === id;
@@ -153,7 +153,7 @@ const LatexPage = () => {
                 aria-selected={active}
                 aria-controls={`${tabsId}-${id}-panel`}
                 onClick={() => setTab(id)}
-                className={`relative -mb-px inline-flex min-h-11 shrink-0 items-center gap-2 border-b-2 px-4 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent ${
+                className={`relative -mb-px inline-flex min-h-11 shrink-0 items-center gap-2 border-b-2 px-2.5 text-sm min-[360px]:px-4 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent ${
                   active
                     ? 'border-accent text-text-primary'
                     : 'border-transparent text-text-muted hover:text-text-primary'
