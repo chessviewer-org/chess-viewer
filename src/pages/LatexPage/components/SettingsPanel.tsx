@@ -1,6 +1,6 @@
 import { memo, useMemo } from 'react';
 
-import { Switch } from '@ui';
+import { Switch } from '@/shared/ui/Switch';
 import {
   LATEX_COLUMN_RANGE,
   LATEX_DOCUMENT_CLASSES,
@@ -10,7 +10,7 @@ import {
   LATEX_PACKAGE_META,
   LATEX_PAPER_SIZES,
   type LatexBoardSize
-} from '@utils';
+} from '@chessviewer-org/chess-viewer';
 import { CAPTION_STYLE_OPTIONS } from '../utils/captionStyles';
 import { estimateFit } from '../utils/layoutFit';
 import type { StudioSettings } from '../utils/latexProject';
@@ -83,6 +83,7 @@ const FONT_OPTIONS = LATEX_FONT_SIZES.map((value) => ({
 }));
 
 interface SettingsPanelProps {
+  fairyPosition?: boolean;
   settings: StudioSettings;
   onChange: (patch: Partial<StudioSettings>) => void;
   className?: string | undefined;
@@ -90,6 +91,7 @@ interface SettingsPanelProps {
 
 export const SettingsPanel = memo(function SettingsPanel({
   settings,
+  fairyPosition = false,
   onChange,
   className
 }: SettingsPanelProps) {
@@ -118,9 +120,15 @@ export const SettingsPanel = memo(function SettingsPanel({
                 key={id}
                 type="button"
                 role="radio"
+                disabled={fairyPosition && id !== 'diagram'}
+                title={
+                  fairyPosition && id !== 'diagram'
+                    ? 'Neutral and rotated pieces require diagram.'
+                    : undefined
+                }
                 aria-checked={active}
                 onClick={() => onChange({ latexPackage: id })}
-                className={`flex min-h-0 flex-col gap-1 rounded-xl border p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                className={`flex min-h-0 flex-col gap-1 rounded-xl border p-3 text-left disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                   active
                     ? 'border-accent bg-accent/5'
                     : 'border-border hover:border-text-muted/40 hover:bg-surface-elevated'

@@ -1,3 +1,5 @@
+import { parseFEN } from '@utils/fenParser';
+import { positionPieceCounts } from '@utils/boardCells';
 import { memo, useCallback, useMemo, useState } from 'react';
 
 import {
@@ -9,17 +11,17 @@ import {
   Trash2
 } from '@/assets/icons';
 
-import { FENInputField } from '@/components/features';
-import { Switch } from '@ui';
+import { FENInputField } from '@/components/features/Fen/components/FENInputField';
+import { Switch } from '@/shared/ui/Switch';
 import {
   LATEX_MAX_POSITIONS,
   LATEX_PACKAGE_META,
-  type LatexCaptionStyle,
-  pieceCounts
-} from '@utils';
+  type LatexCaptionStyle
+} from '@chessviewer-org/chess-viewer';
 import {
   type StudioPosition,
   type StudioSettings,
+  boardPreviewPosition,
   positionWarnings,
   usableFen
 } from '../utils/latexProject';
@@ -85,9 +87,15 @@ export const DiagramEditor = memo(function DiagramEditor({
   const style = position.captionStyle ?? settings.captionStyle;
   const isGame = style === 'game';
   const isPlain = style === 'plain';
-  const fen = usableFen(position.fen);
-  const counts = fen ? pieceCounts(fen) : null;
-  const warnings = useMemo(() => positionWarnings(position), [position]);
+  const counts = useMemo(() => {
+    const fen = usableFen(position.fen);
+    return fen ? positionPieceCounts(parseFEN(fen)) : null;
+  }, [position.fen]);
+  const { squares, rings, arrows } = position;
+  const warnings = useMemo(
+    () => positionWarnings({ squares, rings, arrows }),
+    [squares, rings, arrows]
+  );
 
   const { id } = position;
   const patch = useCallback(
@@ -202,14 +210,16 @@ export const DiagramEditor = memo(function DiagramEditor({
       <div className="grid gap-5 @2xl:grid-cols-[minmax(0,15rem)_minmax(0,1fr)]">
         <div className="mx-auto flex w-full max-w-[15rem] flex-col gap-1.5 @2xl:mx-0">
           <PaperBoard
-            position={position}
-            settings={settings}
+            {...boardPreviewPosition(position)}
+            latexPackage={settings.latexPackage}
+            showCoords={settings.showCoords}
             alt={`Diagram ${number} as printed`}
             className="w-full"
           />
           {counts && (
             <p className="text-center text-[11px] text-text-muted tabular-nums">
               White {counts.white} · Black {counts.black}
+              {counts.neutral > 0 && ` · Neutral ${counts.neutral}`}
             </p>
           )}
         </div>

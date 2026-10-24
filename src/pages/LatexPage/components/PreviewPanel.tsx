@@ -1,12 +1,15 @@
+import { compositionCaption } from '@utils/compositionCaption';
+import { parseFEN, positionContext } from '@utils/fenParser';
+import { positionPieceCounts } from '@utils/boardCells';
 import { type CSSProperties, memo, useMemo, useState } from 'react';
 
-import { pieceCounts } from '@utils';
 import { tokenizeLatexLine, type LatexTokenKind } from '../utils/latexSyntax';
 import { segmentButton } from '../utils/controlStyles';
 import {
   type BuildResult,
   type StudioPosition,
   type StudioSettings,
+  boardPreviewPosition,
   usableFen
 } from '../utils/latexProject';
 import { Pager } from './controls';
@@ -41,6 +44,19 @@ interface CaptionLayout {
   center: string;
 }
 
+function captionContext(rawFen: string) {
+  const fen = usableFen(rawFen);
+  return {
+    valid: fen !== null,
+    counts: fen ? positionPieceCounts(parseFEN(fen)) : null,
+    toMove:
+      fen && positionContext(fen).fenMetadata.split(' ')[0] === 'b'
+        ? 'Black to move'
+        : 'White to move',
+    composition: fen ? [...new Set(compositionCaption(fen))] : []
+  };
+}
+
 function joined(parts: string[], separator: string): string {
   return parts.filter(Boolean).join(separator);
 }
@@ -48,15 +64,14 @@ function joined(parts: string[], separator: string): string {
 function captionLayout(
   position: StudioPosition,
   number: number,
-  settings: StudioSettings
+  settings: StudioSettings,
+  { counts, toMove }: ReturnType<typeof captionContext>
 ): CaptionLayout {
   const isDiagram = settings.latexPackage === 'diagram';
   const style = position.captionStyle ?? settings.captionStyle;
-  const fen = usableFen(position.fen);
-  const counts = fen ? pieceCounts(fen) : null;
   const count =
     counts && (isDiagram || settings.pieceCount)
-      ? `(${counts.white}+${counts.black})`
+      ? `(${counts.white}+${counts.black}${counts.neutral ? `+${counts.neutral}` : ''})`
       : '';
   const numberText = settings.numbering ? `No. ${number}` : '';
   const heading = joined([numberText, position.caption], '  ');
@@ -66,7 +81,6 @@ function captionLayout(
     ['award', position.award],
     ['remark', position.remark]
   ];
-  const toMove = fen?.split(' ')[1] === 'b' ? 'Black to move' : 'White to move';
   const blank = { above: [], left: '', right: '', center: '' };
 
   switch (
@@ -132,7 +146,8 @@ const PreviewCard = memo(function PreviewCard({
   number,
   settings
 }: PreviewCardProps) {
-  const layout = captionLayout(position, number, settings);
+  const context = useMemo(() => captionContext(position.fen), [position.fen]);
+  const layout = captionLayout(position, number, settings, context);
   const lines = layout.above.filter(([, text]) => text);
 
   return (
@@ -154,11 +169,20 @@ const PreviewCard = memo(function PreviewCard({
         ))}
       </figcaption>
       <PaperBoard
-        position={position}
-        settings={settings}
+        {...boardPreviewPosition(position)}
+        latexPackage={settings.latexPackage}
+        showCoords={settings.showCoords}
         alt={`Diagram ${number}`}
         className="w-full max-w-[15rem]"
       />
+      {context.valid && (
+        <div className="w-full text-xs text-neutral-700 break-words">
+          {context.composition.map((line) => (
+            <p key={line}>{line}</p>
+          ))}
+        </div>
+      )}
+
       <div className="w-full max-w-[15rem] text-xs">
         {(layout.left || layout.right) && (
           <p className="flex justify-between gap-2">
@@ -239,10 +263,12 @@ export const PreviewPanel = memo(function PreviewPanel({
   );
   const lines = useMemo(
     () =>
-      build.code
-        .split('\n')
-        .map((text, offset): CodeLine => ({ number: offset + 1, text })),
-    [build.code]
+      view === 'code'
+        ? build.code
+            .split('\n')
+            .map((text, offset): CodeLine => ({ number: offset + 1, text }))
+        : [],
+    [build.code, view]
   );
 
   const columns = Math.min(settings.columns, 4);

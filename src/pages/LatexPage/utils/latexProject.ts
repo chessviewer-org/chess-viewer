@@ -1,4 +1,11 @@
 import {
+  normalizePositionFEN as normalizeFEN,
+  MAX_POSITION_LENGTH,
+  validateFENDetailed
+} from '@utils/fenParser';
+import { generatePositionLatex as generateLatexDocument } from '@utils/fairyLatex';
+import { generatePositionPreview as generateDiagram } from './fairyPreview';
+import {
   LATEX_BOARD_SIZES,
   LATEX_CAPTION_STYLES,
   LATEX_COLUMN_RANGE,
@@ -19,15 +26,12 @@ import {
   type LatexPosition,
   type SquareHighlight,
   STARTING_FEN,
-  generateDiagram,
-  generateLatexDocument,
   isValidHexColor,
-  normalizeFEN,
   safeJSONParse,
-  squareToIndices,
-  validateFENDetailed
+  squareToIndices
 } from '@chessviewer-org/chess-viewer';
 import { consumeStagedPositions } from '@utils/latexHandoff';
+import { memoizeString } from '@utils/memoize';
 
 export const LATEX_STORAGE_KEY = 'cv_latex_project';
 export const LATEX_PROJECT_VERSION = 1;
@@ -77,6 +81,41 @@ export interface StudioSettings {
   pieceCount: boolean;
   solutions: boolean;
   captionStyle: LatexCaptionStyle;
+}
+
+export type BoardPreviewPosition = Pick<
+  StudioPosition,
+  | 'fen'
+  | 'flipped'
+  | 'squares'
+  | 'rings'
+  | 'arrows'
+  | 'squareColor'
+  | 'ringColor'
+  | 'arrowColor'
+>;
+
+/** Keep metadata out of the memoized board's props and image generation. */
+export function boardPreviewPosition({
+  fen,
+  flipped,
+  squares,
+  rings,
+  arrows,
+  squareColor,
+  ringColor,
+  arrowColor
+}: BoardPreviewPosition): BoardPreviewPosition {
+  return {
+    fen,
+    flipped,
+    squares,
+    rings,
+    arrows,
+    squareColor,
+    ringColor,
+    arrowColor
+  };
 }
 
 export interface LatexProject {
@@ -178,23 +217,25 @@ export function createDefaultProject(): LatexProject {
   };
 }
 
-function checkedFen(fen: string): { fen: string; problem: string | null } {
-  const trimmed = fen.trim();
-  if (!trimmed) return { fen: '', problem: 'FEN is empty' };
-  try {
-    const normalized = normalizeFEN(trimmed);
-    const { isValid, errorMessage } = validateFENDetailed(normalized);
-    return {
-      fen: normalized,
-      problem: isValid ? null : (errorMessage ?? 'Invalid FEN')
-    };
-  } catch (err: unknown) {
-    return {
-      fen: trimmed,
-      problem: err instanceof Error ? err.message : 'Invalid FEN'
-    };
+const checkedFen = memoizeString(
+  (fen): { readonly fen: string; readonly problem: string | null } => {
+    const trimmed = fen.trim();
+    if (!trimmed) return { fen: '', problem: 'FEN is empty' };
+    try {
+      const normalized = normalizeFEN(trimmed);
+      const { isValid, errorMessage } = validateFENDetailed(normalized);
+      return {
+        fen: normalized,
+        problem: isValid ? null : (errorMessage ?? 'Invalid FEN')
+      };
+    } catch (err: unknown) {
+      return {
+        fen: trimmed,
+        problem: err instanceof Error ? err.message : 'Invalid FEN'
+      };
+    }
   }
-}
+);
 
 export function usableFen(fen: string): string | null {
   const { fen: normalized, problem } = checkedFen(fen);
@@ -236,7 +277,9 @@ export function parseArrowList(text: string): {
   return { arrows, invalid };
 }
 
-export function positionWarnings(position: StudioPosition): PositionWarnings {
+export function positionWarnings(
+  position: Pick<StudioPosition, 'squares' | 'rings' | 'arrows'>
+): PositionWarnings {
   return {
     squares: parseSquareList(position.squares).invalid,
     rings: parseSquareList(position.rings).invalid,
@@ -244,7 +287,7 @@ export function positionWarnings(position: StudioPosition): PositionWarnings {
   };
 }
 
-export function positionAnnotations(position: StudioPosition): {
+export function positionAnnotations(position: BoardPreviewPosition): {
   highlights: SquareHighlight[];
   arrows: Arrow[];
 } {
@@ -301,7 +344,9 @@ export function toLatexPosition(
   };
 }
 
-export function buildLatex(project: LatexProject): BuildResult {
+export function buildLatex<
+  T extends Pick<LatexProject, 'positions' | 'settings'>
+>(project: T): BuildResult {
   const skipped: SkippedPosition[] = [];
   const positions: LatexPosition[] = [];
 
@@ -355,7 +400,9 @@ export function buildLatex(project: LatexProject): BuildResult {
 
 export function parseBulkInput(text: string): StudioPosition[] {
   const result: StudioPosition[] = [];
-  for (const rawLine of text.split(/\r?\n/)) {
+  const entries =
+    text.match(/BeginProblem\b[\s\S]*?\bEndProblem|[^\r\n]+/gi) ?? [];
+  for (const rawLine of entries) {
     const line = rawLine.trim();
     if (!line) continue;
     const [fen = '', author = '', source = '', stipulation = ''] = line
@@ -363,7 +410,7 @@ export function parseBulkInput(text: string): StudioPosition[] {
       .map((part) => part.trim());
     if (usableFen(fen) === null) continue;
     result.push(
-      createPosition(fen.slice(0, TEXT_LIMIT), {
+      createPosition(fen.slice(0, MAX_POSITION_LENGTH), {
         author: author.slice(0, TEXT_LIMIT),
         source: source.slice(0, TEXT_LIMIT),
         stipulation: stipulation.slice(0, TEXT_LIMIT)
@@ -413,7 +460,7 @@ function sanitizePosition(raw: unknown): StudioPosition | null {
   const text = (key: string, limit = TEXT_LIMIT) => clampText(raw[key], limit);
   return {
     id: clampText(raw['id'], 40) || newPositionId(),
-    fen: text('fen'),
+    fen: text('fen', MAX_POSITION_LENGTH),
     flipped: flag('flipped'),
     caption: text('caption'),
     author: text('author'),
@@ -532,11 +579,12 @@ export function loadProject(): LatexProject {
   }
 }
 
-export function saveProject(project: LatexProject): void {
+export function saveProject(project: LatexProject): boolean {
   try {
     window.localStorage.setItem(LATEX_STORAGE_KEY, JSON.stringify(project));
+    return true;
   } catch {
-    return;
+    return false;
   }
 }
 
@@ -622,7 +670,7 @@ const THUMB_DARK = '#b8b8b8';
 const HATCH_MIN_BOARD_PX = 160;
 
 export function previewDataUri(
-  position: StudioPosition,
+  position: BoardPreviewPosition,
   options: { size: number; showAnnotations: boolean }
 ): string | null {
   const fen = usableFen(position.fen);
