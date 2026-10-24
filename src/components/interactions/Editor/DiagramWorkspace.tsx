@@ -15,7 +15,6 @@ import {
 import { NotificationContainer } from '@/shared/ui/NotificationContainer';
 import { Seo } from '@/shared/ui/Seo';
 import { isFairyFEN, validateFENDetailed } from '@utils/fenParser';
-import type { BoardCell } from '@app-types';
 import type { useHome } from '@/pages/HomePage/hooks/useHome';
 
 const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
@@ -23,7 +22,6 @@ const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 interface DiagramWorkspaceProps {
   home: ReturnType<typeof useHome>;
   variant?: 'standard' | 'fairy';
-  palettePiece?: BoardCell | null;
   header?: React.ReactNode;
   children?: React.ReactNode;
 }
@@ -31,7 +29,6 @@ interface DiagramWorkspaceProps {
 const DiagramWorkspace: React.FC<DiagramWorkspaceProps> = ({
   home,
   variant = 'standard',
-  palettePiece,
   header,
   children
 }) => {
@@ -136,7 +133,6 @@ const DiagramWorkspace: React.FC<DiagramWorkspaceProps> = ({
             <div className="workspace-container bg-surface border border-border/40 rounded-xl p-fluid-xs sm:p-fluid-sm overflow-x-hidden">
               <ChessEditor
                 variant={variant}
-                palettePiece={palettePiece ?? null}
                 fen={home.fen}
                 onFenChange={home.handleEditorFenChange}
                 pieceStyle={home.pieceStyle}

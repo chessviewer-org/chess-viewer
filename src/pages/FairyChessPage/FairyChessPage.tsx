@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
+import { Download, Upload } from '@/assets/icons';
 import DiagramWorkspace from '@/components/interactions/Editor/DiagramWorkspace';
-import { FairySetup } from '@/components/interactions/FairySetup/FairySetup';
 import { useHome } from '@/pages/HomePage/hooks/useHome';
 import {
   parseFEN,
@@ -9,11 +9,10 @@ import {
 } from '@utils/fenParser';
 import { serializePopeye, MAX_COMPOSITION_LENGTH } from '@utils/popeye';
 import { saveBlob } from '@utils/saveBlob';
-import type { BoardCell } from '@app-types';
+import { BUTTON } from '@/components/interactions/FairySetup/controls';
 
 export default function FairyChessPage() {
   const home = useHome('fairy');
-  const [palettePiece, setPalettePiece] = useState<BoardCell | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const importPosition = async (file: File) => {
     try {
@@ -24,7 +23,6 @@ export default function FairyChessPage() {
       if (!validation.isValid)
         throw new Error(validation.errorMessage ?? 'Invalid position.');
       home.setFen(source);
-      setPalettePiece(null);
       home.handleNotification('Position imported', 'success');
     } catch (error) {
       home.handleNotification(
@@ -35,9 +33,15 @@ export default function FairyChessPage() {
   };
   const downloadPosition = () => {
     try {
+      const validation = validateFENDetailed(home.fen);
+      if (!validation.isValid)
+        throw new Error(
+          validation.errorMessage ?? 'Correct the position before saving.'
+        );
+      const context = positionContext(home.fen);
       const source = serializePopeye(parseFEN(home.fen), {
-        ...positionContext(home.fen),
-        commands: positionContext(home.fen).commands ?? []
+        ...context,
+        commands: context.commands ?? []
       });
       saveBlob(
         new Blob([source], { type: 'text/plain;charset=utf-8' }),
@@ -58,11 +62,18 @@ export default function FairyChessPage() {
     <DiagramWorkspace
       home={home}
       variant="fairy"
-      palettePiece={palettePiece}
       header={
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 pb-1">
-          <p className="text-lg font-semibold text-text-primary">Fairy chess</p>
-          <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 pt-2 pb-1">
+          <div className="min-w-0">
+            <p className="text-lg font-semibold tracking-tight text-text-primary">
+              Fairy chess
+            </p>
+            <p className="text-xs text-text-secondary">
+              Rotated, neutral and named pieces, markers, conditions and Popeye
+              notation.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
             <input
               ref={fileRef}
               type="file"
@@ -77,75 +88,23 @@ export default function FairyChessPage() {
             />
             <button
               type="button"
-              className="min-h-10 px-3 border border-border rounded-lg text-sm text-text-secondary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className={BUTTON}
               onClick={() => fileRef.current?.click()}
             >
-              Import position
+              <Upload className="size-3.5" aria-hidden="true" />
+              Import
             </button>
             <button
               type="button"
-              className="min-h-10 px-3 border border-border rounded-lg text-sm text-text-secondary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className={`${BUTTON} border-accent/40 bg-accent/10 text-accent enabled:hover:text-accent`}
               onClick={downloadPosition}
             >
-              Save Popeye
+              <Download className="size-3.5" aria-hidden="true" />
+              Save .inp
             </button>
           </div>
         </div>
       }
-    >
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
-        <section
-          id="fairy-catalogue"
-          className="min-w-0 rounded-xl border border-border/40 bg-surface p-fluid-sm scroll-mt-20"
-        >
-          <FairySetup
-            section="pieces"
-            fen={home.fen}
-            pieceStyle={home.pieceStyle}
-            selectedPiece={palettePiece}
-            onPick={(piece) => {
-              setPalettePiece(piece);
-              document
-                .querySelector('[data-palette-mode="fairy"]')
-                ?.scrollIntoView({
-                  block: 'start',
-                  behavior: window.matchMedia(
-                    '(prefers-reduced-motion: reduce)'
-                  ).matches
-                    ? 'instant'
-                    : 'smooth'
-                });
-            }}
-            onUseSymbols={() => setPalettePiece(null)}
-            onChange={home.handleEditorFenChange}
-          />
-        </section>
-        <section
-          id="fairy-problem"
-          className="min-w-0 rounded-xl border border-border/40 bg-surface p-fluid-sm scroll-mt-20"
-        >
-          <FairySetup
-            section="problem"
-            fen={home.fen}
-            pieceStyle={home.pieceStyle}
-            onPick={(piece) => {
-              setPalettePiece(piece);
-              document
-                .querySelector('[data-palette-mode="fairy"]')
-                ?.scrollIntoView({
-                  block: 'start',
-                  behavior: window.matchMedia(
-                    '(prefers-reduced-motion: reduce)'
-                  ).matches
-                    ? 'instant'
-                    : 'smooth'
-                });
-            }}
-            onUseSymbols={() => setPalettePiece(null)}
-            onChange={home.handleEditorFenChange}
-          />
-        </section>
-      </div>
-    </DiagramWorkspace>
+    />
   );
 }

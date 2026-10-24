@@ -13,7 +13,7 @@ import {
 
 export function usePieceImages(
   pieceStyle: string,
-  { positions, board, palette, rotation, selectedPiece }: PieceImageRequest = {}
+  { positions, board, selectedPiece }: PieceImageRequest = {}
 ): {
   pieceImages: Record<string, HTMLImageElement>;
   isLoading: boolean;
@@ -24,11 +24,9 @@ export function usePieceImages(
       requestedPieceKeys({
         ...(positions !== undefined ? { positions } : {}),
         ...(board ? { board } : {}),
-        ...(palette ? { palette } : {}),
-        ...(rotation !== undefined ? { rotation } : {}),
         ...(selectedPiece ? { selectedPiece } : {})
       }).join('|'),
-    [positions, board, palette, rotation, selectedPiece]
+    [positions, board, selectedPiece]
   );
   // A board edit with the same kinds of pieces keeps the same map and images.
   const pieceMap = useMemo(

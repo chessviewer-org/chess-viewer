@@ -3,17 +3,10 @@ import { test } from 'node:test';
 import { requestedPieceKeys } from '../src/shared/utils/pieceRequest';
 import { parseFEN } from '../src/shared/utils/fenParser';
 
-test('standard and fairy load only currently visible palette artwork', () => {
-  assert.equal(requestedPieceKeys({}).length, 12);
-  const fairy = requestedPieceKeys({ palette: 'fairy' });
-  assert.equal(fairy.length, 30);
-  assert.ok(fairy.includes('nQ'));
-  assert.ok(!fairy.some((key) => /90|180|270/.test(key)));
-  const turned = requestedPieceKeys({ palette: 'fairy', rotation: 90 });
-  assert.equal(turned.length, 42);
-  assert.ok(turned.includes('nQ90'));
-  assert.ok(turned.includes('wK'));
-  assert.ok(!turned.some((key) => /180|270/.test(key)));
+test('an empty request loads only the standard palette artwork', () => {
+  const keys = requestedPieceKeys({});
+  assert.equal(keys.length, 12);
+  assert.ok(!keys.some((key) => /^n|90|180|270/.test(key)));
 });
 
 test('imported positions retain each used rotation and neutral symbol', () => {
@@ -45,12 +38,13 @@ test('actual board stays authoritative while input is incomplete', () => {
   assert.equal(requestedPieceKeys({ positions: '-*' }).length, 12);
 });
 
-test('catalogue selection loads all three colours without loading the catalogue', () => {
+test('the held piece loads without loading the rest of the catalogue', () => {
   const board = Array.from({ length: 8 }, () => Array<string>(8).fill(''));
   board[0]![0] = 'n@WR';
   const keys = requestedPieceKeys({ board, selectedPiece: 'w@WR' });
-  assert.equal(keys.length, 15);
-  for (const color of ['w', 'b', 'n']) assert.ok(keys.includes(`${color}@WR`));
+  assert.equal(keys.length, 14);
+  for (const key of ['w@WR', 'n@WR']) assert.ok(keys.includes(key), key);
+  assert.ok(!keys.includes('b@WR'));
 });
 
 test('artwork identity ignores cell attributes and is independent of square order', () => {

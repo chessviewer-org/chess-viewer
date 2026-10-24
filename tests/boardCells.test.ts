@@ -11,7 +11,12 @@ import {
   positionPieceCounts
 } from '@utils/boardCells';
 import { getPieceKey, piecePath } from '@utils/pieceUtils';
-import { FAIRY_BOXES, FAIRY_PIECE_KEYS, FAIRY_PIECE_MAP } from '@constants';
+import {
+  FAIRY_COLORS,
+  FAIRY_PIECE_TYPES,
+  FAIRY_ROTATIONS,
+  fairyCode
+} from '@constants';
 import type { ChessBoard, PieceSymbol } from '@app-types';
 
 const EMPTY: PieceSymbol[][] = Array.from({ length: 8 }, () =>
@@ -177,42 +182,23 @@ describe('piecePath', () => {
   });
 });
 
-describe('fairy piece constants', () => {
-  test('fairy artwork keys distinguish generated files from inline markers', () => {
-    assert.equal(FAIRY_PIECE_KEYS.length, 108);
-    assert.equal(Object.keys(FAIRY_PIECE_MAP).length, 108);
-    for (const key of FAIRY_PIECE_KEYS) {
+describe('fairy piece glyphs', () => {
+  test('rotated and neutral pieces use generated files, markers draw inline', () => {
+    const glyphs = FAIRY_COLORS.flatMap((color) =>
+      FAIRY_PIECE_TYPES.flatMap((type) =>
+        FAIRY_ROTATIONS.map((rotation) => fairyCode(color, type, rotation))
+      )
+    ).filter((key) => !/^[wb][KQRBNP]$/.test(key));
+    assert.equal(glyphs.length, 108);
+    for (const key of glyphs) {
       if (/^[wbn][CXST]/.test(key)) {
-        assert.equal(FAIRY_PIECE_MAP[key], '');
         assert.match(piecePath('cburnett', key), /^data:image\/svg\+xml/);
         assert.equal(piecePath('cburnett', key), piecePath('merida', key));
-      } else assert.equal(FAIRY_PIECE_MAP[key], `${key}.svg`);
-      assert.ok(!/^[wb][KQRBNP]$/.test(key), `${key} is a base piece`);
-    }
-  });
-
-  test('thirty boxes ordered by colour, then pieces and diagram marks', () => {
-    assert.equal(FAIRY_BOXES.length, 30);
-    assert.deepEqual(
-      FAIRY_BOXES.map((box) => box.color),
-      ['w', 'b', 'n'].flatMap((color) => Array(10).fill(color))
-    );
-    assert.deepEqual(
-      FAIRY_BOXES.slice(0, 10).map((box) => box.type),
-      ['K', 'Q', 'R', 'B', 'N', 'P', 'C', 'X', 'S', 'T']
-    );
-  });
-
-  test('every box exposes four ascending rotation variants', () => {
-    for (const box of FAIRY_BOXES) {
-      assert.equal(box.variants[0], box.key);
-      assert.deepEqual(box.variants, [
-        box.key,
-        `${box.key}90`,
-        `${box.key}180`,
-        `${box.key}270`
-      ]);
-      assert.equal(new Set(box.variants).size, 4);
+      } else
+        assert.equal(
+          piecePath('cburnett', key),
+          `/fairypiece/cburnett/${key}.svg`
+        );
     }
   });
 });
