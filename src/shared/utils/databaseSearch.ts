@@ -166,30 +166,23 @@ export async function searchPositionDatabases(
   if (!fen || !validateFEN(fen)) return notFound(fen);
   if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
 
-  try {
-    let res = await callSearch(fen);
-
-    if (needsVerification(res.error)) {
-      const verified = await verifyHuman();
-      if (verified) res = await callSearch(fen);
-    }
-
-    if (res.error || !isEdgeSearchResponse(res.data)) {
-      return notFound(fen);
-    }
-
-    if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
-
-    const result = notFound(fen);
-    for (const p of PROVIDERS) {
-      const hit = res.data[p];
-      if (hit.url.startsWith('https://')) {
-        result[p] = { found: hit.found, url: hit.url };
-      }
-    }
-    return result;
-  } catch (err) {
-    if (err instanceof Error && err.name === 'AbortError') throw err;
-    return notFound(fen);
+  let res = await callSearch(fen);
+  if (needsVerification(res.error) && (await verifyHuman())) {
+    res = await callSearch(fen);
   }
+
+  if (res.error || !isEdgeSearchResponse(res.data)) {
+    throw new Error(res.error?.message ?? 'invalid_response');
+  }
+
+  if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+
+  const result = notFound(fen);
+  for (const p of PROVIDERS) {
+    const hit = res.data[p];
+    if (hit.url.startsWith('https://')) {
+      result[p] = { found: hit.found, url: hit.url };
+    }
+  }
+  return result;
 }
