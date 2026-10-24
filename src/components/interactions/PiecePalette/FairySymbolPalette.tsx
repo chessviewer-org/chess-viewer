@@ -158,85 +158,107 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
   }
 
   return (
-    <div className="min-w-0" onClick={(event) => event.stopPropagation()}>
-      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <div role="tablist" aria-label="Fairy pieces" className="flex gap-4">
-          {TABS.map((item, index) => (
-            <button
-              key={item.id}
-              type="button"
-              role="tab"
-              id={`${id}-${item.id}-tab`}
-              aria-controls={`${id}-${item.id}-panel`}
-              aria-selected={tab === item.id}
-              tabIndex={tab === item.id ? 0 : -1}
-              className="flex h-8 cursor-pointer items-center gap-1.5 border-b-2 border-transparent text-xs font-semibold tracking-[0.075em] text-text-secondary uppercase hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent aria-selected:border-accent aria-selected:text-text-primary"
-              onClick={() => setTab(item.id)}
-              onKeyDown={(event) => {
-                if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft')
-                  return;
-                event.preventDefault();
-                const next = TABS[(index + 1) % TABS.length];
-                if (!next) return;
-                setTab(next.id);
-                document.getElementById(`${id}-${next.id}-tab`)?.focus();
-              }}
-            >
-              {item.label}
-            </button>
-          ))}
+    <div
+      className="@container min-w-0"
+      onClick={(event) => event.stopPropagation()}
+    >
+      <div
+        className={
+          tab === 'named'
+            ? 'grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 @[28rem]:grid-cols-[auto_minmax(0,1fr)]'
+            : undefined
+        }
+      >
+        <div
+          className={
+            tab === 'named'
+              ? 'contents'
+              : 'mb-2 flex flex-wrap items-center justify-between gap-2'
+          }
+        >
+          <div
+            role="tablist"
+            aria-label="Fairy pieces"
+            className={`flex gap-4 ${tab === 'named' ? 'col-span-2 col-start-1 row-start-1 @[28rem]:col-span-1' : ''}`}
+          >
+            {TABS.map((item, index) => (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                id={`${id}-${item.id}-tab`}
+                aria-controls={`${id}-${item.id}-panel`}
+                aria-selected={tab === item.id}
+                tabIndex={tab === item.id ? 0 : -1}
+                className="flex h-8 cursor-pointer items-center gap-1.5 border-b-2 border-transparent text-xs font-semibold tracking-[0.075em] text-text-secondary uppercase hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent aria-selected:border-accent aria-selected:text-text-primary"
+                onClick={() => setTab(item.id)}
+                onKeyDown={(event) => {
+                  if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft')
+                    return;
+                  event.preventDefault();
+                  const next = TABS[(index + 1) % TABS.length];
+                  if (!next) return;
+                  setTab(next.id);
+                  document.getElementById(`${id}-${next.id}-tab`)?.focus();
+                }}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+          {tab === 'symbols' ? (
+            <Segmented
+              label="Rotation, clockwise"
+              value={String(rotation) as `${FairyRotation}`}
+              options={ROTATION_OPTIONS}
+              onChange={(value) =>
+                restyle(markerColor, Number(value) as FairyRotation)
+              }
+              className="ml-auto font-mono"
+            />
+          ) : (
+            <Segmented
+              label="Named piece colour"
+              value={namedColor}
+              options={COLOR_OPTIONS}
+              onChange={setNamedColor}
+              className="col-start-2 row-start-2 justify-self-end [&>button]:px-1 [&>button]:text-[0.6875rem] @[28rem]:row-start-1 @[28rem]:[&>button]:px-2 @[28rem]:[&>button]:text-xs"
+            />
+          )}
         </div>
-        {tab === 'symbols' ? (
-          <Segmented
-            label="Rotation, clockwise"
-            value={String(rotation) as `${FairyRotation}`}
-            options={ROTATION_OPTIONS}
-            onChange={(value) =>
-              restyle(markerColor, Number(value) as FairyRotation)
-            }
-            className="ml-auto font-mono"
+        <div
+          role="tabpanel"
+          id={`${id}-symbols-panel`}
+          aria-labelledby={`${id}-symbols-tab`}
+          hidden={tab !== 'symbols'}
+        >
+          <PiecePalette
+            pieceImages={pieceImages}
+            groups={groups}
+            selectedPiece={selectedPiece}
+            onSelect={onSelect}
+            onKeyboardPick={onKeyboardPick}
           />
-        ) : (
-          <Segmented
-            label="Named piece colour"
-            value={namedColor}
-            options={COLOR_OPTIONS}
-            onChange={setNamedColor}
-            className="ml-auto"
+          {error && (
+            <p role="alert" className="mt-2 text-xs text-error">
+              {error}. Reload to try again.
+            </p>
+          )}
+        </div>
+        <div
+          role="tabpanel"
+          id={`${id}-named-panel`}
+          aria-labelledby={`${id}-named-tab`}
+          hidden={tab !== 'named'}
+          className={tab === 'named' ? 'contents' : undefined}
+        >
+          <FairyCatalogue
+            color={namedColor}
+            selectedPiece={selectedPiece}
+            onSelect={onSelect}
+            onKeyboardPick={onKeyboardPick}
           />
-        )}
-      </div>
-      <div
-        role="tabpanel"
-        id={`${id}-symbols-panel`}
-        aria-labelledby={`${id}-symbols-tab`}
-        hidden={tab !== 'symbols'}
-      >
-        <PiecePalette
-          pieceImages={pieceImages}
-          groups={groups}
-          selectedPiece={selectedPiece}
-          onSelect={onSelect}
-          onKeyboardPick={onKeyboardPick}
-        />
-        {error && (
-          <p role="alert" className="mt-2 text-xs text-error">
-            {error}. Reload to try again.
-          </p>
-        )}
-      </div>
-      <div
-        role="tabpanel"
-        id={`${id}-named-panel`}
-        aria-labelledby={`${id}-named-tab`}
-        hidden={tab !== 'named'}
-      >
-        <FairyCatalogue
-          color={namedColor}
-          selectedPiece={selectedPiece}
-          onSelect={onSelect}
-          onKeyboardPick={onKeyboardPick}
-        />
+        </div>
       </div>
     </div>
   );
