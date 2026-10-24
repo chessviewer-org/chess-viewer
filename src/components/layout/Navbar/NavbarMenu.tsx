@@ -253,71 +253,72 @@ export const NavbarAccountMenu = memo(function NavbarAccountMenu({
       >
         <UserCircle className="w-6 h-6" aria-hidden="true" />
       </button>
-      {isOpen && (
-        <div
-          id={`${id}-panel`}
-          ref={panelRef}
-          className={styles['accountPanel']}
-          role="menu"
-          aria-labelledby={`${id}-button`}
-          onKeyDown={(event) => {
-            if (event.key === 'Escape') {
-              event.preventDefault();
-              event.stopPropagation();
-              close();
-              buttonRef.current?.focus();
-              return;
-            }
-            const items = Array.from(
-              panelRef.current?.querySelectorAll<HTMLElement>(
-                '[role="menuitem"]'
-              ) ?? []
-            );
-            const index = items.indexOf(document.activeElement as HTMLElement);
-            let next: number | undefined;
-            if (event.key === 'ArrowDown') next = (index + 1) % items.length;
-            if (event.key === 'ArrowUp')
-              next = (index - 1 + items.length) % items.length;
-            if (event.key === 'Home') next = 0;
-            if (event.key === 'End') next = items.length - 1;
-            if (next !== undefined) {
-              event.preventDefault();
-              items[next]?.focus();
-            } else if (
-              event.key === ' ' &&
-              document.activeElement instanceof HTMLAnchorElement
-            ) {
-              event.preventDefault();
-              document.activeElement.click();
-            }
-          }}
-        >
-          <div className={styles['accountHeader']} role="presentation">
-            <ProfileHeader
-              displayName={profile.displayName}
-              membershipTier={membershipTier}
-              isAuthenticated={isAuthenticated}
-              avatarSize="sm"
-            />
-          </div>
-          <div className={styles['accountLinks']} role="presentation">
-            <NavLinks
-              className={styles['menuItem'] ?? ''}
-              iconSize="w-4 h-4 text-text-secondary"
-              onNavigate={close}
-            />
-          </div>
-          <div className={styles['accountLinks']} role="presentation">
-            <AuthActions
-              isAuthenticated={isAuthenticated}
-              className={styles['menuItem'] ?? ''}
-              iconSize="w-4 h-4 text-text-secondary"
-              onNavigate={close}
-              handleSignOut={handleSignOut}
-            />
-          </div>
+      <div
+        id={`${id}-panel`}
+        ref={panelRef}
+        className={styles['accountPanel']}
+        role="menu"
+        aria-labelledby={`${id}-button`}
+        data-open={isOpen}
+        inert={!isOpen}
+        aria-hidden={!isOpen}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+            close();
+            buttonRef.current?.focus();
+            return;
+          }
+          const items = Array.from(
+            panelRef.current?.querySelectorAll<HTMLElement>(
+              '[role="menuitem"]'
+            ) ?? []
+          );
+          const index = items.indexOf(document.activeElement as HTMLElement);
+          let next: number | undefined;
+          if (event.key === 'ArrowDown') next = (index + 1) % items.length;
+          if (event.key === 'ArrowUp')
+            next = (index - 1 + items.length) % items.length;
+          if (event.key === 'Home') next = 0;
+          if (event.key === 'End') next = items.length - 1;
+          if (next !== undefined) {
+            event.preventDefault();
+            items[next]?.focus();
+          } else if (
+            event.key === ' ' &&
+            document.activeElement instanceof HTMLAnchorElement
+          ) {
+            event.preventDefault();
+            document.activeElement.click();
+          }
+        }}
+      >
+        <div className={styles['accountHeader']} role="presentation">
+          <ProfileHeader
+            displayName={profile.displayName}
+            membershipTier={membershipTier}
+            isAuthenticated={isAuthenticated}
+            avatarSize="sm"
+          />
         </div>
-      )}
+        <div className={styles['accountLinks']} role="presentation">
+          <NavLinks
+            className={styles['menuItem'] ?? ''}
+            iconSize="w-4 h-4 text-text-secondary"
+            onNavigate={close}
+          />
+        </div>
+        <div className={styles['accountLinks']} role="presentation">
+          <AuthActions
+            isAuthenticated={isAuthenticated}
+            className={styles['menuItem'] ?? ''}
+            iconSize="w-4 h-4 text-text-secondary"
+            onNavigate={close}
+            handleSignOut={handleSignOut}
+          />
+        </div>
+      </div>
     </div>
   );
 });

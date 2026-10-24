@@ -5,23 +5,22 @@ import { Link } from 'wouter';
 
 import {
   type PageTabGroup,
-  PageSidebarLayout,
   PageTabs
-} from '@/components/layout';
-import {
-  useHomeExport,
-  useNotifications,
-  usePieceImages,
-  useSearchParams
-} from '@hooks';
+} from '@/components/layout/Sidebar/PageTabs';
+import { PageSidebarLayout } from '@/components/layout/Sidebar/PageSidebarLayout';
+import { useHomeExport } from '@/shared/hooks/useHomeExport';
+import { useNotifications } from '@/shared/hooks/useNotifications';
+import { usePieceImages } from '@/shared/hooks/usePieceImages';
+import { useSearchParams } from '@/shared/hooks/useSearchParams';
+import { withViewTransition } from '@/shared/utils/viewTransition';
 
-import { safeJSONParse } from '@utils';
+import { safeJSONParse } from '@chessviewer-org/chess-viewer';
 import {
   EXPORT_BREADCRUMB_SCHEMA,
   EXPORT_HOWTO_SCHEMA,
   getRouteSeo
 } from '@constants';
-import { Seo } from '@ui';
+import { Seo } from '@/shared/ui/Seo';
 import BoardStyleStep from './components/BoardStyleStep';
 import ExportSettingsStep from './components/ExportSettingsStep';
 import {
@@ -120,16 +119,17 @@ const ExportPageInner = ({ config }: { config: ExportPageConfig }) => {
   );
 
   const setActiveTab = useCallback(
-    (tab: 'board-style' | 'export-settings') => {
-      setActiveTabState(tab);
-      setSearchParams(
-        (prev) => {
-          prev.set('tab', tab);
-          return prev;
-        },
-        { replace: true }
-      );
-    },
+    (tab: 'board-style' | 'export-settings') =>
+      withViewTransition(() => {
+        setActiveTabState(tab);
+        setSearchParams(
+          (prev) => {
+            prev.set('tab', tab);
+            return prev;
+          },
+          { replace: true }
+        );
+      }),
     [setSearchParams]
   );
 
@@ -155,7 +155,9 @@ const ExportPageInner = ({ config }: { config: ExportPageConfig }) => {
     notify: { success, error, info }
   });
 
-  const { pieceImages, isLoading } = usePieceImages(boardConfig.pieceStyle);
+  const { pieceImages, isLoading } = usePieceImages(boardConfig.pieceStyle, {
+    positions: boardConfig.fen
+  });
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
