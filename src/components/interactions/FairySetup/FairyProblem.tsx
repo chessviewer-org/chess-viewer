@@ -14,7 +14,7 @@ import {
   serializePopeye
 } from '@/shared/utils/popeye';
 import { saveBlob } from '@/shared/utils/saveBlob';
-import { AREA, BUTTON, CHIP, CONTROL, LABEL, PRIMARY } from './controls';
+import { ACTION, AREA, CHIP, CONTROL, LABEL, PRIMARY } from './controls';
 import { SearchField } from './SearchField';
 
 interface FairyProblemProps {
@@ -291,13 +291,13 @@ export const FairyProblem = memo(function FairyProblem({
   return (
     <section
       aria-labelledby={`${id}-heading`}
-      className="@container space-y-4 rounded-xl border border-border/40 bg-surface-elevated p-3"
+      className="@container space-y-4 rounded-xl border border-border/40 bg-surface px-fluid-sm py-2.5 sm:py-3"
       onClick={(event) => event.stopPropagation()}
     >
       <div className="flex items-center justify-between gap-2">
         <h2
           id={`${id}-heading`}
-          className="text-xs font-bold tracking-[0.075em] text-text-secondary uppercase"
+          className="text-fluid-sm font-semibold text-text-primary"
         >
           Popeye problem
         </h2>
@@ -316,13 +316,13 @@ export const FairyProblem = memo(function FairyProblem({
           />
           <button
             type="button"
-            className={`${BUTTON} h-8`}
+            className={ACTION}
             onClick={() => fileRef.current?.click()}
           >
             <Upload className="size-3.5" aria-hidden="true" />
             Import
           </button>
-          <button type="button" className={`${BUTTON} h-8`} onClick={saveFile}>
+          <button type="button" className={ACTION} onClick={saveFile}>
             <Download className="size-3.5" aria-hidden="true" />
             Save .inp
           </button>

@@ -30,7 +30,6 @@ import {
 } from '../../Board';
 import { PiecePalette } from '../../PiecePalette';
 import { FairySymbolPalette } from '../../PiecePalette/FairySymbolPalette';
-import { FairyProblem } from '../../FairySetup/FairyProblem';
 import { CompositionLegend } from '../../FairySetup/CompositionLegend';
 import { CommandBar } from './CommandBar';
 import { DatabaseSearchPanel } from './DatabaseSearchPanel';
@@ -374,9 +373,6 @@ export const ChessEditor = memo(function ChessEditor({
           </div>
         </div>
 
-        {variant === 'fairy' && (
-          <FairyProblem fen={fen} onChange={onFenChange} />
-        )}
         <CompositionLegend fen={fen} />
         <div className={styles.editorDbRow}>
           <DatabaseSearchPanel
