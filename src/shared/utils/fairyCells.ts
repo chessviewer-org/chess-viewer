@@ -83,14 +83,23 @@ export const FAIRY_LETTER_PIECE_MAP: Record<string, string> =
     )
   );
 
+const NEUTRAL_LETTER_DEFS = ['fill', 'edge']
+  .map(
+    (part, index) =>
+      `<linearGradient id="neutral-letter-${part}" gradientUnits="userSpaceOnUse" x2="45" y2="0"><stop offset="50%" stop-color="${index ? 'black' : 'white'}"/><stop offset="50%" stop-color="${index ? 'white' : 'black'}"/></linearGradient>`
+  )
+  .join('');
+
 export function fairyLetterSVG(color: 'w' | 'b' | 'n', text: string): string {
   if (!/^[A-Z0-9]{1,2}$/.test(text)) throw new Error('Invalid fairy symbol.');
-  const [fill, outline] =
+  const [fill, edge] =
     color === 'w'
       ? ['white', 'black']
       : color === 'b'
         ? ['black', 'white']
-        : ['url(#neutral-letter)', 'gray'];
-  const size = text.length === 1 ? 20 : 18;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 45 45"><defs><linearGradient id="neutral-letter" gradientUnits="userSpaceOnUse" x2="0" y2="45"><stop offset="50%" stop-color="white"/><stop offset="50%" stop-color="black"/></linearGradient></defs><text x="22.5" y="${22.5 + size * 0.36}" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="${size}" font-weight="700" letter-spacing="-0.5" fill="${fill}" stroke="${outline}" stroke-width="2" stroke-linejoin="round" paint-order="stroke">${text}</text></svg>`;
+        : ['url(#neutral-letter-fill)', 'url(#neutral-letter-edge)'];
+  const size = text.length === 1 ? 20 : 17;
+  const glyph = (paint: string) =>
+    `<text x="23" y="${22.5 + size * 0.36}" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="${size}" font-weight="700" letter-spacing="1" stroke-linejoin="round" ${paint}>${text}</text>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 45 45"><defs>${color === 'n' ? NEUTRAL_LETTER_DEFS : ''}</defs>${glyph(`fill="none" stroke="${edge}" stroke-width="3"`)}${glyph(`fill="${fill}" stroke="${fill}" stroke-width="1.2"`)}</svg>`;
 }
