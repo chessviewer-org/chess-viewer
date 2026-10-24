@@ -83,23 +83,17 @@ export const FAIRY_LETTER_PIECE_MAP: Record<string, string> =
     )
   );
 
-const NEUTRAL_LETTER_DEFS = ['fill', 'edge']
-  .map(
-    (part, index) =>
-      `<linearGradient id="neutral-letter-${part}" gradientUnits="userSpaceOnUse" x2="45" y2="0"><stop offset="50%" stop-color="${index ? 'black' : 'white'}"/><stop offset="50%" stop-color="${index ? 'white' : 'black'}"/></linearGradient>`
-  )
-  .join('');
+const LETTER_INKS = {
+  w: { fill: 'white', edge: 'black', body: 1.2, outline: 3 },
+  b: { fill: 'black', edge: 'white', body: 1.6, outline: 2.8 },
+  n: { fill: '#a8a8a8', edge: 'black', body: 1.6, outline: 3.4 }
+} as const;
 
 export function fairyLetterSVG(color: 'w' | 'b' | 'n', text: string): string {
   if (!/^[A-Z0-9]{1,2}$/.test(text)) throw new Error('Invalid fairy symbol.');
-  const [fill, edge] =
-    color === 'w'
-      ? ['white', 'black']
-      : color === 'b'
-        ? ['black', 'white']
-        : ['url(#neutral-letter-fill)', 'url(#neutral-letter-edge)'];
+  const { fill, edge, body, outline } = LETTER_INKS[color];
   const size = text.length === 1 ? 20 : 17;
   const glyph = (paint: string) =>
     `<text x="23" y="${22.5 + size * 0.36}" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="${size}" font-weight="700" letter-spacing="1" stroke-linejoin="round" ${paint}>${text}</text>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 45 45"><defs>${color === 'n' ? NEUTRAL_LETTER_DEFS : ''}</defs>${glyph(`fill="none" stroke="${edge}" stroke-width="3"`)}${glyph(`fill="${fill}" stroke="${fill}" stroke-width="1.2"`)}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 45 45">${glyph(`fill="none" stroke="${edge}" stroke-width="${outline}"`)}${glyph(`fill="${fill}" stroke="${fill}" stroke-width="${body}"`)}</svg>`;
 }

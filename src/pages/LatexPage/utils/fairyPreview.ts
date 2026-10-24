@@ -48,7 +48,6 @@ export function generatePositionPreview(options: DiagramOptions): string {
             ? fairyLetterSVG(named.color, named.walk)
                 .replace(/^<svg[^>]*>/, '')
                 .replace(/<\/svg>$/, '')
-                .replaceAll('neutral-letter', `neutral-letter-${row}-${col}`)
             : code?.color === 'n'
               ? `<defs><clipPath id="${id}-w"><rect width="22.5" height="45"/></clipPath><clipPath id="${id}-b"><rect x="22.5" width="22.5" height="45"/></clipPath></defs><g clip-path="url(#${id}-w)">${glyph(code.type)}</g><g clip-path="url(#${id}-b)">${glyph(code.type.toLowerCase())}</g>`
               : glyph(cellToFenPiece(cell));
