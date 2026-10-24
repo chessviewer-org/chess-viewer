@@ -1,7 +1,11 @@
+@use 'sass:math';
 @use '../../../../styles/variables' as v;
 @use '../../../../styles/mixins' as m;
 
+$board-scale: 0.95;
+
 .editorRoot {
+  --board-top-inset: 3px;
   display: flex;
   flex-direction: column;
   gap: v.$gap-sm;
@@ -46,9 +50,14 @@
   min-height: 0;
 
   @include m.editor-side-by-side {
+    --board-col-width: min(52cqi, 460px);
     flex-direction: row;
 
     align-items: stretch;
+  }
+
+  @include m.editor-desktop {
+    --board-col-width: min(54cqi, 520px);
   }
 }
 
@@ -61,15 +70,10 @@
   min-width: 0;
 
   @include m.editor-side-by-side {
-    width: 52%;
-    max-width: 460px;
+    width: var(--board-col-width);
+    max-width: none;
 
     align-self: flex-start;
-  }
-
-  @include m.editor-desktop {
-    width: 54%;
-    max-width: 520px;
   }
 }
 
@@ -87,23 +91,19 @@
   @include m.editor-side-by-side {
     max-width: 100%;
   }
-
-  @include m.editor-desktop {
-    max-width: calc((100vh - 260px) * 0.93);
-  }
 }
 
 .editorBoardInner {
   width: 100%;
-  padding-top: 3px;
+  padding-top: var(--board-top-inset);
 }
 
 .editorBoardContainer {
-  position: relative;
-  aspect-ratio: 1 / 1;
-  min-width: 0;
-  min-height: 0;
-  width: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: math.percentage($board-scale);
+  height: math.percentage($board-scale);
   container-type: inline-size;
 }
 
@@ -129,13 +129,18 @@
     width: 0;
     max-width: none;
     margin: 0;
+    align-self: flex-start;
+    min-height: calc(
+      var(--board-col-width) * #{$board-scale} + var(--board-frame) +
+        var(--board-top-inset)
+    );
   }
 }
 
 .editorPaletteCard {
   width: 100%;
   flex-shrink: 0;
-  overflow: hidden;
+  overflow: visible;
   border-radius: 0.75rem;
   border: 1px solid rgb(var(--val-border) / 0.4);
   background-color: var(--color-surface-elevated);
@@ -162,10 +167,6 @@
     flex: 1;
     min-height: 0;
   }
-
-  @include m.editor-desktop {
-    flex: 1;
-  }
 }
 
 .editorDisplayOptsLabel {
@@ -180,10 +181,9 @@
 
 .editorDisplayOptsChecks {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 1rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
 
   @include m.editor-side-by-side {
     flex-direction: column;
@@ -241,5 +241,43 @@
 
   @include m.editor-desktop {
     display: none;
+  }
+}
+
+.editorRoot[data-palette-mode='fairy'] {
+  .editorDbSearch {
+    display: none;
+  }
+  .editorDbRow {
+    display: block;
+    margin-top: 0.5rem;
+  }
+}
+
+// Keep a readable palette below the board until both columns have room.
+@container (min-width: 564px) and (max-width: 799px) {
+  .editorRoot[data-palette-mode='fairy'] {
+    .editorCommandbarTop {
+      display: block;
+    }
+    .editorCommandbarPanel {
+      display: none;
+    }
+    .editorMainRow {
+      flex-direction: column;
+      align-items: center;
+    }
+    .editorBoardCol {
+      width: 100%;
+      max-width: 520px;
+      align-self: center;
+    }
+    .editorPanel {
+      flex: none;
+      width: 100%;
+      max-width: 520px;
+      min-height: 0;
+      align-self: center;
+    }
   }
 }

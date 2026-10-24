@@ -1,12 +1,12 @@
 import { memo, useMemo } from 'react';
 
 import { type ChessDragData } from '@constants';
-import type { PieceSymbol } from '@app-types';
-import { useDraggable } from '@hooks';
-import { getPieceKey } from '@utils';
+import type { BoardCell } from '@app-types';
+import { useDraggable } from '@/shared/hooks/useDragDrop';
+import { getPieceKey } from '@/shared/utils/pieceUtils';
 
 interface DraggablePieceProps {
-  piece: PieceSymbol | '';
+  piece: BoardCell;
   pieceImage: HTMLImageElement | null;
   row?: number;
   col?: number;
@@ -28,7 +28,7 @@ export const DraggablePiece = memo(function DraggablePiece({
 
   const dragData = useMemo<ChessDragData>(
     () => ({
-      piece: piece as PieceSymbol,
+      piece,
       pieceKey,
       fromRow: row,
       fromCol: col,

@@ -1,3 +1,6 @@
+import { parseFEN } from './fenParser';
+import { compositionCaptionLayout } from './compositionCaption';
+import { isPopeye } from './popeye';
 import { ChessBoard, isChessBoard } from '@app-types';
 
 import {
@@ -7,7 +10,6 @@ import {
   pieceHaloFilterSVG,
   pieceHaloRadius,
   isLightSquare,
-  parseFEN,
   sanitizeInput,
   type SquarePattern
 } from '@chessviewer-org/chess-viewer';
@@ -16,6 +18,7 @@ import { readSquarePattern } from './boardPattern';
 import { shouldForceCoordinateBorder } from './imageOptimizer';
 import {
   type PieceVector,
+  assertBoardArtwork,
   buildPieceVector,
   fetchPieceSvgText,
   getPieceKey,
@@ -90,7 +93,9 @@ export async function generateBoardSVG(
   const outline = boardOutlineWidth(boardPx);
   const frameOffset = withFrame ? framePx / 2 : 0;
   const totalWidth = borderPx + boardPx + outline * 2 + framePx;
-  const totalHeight = boardPx + borderPx + outline * 2 + framePx;
+  const boardCanvasHeight = boardPx + borderPx + outline * 2 + framePx;
+  const caption = compositionCaptionLayout(fen, boardPx);
+  const totalHeight = boardCanvasHeight + caption.height;
   const boardX = borderPx + outline + frameOffset;
   const boardY = outline + frameOffset;
 
@@ -113,18 +118,22 @@ export async function generateBoardSVG(
   const pieceVectors = new Map<string, PieceVector>();
   const pieceDataURLs: Record<string, string> = {};
   await Promise.all(
-    Object.values(pieceImages).map((img) => waitForPieceImage(img))
+    [...presentKeys].map((key) => {
+      const image = pieceImages[key];
+      return image ? waitForPieceImage(image) : undefined;
+    })
   );
 
+  assertBoardArtwork(board, pieceImages);
+
   await Promise.all(
-    Object.entries(pieceImages).map(async ([key, img]) => {
-      if (!presentKeys.has(key)) return;
+    [...presentKeys].map(async (key) => {
+      const img = pieceImages[key];
       if (!(img && img.complete && img.naturalWidth > 0)) return;
       const src = img.currentSrc || img.src || '';
-      const svgText =
-        src.startsWith('data:') || src.startsWith('blob:')
-          ? null
-          : await fetchPieceSvgText(src);
+      const svgText = src.startsWith('blob:')
+        ? null
+        : await fetchPieceSvgText(src);
       const vector = svgText ? buildPieceVector(svgText) : null;
       if (vector) {
         pieceVectors.set(key, vector);
@@ -155,6 +164,11 @@ export async function generateBoardSVG(
       `role="img" aria-label="Chess Board Position">` +
       `<title>Chess Board Position</title>`
   );
+
+  if (isPopeye(fen))
+    parts.push(
+      `<metadata id="cv-composition">${escapeXmlAttr(fen)}</metadata>`
+    );
 
   if (pieceVectors.size > 0 || hatched) {
     parts.push('<defs>');
@@ -198,9 +212,9 @@ export async function generateBoardSVG(
     const f = framePx / 2;
     parts.push(
       `<rect x="0" y="0" width="${totalWidth}" height="${f}" fill="#333333"/>`,
-      `<rect x="0" y="${totalHeight - f}" width="${totalWidth}" height="${f}" fill="#333333"/>`,
-      `<rect x="0" y="0" width="${f}" height="${totalHeight}" fill="#333333"/>`,
-      `<rect x="${totalWidth - f}" y="0" width="${f}" height="${totalHeight}" fill="#333333"/>`
+      `<rect x="0" y="${boardCanvasHeight - f}" width="${totalWidth}" height="${f}" fill="#333333"/>`,
+      `<rect x="0" y="0" width="${f}" height="${boardCanvasHeight}" fill="#333333"/>`,
+      `<rect x="${totalWidth - f}" y="0" width="${f}" height="${boardCanvasHeight}" fill="#333333"/>`
     );
   }
 
@@ -276,6 +290,17 @@ export async function generateBoardSVG(
         `<text x="${x}" y="${y}" ${textAttrs}>${sanitizeInput(ranks[row])}</text>`
       );
     }
+  }
+  if (caption.lines.length) {
+    parts.push(
+      `<g font-family="Arial,sans-serif" font-size="${caption.fontSize}" fill="black" stroke="white" stroke-width="${caption.fontSize / 7}" stroke-linejoin="round" paint-order="stroke fill">`
+    );
+    caption.lines.forEach((line, index) =>
+      parts.push(
+        `<text x="${boardX}" y="${boardCanvasHeight + caption.padding + caption.fontSize + index * caption.lineHeight}">${escapeXmlAttr(line)}</text>`
+      )
+    );
+    parts.push('</g>');
   }
   parts.push('</svg>');
   return parts.join('\n');

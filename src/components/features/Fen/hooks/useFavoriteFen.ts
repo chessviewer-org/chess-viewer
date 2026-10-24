@@ -1,6 +1,7 @@
 import { useCallback, useLayoutEffect, useState } from 'react';
 
-import { isRecord, safeJSONParse, validateFEN } from '@utils';
+import { isRecord, safeJSONParse } from '@chessviewer-org/chess-viewer';
+import { validateFEN } from '@/shared/utils/fenParser';
 import type { NotificationType } from '../components/FENInputField';
 
 interface UseFavoriteFenOptions {

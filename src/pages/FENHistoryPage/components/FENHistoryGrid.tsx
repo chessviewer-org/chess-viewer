@@ -1,6 +1,6 @@
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 
-import { usePieceImages } from '@hooks';
+import { usePieceImages } from '@/shared/hooks/usePieceImages';
 import { BaseHistoryEntry } from '@app-types';
 
 import { TabType } from '../hooks/useFENHistoryPage';
@@ -37,9 +37,15 @@ export const FENHistoryGrid = memo(function FENHistoryGrid({
   handleLoad,
   handleToggleFavorite
 }: FENHistoryGridProps) {
-  // State
-  const { pieceImages, isLoading } = usePieceImages(pieceStyle);
+  // Load artwork only for the history cards currently rendered.
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const visibleFens = useMemo(
+    () => data.slice(0, visibleCount).map((entry) => entry.fen),
+    [data, visibleCount]
+  );
+  const { pieceImages, isLoading } = usePieceImages(pieceStyle, {
+    positions: visibleFens
+  });
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

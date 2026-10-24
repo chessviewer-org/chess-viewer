@@ -2,13 +2,14 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { after, before, describe, test } from 'node:test';
 import { createServer, type Server } from 'node:http';
-import { join } from 'node:path';
+import { join, resolve, sep } from 'node:path';
 
 import { buildPieceVector, namespacePieceIds } from '@utils/pieceUtils';
 import { boardOutlineWidth } from '@chessviewer-org/chess-viewer';
 import { generateBoardSVG, SVG_BOARD_PX } from '@utils/svgExporter';
 
-const PIECE_DIR = join(process.cwd(), 'public', 'piece');
+const PUBLIC_DIR = join(process.cwd(), 'public');
+const PIECE_DIR = join(PUBLIC_DIR, 'piece');
 const SVG_TOTAL_PX =
   SVG_BOARD_PX + SVG_BOARD_PX * 0.05 + boardOutlineWidth(SVG_BOARD_PX) * 2;
 
@@ -36,16 +37,24 @@ let baseUrl = '';
 
 before(async () => {
   server = createServer((req, res) => {
-    const rel = decodeURIComponent((req.url ?? '/').replace(/^\/piece\//, ''));
-    readFile(join(PIECE_DIR, rel))
+    const notFound = () => {
+      res.writeHead(404);
+      res.end();
+    };
+    const file = resolve(
+      PUBLIC_DIR,
+      decodeURIComponent((req.url ?? '/').replace(/^\//, ''))
+    );
+    if (!file.startsWith(PUBLIC_DIR + sep)) {
+      notFound();
+      return;
+    }
+    readFile(file)
       .then((data) => {
         res.writeHead(200, { 'content-type': 'image/svg+xml' });
         res.end(data);
       })
-      .catch(() => {
-        res.writeHead(404);
-        res.end();
-      });
+      .catch(notFound);
   });
   await new Promise<void>((resolve) => {
     server!.listen(0, '127.0.0.1', () => resolve());
@@ -415,5 +424,37 @@ describe('generateBoardSVG physical size across board sizes', () => {
       flipped: true
     });
     assert.equal(countMatches(out, /<use /g), 32);
+  });
+});
+
+describe('fairy SVG export', () => {
+  test('reports missing artwork instead of producing a diagram with missing pieces', async () => {
+    await assert.rejects(
+      generateBoardSVG(
+        baseConfig(
+          { wK: fakeImg(`${baseUrl}/piece/cburnett/wK.svg`) },
+          '-Q7/8/8/8/8/8/8/7K w - - 0 1'
+        )
+      ),
+      /artwork is not ready: nQ/
+    );
+  });
+  test('preserves neutral and rotated artwork instead of replacing it with base pieces', async () => {
+    const images = {
+      nQ180: fakeImg(`${baseUrl}/fairypiece/cburnett/nQ180.svg`),
+      bN270: fakeImg(`${baseUrl}/fairypiece/cburnett/bN270.svg`),
+      wK: fakeImg(`${baseUrl}/piece/cburnett/wK.svg`)
+    };
+    const out = await generateBoardSVG(
+      baseConfig(images, '-*2Q7/1*3n6/8/8/8/8/8/7K w - - 0 1')
+    );
+    assert.equal(countMatches(out, /<use /g), 3);
+    assert.equal(countMatches(out, /<symbol /g), 3);
+    assert.match(out, /rotate\(180 50 50\)/);
+    assert.match(out, /rotate\(270 50 50\)/);
+    const ids = collectIds(out);
+    assert.equal(new Set(ids).size, ids.length);
+    for (const ref of collectUrlRefs(out))
+      assert.ok(ids.includes(ref), `unresolved ${ref}`);
   });
 });

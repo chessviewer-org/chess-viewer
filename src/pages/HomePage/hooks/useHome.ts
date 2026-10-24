@@ -1,12 +1,14 @@
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
-import { useFENHistory, useHomeExport, useNotifications } from '@hooks';
+import { useFENHistory } from '@/shared/hooks/useFENHistory';
+import { useHomeExport } from '@/shared/hooks/useHomeExport';
+import { useNotifications } from '@/shared/hooks/useNotifications';
 
 import { useHomeBoardState } from './useHomeBoardState';
 
-export const useHome = () => {
+export const useHome = (variant: 'standard' | 'fairy' = 'standard') => {
   // State
-  const board = useHomeBoardState();
+  const board = useHomeBoardState(variant);
 
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
 
@@ -38,25 +40,29 @@ export const useHome = () => {
   });
 
   // Handlers
-  function handleFlip() {
-    board.setFlipped((prev) => !prev);
+  const { setFlipped, setFen } = board;
+  const handleFlip = useCallback(() => {
+    setFlipped((prev) => !prev);
     success('Board flipped');
-  }
+  }, [setFlipped, success]);
 
-  function handleEditorFenChange(newFen: string) {
-    board.setFen(newFen);
-    notifyDragAction();
-  }
+  const handleEditorFenChange = useCallback(
+    (newFen: string) => {
+      setFen(newFen);
+      notifyDragAction();
+    },
+    [setFen, notifyDragAction]
+  );
 
-  function handleNotification(
-    message: string,
-    type: 'success' | 'error' | 'warning' | 'info'
-  ) {
-    if (type === 'success') success(message);
-    else if (type === 'error') error(message);
-    else if (type === 'warning') warning(message);
-    else info(message);
-  }
+  const handleNotification = useCallback(
+    (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+      if (type === 'success') success(message);
+      else if (type === 'error') error(message);
+      else if (type === 'warning') warning(message);
+      else info(message);
+    },
+    [success, error, warning, info]
+  );
 
   return {
     ...board,
@@ -72,6 +78,7 @@ export const useHome = () => {
     addCurrentToFavorites,
 
     handlePieceImagesChange: exportApi.handlePieceImagesChange,
+    handleCopyImage: exportApi.handleCopyImage,
     handleFlip,
     handleCancelExport: exportApi.handleCancelExport,
     handlePause: exportApi.handlePause,

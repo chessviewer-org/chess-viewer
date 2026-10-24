@@ -1,11 +1,11 @@
 import { useCallback } from 'react';
 import type { ChessDragData } from '@constants';
-import type { PieceSymbol } from '@app-types';
+import type { BoardCell } from '@app-types';
 import { DragProvider } from '../components/DragProvider';
 
 interface UseDragStateParams {
   handlePieceDrop: (
-    piece: PieceSymbol,
+    piece: BoardCell,
     fromRow: number | undefined,
     fromCol: number | undefined,
     toRow: number,

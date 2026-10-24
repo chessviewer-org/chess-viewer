@@ -3,32 +3,36 @@ import {
   memo,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef
 } from 'react';
 
-import type { PieceSymbol } from '@app-types';
+import type { BoardCell } from '@app-types';
 
-import { useSquarePatternSetting } from '@hooks';
-import { describeBoardPosition, getPieceKey, hatchBackgroundCss } from '@utils';
-import { DroppableSquare } from './DroppableSquare';
+import { useSquarePatternSetting } from '@/shared/hooks/useSquarePattern';
+import { describeBoardPosition } from '@/shared/utils/boardCells';
+import { hatchBackgroundCss } from '@/shared/utils/boardPattern';
+import { BoardRank } from './BoardRank';
 import { useBoardKeyboard } from '../hooks/useBoardKeyboard';
+
+const BOARD_INDICES = [0, 1, 2, 3, 4, 5, 6, 7] as const;
+const EMPTY_RANK: readonly BoardCell[] = Array<BoardCell>(8).fill('');
 
 // Types
 export interface BoardKeyboardApi {
-  pickUpFromPalette: (piece: PieceSymbol) => void;
+  pickUpFromPalette: (piece: BoardCell) => void;
   clearHeld: () => void;
 }
 
 interface InteractiveBoardProps {
-  board: (PieceSymbol | '')[][];
+  board: BoardCell[][];
   lightSquare: string;
   darkSquare: string;
   pieceImages: Record<string, HTMLImageElement | null>;
-  isLoading: boolean;
   flipped: boolean;
   onPieceDrop?: (
-    piece: PieceSymbol,
+    piece: BoardCell,
     fromRow: number | undefined,
     fromCol: number | undefined,
     toRow: number,
@@ -46,7 +50,6 @@ export const InteractiveBoard = memo(function InteractiveBoard({
   lightSquare,
   darkSquare,
   pieceImages,
-  isLoading,
   flipped,
   onPieceDrop,
   onSquareSelect,
@@ -55,6 +58,13 @@ export const InteractiveBoard = memo(function InteractiveBoard({
   onKeyboardApi
 }: InteractiveBoardProps) {
   const boardRef = useRef<HTMLDivElement | null>(null);
+  const onSquareSelectRef = useRef(onSquareSelect);
+  useLayoutEffect(() => {
+    onSquareSelectRef.current = onSquareSelect;
+  }, [onSquareSelect]);
+  const selectSquare = useCallback((row: number, col: number) => {
+    onSquareSelectRef.current?.(row, col);
+  }, []);
   const [squarePattern] = useSquarePatternSetting();
   const {
     cursor,
@@ -75,7 +85,7 @@ export const InteractiveBoard = memo(function InteractiveBoard({
   useEffect(() => {
     if (!onKeyboardApi) return;
     onKeyboardApi({
-      pickUpFromPalette: (piece: PieceSymbol) => {
+      pickUpFromPalette: (piece: BoardCell) => {
         pickUpFromPalette(piece);
         boardRef.current?.focus();
       },
@@ -83,57 +93,40 @@ export const InteractiveBoard = memo(function InteractiveBoard({
     });
   }, [onKeyboardApi, pickUpFromPalette, clearHeld]);
 
-  const squares = useMemo(() => {
-    const result = [];
-    for (let displayRow = 0; displayRow < 8; displayRow++) {
-      for (let displayCol = 0; displayCol < 8; displayCol++) {
-        const actualRow = flipped ? 7 - displayRow : displayRow;
-        const actualCol = flipped ? 7 - displayCol : displayCol;
-        const isLight = (actualRow + actualCol) % 2 === 0;
-        const piece = board[actualRow]?.[actualCol] || '';
-        const pieceKey = getPieceKey(piece);
-        const pieceImage = pieceKey ? pieceImages[pieceKey] || null : null;
-        const isSelected =
-          selectedSquare?.[0] === actualRow &&
-          selectedSquare?.[1] === actualCol;
-        const isCursor =
-          cursor !== null &&
-          cursor.row === actualRow &&
-          cursor.col === actualCol;
-        const isHeldSource =
-          heldFrom?.row === actualRow && heldFrom?.col === actualCol;
-        result.push(
-          <DroppableSquare
-            key={`square-${actualRow}-${actualCol}`}
-            row={actualRow}
-            col={actualCol}
-            piece={piece}
-            isLight={isLight}
-            lightColor={lightSquare}
-            darkColor={darkSquare}
-            pieceImage={pieceImage}
-            onSelect={onSquareSelect}
-            isSelected={isSelected}
-            isCursor={isCursor}
-            isHeldSource={isHeldSource}
-            isLoading={isLoading}
+  const ranks = useMemo(
+    () =>
+      BOARD_INDICES.map((displayRow) => {
+        const row = flipped ? 7 - displayRow : displayRow;
+        return (
+          <BoardRank
+            key={row}
+            row={row}
+            rank={board[row] ?? EMPTY_RANK}
+            flipped={flipped}
+            lightSquare={lightSquare}
+            darkSquare={darkSquare}
+            pieceImages={pieceImages}
+            onSelect={selectSquare}
+            selectedCol={
+              selectedSquare?.[0] === row ? selectedSquare[1] : undefined
+            }
+            cursorCol={cursor?.row === row ? cursor.col : undefined}
+            heldCol={heldFrom?.row === row ? heldFrom.col : undefined}
           />
         );
-      }
-    }
-    return result;
-  }, [
-    board,
-    lightSquare,
-    darkSquare,
-    isLoading,
-    flipped,
-    pieceImages,
-    onSquareSelect,
-    selectedSquare,
-    cursor,
-    heldFrom
-  ]);
+      }),
+    [
+      board,
+      lightSquare,
+      darkSquare,
+      flipped,
+      pieceImages,
+      selectSquare,
+      selectedSquare,
+      cursor,
+      heldFrom
+    ]
+  );
 
   const boardDescription = useMemo(
     () => describeBoardPosition(board, flipped),
@@ -178,7 +171,7 @@ export const InteractiveBoard = memo(function InteractiveBoard({
           } as CSSProperties
         }
       >
-        {squares}
+        {ranks}
       </div>
     </div>
   );

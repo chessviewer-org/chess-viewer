@@ -8,12 +8,12 @@ import {
 } from '@/components/features/History';
 import {
   type PageTabGroup,
-  PageSidebarLayout,
   PageTabs
-} from '@/components/layout';
+} from '@/components/layout/Sidebar/PageTabs';
+import { PageSidebarLayout } from '@/components/layout/Sidebar/PageSidebarLayout';
 import { getRouteSeo, SOFTWARE_APP_SCHEMA } from '@constants';
 
-import { Seo } from '@ui';
+import { Seo } from '@/shared/ui/Seo';
 import { FENHistoryEmptyState } from './components/FENHistoryEmptyState';
 import { FENHistoryGrid } from './components/FENHistoryGrid';
 import { type TabType, useFENHistoryPage } from './hooks/useFENHistoryPage';

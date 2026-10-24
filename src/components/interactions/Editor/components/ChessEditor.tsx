@@ -3,45 +3,47 @@ import {
   memo,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState
 } from 'react';
-import { useLocation } from 'wouter';
 
-import {
-  useDatabaseSearch,
-  useEditorKeyboard,
-  useInteractiveBoard,
-  usePieceImages
-} from '@hooks';
-import type { PieceSymbol } from '@app-types';
+import { useDatabaseSearch } from '@/shared/hooks/useDatabaseSearch';
+import { useEditorKeyboard } from '@/shared/hooks/useKeyboard';
+import { useInteractiveBoard } from '@/shared/hooks/useInteractiveBoard';
+import { usePieceImages } from '@/shared/hooks/usePieceImages';
+import type { BoardCell } from '@app-types';
+import type { FairyRotation } from '@constants/fairyPieces';
+import { isFairyFEN } from '@/shared/utils/fenParser';
 import {
   buildManualDatabaseUrl,
   MANUAL_PROVIDER_HOME_URL,
   MANUAL_PROVIDER_LABEL,
-  type ManualDatabaseProvider,
-  stageLatexPositions
-} from '@utils';
+  type ManualDatabaseProvider
+} from '@/shared/utils/databaseSearch';
 
-import { DisplayOptions } from '@components/features';
+import { DisplayOptions } from '@/components/features/BoardStyle/DisplayOptions';
 import {
   type BoardKeyboardApi,
   InteractiveBoard,
   TrashZone
 } from '../../Board';
 import { PiecePalette } from '../../PiecePalette';
+import { FairySymbolPalette } from '../../PiecePalette/FairySymbolPalette';
+import { CompositionLegend } from '../../FairySetup/CompositionLegend';
 import { CommandBar } from './CommandBar';
 import { DatabaseSearchPanel } from './DatabaseSearchPanel';
 import styles from '../styles/chess-editor.module.scss';
 import { useDragState } from '../hooks/useDragState';
-import { useEditorBoardSize } from '../hooks/useEditorBoardSize';
 import { useShareBoard } from '../hooks/useShareBoard';
 import { ShareDialog } from './ShareDialog';
 
 // Types
 export interface ChessEditorProps {
   fen: string;
+  variant?: 'standard' | 'fairy';
+  palettePiece?: BoardCell | null;
   onFenChange: (fen: string) => void;
   pieceStyle: string;
   showCoords: boolean;
@@ -50,6 +52,7 @@ export interface ChessEditorProps {
   flipped: boolean;
   onFlip?: () => void;
   onDownload?: () => void;
+  onCopyImage?: (() => void) | undefined;
   setShowCoords?: (show: boolean) => void;
   showThinFrame?: boolean;
   setShowThinFrame?: (show: boolean) => void;
@@ -67,6 +70,8 @@ export interface ChessEditorProps {
 
 export const ChessEditor = memo(function ChessEditor({
   fen,
+  variant = 'standard',
+  palettePiece,
   onFenChange,
   pieceStyle,
   showCoords,
@@ -75,6 +80,7 @@ export const ChessEditor = memo(function ChessEditor({
   flipped,
   onFlip,
   onDownload,
+  onCopyImage,
   setShowCoords,
   showThinFrame = false,
   setShowThinFrame,
@@ -82,9 +88,8 @@ export const ChessEditor = memo(function ChessEditor({
   onPieceImagesChange,
   className = ''
 }: ChessEditorProps) {
-  const { pieceImages, isLoading } = usePieceImages(pieceStyle);
-  const { boardSize, containerRef, boardElementRef } = useEditorBoardSize();
-
+  const paletteMode = variant;
+  const [rotation, setRotation] = useState<FairyRotation>(0);
   const {
     board,
     handlePieceDrop,
@@ -95,6 +100,13 @@ export const ChessEditor = memo(function ChessEditor({
     canUndo,
     canRedo
   } = useInteractiveBoard(fen, onFenChange);
+
+  const { pieceImages, error: pieceError } = usePieceImages(pieceStyle, {
+    board,
+    palette: variant,
+    rotation,
+    selectedPiece: palettePiece ?? null
+  });
 
   const { DragProvider: Provider, onDragEnd } = useDragState({
     handlePieceDrop,
@@ -119,13 +131,12 @@ export const ChessEditor = memo(function ChessEditor({
   }, [handlePieceRemove]);
 
   const [selectedPalettePiece, setSelectedPalettePiece] =
-    useState<PieceSymbol | null>(null);
-
+    useState<BoardCell | null>(null);
   const boardKeyboardApiRef = useRef<BoardKeyboardApi | null>(null);
   const handleKeyboardApi = useCallback((api: BoardKeyboardApi) => {
     boardKeyboardApiRef.current = api;
   }, []);
-  const handlePalettePick = useCallback((piece: PieceSymbol) => {
+  const handlePalettePick = useCallback((piece: BoardCell) => {
     boardKeyboardApiRef.current?.pickUpFromPalette(piece);
   }, []);
 
@@ -135,7 +146,9 @@ export const ChessEditor = memo(function ChessEditor({
     boardKeyboardApiRef.current?.clearHeld();
   }, []);
 
-  const handlePaletteSelect = useCallback((piece: PieceSymbol) => {
+  const handlePaletteSelect = useCallback((piece: BoardCell) => {
+    boardKeyboardApiRef.current?.clearHeld();
+    setSelectedSquare(null);
     setSelectedPalettePiece((prev) => (prev === piece ? null : piece));
   }, []);
 
@@ -157,7 +170,7 @@ export const ChessEditor = memo(function ChessEditor({
     [selectedPalettePiece, handlePieceDrop, handleSquareSelect]
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     syncFromFen(fen);
   }, [fen, syncFromFen]);
 
@@ -200,19 +213,16 @@ export const ChessEditor = memo(function ChessEditor({
     [fen, onNotify]
   );
 
-  const handleCopyFen = useCallback(() => {
-    void navigator.clipboard.writeText(fen);
-  }, [fen]);
+  useEffect(() => {
+    if (variant !== 'fairy') return;
+    boardKeyboardApiRef.current?.clearHeld();
+    setSelectedSquare(null);
+    setSelectedPalettePiece(palettePiece ?? null);
+  }, [palettePiece, variant]);
 
   const [isShareOpen, setIsShareOpen] = useState(false);
   const handleShare = useCallback(() => setIsShareOpen(true), []);
   const closeShare = useCallback(() => setIsShareOpen(false), []);
-
-  const [, navigate] = useLocation();
-  const handleOpenLatex = useCallback(() => {
-    stageLatexPositions([{ fen, flipped }]);
-    navigate('/latex');
-  }, [fen, flipped, navigate]);
 
   const { payload, copyLink } = useShareBoard({
     fen,
@@ -232,8 +242,7 @@ export const ChessEditor = memo(function ChessEditor({
     canUndo,
     canRedo,
     onFlip: onFlip ?? (() => {}),
-    onCopyImage: handleCopyFen,
-    onCopyLatex: handleOpenLatex,
+    onCopyImage: onCopyImage ?? (() => {}),
     onShare: handleShare,
     onDownload
   };
@@ -241,7 +250,7 @@ export const ChessEditor = memo(function ChessEditor({
   return (
     <Provider onDragEnd={onDragEnd}>
       <div
-        ref={containerRef}
+        data-palette-mode={paletteMode}
         className={`${styles.editorRoot} ${className}`}
         onClick={clearSelection}
       >
@@ -257,23 +266,12 @@ export const ChessEditor = memo(function ChessEditor({
             <div className={styles.editorBoardWrap}>
               <div className={styles.editorBoardInner}>
                 <div className="relative w-full aspect-square">
-                  <div
-                    ref={boardElementRef}
-                    className={styles.editorBoardContainer}
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      right: 0,
-                      width: '95%',
-                      height: '95%'
-                    }}
-                  >
+                  <div className={styles.editorBoardContainer}>
                     <InteractiveBoard
                       board={board}
                       lightSquare={lightSquare}
                       darkSquare={darkSquare}
                       pieceImages={pieceImages}
-                      isLoading={isLoading}
                       flipped={flipped}
                       onPieceDrop={handlePieceDrop}
                       onSquareSelect={handleBoardSquareSelect}
@@ -332,7 +330,7 @@ export const ChessEditor = memo(function ChessEditor({
             className={styles.editorPanel}
             style={
               {
-                '--board-h': `${boardSize}px`
+                '--board-frame': showThinFrame ? '2.5px' : '0px'
               } as CSSProperties
             }
           >
@@ -344,13 +342,29 @@ export const ChessEditor = memo(function ChessEditor({
             </div>
 
             <div className={styles.editorPaletteCard}>
-              <PiecePalette
-                pieceImages={pieceImages}
-                isLoading={isLoading}
-                onKeyboardPick={handlePalettePick}
-                selectedPiece={selectedPalettePiece}
-                onSelect={handlePaletteSelect}
-              />
+              {variant === 'fairy' ? (
+                <FairySymbolPalette
+                  rotation={rotation}
+                  onRotationChange={setRotation}
+                  pieceImages={pieceImages}
+                  onKeyboardPick={handlePalettePick}
+                  selectedPiece={selectedPalettePiece}
+                  onSelect={handlePaletteSelect}
+                  cataloguePiece={palettePiece ?? null}
+                />
+              ) : (
+                <PiecePalette
+                  pieceImages={pieceImages}
+                  onKeyboardPick={handlePalettePick}
+                  selectedPiece={selectedPalettePiece}
+                  onSelect={handlePaletteSelect}
+                />
+              )}
+              {pieceError && (
+                <p role="alert" className="text-sm text-error">
+                  {pieceError}. Reload to try again.
+                </p>
+              )}
             </div>
             <div className={styles.editorDisplayOpts}>
               <DisplayOptions
@@ -363,6 +377,7 @@ export const ChessEditor = memo(function ChessEditor({
             </div>
             <div className={styles.editorDbSearch}>
               <DatabaseSearchPanel
+                fairyPosition={isFairyFEN(fen)}
                 lichess={lichessState}
                 chessdb={chessdbState}
                 onOpenManualProvider={handleOpenManualProvider}
@@ -374,8 +389,10 @@ export const ChessEditor = memo(function ChessEditor({
           </div>
         </div>
 
+        <CompositionLegend fen={fen} />
         <div className={styles.editorDbRow}>
           <DatabaseSearchPanel
+            fairyPosition={isFairyFEN(fen)}
             lichess={lichessState}
             chessdb={chessdbState}
             onOpenManualProvider={handleOpenManualProvider}

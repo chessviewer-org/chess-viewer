@@ -1,14 +1,6 @@
 import { memo } from 'react';
 
-import {
-  Code2,
-  Copy,
-  Download,
-  Redo2,
-  Repeat2,
-  Share2,
-  Undo2
-} from '@/assets/icons';
+import { Copy, Download, Redo2, Repeat2, Share2, Undo2 } from '@/assets/icons';
 
 interface CommandBarProps {
   onUndo: () => void;
@@ -17,7 +9,6 @@ interface CommandBarProps {
   canRedo: boolean;
   onFlip?: () => void;
   onCopyImage: () => void;
-  onCopyLatex: () => void;
   onShare: () => void;
   onDownload?: (() => void) | undefined;
 }
@@ -37,7 +28,6 @@ export const CommandBar = memo(function CommandBar({
   canRedo,
   onFlip,
   onCopyImage,
-  onCopyLatex,
   onShare,
   onDownload
 }: CommandBarProps) {
@@ -87,15 +77,6 @@ export const CommandBar = memo(function CommandBar({
           aria-label="Copy board image to clipboard"
         >
           <Copy className="w-5 h-5" />
-        </button>
-        <button
-          type="button"
-          onClick={onCopyLatex}
-          className={`${iconButton} text-text-secondary hover:text-text-primary hover:bg-surface-hover`}
-          title="Open in LaTeX Studio"
-          aria-label="Open this position in LaTeX Studio"
-        >
-          <Code2 className="w-5 h-5" />
         </button>
         <button
           type="button"

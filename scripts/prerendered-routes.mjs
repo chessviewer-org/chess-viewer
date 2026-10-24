@@ -1,5 +1,6 @@
 export const PRERENDERED_ROUTES = [
   '/',
+  '/fairy-chess',
   '/advanced-fen',
   '/latex',
   '/about',

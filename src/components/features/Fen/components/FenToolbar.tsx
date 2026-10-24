@@ -4,9 +4,10 @@ import { memo, Ref, useCallback, useImperativeHandle } from 'react';
 import { History, ListPlus } from '@/assets/icons';
 
 import { FENInputField, type NotificationType } from './FENInputField';
-import { useFENHistory } from '@hooks';
+import { useFENHistory } from '@/shared/hooks/useFENHistory';
 
-import { MAX_FEN_LENGTH } from '@utils';
+import { isPopeye } from '@/shared/utils/popeye';
+import { MAX_POSITION_LENGTH } from '@/shared/utils/fenParser';
 import styles from '../styles/fen-toolbar.module.scss';
 
 interface FenToolbarProps {
@@ -41,8 +42,8 @@ export const FenToolbar = memo(function FenToolbar({
   const handleFenChange = useCallback(
     (nextValue: string) => {
       setFen(
-        nextValue.length > MAX_FEN_LENGTH
-          ? nextValue.slice(0, MAX_FEN_LENGTH)
+        nextValue.length > MAX_POSITION_LENGTH
+          ? nextValue.slice(0, MAX_POSITION_LENGTH)
           : nextValue
       );
     },
@@ -61,8 +62,8 @@ export const FenToolbar = memo(function FenToolbar({
       if (text && text.trim()) {
         const rawFen = text.trim();
         const pastedFen =
-          rawFen.length > MAX_FEN_LENGTH
-            ? rawFen.slice(0, MAX_FEN_LENGTH)
+          rawFen.length > MAX_POSITION_LENGTH
+            ? rawFen.slice(0, MAX_POSITION_LENGTH)
             : rawFen;
 
         setFen(pastedFen);
@@ -70,9 +71,9 @@ export const FenToolbar = memo(function FenToolbar({
           externalSaveManualFen(pastedFen);
         }
 
-        if (rawFen.length > MAX_FEN_LENGTH) {
+        if (rawFen.length > MAX_POSITION_LENGTH) {
           onNotification?.(
-            `FEN too long — truncated to ${MAX_FEN_LENGTH} chars`,
+            `FEN too long — truncated to ${MAX_POSITION_LENGTH} chars`,
             'warning'
           );
         } else {
@@ -93,7 +94,9 @@ export const FenToolbar = memo(function FenToolbar({
     <div className={styles['toolbarContainer']}>
       <div className={styles['toolbarInner']}>
         <div className={styles['toolbarHeader']}>
-          <label className={styles['toolbarLabel']}>FEN Notation</label>
+          <label className={styles['toolbarLabel']}>
+            {isPopeye(fen) ? 'Fairy position · Popeye' : 'FEN Notation'}
+          </label>
           <div className={styles['toolbarActions']}>
             <button
               type="button"

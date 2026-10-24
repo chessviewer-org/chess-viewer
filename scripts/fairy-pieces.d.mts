@@ -7,6 +7,7 @@ export const FAIRY_ROTATIONS: readonly FairyRotation[];
 export const PIECE_TYPES: readonly PieceType[];
 export const BASE_COLORS: readonly BaseColor[];
 export const NEUTRAL_COLOR: 'n';
+export const FAIRY_DIR: 'fairypiece';
 
 export function rotatedPiece(svg: string, rotation: FairyRotation): string;
 export function neutralPiece(

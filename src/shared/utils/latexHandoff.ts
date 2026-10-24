@@ -1,3 +1,4 @@
+import { MAX_POSITION_LENGTH } from './fenParser';
 import {
   LATEX_MAX_POSITIONS,
   safeJSONParse
@@ -39,7 +40,7 @@ export function consumeStagedPositions(): StagedPosition[] {
       const { fen, flipped, caption } = entry as Record<string, unknown>;
       if (typeof fen !== 'string') continue;
       result.push({
-        fen: fen.slice(0, FIELD_LIMIT),
+        fen: fen.slice(0, MAX_POSITION_LENGTH),
         flipped: flipped === true,
         caption:
           typeof caption === 'string' ? caption.slice(0, FIELD_LIMIT) : ''

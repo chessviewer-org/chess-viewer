@@ -12,7 +12,7 @@ import {
 
 import { MiniPreview } from '@/components/board';
 import { StatusBadge } from '@/components/features/History';
-import { useCopyToClipboard } from '@hooks';
+import { useCopyToClipboard } from '@/shared/hooks/useDOM';
 
 import { TabType } from '../hooks/useFENHistoryPage';
 

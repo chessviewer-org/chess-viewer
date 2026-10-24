@@ -5,6 +5,7 @@ import { describe, test } from 'node:test';
 
 import {
   BASE_COLORS,
+  FAIRY_DIR,
   FAIRY_ROTATIONS,
   NEUTRAL_COLOR,
   PIECE_TYPES,
@@ -15,8 +16,9 @@ import {
 } from '../scripts/fairy-pieces.mjs';
 
 const PIECE_ROOT = join(import.meta.dirname, '..', 'public', 'piece');
-const SETS = readdirSync(PIECE_ROOT).filter((name) =>
-  statSync(join(PIECE_ROOT, name)).isDirectory()
+const FAIRY_ROOT = join(PIECE_ROOT, '..', FAIRY_DIR);
+const SETS = readdirSync(PIECE_ROOT).filter(
+  (name) => name !== FAIRY_DIR && statSync(join(PIECE_ROOT, name)).isDirectory()
 );
 const SAMPLE =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><rect id="a" class="x" width="10" height="10"/></svg>';
@@ -78,27 +80,39 @@ describe('generated fairy piece files', () => {
     )
   ];
 
-  test('every set ships the 60 fairy variants next to its 12 pieces', () => {
+  test('every set ships its 60 fairy variants in fairypiece/<set>', () => {
     assert.equal(expectedNames.length, 60);
     for (const set of SETS) {
-      const files = new Set(readdirSync(join(PIECE_ROOT, set)));
+      const files = new Set(readdirSync(join(FAIRY_ROOT, set)));
       for (const name of expectedNames) {
-        assert.ok(files.has(name), `${set}/${name} is missing`);
+        assert.ok(files.has(name), `${FAIRY_DIR}/${set}/${name} is missing`);
       }
+    }
+  });
+
+  test('every set directory holds nothing but its 12 base pieces', () => {
+    for (const set of SETS) {
+      const files = readdirSync(join(PIECE_ROOT, set));
+      assert.equal(
+        files.length,
+        12,
+        `${set} should only contain its twelve base pieces`
+      );
     }
   });
 
   test('every file is up to date with its source pieces', () => {
     for (const set of SETS) {
-      const dir = join(PIECE_ROOT, set);
+      const setDir = join(PIECE_ROOT, set);
+      const fairyDir = join(FAIRY_ROOT, set);
       const generated = fairyPiecesForSet((name: string) =>
-        readFileSync(join(dir, name), 'utf8')
+        readFileSync(join(setDir, name), 'utf8')
       );
       for (const [name, svg] of generated) {
         assert.equal(
-          readFileSync(join(dir, name), 'utf8'),
+          readFileSync(join(fairyDir, name), 'utf8'),
           svg,
-          `${set}/${name} is stale — run pnpm pieces:fairy`
+          `${FAIRY_DIR}/${set}/${name} is stale — run pnpm pieces:fairy`
         );
       }
     }

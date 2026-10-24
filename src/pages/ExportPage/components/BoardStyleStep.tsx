@@ -1,17 +1,20 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { BoardStylePanel, DisplayOptions } from '@/components/features';
-import { useDebouncedCommit, usePieceImages } from '@hooks';
+import { BoardStylePanel } from '@/components/features/BoardStyle/BoardStylePanel';
+import { DisplayOptions } from '@/components/features/BoardStyle/DisplayOptions';
+import { useDebouncedCommit } from '@/shared/hooks/useLocalStorage';
+import { usePieceImages } from '@/shared/hooks/usePieceImages';
 import {
   DEFAULT_DARK_SQUARE,
   DEFAULT_LIGHT_SQUARE,
   PERSIST_DEBOUNCE_MS
 } from '@constants';
 
-import { sanitizeHexColor } from '@utils';
+import { sanitizeHexColor } from '@chessviewer-org/chess-viewer';
 import type { HomeStateForExport } from '../utils/ExportPage.types';
 import styles from '../styles/board-style-step.module.scss';
 import BoardPreviewCanvas from './BoardPreviewCanvas';
+import { CompositionLegend } from '@/components/interactions/FairySetup/CompositionLegend';
 
 interface BoardStyleStepProps {
   homeState: HomeStateForExport;
@@ -29,7 +32,9 @@ export default function BoardStyleStep({ homeState }: BoardStyleStepProps) {
 
   const debouncedCommit = useDebouncedCommit(PERSIST_DEBOUNCE_MS);
 
-  const { pieceImages, isLoading } = usePieceImages(homeState.pieceStyle);
+  const { pieceImages, isLoading } = usePieceImages(homeState.pieceStyle, {
+    positions: homeState.fen
+  });
 
   const applyPreset = useCallback(
     (light: string, dark: string) => {
@@ -66,6 +71,7 @@ export default function BoardStyleStep({ homeState }: BoardStyleStepProps) {
             showThinFrame={homeState.showThinFrame}
             flipped={homeState.flipped}
           />
+          <CompositionLegend fen={homeState.fen} />
         </div>
 
         <div className={styles.displayBeside}>

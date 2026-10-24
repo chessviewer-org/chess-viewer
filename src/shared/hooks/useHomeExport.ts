@@ -1,17 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { ExportConfig } from '@/shared/utils/canvasExporter';
 import {
-  ExportConfig,
   cancelExport,
-  copyToClipboard,
-  downloadJPEG,
-  downloadPNG,
-  logger,
   pauseExport,
-  resumeExport,
-  shouldForceCoordinateBorder,
-  validateFEN
-} from '@utils';
-import { runFormatExport } from '@/pages/AdvancedFENInputPage/utils/advancedExportHelpers';
+  resumeExport
+} from '@/shared/utils/exportState';
+import { logger } from '@/shared/utils/logger';
+import { shouldForceCoordinateBorder } from '@/shared/utils/imageOptimizer';
+import { validateFEN } from '@/shared/utils/fenParser';
 
 // Types
 export interface ExportState {
@@ -68,31 +64,45 @@ export function useHomeExport(opts: UseHomeExportOptions) {
   }, []);
 
   // Actions
-  const handlePieceImagesChange = (
-    images: Record<string, HTMLImageElement>
-  ) => {
-    pieceImagesRef.current = images;
-  };
+  const handlePieceImagesChange = useCallback(
+    (images: Record<string, HTMLImageElement>) => {
+      pieceImagesRef.current = images;
+    },
+    []
+  );
 
-  const getExportConfig = (overrides?: BatchExportOverrides): ExportConfig => {
-    const quality = overrides?.exportQuality ?? opts.exportQuality;
-    const size = overrides?.boardSize ?? opts.boardSize;
-    const border =
-      shouldForceCoordinateBorder(quality) || opts.showCoordinateBorder;
+  const getExportConfig = useCallback(
+    (overrides?: BatchExportOverrides): ExportConfig => {
+      const quality = overrides?.exportQuality ?? opts.exportQuality;
+      const size = overrides?.boardSize ?? opts.boardSize;
+      const border =
+        shouldForceCoordinateBorder(quality) || opts.showCoordinateBorder;
 
-    return {
-      boardSize: size,
-      showCoords: opts.showCoords,
-      showCoordinateBorder: border,
-      showThinFrame: opts.showThinFrame,
-      lightSquare: opts.lightSquare,
-      darkSquare: opts.darkSquare,
-      flipped: opts.flipped,
-      fen: opts.fen,
-      pieceImages: pieceImagesRef.current,
-      exportQuality: quality
-    };
-  };
+      return {
+        boardSize: size,
+        showCoords: opts.showCoords,
+        showCoordinateBorder: border,
+        showThinFrame: opts.showThinFrame,
+        lightSquare: opts.lightSquare,
+        darkSquare: opts.darkSquare,
+        flipped: opts.flipped,
+        fen: opts.fen,
+        pieceImages: pieceImagesRef.current,
+        exportQuality: quality
+      };
+    },
+    [
+      opts.exportQuality,
+      opts.boardSize,
+      opts.showCoordinateBorder,
+      opts.showCoords,
+      opts.showThinFrame,
+      opts.lightSquare,
+      opts.darkSquare,
+      opts.flipped,
+      opts.fen
+    ]
+  );
 
   const finishExport = () => {
     if (completeTimerRef.current) clearTimeout(completeTimerRef.current);
@@ -158,24 +168,43 @@ export function useHomeExport(opts: UseHomeExportOptions) {
     }
   };
 
-  const handleDownloadPNG = () => runExport('png', downloadPNG, 'PNG');
-  const handleDownloadJPEG = () => runExport('jpeg', downloadJPEG, 'JPEG');
+  const handleDownloadPNG = () =>
+    runExport(
+      'png',
+      async (...args) => {
+        const { downloadPNG } = await import('@/shared/utils/canvasExporter');
+        return downloadPNG(...args);
+      },
+      'PNG'
+    );
+  const handleDownloadJPEG = () =>
+    runExport(
+      'jpeg',
+      async (...args) => {
+        const { downloadJPEG } = await import('@/shared/utils/canvasExporter');
+        return downloadJPEG(...args);
+      },
+      'JPEG'
+    );
 
-  const handleCopyImage = async () => {
-    if (!validateFEN(opts.fen)) {
-      opts.notify.error('Invalid FEN — cannot copy');
+  const { fen, saveExportFen } = opts;
+  const { success: showSuccess, error: showError } = opts.notify;
+  const handleCopyImage = useCallback(async () => {
+    if (!validateFEN(fen)) {
+      showError('Invalid FEN — cannot copy');
       return;
     }
 
     try {
+      const { copyToClipboard } = await import('@/shared/utils/canvasExporter');
       await copyToClipboard(getExportConfig());
-      opts.saveExportFen(opts.fen);
-      opts.notify.success('Image copied');
+      saveExportFen(fen);
+      showSuccess('Image copied');
     } catch (err) {
       logger.error('Copy failed:', err);
-      opts.notify.error('Copy failed');
+      showError('Copy failed');
     }
-  };
+  }, [fen, showError, showSuccess, saveExportFen, getExportConfig]);
 
   const handleBatchExport = async (
     formats: string[],
@@ -190,6 +219,8 @@ export function useHomeExport(opts: UseHomeExportOptions) {
     opts.saveExportFen(opts.fen);
 
     try {
+      const { runFormatExport } =
+        await import('@/pages/AdvancedFENInputPage/utils/advancedExportHelpers');
       for (let i = 0; i < formats.length; i++) {
         const format = formats[i];
         if (!format) continue;

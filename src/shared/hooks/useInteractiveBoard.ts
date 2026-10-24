@@ -1,44 +1,47 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
-import { ChessBoard, isChessBoard, PieceSymbol } from '@app-types';
+import type { BoardCell, ChessBoard } from '@app-types';
 
 import {
-  boardToFEN,
-  createEmptyBoard,
-  isBoardEmpty,
-  logger,
-  movePiece,
+  serializePosition,
+  positionContext,
   parseFEN,
-  removePieceAt,
-  setPieceAt,
-  STARTING_FEN,
   validateFEN
-} from '@utils';
+} from '@/shared/utils/fenParser';
+import { createEmptyBoard, STARTING_FEN } from '@chessviewer-org/chess-viewer';
+import { logger } from '@/shared/utils/logger';
+import {
+  boardsEqual,
+  moveBoardCell,
+  positionContextsEqual,
+  setBoardCell
+} from '@/components/interactions/Board/boardUpdates';
 
 // Constants
 const MAX_HISTORY = 100;
-const DEFAULT_META = 'w - - 0 1';
-const EMPTY_PLACEMENT = boardToFEN(createEmptyBoard());
+const DEFAULT_META = { fenMetadata: 'w - - 0 1' };
+interface BoardSnapshot {
+  board: ChessBoard;
+  metadata: ReturnType<typeof positionContext>;
+}
 
-function metadataOf(fen: string, fallback = DEFAULT_META): string {
-  const parts = fen.trim().split(/\s+/);
-  return parts.length > 1 ? parts.slice(1).join(' ') : fallback;
+function metadataOf(fen: string) {
+  return positionContext(fen);
 }
 
 function isValidFen(fen: string): boolean {
   return !!fen && validateFEN(fen);
 }
 
-function boardOf(fen: string): ChessBoard {
+function positionOf(fen: string): BoardSnapshot | null {
   try {
     if (isValidFen(fen)) {
-      const parsed = parseFEN(fen);
-      if (isChessBoard(parsed)) return parsed;
+      return { board: parseFEN(fen), metadata: metadataOf(fen) };
     }
   } catch (err) {
     logger.error('Invalid initial FEN:', err);
   }
-  return createEmptyBoard();
+  return null;
 }
 
 // Types
@@ -46,7 +49,7 @@ export interface UseInteractiveBoardResult {
   board: ChessBoard;
   currentFen: string;
   handlePieceDrop: (
-    piece: PieceSymbol,
+    piece: BoardCell,
     fromRow: number | undefined,
     fromCol: number | undefined,
     toRow: number,
@@ -56,7 +59,7 @@ export interface UseInteractiveBoardResult {
   handlePieceRemove: (row: number, col: number) => void;
   clearBoard: () => void;
   resetBoard: () => void;
-  setPiece: (row: number, col: number, piece: PieceSymbol) => void;
+  setPiece: (row: number, col: number, piece: BoardCell) => void;
   syncFromFen: (fen: string) => void;
   undo: () => void;
   redo: () => void;
@@ -69,32 +72,44 @@ export function useInteractiveBoard(
   onFenChange?: (fen: string) => void
 ): UseInteractiveBoardResult {
   // State
-  const [board, setBoard] = useState<ChessBoard>(() => boardOf(initialFen));
-  const [past, setPast] = useState<ChessBoard[]>([]);
-  const [future, setFuture] = useState<ChessBoard[]>([]);
-  const [metadata, setMetadata] = useState(() =>
-    isValidFen(initialFen) ? metadataOf(initialFen) : DEFAULT_META
+  const [{ board, metadata }, setPosition] = useState<BoardSnapshot>(
+    () =>
+      positionOf(initialFen) ?? {
+        board: createEmptyBoard(),
+        metadata: DEFAULT_META
+      }
+  );
+  const [past, setPast] = useState<BoardSnapshot[]>([]);
+  const [future, setFuture] = useState<BoardSnapshot[]>([]);
+  const currentFen = useMemo(
+    () => serializePosition(board, metadata),
+    [board, metadata]
   );
 
   // Actions
   const commitMove = useCallback(
     (newBoard: ChessBoard, newMeta = metadata) => {
+      if (
+        boardsEqual(board, newBoard) &&
+        positionContextsEqual(metadata, newMeta)
+      )
+        return;
       setPast((prevPast) => {
-        const updatedPast = [...prevPast, board];
+        const updatedPast = [...prevPast, { board, metadata }];
         return updatedPast.length > MAX_HISTORY
           ? updatedPast.slice(1)
           : updatedPast;
       });
       setFuture([]);
-      setBoard(newBoard);
-      onFenChange?.(`${boardToFEN(newBoard)} ${newMeta}`);
+      setPosition({ board: newBoard, metadata: newMeta });
+      onFenChange?.(serializePosition(newBoard, newMeta));
     },
     [board, metadata, onFenChange]
   );
 
   const handlePieceDrop = useCallback(
     (
-      piece: PieceSymbol,
+      piece: BoardCell,
       fromRow: number | undefined,
       fromCol: number | undefined,
       toRow: number,
@@ -109,9 +124,9 @@ export function useInteractiveBoard(
         return;
       const next =
         !isFromPalette && fromRow !== undefined && fromCol !== undefined
-          ? movePiece(board, [fromRow, fromCol], [toRow, toCol])
-          : setPieceAt(board, [toRow, toCol], piece);
-      commitMove(next as ChessBoard);
+          ? moveBoardCell(board, fromRow, fromCol, toRow, toCol)
+          : setBoardCell(board, toRow, toCol, piece);
+      commitMove(next);
     },
     [board, commitMove]
   );
@@ -119,53 +134,35 @@ export function useInteractiveBoard(
   const handlePieceRemove = useCallback(
     (row: number, col: number) => {
       if (!board[row]?.[col]) return;
-      commitMove(removePieceAt(board, [row, col]) as ChessBoard);
+      commitMove(setBoardCell(board, row, col, ''));
     },
     [board, commitMove]
   );
 
   const setPiece = useCallback(
-    (row: number, col: number, piece: PieceSymbol) => {
-      commitMove(setPieceAt(board, [row, col], piece) as ChessBoard);
+    (row: number, col: number, piece: BoardCell) => {
+      if (board[row]?.[col] === piece) return;
+      commitMove(setBoardCell(board, row, col, piece));
     },
     [board, commitMove]
   );
 
   const clearBoard = useCallback(() => {
-    if (!isBoardEmpty(board)) commitMove(createEmptyBoard());
+    if (board.some((rank) => rank.some(Boolean)))
+      commitMove(createEmptyBoard());
   }, [board, commitMove]);
 
   const resetBoard = useCallback(() => {
-    const parsed = parseFEN(STARTING_FEN);
-    if (isChessBoard(parsed) && boardToFEN(board) !== boardToFEN(parsed)) {
-      const meta = metadataOf(STARTING_FEN);
-      setMetadata(meta);
-      commitMove(parsed, meta);
-    }
-  }, [board, commitMove]);
+    commitMove(parseFEN(STARTING_FEN), metadataOf(STARTING_FEN));
+  }, [commitMove]);
 
   const syncFromFen = useCallback(
     (fen: string) => {
-      if (!fen || !validateFEN(fen)) return;
-      setMetadata(metadataOf(fen, metadata));
-
-      if (fen.startsWith(EMPTY_PLACEMENT)) {
-        if (!isBoardEmpty(board)) {
-          setBoard(createEmptyBoard());
-          setPast([]);
-          setFuture([]);
-        }
-        return;
-      }
-
-      const parsed = parseFEN(fen);
-      if (isChessBoard(parsed) && boardToFEN(board) !== boardToFEN(parsed)) {
-        setBoard(parsed);
-        setPast([]);
-        setFuture([]);
-      }
+      if (fen === currentFen) return;
+      const next = positionOf(fen);
+      if (next) commitMove(next.board, next.metadata);
     },
-    [board, metadata]
+    [currentFen, commitMove]
   );
 
   const canUndo = past.length > 0;
@@ -175,23 +172,25 @@ export function useInteractiveBoard(
     const previousBoard = past[past.length - 1];
     if (!previousBoard) return;
     setPast(past.slice(0, -1));
-    setFuture([board, ...future]);
-    setBoard(previousBoard);
-    onFenChange?.(`${boardToFEN(previousBoard)} ${metadata}`);
+    setFuture([{ board, metadata }, ...future]);
+    setPosition(previousBoard);
+    onFenChange?.(
+      serializePosition(previousBoard.board, previousBoard.metadata)
+    );
   }, [board, future, metadata, onFenChange, past]);
 
   const redo = useCallback(() => {
     const nextBoard = future[0];
     if (!nextBoard) return;
-    setPast([...past, board]);
+    setPast([...past, { board, metadata }]);
     setFuture(future.slice(1));
-    setBoard(nextBoard);
-    onFenChange?.(`${boardToFEN(nextBoard)} ${metadata}`);
+    setPosition(nextBoard);
+    onFenChange?.(serializePosition(nextBoard.board, nextBoard.metadata));
   }, [board, future, metadata, onFenChange, past]);
 
   return {
     board,
-    currentFen: `${boardToFEN(board)} ${metadata}`,
+    currentFen,
     handlePieceDrop,
     handlePieceRemove,
     clearBoard,
