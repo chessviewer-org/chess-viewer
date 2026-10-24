@@ -22,21 +22,10 @@ interface FairyCatalogueProps {
   onKeyboardPick: (piece: BoardCell) => void;
 }
 
-const COLLAPSED_LIMIT = 30;
-const GLYPH_ORDER = 'KQRBNPC';
-const byName = new Intl.Collator('en').compare;
-const glyphRank = (glyph = '') =>
-  glyph
-    ? GLYPH_ORDER.indexOf(glyph[0] ?? '') * 4 + Number(glyph.slice(1) || 0) / 90
-    : Infinity;
-const WALKS = FAIRY_WALKS.map((walk) => ({
-  walk,
-  search: `${walk.name} ${walk.code}`.toLowerCase()
-})).sort(
-  (a, b) =>
-    glyphRank(a.walk.glyph) - glyphRank(b.walk.glyph) ||
-    byName(a.walk.code, b.walk.code)
-);
+const byCode = new Intl.Collator('en', { numeric: true }).compare;
+const WALKS = FAIRY_WALKS.filter((walk) => !walk.glyph)
+  .map((walk) => ({ walk, search: `${walk.name} ${walk.code}`.toLowerCase() }))
+  .sort((a, b) => byCode(a.walk.code, b.walk.code));
 const COLORS = [
   { value: 'w', label: 'White' },
   { value: 'b', label: 'Black' },
@@ -58,7 +47,6 @@ export const FairyCatalogue = memo(function FairyCatalogue({
   const [query, setQuery] = useState('');
   const [attributes, setAttributes] = useState<string[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [expanded, setExpanded] = useState(false);
 
   const term = query.trim().toLowerCase();
   const entries = useMemo(
@@ -71,14 +59,9 @@ export const FairyCatalogue = memo(function FairyCatalogue({
       ),
     [term, color, attributes]
   );
-  const collapsed = !expanded && !term && entries.length > COLLAPSED_LIMIT;
-  const shown = useMemo(
-    () => (collapsed ? entries.slice(0, COLLAPSED_LIMIT) : entries),
-    [collapsed, entries]
-  );
   const visibleBoard = useMemo(
-    () => [shown.map(({ piece }) => piece)],
-    [shown]
+    () => [entries.map(({ piece }) => piece)],
+    [entries]
   );
   const { pieceImages } = usePieceImages(pieceStyle, { board: visibleBoard });
   const prefix = attributes.length ? `${attributes.join(' ')} ` : '';
@@ -106,7 +89,7 @@ export const FairyCatalogue = memo(function FairyCatalogue({
         title={`${prefix}${walk.name} (${walk.code})`}
         aria-label={`Place ${COLOR_NAMES[color]} ${prefix}${walk.name} (${walk.code})`}
         aria-pressed={selectedPiece === piece}
-        className="relative flex min-w-0 cursor-pointer flex-col items-center rounded-md border border-border/50 bg-surface-elevated px-0.5 pt-1 pb-0.5 transition-colors hover:border-border hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent aria-pressed:border-text-primary aria-pressed:bg-surface-hover"
+        className="relative grid aspect-square min-w-0 cursor-pointer place-items-center rounded-md border border-border/50 bg-surface-elevated p-[6%] transition-colors hover:border-border hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent aria-pressed:border-text-primary aria-pressed:bg-surface-hover"
         onClick={(event) => {
           event.stopPropagation();
           onSelect(piece);
@@ -125,25 +108,18 @@ export const FairyCatalogue = memo(function FairyCatalogue({
             aria-hidden="true"
           />
         )}
-        <span className="grid aspect-square w-full place-items-center">
-          <DraggablePiece
-            piece={piece}
-            pieceImage={image}
-            isFromPalette
-            size="88%"
-          />
-        </span>
-        {walk.glyph && (
-          <span className="font-mono text-[0.625rem] leading-tight text-text-muted">
-            {walk.code}
-          </span>
-        )}
+        <DraggablePiece
+          piece={piece}
+          pieceImage={image}
+          isFromPalette
+          size="100%"
+        />
       </button>
     );
   };
 
   return (
-    <section aria-label="Named pieces">
+    <section aria-label="Named pieces" className="@container">
       <header className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <span className="text-xs text-text-muted">
           {entries.length} {term ? 'matching' : 'pieces'}
@@ -231,25 +207,15 @@ export const FairyCatalogue = memo(function FairyCatalogue({
       <div
         role="group"
         aria-label="Named fairy pieces"
-        className="mt-3 grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-1"
+        className="mt-3 grid grid-cols-6 gap-1 @md:grid-cols-8 @[36rem]:grid-cols-11"
       >
-        {shown.map(renderEntry)}
+        {entries.map(renderEntry)}
         {entries.length === 0 && (
           <p className="col-span-full py-6 text-center text-xs text-text-secondary">
             No named piece matches “{query.trim()}”.
           </p>
         )}
       </div>
-      {!term && entries.length > COLLAPSED_LIMIT && (
-        <button
-          type="button"
-          aria-expanded={expanded}
-          className="mt-2 h-8 w-full cursor-pointer rounded-md border border-border/50 text-xs font-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          onClick={() => setExpanded((open) => !open)}
-        >
-          {expanded ? 'Show fewer' : `Show all ${entries.length}`}
-        </button>
-      )}
     </section>
   );
 });
