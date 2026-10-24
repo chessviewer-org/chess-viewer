@@ -162,24 +162,22 @@ export const FairyCatalogue = memo(function FairyCatalogue({
 
   return (
     <section aria-label="Named pieces" className="contents">
-      <div className="col-start-1 row-start-2 min-w-0 justify-self-start">
+      <div className={styles.attributes}>
         <button
           type="button"
           aria-expanded={menuOpen}
           aria-haspopup="true"
           onClick={() => setMenuOpen((open) => !open)}
-          className={`${BUTTON} relative px-2 @[28rem]:px-3 ${attributes.length ? 'border-accent/60 text-accent' : ''}`}
+          className={`${BUTTON} ${styles.attributesButton} ${attributes.length ? 'border-accent/60 text-accent' : ''}`}
         >
           <SlidersHorizontal className="size-3.5" aria-hidden="true" />
           Attributes
           {attributes.length > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 rounded-full bg-surface-elevated px-1.5 font-mono text-[0.6875rem] text-accent ring-1 ring-border @[28rem]:static @[28rem]:bg-accent/15 @[28rem]:ring-0">
-              {attributes.length}
-            </span>
+            <span className={styles.count}>{attributes.length}</span>
           )}
         </button>
       </div>
-      <div className="col-span-2 col-start-1 row-start-3 min-w-0 @[28rem]:col-span-1 @[28rem]:col-start-2 @[28rem]:row-start-2">
+      <div className={styles.search}>
         <SearchField
           label="Search named pieces"
           placeholder="Search name or code…"
@@ -187,7 +185,7 @@ export const FairyCatalogue = memo(function FairyCatalogue({
           onChange={searchPieces}
         />
       </div>
-      <div className="col-span-2 col-start-1 row-start-4 min-w-0 @[28rem]:row-start-3">
+      <div className={styles.body}>
         {!menuOpen && attributes.length > 0 && (
           <div className="mb-2 flex flex-wrap items-center gap-1.5">
             {attributes.map((attribute) => (

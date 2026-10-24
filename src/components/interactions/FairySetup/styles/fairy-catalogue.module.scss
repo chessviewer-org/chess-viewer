@@ -60,3 +60,86 @@ $tile-touch: 44px;
   border-radius: 9999px;
   background-color: var(--color-accent);
 }
+
+$split: 352px;
+$roomy: 400px;
+
+.named {
+  container-type: inline-size;
+  min-width: 0;
+}
+
+.namedLayout {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'tabs tabs tabs'
+    'attributes . colour'
+    'search search search'
+    'body body body';
+  align-items: center;
+  gap: 8px;
+
+  @include m.container-up($split) {
+    grid-template-areas:
+      'tabs tabs colour'
+      'attributes search search'
+      'body body body';
+  }
+}
+
+.tabs {
+  grid-area: tabs;
+}
+
+.colour {
+  grid-area: colour;
+  justify-self: end;
+
+  @include m.container-down($roomy) {
+    > button {
+      padding-inline: 4px;
+      font-size: 11px;
+    }
+  }
+}
+
+.attributes {
+  grid-area: attributes;
+  min-width: 0;
+}
+
+.attributesButton {
+  position: relative;
+
+  @include m.container-down($split) {
+    padding-inline: 8px;
+  }
+}
+
+.count {
+  border-radius: 9999px;
+  padding-inline: 6px;
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--color-accent);
+  background-color: rgb(var(--val-accent) / 0.15);
+
+  @include m.container-down($split) {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background-color: var(--color-surface-elevated);
+    box-shadow: 0 0 0 1px var(--color-border);
+  }
+}
+
+.search {
+  grid-area: search;
+  min-width: 0;
+}
+
+.body {
+  grid-area: body;
+  min-width: 0;
+}

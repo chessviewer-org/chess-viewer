@@ -7,13 +7,13 @@
 }
 
 @mixin viewport-down($bp) {
-  @media (max-width: #{$bp - 1px}) {
+  @media (width < #{$bp}) {
     @content;
   }
 }
 
 @mixin viewport-between($min, $max) {
-  @media (min-width: $min) and (max-width: #{$max - 1px}) {
+  @media (#{$min} <= width < #{$max}) {
     @content;
   }
 }
@@ -25,7 +25,7 @@
 }
 
 @mixin container-down($width) {
-  @container (max-width: #{$width - 1px}) {
+  @container (width < #{$width}) {
     @content;
   }
 }

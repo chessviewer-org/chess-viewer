@@ -15,14 +15,15 @@
   }
 
   .page-container {
+    --page-max: 1680px;
     width: 100%;
-    padding-inline: 3%;
+    padding-inline: max(3%, calc((100% - var(--page-max)) / 2));
     box-sizing: border-box;
   }
 
   @media (min-width: 1024px) {
     .page-container {
-      padding-inline: 6%;
+      padding-inline: max(6%, calc((100% - var(--page-max)) / 2));
     }
   }
 }

@@ -15,6 +15,7 @@ import { usePieceImages } from '@/shared/hooks/usePieceImages';
 import { FairyCatalogue } from '../FairySetup/FairyCatalogue';
 import { Segmented } from '../FairySetup/Segmented';
 import { PiecePalette, type PaletteGroup } from './PiecePalette';
+import styles from '../FairySetup/styles/fairy-catalogue.module.scss';
 
 interface FairySymbolPaletteProps {
   pieceStyle: string;
@@ -159,16 +160,10 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
 
   return (
     <div
-      className={tab === 'named' ? '@container min-w-0' : 'min-w-0'}
+      className={tab === 'named' ? styles.named : 'min-w-0'}
       onClick={(event) => event.stopPropagation()}
     >
-      <div
-        className={
-          tab === 'named'
-            ? 'grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 @[28rem]:grid-cols-[auto_minmax(0,1fr)]'
-            : undefined
-        }
-      >
+      <div className={tab === 'named' ? styles.namedLayout : undefined}>
         <div
           className={
             tab === 'named'
@@ -179,7 +174,7 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
           <div
             role="tablist"
             aria-label="Fairy pieces"
-            className={`flex gap-4 ${tab === 'named' ? 'col-span-2 col-start-1 row-start-1 @[28rem]:col-span-1' : ''}`}
+            className={`flex gap-4 ${tab === 'named' ? styles.tabs : ''}`}
           >
             {TABS.map((item, index) => (
               <button
@@ -222,7 +217,7 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
               value={namedColor}
               options={COLOR_OPTIONS}
               onChange={setNamedColor}
-              className="col-start-2 row-start-2 justify-self-end [&>button]:px-1 [&>button]:text-[0.6875rem] @[28rem]:row-start-1 @[28rem]:[&>button]:px-2 @[28rem]:[&>button]:text-xs"
+              className={styles.colour}
             />
           )}
         </div>

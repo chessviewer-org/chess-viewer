@@ -1,23 +1,31 @@
+@use '../../../../styles/variables' as v;
+@use '../../../../styles/mixins' as m;
 @reference "../../../../index.css";
 
 .tabsNav {
-  @apply w-full max-md:-mx-1;
+  @apply w-full;
 }
 
 .tabsList {
-  @apply flex flex-col gap-0.5 w-full max-md:flex-row max-md:items-center max-md:gap-1 max-md:overflow-x-auto max-md:snap-x max-md:px-1 max-md:pb-1 hide-scrollbar;
+  @apply flex flex-col gap-0.5 w-full;
+
+  @include m.viewport-down(v.$bp-md) {
+    > :last-child :is(.tabBtn, .groupToggleBtn):last-child {
+      margin-bottom: 5px;
+    }
+  }
 }
 
 .groupContainer {
-  @apply mt-3 border-t border-border pt-3 w-full max-md:contents;
+  @apply mt-3 border-t border-border pt-3 w-full;
 }
 
 .groupContainerFirst {
-  @apply w-full max-md:contents;
+  @apply w-full;
 }
 
 .groupToggleBtn {
-  @apply relative flex w-full max-md:w-auto max-md:shrink-0 max-md:gap-2 max-md:whitespace-nowrap items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset;
+  @apply relative flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset;
 }
 
 .groupToggleActive {
@@ -41,32 +49,24 @@
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.groupChevronOpen {
-  transform: rotate(0deg);
-}
-
-.groupChevronClosed {
-  transform: rotate(-90deg);
-}
-
 .groupHeading {
-  @apply block max-md:hidden px-3 pb-1.5 text-xs font-bold uppercase tracking-wider text-text-muted;
+  @apply block px-3 pb-1.5 text-xs font-bold uppercase tracking-wider text-text-muted;
 }
 
 .groupItems {
-  @apply flex flex-col gap-0.5 w-full max-md:contents;
+  @apply flex flex-col gap-0.5 w-full;
 }
 
 .groupItemsCollapsible {
-  @apply mt-1 flex flex-col gap-0.5 w-full max-md:contents;
+  @apply mt-1 flex flex-col gap-0.5 w-full;
 }
 
 .tabBtn {
-  @apply relative flex shrink-0 items-center gap-2 rounded-lg py-2 pr-3 text-left text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset w-full max-md:w-auto max-md:snap-start max-md:whitespace-nowrap;
+  @apply relative flex shrink-0 items-center gap-2 rounded-lg py-2 pr-3 text-left text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset w-full;
 }
 
 .tabBtnCollapsible {
-  @apply pl-8 max-md:pl-3;
+  @apply pl-8;
 }
 
 .tabBtnNormal {
@@ -82,7 +82,7 @@
 }
 
 .tabIndicator {
-  @apply absolute inset-y-1.5 left-0 w-0.5 rounded-full transition-colors max-md:inset-x-3 max-md:top-auto max-md:bottom-0 max-md:h-0.5 max-md:w-auto;
+  @apply absolute inset-y-1.5 left-0 w-0.5 rounded-full transition-colors;
 }
 
 .tabIndicatorActive {

@@ -1,6 +1,8 @@
 import { type RefObject, useLayoutEffect } from 'react';
 import { useLocation } from 'wouter';
 
+const PINNED_ROUTES = new Set(['/about', '/settings']);
+
 export function useNavbarVisibility(
   menuOpen: boolean,
   navRef: RefObject<HTMLElement | null>
@@ -15,7 +17,7 @@ export function useNavbarVisibility(
       if (nav.dataset['hidden'] !== value) nav.dataset['hidden'] = value;
     };
     setHidden(false);
-    if (menuOpen) return;
+    if (menuOpen || PINNED_ROUTES.has(location)) return;
 
     const update = () => {
       if (document.documentElement.classList.contains('modal-open')) return;
