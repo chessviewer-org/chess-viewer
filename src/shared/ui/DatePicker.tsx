@@ -376,39 +376,52 @@ const DatePicker = memo(function DatePicker({
               className={styles['dpGrid']}
             >
               {Array.from(
-                { length: firstDay },
-                (_, index) => `empty-${year}-${month}-${index}`
-              ).map((key) => (
-                <div key={key} role="presentation" className="h-8" />
-              ))}
-
-              {Array.from({ length: daysInMonth }).map((_, index) => {
-                const day = index + 1;
-                const selected = isSelected(day);
-                const today = isToday(day);
-                const isFocusTarget = day === focusedDay;
-                return (
-                  <button
-                    key={day}
-                    data-day={day}
-                    type="button"
-                    role="gridcell"
-                    aria-selected={selected}
-                    aria-label={formatLongDate(year, month, day)}
-                    tabIndex={isFocusTarget ? 0 : -1}
-                    onClick={() => handleDateSelect(day)}
-                    className={`${styles['dpDayCell']} ${
-                      selected
-                        ? styles['dpDaySelected']
-                        : today
-                          ? styles['dpDayToday']
-                          : styles['dpDayNormal']
-                    }`}
+                { length: Math.ceil((firstDay + daysInMonth) / 7) },
+                (_, week) => (
+                  <div
+                    key={`${year}-${month}-${week}`}
+                    role="row"
+                    className="contents"
                   >
-                    {day}
-                  </button>
-                );
-              })}
+                    {WEEK_DAYS.map((weekDay, weekIndex) => {
+                      const day = week * 7 + weekIndex - firstDay + 1;
+                      if (day > daysInMonth) return null;
+                      if (day < 1)
+                        return (
+                          <div
+                            key={weekDay}
+                            role="presentation"
+                            className="h-8"
+                          />
+                        );
+                      const selected = isSelected(day);
+                      const today = isToday(day);
+                      const isFocusTarget = day === focusedDay;
+                      return (
+                        <button
+                          key={weekDay}
+                          data-day={day}
+                          type="button"
+                          role="gridcell"
+                          aria-selected={selected}
+                          aria-label={formatLongDate(year, month, day)}
+                          tabIndex={isFocusTarget ? 0 : -1}
+                          onClick={() => handleDateSelect(day)}
+                          className={`${styles['dpDayCell']} ${
+                            selected
+                              ? styles['dpDaySelected']
+                              : today
+                                ? styles['dpDayToday']
+                                : styles['dpDayNormal']
+                          }`}
+                        >
+                          {day}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )
+              )}
             </div>
           </div>
 
