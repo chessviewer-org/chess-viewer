@@ -1,8 +1,8 @@
+import { parseFEN } from './fenParser';
 import {
   getDisplayCoordinates,
   getSquareBounds,
   isLightSquare,
-  parseFEN,
   type SquarePattern
 } from '@chessviewer-org/chess-viewer';
 
@@ -13,11 +13,13 @@ import {
   readSquarePattern
 } from './boardPattern';
 import { drawCoordinates } from './coordinateCalculations';
-import { ensurePieceResolution, getPieceKey } from './pieceUtils';
 import {
-  calculateRenderSurfaceSize,
-  shouldForceCoordinateBorder
-} from './imageOptimizer';
+  assertBoardArtwork,
+  ensurePieceResolution,
+  getPieceKey,
+  waitForPieceImage
+} from './pieceUtils';
+import { calculatePositionSurfaceSize } from './compositionCaption';
 
 export interface RenderConfig {
   boardSize: number;
@@ -29,7 +31,6 @@ export interface RenderConfig {
   pieceImages: Record<string, HTMLImageElement>;
   format?: 'png' | 'jpeg' | 'jpg';
   exportQuality?: number;
-  showCoordinateBorder?: boolean;
   showThinFrame?: boolean;
   squarePattern?: SquarePattern;
 }
@@ -46,7 +47,6 @@ export async function createUltraQualityCanvas(
     fen,
     pieceImages,
     format = 'png',
-    showCoordinateBorder = true,
     exportQuality = 1,
     showThinFrame = false,
     squarePattern = readSquarePattern()
@@ -65,22 +65,21 @@ export async function createUltraQualityCanvas(
   }
 
   const board = parseFEN(fen);
-
+  const presentKeys = new Set<string>();
+  for (const row of board) {
+    for (const cell of row) {
+      const key = getPieceKey(cell);
+      if (key) presentKeys.add(key);
+    }
+  }
   await Promise.all(
-    Object.values(pieceImages).map(
-      (img) =>
-        new Promise<void>((res) => {
-          if (!img || img.complete) return res();
-          const t = setTimeout(done, 10000);
-          function done() {
-            clearTimeout(t);
-            img.onload = img.onerror = null;
-            res();
-          }
-          img.onload = img.onerror = done;
-        })
-    )
+    [...presentKeys].map((key) => {
+      const image = pieceImages[key];
+      return image ? waitForPieceImage(image, 10000) : undefined;
+    })
   );
+
+  assertBoardArtwork(board, pieceImages);
 
   const {
     boardPixels: bPx,
@@ -89,21 +88,35 @@ export async function createUltraQualityCanvas(
     shouldShowFrame: hasFrame,
     frameThickness: frame,
     canvasWidth: cW,
-    canvasHeight: cH
-  } = calculateRenderSurfaceSize(
+    canvasHeight: cH,
+    boardCanvasHeight,
+    caption
+  } = calculatePositionSurfaceSize(
     bSize,
     showCoords,
     exportQuality,
-    showThinFrame
+    showThinFrame,
+    fen
+  );
+
+  const sq = bPx / 8;
+  const targetPiecePx = Math.ceil(sq);
+  const resolvedPieces: Record<string, HTMLImageElement> = {};
+  await Promise.all(
+    [...presentKeys].map(async (key) => {
+      const img = pieceImages[key]!;
+      resolvedPieces[key] = await ensurePieceResolution(img, targetPiecePx);
+    })
   );
 
   const canvas = document.createElement('canvas');
   canvas.width = Math.max(1, cW);
   canvas.height = Math.max(1, cH);
+  const opaque = format !== 'png';
 
   try {
     const ctx = canvas.getContext('2d', {
-      alpha: true,
+      alpha: !opaque,
       desynchronized: false,
       willReadFrequently: false
     });
@@ -112,49 +125,28 @@ export async function createUltraQualityCanvas(
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
 
-    const sq = bPx / 8;
     const offset = hasFrame ? frame : 0;
     const bX = border + offset + outline;
     const bY = offset + outline;
-    const yieldToMain = () => new Promise((res) => setTimeout(res, 0));
+    let lastYield = performance.now();
+    const yieldToMain = async () => {
+      if (performance.now() - lastYield < 8) return;
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+      lastYield = performance.now();
+    };
 
-    const targetPiecePx = Math.ceil(sq);
-    const resolvedPieces: Record<string, HTMLImageElement> = {};
-    await Promise.all(
-      Object.entries(pieceImages).map(async ([key, img]) => {
-        if (!img) return;
-        try {
-          resolvedPieces[key] = await ensurePieceResolution(img, targetPiecePx);
-        } catch {
-          resolvedPieces[key] = img;
-        }
-      })
-    );
-
-    ctx.clearRect(0, 0, cW, cH);
+    if (opaque) {
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, cW, cH);
+    } else ctx.clearRect(0, 0, cW, cH);
     await yieldToMain();
 
     if (hasFrame) {
       ctx.fillStyle = '#333';
       ctx.fillRect(0, 0, cW, frame);
-      ctx.fillRect(0, cH - frame, cW, frame);
-      ctx.fillRect(0, 0, frame, cH);
-      ctx.fillRect(cW - frame, 0, frame, cH);
-    }
-
-    if (
-      showCoords &&
-      (shouldForceCoordinateBorder(exportQuality) || showCoordinateBorder) &&
-      format.startsWith('jp')
-    ) {
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(offset, offset, border, bPx + outline * 2);
-      ctx.fillRect(
-        offset,
-        offset + bPx + outline * 2,
-        border + bPx + outline * 2,
-        border
-      );
+      ctx.fillRect(0, boardCanvasHeight - frame, cW, frame);
+      ctx.fillRect(0, 0, frame, boardCanvasHeight);
+      ctx.fillRect(cW - frame, 0, frame, boardCanvasHeight);
     }
 
     ctx.fillStyle = '#000';
@@ -222,6 +214,20 @@ export async function createUltraQualityCanvas(
         bandSize: border,
         flipped
       });
+    if (caption.lines.length) {
+      ctx.font = `${caption.fontSize}px Arial, sans-serif`;
+      ctx.textBaseline = 'top';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = Math.max(1, caption.fontSize / 7);
+      caption.lines.forEach((line, index) => {
+        const y =
+          boardCanvasHeight + caption.padding + index * caption.lineHeight;
+        ctx.strokeStyle = '#fff';
+        ctx.strokeText(line, bX, y);
+        ctx.fillStyle = '#000';
+        ctx.fillText(line, bX, y);
+      });
+    }
     await yieldToMain();
     return canvas;
   } catch (err) {
