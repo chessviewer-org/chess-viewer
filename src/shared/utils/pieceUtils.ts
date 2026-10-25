@@ -148,6 +148,18 @@ export function getCachedPieceStyle(
   return result;
 }
 
+export function getDisplayablePieceStyle(
+  style: string,
+  pieceMap: Record<string, string>
+): Record<string, HTMLImageElement> {
+  const result: Record<string, HTMLImageElement> = {};
+  for (const [piece, source] of Object.entries(pieceMap)) {
+    const { image } = loadPiece(style, source || piece);
+    if (image.src) result[piece] = image;
+  }
+  return result;
+}
+
 export function getPieceKey(fenPiece: string): string | null {
   if (!fenPiece) return null;
   const named = parseNamedCell(fenPiece);
