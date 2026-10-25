@@ -2,8 +2,10 @@ import assert from 'node:assert/strict';
 import { fetchPieceSvgText } from '../src/shared/utils/pieceSvg';
 import { afterEach, beforeEach, test } from 'node:test';
 
+import { inlinePieceSources } from '../src/shared/utils/pieceSources';
 import {
   getCachedPieceStyle,
+  getDisplayablePieceStyle,
   preloadPieceStyle
 } from '../src/shared/utils/pieceUtils';
 import { getSVGBlob } from '../src/shared/utils/svgExporter';
@@ -191,4 +193,21 @@ test('invalid fetched artwork is not displayed or cached and can be retried', as
   fetch.mock.mockImplementation(async () => new Response(VECTOR));
   assert.ok((await preloadPieceStyle('invalid-source-test', { wQ: '' }))['wQ']);
   assert.equal(fetch.mock.calls.length, 2);
+});
+
+test('inlined pieces are shown on the first render, before they decode', () => {
+  images();
+  inlinePieceSources([
+    [
+      '/piece/inline-first-render/wK.svg',
+      `data:image/svg+xml,${encodeURIComponent(VECTOR)}`
+    ]
+  ]);
+  const pieces = { wK: '', bK: '' };
+
+  const shown = getDisplayablePieceStyle('inline-first-render', pieces);
+
+  assert.deepEqual(Object.keys(shown), ['wK']);
+  assert.ok(shown['wK']?.src.startsWith('data:image/svg+xml'));
+  assert.deepEqual(getCachedPieceStyle('inline-first-render', pieces), {});
 });

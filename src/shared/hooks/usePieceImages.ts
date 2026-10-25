@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import {
   getCachedPieceStyle,
+  getDisplayablePieceStyle,
   preloadPieceStyle
 } from '@/shared/utils/pieceUtils';
 import { logger } from '@/shared/utils/logger';
@@ -37,9 +38,10 @@ export function usePieceImages(
   const cacheKey = `${pieceStyle}:${keys}`;
   const request = useMemo(() => {
     const cached = getCachedPieceStyle(pieceStyle, pieceMap);
+    const ready = Object.keys(cached).length === Object.keys(pieceMap).length;
     return {
-      images: cached,
-      ready: Object.keys(cached).length === Object.keys(pieceMap).length
+      images: ready ? cached : getDisplayablePieceStyle(pieceStyle, pieceMap),
+      ready
     };
   }, [pieceStyle, pieceMap]);
   const [loaded, setLoaded] = useState<{
