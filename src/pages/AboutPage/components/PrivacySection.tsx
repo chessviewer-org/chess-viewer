@@ -45,7 +45,9 @@ export default function PrivacySection() {
           Cloudflare Web Analytics. It sets no cookies, does not use your
           browser storage and does not fingerprint you. It only shows us totals,
           such as how many visits a page had and which countries they came from.
-          It never sees the positions you build or what you export.
+          It records the address of each page you open, so a shared link that
+          carries a position in its address is counted with that address. It
+          never sees the positions you build in the editor or what you export.
         </p>
       </InfoCard>
 
