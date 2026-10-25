@@ -24,6 +24,10 @@ import {
 
 import { DisplayOptions } from '@/components/features/BoardStyle/DisplayOptions';
 import {
+  resolveBoardClick,
+  type PieceSelection
+} from '../../Board/clickSelection';
+import {
   type BoardKeyboardApi,
   InteractiveBoard,
   TrashZone
@@ -86,8 +90,11 @@ export const ChessEditor = memo(function ChessEditor({
   className = ''
 }: ChessEditorProps) {
   const paletteMode = variant;
-  const [selectedPalettePiece, setSelectedPalettePiece] =
-    useState<BoardCell | null>(null);
+  const [selection, setSelection] = useState<PieceSelection>(null);
+  const selectedPalettePiece =
+    selection?.source === 'palette' ? selection.piece : null;
+  const selectedSquare =
+    selection?.source === 'board' ? selection.square : null;
   const {
     board,
     handlePieceDrop,
@@ -109,59 +116,54 @@ export const ChessEditor = memo(function ChessEditor({
     handlePieceRemove
   });
 
-  const [selectedSquare, setSelectedSquare] = useState<
-    readonly [number, number] | null
-  >(null);
-
-  const handleSquareSelect = useCallback((row: number, col: number) => {
-    setSelectedSquare((prev) =>
-      prev && prev[0] === row && prev[1] === col ? null : [row, col]
-    );
-  }, []);
-
   const handleDeleteSelected = useCallback(() => {
-    setSelectedSquare((sel) => {
-      if (sel) handlePieceRemove(sel[0], sel[1]);
-      return null;
-    });
-  }, [handlePieceRemove]);
+    if (!selectedSquare) return;
+    handlePieceRemove(selectedSquare[0], selectedSquare[1]);
+    setSelection(null);
+  }, [selectedSquare, handlePieceRemove]);
 
   const boardKeyboardApiRef = useRef<BoardKeyboardApi | null>(null);
   const handleKeyboardApi = useCallback((api: BoardKeyboardApi) => {
     boardKeyboardApiRef.current = api;
   }, []);
   const handlePalettePick = useCallback((piece: BoardCell) => {
+    setSelection(null);
     boardKeyboardApiRef.current?.pickUpFromPalette(piece);
   }, []);
 
+  const clearPointerSelection = useCallback(() => setSelection(null), []);
+
   const clearSelection = useCallback(() => {
-    setSelectedSquare(null);
-    setSelectedPalettePiece(null);
+    setSelection(null);
     boardKeyboardApiRef.current?.clearHeld();
   }, []);
 
   const handlePaletteSelect = useCallback((piece: BoardCell) => {
     boardKeyboardApiRef.current?.clearHeld();
-    setSelectedSquare(null);
-    setSelectedPalettePiece((prev) => (prev === piece ? null : piece));
+    setSelection((prev) =>
+      prev?.source === 'palette' && prev.piece === piece
+        ? null
+        : { source: 'palette', piece }
+    );
   }, []);
 
   const handleBoardSquareSelect = useCallback(
     (row: number, col: number) => {
-      if (selectedPalettePiece) {
+      boardKeyboardApiRef.current?.clearHeld();
+      const result = resolveBoardClick(board, selection, row, col);
+      setSelection(result.selection);
+      if (result.drop) {
         handlePieceDrop(
-          selectedPalettePiece,
-          undefined,
-          undefined,
+          result.drop.piece,
+          result.drop.from?.[0],
+          result.drop.from?.[1],
           row,
           col,
-          true
+          result.drop.from === null
         );
-        return;
       }
-      handleSquareSelect(row, col);
     },
-    [selectedPalettePiece, handlePieceDrop, handleSquareSelect]
+    [board, selection, handlePieceDrop]
   );
 
   useLayoutEffect(() => {
@@ -169,7 +171,7 @@ export const ChessEditor = memo(function ChessEditor({
   }, [fen, syncFromFen]);
 
   useEffect(() => {
-    setSelectedSquare(null);
+    setSelection((prev) => (prev?.source === 'board' ? null : prev));
   }, [fen]);
 
   const keyboardActions = useMemo(
@@ -215,6 +217,7 @@ export const ChessEditor = memo(function ChessEditor({
     fen,
     ...(onNotify ? { onNotify } : {})
   });
+  const handleCopyLink = useCallback(() => void copyLink(), [copyLink]);
 
   const ranks = flipped
     ? ['1', '2', '3', '4', '5', '6', '7', '8']
@@ -235,7 +238,7 @@ export const ChessEditor = memo(function ChessEditor({
   };
 
   return (
-    <Provider onDragEnd={onDragEnd}>
+    <Provider onDragStart={clearSelection} onDragEnd={onDragEnd}>
       <div
         data-palette-mode={paletteMode}
         className={`${styles.editorRoot} ${className}`}
@@ -265,6 +268,7 @@ export const ChessEditor = memo(function ChessEditor({
                       selectedSquare={selectedSquare}
                       onPieceRemove={handlePieceRemove}
                       onKeyboardApi={handleKeyboardApi}
+                      onKeyboardInteraction={clearPointerSelection}
                     />
                     {showThinFrame && (
                       <div
@@ -388,7 +392,7 @@ export const ChessEditor = memo(function ChessEditor({
           onClose={closeShare}
           fen={fen}
           positionUrl={payload.positionUrl}
-          onCopyLink={() => void copyLink()}
+          onCopyLink={handleCopyLink}
         />
       </div>
     </Provider>

@@ -18,6 +18,7 @@ const CLICK_SUPPRESS_MS = 50;
 
 interface DragProviderProps {
   children: ReactNode;
+  onDragStart?: () => void;
   onDragEnd(
     dragData: ChessDragData,
     targetId: string | null,
@@ -44,7 +45,11 @@ function suppressNextClick() {
   );
 }
 
-export function DragProvider({ children, onDragEnd }: DragProviderProps) {
+export function DragProvider({
+  children,
+  onDragStart,
+  onDragEnd
+}: DragProviderProps) {
   const activeRef = useRef<ChessDragData | null>(null);
   const listeners = useRef(new Set<() => void>());
   const setActive = useCallback((next: ChessDragData | null) => {
@@ -57,6 +62,8 @@ export function DragProvider({ children, onDragEnd }: DragProviderProps) {
   const overIdRef = useRef<string | null>(null);
   const onDragEndRef = useRef(onDragEnd);
   onDragEndRef.current = onDragEnd;
+  const onDragStartRef = useRef(onDragStart);
+  onDragStartRef.current = onDragStart;
   const targets = useRef<
     Map<string, { el: HTMLElement; data: Record<string, unknown> }>
   >(new Map());
@@ -143,6 +150,7 @@ export function DragProvider({ children, onDragEnd }: DragProviderProps) {
   const api = useMemo<DragApi>(
     () => ({
       startDrag(session) {
+        onDragStartRef.current?.();
         sessionRef.current = session;
         document.body.appendChild(session.ghost);
         setActive(session.dragData);

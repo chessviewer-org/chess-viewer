@@ -27,6 +27,7 @@ export interface UseBoardKeyboardParams {
     isFromPalette: boolean
   ) => void;
   onPieceRemove?: ((row: number, col: number) => void) | undefined;
+  onInteract?: () => void;
 }
 
 export interface UseBoardKeyboardResult {
@@ -44,7 +45,8 @@ export function useBoardKeyboard({
   board,
   flipped,
   onPieceDrop,
-  onPieceRemove
+  onPieceRemove,
+  onInteract
 }: UseBoardKeyboardParams): UseBoardKeyboardResult {
   const [cursor, setCursor] = useState<Cell | null>(null);
   const [held, setHeld] = useState<HeldPiece | null>(null);
@@ -136,24 +138,29 @@ export function useBoardKeyboard({
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       switch (e.key) {
         case 'ArrowUp':
+          onInteract?.();
           e.preventDefault();
           moveCursor(-1, 0);
           break;
         case 'ArrowDown':
+          onInteract?.();
           e.preventDefault();
           moveCursor(1, 0);
           break;
         case 'ArrowLeft':
+          onInteract?.();
           e.preventDefault();
           moveCursor(0, -1);
           break;
         case 'ArrowRight':
+          onInteract?.();
           e.preventDefault();
           moveCursor(0, 1);
           break;
         case 'Enter':
         case ' ':
         case 'Spacebar':
+          onInteract?.();
           e.preventDefault();
           activate();
           break;
@@ -166,6 +173,9 @@ export function useBoardKeyboard({
           break;
         case 'Delete':
         case 'Backspace':
+          // Pointer selection is handled by the editor's Delete shortcut.
+          if (cursorRef.current === null) return;
+          onInteract?.();
           e.preventDefault();
           removeAtCursor();
           break;
@@ -173,7 +183,7 @@ export function useBoardKeyboard({
           break;
       }
     },
-    [moveCursor, activate, cancel, removeAtCursor]
+    [moveCursor, activate, cancel, removeAtCursor, onInteract]
   );
 
   const onBlur = useCallback(() => {
@@ -193,7 +203,10 @@ export function useBoardKeyboard({
     [announce, flipped]
   );
 
-  const clearHeld = useCallback(() => setHeld(null), []);
+  const clearHeld = useCallback(() => {
+    setHeld(null);
+    setCursor(null);
+  }, []);
 
   const activeDescendantId = cursor
     ? `sq-${cursor.row}-${cursor.col}`

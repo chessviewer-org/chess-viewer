@@ -43,6 +43,7 @@ interface InteractiveBoardProps {
   selectedSquare?: readonly [number, number] | null | undefined;
   onPieceRemove?: ((row: number, col: number) => void) | undefined;
   onKeyboardApi?: ((api: BoardKeyboardApi) => void) | undefined;
+  onKeyboardInteraction?: (() => void) | undefined;
 }
 
 export const InteractiveBoard = memo(function InteractiveBoard({
@@ -55,7 +56,8 @@ export const InteractiveBoard = memo(function InteractiveBoard({
   onSquareSelect,
   selectedSquare,
   onPieceRemove,
-  onKeyboardApi
+  onKeyboardApi,
+  onKeyboardInteraction
 }: InteractiveBoardProps) {
   const boardRef = useRef<HTMLDivElement | null>(null);
   const onSquareSelectRef = useRef(onSquareSelect);
@@ -79,7 +81,8 @@ export const InteractiveBoard = memo(function InteractiveBoard({
     board,
     flipped,
     ...(onPieceDrop ? { onPieceDrop } : {}),
-    ...(onPieceRemove ? { onPieceRemove } : {})
+    ...(onPieceRemove ? { onPieceRemove } : {}),
+    ...(onKeyboardInteraction ? { onInteract: onKeyboardInteraction } : {})
   });
 
   useEffect(() => {
@@ -149,7 +152,7 @@ export const InteractiveBoard = memo(function InteractiveBoard({
         ref={setRef}
         role="grid"
         tabIndex={0}
-        aria-label="Chess board, edit mode. Use arrow keys to move, Enter or Space to pick up and place a piece, Delete to remove, Escape to cancel."
+        aria-label="Chess board, edit mode. Click a piece, then its destination to move it; click the selected piece again to cancel. Or use arrow keys to move, Enter or Space to pick up and place a piece, Delete to remove, Escape to cancel."
         {...(activeDescendantId
           ? { 'aria-activedescendant': activeDescendantId }
           : {})}
