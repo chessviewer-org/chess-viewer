@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 import {
   compositionNotes,
   compositionPieces,
@@ -10,7 +12,7 @@ interface CompositionLegendProps {
   pieceImages?: Record<string, HTMLImageElement>;
 }
 
-export function CompositionLegend({
+export const CompositionLegend = memo(function CompositionLegend({
   fen,
   pieceImages
 }: CompositionLegendProps) {
@@ -60,4 +62,4 @@ export function CompositionLegend({
       )}
     </div>
   );
-}
+});

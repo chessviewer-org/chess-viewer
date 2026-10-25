@@ -69,6 +69,12 @@ export const DroppableSquare = memo(
         data-col={col}
         data-shade={isLight ? 'light' : 'dark'}
       >
+        {(isSelected || isCursor) && (
+          <span
+            aria-hidden="true"
+            className={`pointer-events-none absolute inset-0 z-10 border-2 ${isSelected ? 'border-text-primary' : 'border-accent'}`}
+          />
+        )}
         {piece && pieceImage && (
           <div
             key={piece}
