@@ -147,13 +147,15 @@ Records of key architectural and technical decisions made during ChessViewer's d
 
 ---
 
-## ADR-012: No Analytics or Tracking
+## ADR-012: No Tracking, Aggregate Visit Counts Only
 
-**Date:** 2025-12-28 | **Status:** Accepted
+**Date:** 2025-12-28 | **Updated:** 2026-10-25 | **Status:** Accepted
 
-**Decision:** No analytics, tracking, or telemetry of any kind.
+**Decision:** No tracking cookies, advertising pixels, fingerprinting or telemetry. Visits are counted in aggregate with Cloudflare Web Analytics, which Cloudflare injects at the edge.
 
-**Rationale:** Privacy-first design. No GDPR/CCPA compliance overhead. Faster page load. Issues are reported through GitHub, not discovered through analytics.
+**Rationale:** Privacy-first design with enough signal to know whether the site is used. Cloudflare Web Analytics sets no cookies, uses no client-side storage and reports only totals, so there is no GDPR/CCPA consent overhead. It counts browsers that run JavaScript, which leaves out most bots. Issues are still reported through GitHub, not discovered through analytics.
+
+**Previously:** no analytics of any kind. Changed because server-side request counts include bots and cannot show real visitors.
 
 ---
 

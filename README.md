@@ -92,7 +92,7 @@ Every PR must reference an open issue (`Closes #N`) and pass CI before it can be
 
 ## Security and privacy
 
-Board rendering and export run entirely client-side — positions never leave your device. There are no analytics or tracking cookies.
+Board rendering and export run entirely client-side — positions never leave your device. There are no ads or tracking cookies; visits are counted in aggregate with cookieless Cloudflare Web Analytics.
 
 Optional cloud sync stores data in Supabase with row-level security: only the authenticated user can read or write their own rows.
 
