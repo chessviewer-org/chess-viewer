@@ -11,17 +11,6 @@ ChessViewer is a browser-based chess diagram editor. Set up any position — ort
 
 ![ChessViewer — standard diagram editor](docs/assets/screenshot-home.png)
 
-<table>
-  <tr>
-    <td><img src="docs/assets/screenshot-fairy-chess.png" alt="Fairy chess editor" /></td>
-    <td><img src="docs/assets/screenshot-latex-export.png" alt="LaTeX Studio export" /></td>
-  </tr>
-  <tr>
-    <td align="center">Fairy chess</td>
-    <td align="center">LaTeX Studio</td>
-  </tr>
-</table>
-
 ---
 
 ## Getting started
