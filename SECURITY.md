@@ -12,7 +12,7 @@ ChessViewer is a web application — only the code running at [chessvision.org](
 
 All board rendering and image export runs in the browser. No position data is sent to any server during normal use.
 
-- No analytics, cookies, or telemetry
+- No tracking cookies or telemetry; visits are counted in aggregate with cookieless Cloudflare Web Analytics
 - FEN input is length-capped at 93 characters before any parsing attempt
 - All localStorage and Supabase response parsing uses `safeJSONParse` to prevent prototype pollution
 - FEN strings and hex colours are sanitized at input boundaries (`sanitizeInput`, `sanitizeHexColor`)

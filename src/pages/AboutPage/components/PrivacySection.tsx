@@ -11,10 +11,10 @@ export default function PrivacySection() {
         <Lead>
           ChessViewer is built on a simple, transparent idea: your personal
           information and what you do here is absolutely none of our business.
-          Everything happens right in your browser. There is no tracking code,
-          no analytics, no ads on the site. If you never sign up for an account,
-          not a single scrap of data about the positions you build ever leaves
-          your device.
+          Everything happens right in your browser. There are no ads, no
+          tracking cookies and no advertising pixels on the site. If you never
+          sign up for an account, not a single scrap of data about the positions
+          you build ever leaves your device.
         </Lead>
       </div>
 
@@ -33,14 +33,19 @@ export default function PrivacySection() {
         </p>
       </InfoCard>
 
-      <InfoCard title="No tracking, no ads, no analytics, period">
+      <InfoCard title="No tracking cookies, no ads">
         <p>
-          There is no third-party analytics script, no advertising cookies, no
-          tracking pixels running in the background. We do not know which
-          positions you are working on, how much time you spend on the site, or
-          what you export. The only kind of storage ChessViewer uses in your
-          browser is functional — it just remembers your history so you do not
-          start from zero every time you come back.
+          There are no advertising cookies and no tracking pixels running in the
+          background. The only kind of storage ChessViewer uses in your browser
+          is functional — it just remembers your history so you do not start
+          from zero every time you come back.
+        </p>
+        <p>
+          To know whether people actually use the site, we count visits with
+          Cloudflare Web Analytics. It sets no cookies, does not use your
+          browser storage and does not fingerprint you. It only shows us totals,
+          such as how many visits a page had and which countries they came from.
+          It never sees the positions you build or what you export.
         </p>
       </InfoCard>
 
