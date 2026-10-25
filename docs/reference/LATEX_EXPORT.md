@@ -35,8 +35,24 @@ LaTeX Studio is a standalone page that turns one or many positions into LaTeX fo
 - A layout check that warns when boards are wider than their column and offers the column count that fits
 - Live preview on a white paper sheet and syntax-coloured code, copy, `.tex` download and the exact `tlmgr` and `pdflatex` commands
 - The project is kept in `localStorage` (`cv_latex_project`), can be saved to and opened from a `.json` file, and Undo reverses delete, new project and open
-- Layout: a balanced two-by-two grid on desktop (Diagrams | Output, Layout | Document) whose cards share row heights and flow with the page without inner scroll; an Edit / Output switch on phones and tablets
+- Layout: three tabs — Diagrams, Document and Export — with Undo, Open, Save and New in the page header
 - The install command lists every TeX Live package a fresh TinyTeX needs for the chosen style and output, and the layout check also covers snippets against a standard article text width
+
+### Screens
+
+The page has three tabs.
+
+- **Diagrams** — the list of positions on the left (add, search, paste a list, add from history) and the editor for the selected diagram on the right: FEN, caption style, stipulation, award, author, source, notes and solution.
+
+  ![Diagrams tab](../assets/screenshot-latex-diagrams.png)
+
+- **Document** — the layout (Classic board `skak`, Annotated board `chessboard`, Problem diagram `diagram`), caption style, board size, diagrams per row, numbering and the solutions section; on the right the output type (Document, Snippet, Figure) with paper, font and margins.
+
+  ![Document tab](../assets/screenshot-latex-document.png)
+
+- **Export** — the file name, Download and Copy, the exact install and compile commands, and a Preview / Code switch.
+
+  ![Export tab](../assets/screenshot-latex-export.png)
 
 ---
 
@@ -104,11 +120,13 @@ The `chess-problem-diagrams` package prints the hatched, framed boards of printe
 
 The exported markup needs a TeX distribution that includes the package you chose. A minimal installation is not enough, because the packages load helpers from larger collections:
 
-| Package      | Also needs                                                   |
-| ------------ | ------------------------------------------------------------ |
-| `skak`       | `lambda.sty` (TeX Live package `lambda-lists`)               |
-| `chessboard` | `xifthen.sty` and `pgf` (TeX Live packages `xifthen`, `pgf`) |
-| `diagram`    | `pgf` (TeX Live package `pgf`)                               |
+| Package      | TeX Live packages a fresh TinyTeX also needs |
+| ------------ | -------------------------------------------- |
+| `skak`       | `chessfss`, `lambda-lists`, `skaknew`        |
+| `chessboard` | `chessfss`, `pgf`, `skaknew`, `xifthen`      |
+| `diagram`    | `bartel-chess-fonts`, `pgf`, `xstring`       |
+
+Document output adds `geometry`; figure output adds `standalone` and `varwidth`. This list comes from `src/pages/LatexPage/utils/latexRequirements.ts`, the same source the Studio uses for its install command.
 
 All three compile with `pdflatex` and can be loaded side by side in one document. Document mode also needs `geometry` and standalone figures need `standalone`; both ship with the commands below. The Studio shows the exact `tlmgr install` line for the current settings.
 
@@ -284,11 +302,12 @@ Also exported: `LATEX_PACKAGES`, `LATEX_PACKAGE_META`, `LATEX_BOARD_SIZES`, `LAT
 
 ## Entry Points
 
-- **Board editor** — `Open in LaTeX Studio` in the command bar hands over the current position and orientation
-- **Advanced FEN** — `Open in LaTeX Studio` under the board preview hands over every valid position of the batch
+- **Navigation bar** — the **LaTeX** link opens the Studio with the saved project
+- **Advanced FEN** — `Open in LaTeX Studio` (or `Open all N in LaTeX Studio`) under the board preview hands over every valid position of the batch
 - **History** — `From history` under the diagram list adds saved FENs
+- **Paste list** — under the diagram list, one position per line as `FEN | author | source | stipulation`
 
-The editor and Advanced FEN pages store the positions in `sessionStorage` (`cv_latex_incoming`) and navigate to `/latex`. The Studio consumes them once on load: a project that still holds only the untouched starting position is replaced, otherwise new positions are appended and duplicates are skipped.
+The Advanced FEN page stores the positions in `sessionStorage` (`cv_latex_incoming`) and navigates to `/latex`. The Studio consumes them once on load: a project that still holds only the untouched starting position is replaced, otherwise new positions are appended and duplicates are skipped.
 
 ---
 
@@ -302,7 +321,6 @@ The editor and Advanced FEN pages store the positions in `sessionStorage` (`cv_l
 | `src/pages/LatexPage/utils/latexProject.ts`                                | Project model, parsing, sanitising, build  |
 | `src/pages/LatexPage/components/`                                          | Diagram list, editor, settings and output  |
 | `src/shared/utils/latexHandoff.ts`                                         | sessionStorage hand-off from other pages   |
-| `src/components/interactions/Editor/components/CommandBar.tsx`             | Editor entry point                         |
 | `src/pages/AdvancedFENInputPage/components/InteractiveBoardColumn.tsx`     | Advanced FEN entry point                   |
 | `tests/latexProject.test.ts`                                               | Project, parsing and requirements tests    |
 | `@chessviewer-org/chess-viewer` (`src/latex*.test.ts`)                     | Generator tests                            |
