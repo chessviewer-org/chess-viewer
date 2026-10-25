@@ -5,7 +5,7 @@ import {
 } from '@constants';
 import type { ChessBoard, PieceSet } from '@app-types';
 import { logger } from './logger';
-import { isFairyCell, parseCellCode } from './boardCells';
+import { cellName, isFairyCell, parseCellCode } from './boardCells';
 import { fairyLetterSVG, parseNamedCell } from './fairyCells';
 import {
   compositionSymbolSVG,
@@ -136,6 +136,23 @@ export async function preloadPieceStyle(
   return result;
 }
 
+const EXPORT_LOAD_ROUNDS = 2;
+
+export async function loadExportPieces(
+  style: string,
+  pieceMap: Record<string, string>
+): Promise<Record<string, HTMLImageElement>> {
+  let images: Record<string, HTMLImageElement> = {};
+  for (let round = 0; round < EXPORT_LOAD_ROUNDS; round++) {
+    const missing = Object.fromEntries(
+      Object.entries(pieceMap).filter(([piece]) => !images[piece])
+    );
+    if (!Object.keys(missing).length) break;
+    images = { ...images, ...(await preloadPieceStyle(style, missing)) };
+  }
+  return images;
+}
+
 export function getCachedPieceStyle(
   style: string,
   pieceMap: Record<string, string>
@@ -199,7 +216,7 @@ export function assertBoardArtwork(
     const image = images[key];
     if (!image?.complete || !image.naturalWidth) {
       throw new Error(
-        `Piece artwork is not ready: ${key}. Wait for loading or reload and try again.`
+        `The ${cellName(cell)} artwork could not be loaded. Check your internet connection and try again.`
       );
     }
   }

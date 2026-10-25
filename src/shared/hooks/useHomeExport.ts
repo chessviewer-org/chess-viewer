@@ -8,8 +8,17 @@ import {
 import { logger } from '@/shared/utils/logger';
 import { shouldForceCoordinateBorder } from '@/shared/utils/imageOptimizer';
 import { validateFEN } from '@/shared/utils/fenParser';
-import { preloadPieceStyle } from '@/shared/utils/pieceUtils';
+import {
+  exportFailureReason,
+  isExportCancelled,
+  runExportJobs,
+  summariseExport
+} from '@/shared/utils/exportJobs';
+import { loadExportPieces } from '@/shared/utils/pieceUtils';
 import { requestedPieceMap } from '@/shared/utils/pieceRequest';
+
+export const loadFormatExporter = () =>
+  import('@/pages/AdvancedFENInputPage/utils/advancedExportHelpers');
 
 // Types
 export interface ExportState {
@@ -43,6 +52,7 @@ interface UseHomeExportOptions {
     success: (msg: string) => void;
     error: (msg: string) => void;
     info: (msg: string) => void;
+    warning: (msg: string) => void;
   };
 }
 
@@ -110,7 +120,7 @@ export function useHomeExport(opts: UseHomeExportOptions) {
   const prepareExportConfig = useCallback(
     async (overrides?: BatchExportOverrides): Promise<ExportConfig> => {
       const config = getExportConfig(overrides);
-      const pieceImages = await preloadPieceStyle(
+      const pieceImages = await loadExportPieces(
         opts.pieceStyle,
         requestedPieceMap({ positions: config.fen })
       );
@@ -136,12 +146,11 @@ export function useHomeExport(opts: UseHomeExportOptions) {
   };
 
   const notifyError = (err: unknown, label: string) => {
-    const error = err as Error;
-    if (error?.message === 'Export cancelled') {
+    if (isExportCancelled(err)) {
       opts.notify.info('Export cancelled');
     } else {
       logger.error(`${label} export failed:`, err);
-      opts.notify.error(`${label} export failed`);
+      opts.notify.error(`${label} export failed: ${exportFailureReason(err)}`);
     }
   };
 
@@ -234,28 +243,33 @@ export function useHomeExport(opts: UseHomeExportOptions) {
     opts.saveExportFen(opts.fen);
 
     try {
-      const { runFormatExport } =
-        await import('@/pages/AdvancedFENInputPage/utils/advancedExportHelpers');
+      const { runFormatExport } = await loadFormatExporter();
       const config = await prepareExportConfig(overrides);
-      for (let i = 0; i < formats.length; i++) {
-        const format = formats[i];
-        if (!format) continue;
-
-        const currentFileName = Array.isArray(customFileNames)
-          ? customFileNames[i] || opts.fileName
-          : customFileNames || opts.fileName;
-
-        await runFormatExport(format, config, currentFileName, (p) => {
-          setExportState((prev) => ({
-            ...prev,
-            currentFormat: format,
-            exportProgress: (i / formats.length) * 100 + p / formats.length
-          }));
-        });
-      }
-      opts.notify.success(`${formats.length} formats downloaded`);
+      const jobs = formats.map((format, i) => ({
+        label: format.toUpperCase(),
+        run: () =>
+          runFormatExport(
+            format,
+            config,
+            Array.isArray(customFileNames)
+              ? customFileNames[i] || opts.fileName
+              : customFileNames || opts.fileName,
+            (p) => {
+              setExportState((prev) => ({
+                ...prev,
+                currentFormat: format,
+                exportProgress: (i / formats.length) * 100 + p / formats.length
+              }));
+            }
+          )
+      }));
+      const outcome = await runExportJobs(jobs);
+      for (const { label, reason } of outcome.failed)
+        logger.error(`${label} export failed:`, reason);
+      const summary = summariseExport(outcome);
+      opts.notify[summary.type](summary.message);
     } catch (err) {
-      notifyError(err, 'Batch export');
+      notifyError(err, 'Export');
     } finally {
       finishExport();
     }

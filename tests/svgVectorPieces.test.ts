@@ -446,7 +446,7 @@ describe('fairy SVG export', () => {
           '-Q7/8/8/8/8/8/8/7K w - - 0 1'
         )
       ),
-      /artwork is not ready: nQ/
+      /neutral queen artwork could not be loaded/
     );
   });
   test('preserves neutral and rotated artwork instead of replacing it with base pieces', async () => {

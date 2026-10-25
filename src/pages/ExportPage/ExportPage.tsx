@@ -8,7 +8,10 @@ import {
   PageTabs
 } from '@/components/layout/Sidebar/PageTabs';
 import { PageSidebarLayout } from '@/components/layout/Sidebar/PageSidebarLayout';
-import { useHomeExport } from '@/shared/hooks/useHomeExport';
+import {
+  loadFormatExporter,
+  useHomeExport
+} from '@/shared/hooks/useHomeExport';
 import { useNotifications } from '@/shared/hooks/useNotifications';
 import { usePieceImages } from '@/shared/hooks/usePieceImages';
 import { useSearchParams } from '@/shared/hooks/useSearchParams';
@@ -20,6 +23,7 @@ import {
   EXPORT_HOWTO_SCHEMA,
   getRouteSeo
 } from '@constants';
+import { NotificationContainer } from '@/shared/ui/NotificationContainer';
 import { Seo } from '@/shared/ui/Seo';
 import BoardStyleStep from './components/BoardStyleStep';
 import ExportSettingsStep from './components/ExportSettingsStep';
@@ -140,7 +144,8 @@ const ExportPageInner = ({ config }: { config: ExportPageConfig }) => {
     }
   }, [searchParams, activeTab]);
 
-  const { success, error, info } = useNotifications();
+  const { notifications, success, error, info, warning, removeNotification } =
+    useNotifications();
 
   const [boardConfig, setBoardConfig] = useState(config);
   const updateConfig = <K extends keyof ExportPageConfig>(
@@ -148,11 +153,15 @@ const ExportPageInner = ({ config }: { config: ExportPageConfig }) => {
     value: ExportPageConfig[K]
   ) => setBoardConfig((prev) => ({ ...prev, [key]: value }));
 
+  useEffect(() => {
+    void loadFormatExporter().catch(() => undefined);
+  }, []);
+
   const exportApi = useHomeExport({
     ...boardConfig,
     fileName: config.fileName,
     saveExportFen: () => {},
-    notify: { success, error, info }
+    notify: { success, error, info, warning }
   });
 
   const { pieceImages, isLoading } = usePieceImages(boardConfig.pieceStyle, {
@@ -220,6 +229,10 @@ const ExportPageInner = ({ config }: { config: ExportPageConfig }) => {
           </div>
         )}
       </PageSidebarLayout>
+      <NotificationContainer
+        notifications={notifications}
+        onRemove={removeNotification}
+      />
     </div>
   );
 };

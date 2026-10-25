@@ -6,6 +6,7 @@ import { inlinePieceSources } from '../src/shared/utils/pieceSources';
 import {
   getCachedPieceStyle,
   getDisplayablePieceStyle,
+  loadExportPieces,
   preloadPieceStyle
 } from '../src/shared/utils/pieceUtils';
 import { getSVGBlob } from '../src/shared/utils/svgExporter';
@@ -210,4 +211,17 @@ test('inlined pieces are shown on the first render, before they decode', () => {
   assert.deepEqual(Object.keys(shown), ['wK']);
   assert.ok(shown['wK']?.src.startsWith('data:image/svg+xml'));
   assert.deepEqual(getCachedPieceStyle('inline-first-render', pieces), {});
+});
+
+test('export loading tries a piece again when the first round fails', async (context) => {
+  images();
+  let calls = 0;
+  context.mock.method(globalThis, 'fetch', async () =>
+    ++calls === 1 ? new Response('', { status: 404 }) : new Response(VECTOR)
+  );
+
+  const loaded = await loadExportPieces('export-second-round', { wR: '' });
+
+  assert.ok(loaded['wR']);
+  assert.equal(calls, 2);
 });
