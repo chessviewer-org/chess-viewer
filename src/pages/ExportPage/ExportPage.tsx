@@ -144,7 +144,7 @@ const ExportPageInner = ({ config }: { config: ExportPageConfig }) => {
     }
   }, [searchParams, activeTab]);
 
-  const { notifications, success, error, info, warning, removeNotification } =
+  const { notifications, error, info, warning, removeNotification } =
     useNotifications();
 
   const [boardConfig, setBoardConfig] = useState(config);
@@ -161,7 +161,7 @@ const ExportPageInner = ({ config }: { config: ExportPageConfig }) => {
     ...boardConfig,
     fileName: config.fileName,
     saveExportFen: () => {},
-    notify: { success, error, info, warning }
+    notify: { error, info, warning }
   });
 
   const { pieceImages, isLoading } = usePieceImages(boardConfig.pieceStyle, {
@@ -188,19 +188,25 @@ const ExportPageInner = ({ config }: { config: ExportPageConfig }) => {
     handleBatchExport: exportApi.handleBatchExport
   };
 
-  const handleFinish = useCallback(() => {
-    const selectedFormats = [...wizard.selectedFormats];
-    const names = selectedFormats.map(
-      (format) => wizard.resolvedFileNames[format]
-    );
-    const overrides: BatchExportOverrides = {
-      boardSize: wizard.activeBoardSize,
-      exportQuality: wizard.resolution
-    };
-    updateConfig('boardSize', wizard.activeBoardSize);
-    updateConfig('exportQuality', wizard.resolution);
-    void exportApi.handleBatchExport(selectedFormats, names, overrides);
-  }, [exportApi, wizard]);
+  const handleFinish = useCallback(
+    (asZip: boolean) => {
+      const selectedFormats = [...wizard.selectedFormats];
+      const names = selectedFormats.map(
+        (format) => wizard.resolvedFileNames[format]
+      );
+      const overrides: BatchExportOverrides = {
+        boardSize: wizard.activeBoardSize,
+        exportQuality: wizard.resolution
+      };
+      updateConfig('boardSize', wizard.activeBoardSize);
+      updateConfig('exportQuality', wizard.resolution);
+      void exportApi.handleBatchExport(selectedFormats, names, overrides, {
+        zip: asZip,
+        ...(wizard.folderEnabled && { folder: wizard.resolvedFolderName })
+      });
+    },
+    [exportApi, wizard]
+  );
 
   return (
     <div className="flex flex-1 flex-col bg-bg">

@@ -2,23 +2,49 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ExportConfig } from '@/shared/utils/canvasExporter';
 import {
   cancelExport,
+  checkCancellation,
   pauseExport,
-  resumeExport
+  resetExportState,
+  resumeExport,
+  waitWhilePaused
 } from '@/shared/utils/exportState';
 import { logger } from '@/shared/utils/logger';
 import { shouldForceCoordinateBorder } from '@/shared/utils/imageOptimizer';
 import { validateFEN } from '@/shared/utils/fenParser';
 import {
+  DEFAULT_EXPORT_FILE_NAME,
+  DEFAULT_EXPORT_FOLDER_NAME,
   exportFailureReason,
+  type ExportPackaging,
+  FORMAT_EXTENSIONS,
   isExportCancelled,
   runExportJobs,
   summariseExport
 } from '@/shared/utils/exportJobs';
 import { loadExportPieces } from '@/shared/utils/pieceUtils';
 import { requestedPieceMap } from '@/shared/utils/pieceRequest';
+import { toSafeName } from '@/shared/utils/safeFileName';
+import { saveBlob } from '@/shared/utils/saveBlob';
+import {
+  chooseFolderLocation,
+  type ExportFile,
+  writeFolder
+} from '@/shared/utils/saveToFolder';
 
 export const loadFormatExporter = () =>
   import('@/pages/AdvancedFENInputPage/utils/advancedExportHelpers');
+
+async function saveZip(files: readonly ExportFile[], folder?: string) {
+  const { zipFiles } = await import('@/shared/utils/zipFiles');
+  const prefix = folder === undefined ? '' : `${folder}/`;
+  const archive = await zipFiles(
+    files.map(({ name, extension, blob }) => ({
+      path: `${prefix}${name}.${extension}`,
+      blob
+    }))
+  );
+  saveBlob(archive, folder ?? DEFAULT_EXPORT_FOLDER_NAME, 'zip');
+}
 
 // Types
 export interface ExportState {
@@ -49,7 +75,6 @@ interface UseHomeExportOptions {
   flipped: boolean;
   saveExportFen: (fen: string) => void;
   notify: {
-    success: (msg: string) => void;
     error: (msg: string) => void;
     info: (msg: string) => void;
     warning: (msg: string) => void;
@@ -154,63 +179,6 @@ export function useHomeExport(opts: UseHomeExportOptions) {
     }
   };
 
-  const runExport = async (
-    format: 'png' | 'jpeg',
-    runner: (
-      config: ExportConfig,
-      filename: string,
-      cb: (p: number) => void
-    ) => Promise<number>,
-    label: string
-  ) => {
-    if (!validateFEN(opts.fen)) {
-      opts.notify.error('Invalid FEN — cannot export');
-      return;
-    }
-
-    setExportState((prev) => ({
-      ...prev,
-      isExporting: true,
-      currentFormat: format,
-      exportProgress: 0,
-      isPaused: false,
-      actualBytes: null
-    }));
-    opts.saveExportFen(opts.fen);
-
-    try {
-      const config = await prepareExportConfig();
-      const bytes = await runner(config, opts.fileName, (progress) => {
-        setExportState((prev) => ({ ...prev, exportProgress: progress }));
-      });
-      setExportState((prev) => ({ ...prev, actualBytes: bytes }));
-      opts.notify.success(`${label} downloaded`);
-    } catch (err) {
-      notifyError(err, label);
-    } finally {
-      finishExport();
-    }
-  };
-
-  const handleDownloadPNG = () =>
-    runExport(
-      'png',
-      async (...args) => {
-        const { downloadPNG } = await import('@/shared/utils/canvasExporter');
-        return downloadPNG(...args);
-      },
-      'PNG'
-    );
-  const handleDownloadJPEG = () =>
-    runExport(
-      'jpeg',
-      async (...args) => {
-        const { downloadJPEG } = await import('@/shared/utils/canvasExporter');
-        return downloadJPEG(...args);
-      },
-      'JPEG'
-    );
-
   const { fen, saveExportFen } = opts;
   const { error: showError } = opts.notify;
   const handleCopyImage = useCallback(async (): Promise<boolean> => {
@@ -233,9 +201,11 @@ export function useHomeExport(opts: UseHomeExportOptions) {
 
   const handleBatchExport = async (
     formats: string[],
-    customFileNames?: string | string[],
-    overrides?: BatchExportOverrides
+    fileNames: string[],
+    overrides?: BatchExportOverrides,
+    packaging: ExportPackaging = { zip: false }
   ) => {
+    resetExportState();
     setExportState((prev) => ({
       ...prev,
       isExporting: true,
@@ -244,31 +214,50 @@ export function useHomeExport(opts: UseHomeExportOptions) {
     opts.saveExportFen(opts.fen);
 
     try {
-      const { runFormatExport } = await loadFormatExporter();
+      const folder =
+        packaging.folder === undefined
+          ? undefined
+          : toSafeName(packaging.folder, DEFAULT_EXPORT_FOLDER_NAME);
+      const location =
+        folder !== undefined && !packaging.zip
+          ? await chooseFolderLocation()
+          : undefined;
+      const { getFormatBlob } = await loadFormatExporter();
       const config = await prepareExportConfig(overrides);
-      const jobs = formats.map((format, i) => ({
-        label: format.toUpperCase(),
-        run: () =>
-          runFormatExport(
-            format,
-            config,
-            Array.isArray(customFileNames)
-              ? customFileNames[i] || opts.fileName
-              : customFileNames || opts.fileName,
-            (p) => {
+      const outcome = await runExportJobs(
+        formats.map((format, i) => ({
+          label: format.toUpperCase(),
+          run: async (): Promise<ExportFile> => {
+            await waitWhilePaused();
+            checkCancellation();
+            const blob = await getFormatBlob(format, config, (p) => {
               setExportState((prev) => ({
                 ...prev,
                 currentFormat: format,
                 exportProgress: (i / formats.length) * 100 + p / formats.length
               }));
-            }
-          )
-      }));
-      const outcome = await runExportJobs(jobs);
+            });
+            return {
+              name: toSafeName(fileNames[i] ?? '', DEFAULT_EXPORT_FILE_NAME),
+              extension: FORMAT_EXTENSIONS[format] ?? format,
+              blob
+            };
+          }
+        }))
+      );
       for (const { label, reason } of outcome.failed)
         logger.error(`${label} export failed:`, reason);
+      if (outcome.results.length) {
+        if (location && folder !== undefined)
+          await writeFolder(location, folder, outcome.results);
+        else if (packaging.zip || folder !== undefined)
+          await saveZip(outcome.results, folder);
+        else
+          for (const { name, extension, blob } of outcome.results)
+            saveBlob(blob, name, extension);
+      }
       const summary = summariseExport(outcome);
-      opts.notify[summary.type](summary.message);
+      if (summary) opts.notify[summary.type](summary.message);
     } catch (err) {
       notifyError(err, 'Export');
     } finally {
@@ -307,8 +296,6 @@ export function useHomeExport(opts: UseHomeExportOptions) {
     exportState,
     handlePieceImagesChange,
     getExportConfig,
-    handleDownloadPNG,
-    handleDownloadJPEG,
     handleCopyImage,
     handleBatchExport,
     handleCancelExport,

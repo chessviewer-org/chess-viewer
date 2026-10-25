@@ -62,11 +62,8 @@ describe('exportFailureReason', () => {
 });
 
 describe('summariseExport', () => {
-  test('success lists every saved format', () => {
-    assert.deepEqual(summariseExport({ done: ['PNG', 'SVG'], failed: [] }), {
-      type: 'success',
-      message: 'PNG, SVG downloaded'
-    });
+  test('a complete export stays silent', () => {
+    assert.equal(summariseExport({ done: ['PNG', 'SVG'], failed: [] }), null);
   });
 
   test('partial success is a warning that names the failure', () => {
@@ -98,7 +95,7 @@ describe('summariseExport', () => {
       summariseExport({
         done: [],
         failed: [{ label: 'PNG', reason: 'Canvas is too large' }]
-      }).type,
+      })?.type,
       'error'
     );
   });
