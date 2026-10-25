@@ -17,8 +17,6 @@ import { Seo } from '@/shared/ui/Seo';
 import { isFairyFEN, validateFENDetailed } from '@utils/fenParser';
 import type { useHome } from '@/pages/HomePage/hooks/useHome';
 
-const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-
 interface DiagramWorkspaceProps {
   home: ReturnType<typeof useHome>;
   variant?: 'standard' | 'fairy';
@@ -82,25 +80,10 @@ const DiagramWorkspace: React.FC<DiagramWorkspaceProps> = ({
     [isFairyPage, setFen, setLocation]
   );
 
-  const isCustomFen = home.fen && home.fen !== STARTING_FEN;
-  const dynamicParams = isCustomFen
-    ? `?fen=${encodeURIComponent(home.fen)}`
-    : undefined;
-
-  const supabaseUrl =
-    import.meta.env.VITE_SUPABASE_URL?.replace(/\/$/, '') ||
-    'https://placeholder.supabase.co';
-  const dynamicOgImage =
-    isCustomFen && !isFairyPage && !isFairyFEN(home.fen)
-      ? `${supabaseUrl}/functions/v1/og-image${dynamicParams}`
-      : undefined;
-
   return (
     <>
       <Seo
         {...getRouteSeo(isFairyPage ? '/fairy-chess' : '/')}
-        dynamicParams={isFairyPage ? undefined : dynamicParams}
-        image={dynamicOgImage ?? getRouteSeo('/').image}
         schema={
           isFairyPage
             ? SOFTWARE_APP_SCHEMA

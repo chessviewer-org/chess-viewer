@@ -14,7 +14,6 @@ interface SeoProps {
   path?: string | undefined;
   image?: string | undefined;
   noindex?: boolean | undefined;
-  dynamicParams?: string | undefined;
   schema?: Record<string, unknown> | Record<string, unknown>[] | undefined;
 }
 
@@ -56,17 +55,13 @@ export const Seo: React.FC<SeoProps> = ({
   path,
   image,
   noindex,
-  dynamicParams,
   schema
 }) => {
   const title = name ? `${SITE_NAME}${TITLE_SEPARATOR}${name}` : SITE_NAME;
   const desc = description ?? DEFAULT_DESCRIPTION;
   const ogImage = image ?? DEFAULT_OG_IMAGE;
   const robots = noindex ? 'noindex, nofollow' : 'index, follow';
-  const canonical =
-    path !== undefined
-      ? `${SITE_URL}${path === '/' ? '/' : path}${dynamicParams || ''}`
-      : undefined;
+  const canonical = path !== undefined ? `${SITE_URL}${path}` : undefined;
   const schemas = (schema ? (Array.isArray(schema) ? schema : [schema]) : [])
     .map((entry) => JSON.stringify(entry).replace(/</g, '\\u003c'))
     .join('\n');

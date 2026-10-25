@@ -88,9 +88,11 @@ export default function EditorSection() {
 
       <InfoCard title="Open a position from a link">
         <p>
-          Add a FEN to the address and the editor opens it directly:{' '}
-          <Code>chessvision.org/?fen=…</Code> with the FEN URL-encoded. Links
-          made with Share use <Code>#position=…</Code>.
+          Add a URL-encoded FEN after <Code>#position=</Code> and the editor
+          opens it directly, for example{' '}
+          <Code>chessvision.org/#position=…</Code>. Share and History use the
+          same form. Everything after <Code>#</Code> stays in your browser and
+          is never sent to a server. Older <Code>?fen=…</Code> links still work.
         </p>
       </InfoCard>
 
