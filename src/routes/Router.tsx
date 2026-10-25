@@ -5,6 +5,7 @@ import {
   HomePage,
   FairyChessPage,
   AboutPage,
+  DocsPage,
   ExportPage,
   SettingsPage,
   FENHistoryPage,
@@ -41,6 +42,9 @@ function AppRoutes() {
         </Route>
         <Route path="/about">
           <AboutPage />
+        </Route>
+        <Route path="/docs">
+          <DocsPage />
         </Route>
         <Route path="/settings">
           <SettingsPage />

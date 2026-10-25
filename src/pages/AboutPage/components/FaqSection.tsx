@@ -3,7 +3,11 @@ import { type ReactNode } from 'react';
 import { HelpCircle } from '@/assets/icons';
 
 import { CONTACT_EMAIL, REPO_ISSUES_URL } from '../utils/aboutConstants';
-import { FAQItem, Lead, SectionHeading } from './parts';
+import {
+  FAQItem,
+  Lead,
+  SectionHeading
+} from '@/components/layout/Sidebar/SectionParts';
 
 // Constants
 const FAQS: Array<{ q: string; a: ReactNode }> = [

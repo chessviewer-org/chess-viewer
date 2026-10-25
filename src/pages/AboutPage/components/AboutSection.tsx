@@ -1,7 +1,13 @@
 import { Globe, Info, Scale, Server } from '@/assets/icons';
 
 import { LICENSE_NAME, REPO_URL } from '../utils/aboutConstants';
-import { FactList, FactRow, InfoCard, Lead, SectionHeading } from './parts';
+import {
+  FactList,
+  FactRow,
+  InfoCard,
+  Lead,
+  SectionHeading
+} from '@/components/layout/Sidebar/SectionParts';
 
 export default function AboutSection() {
   return (

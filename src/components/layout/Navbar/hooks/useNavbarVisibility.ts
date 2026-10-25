@@ -1,7 +1,7 @@
 import { type RefObject, useLayoutEffect } from 'react';
 import { useLocation } from 'wouter';
 
-const PINNED_ROUTES = new Set(['/about', '/settings']);
+const PINNED_ROUTES = new Set(['/about', '/docs', '/settings']);
 
 export function useNavbarVisibility(
   menuOpen: boolean,

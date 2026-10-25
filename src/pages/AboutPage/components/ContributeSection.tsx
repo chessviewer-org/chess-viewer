@@ -15,7 +15,12 @@ import {
   REPO_LICENSE_URL,
   REPO_URL
 } from '../utils/aboutConstants';
-import { ExternalLinkButton, InfoCard, Lead, SectionHeading } from './parts';
+import {
+  ExternalLinkButton,
+  InfoCard,
+  Lead,
+  SectionHeading
+} from '@/components/layout/Sidebar/SectionParts';
 
 export default function ContributeSection() {
   return (

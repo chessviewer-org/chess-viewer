@@ -42,6 +42,12 @@
   </url>
 
   <url>
+    <loc>https://chessvision.org/docs</loc>
+    <lastmod>2026-10-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://chessvision.org/about</loc>
     <lastmod>2026-06-24</lastmod>
     <changefreq>monthly</changefreq>

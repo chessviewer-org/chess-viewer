@@ -12,7 +12,7 @@ import {
   InfoCard,
   Lead,
   SectionHeading
-} from './parts';
+} from '@/components/layout/Sidebar/SectionParts';
 
 export default function DonateSection() {
   const { notifications, success, error, removeNotification } =

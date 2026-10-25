@@ -235,6 +235,12 @@ const ROUTE_SEO: Record<string, SeoMeta> = {
     description:
       'Export your chess diagram as a print-ready PNG, JPEG, or SVG. Choose DPI, board size, transparent background, and download instantly — no watermarks, completely free.'
   },
+  '/docs': {
+    name: 'Documentation',
+    path: '/docs',
+    description:
+      'How to use ChessViewer: the standard editor, image export, batch export, the fairy chess workspace with Popeye problems, LaTeX Studio, history, settings and keyboard shortcuts.'
+  },
   '/about': {
     name: 'About',
     path: '/about',

@@ -1,7 +1,11 @@
 import { Shield } from '@/assets/icons';
 
 import { CONTACT_EMAIL } from '../utils/aboutConstants';
-import { InfoCard, Lead, SectionHeading } from './parts';
+import {
+  InfoCard,
+  Lead,
+  SectionHeading
+} from '@/components/layout/Sidebar/SectionParts';
 
 export default function PrivacySection() {
   return (

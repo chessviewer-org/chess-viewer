@@ -13,6 +13,10 @@ To open a position directly, pass a URL-encoded FEN in the `fen` query parameter
 - [Export settings](https://chessvision.org/export): Choose DPI, board size, background and file format for the exported diagram.
 - [FEN history](https://chessvision.org/fen-history): Browse, search and re-export saved positions.
 
+## Documentation
+
+- [Documentation](https://chessvision.org/docs): How to use every part of ChessViewer, with detailed sections on [fairy chess](https://chessvision.org/docs?tab=fairy-chess) and [LaTeX Studio](https://chessvision.org/docs?tab=latex).
+
 ## About
 
 - [About ChessViewer](https://chessvision.org/about): Project background, privacy approach and support.

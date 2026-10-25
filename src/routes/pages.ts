@@ -12,6 +12,7 @@ const pages = {
     () => import('@/pages/FairyChessPage/FairyChessPage')
   ),
   '/about': pageModule(() => import('@/pages/AboutPage/AboutPage')),
+  '/docs': pageModule(() => import('@/pages/DocsPage/DocsPage')),
   '/export': pageModule(() => import('@/pages/ExportPage/ExportPage')),
   '/settings': pageModule(() => import('@/pages/SettingsPage/SettingsPage')),
   '/fen-history': pageModule(
@@ -33,6 +34,7 @@ const notFound = pageModule(() => import('@/pages/NotFoundPage'));
 export const HomePage = pages['/'].Component;
 export const FairyChessPage = pages['/fairy-chess'].Component;
 export const AboutPage = pages['/about'].Component;
+export const DocsPage = pages['/docs'].Component;
 export const ExportPage = pages['/export'].Component;
 export const SettingsPage = pages['/settings'].Component;
 export const FENHistoryPage = pages['/fen-history'].Component;
