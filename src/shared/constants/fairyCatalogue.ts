@@ -975,6 +975,7 @@ export const FAIRY_ATTRIBUTES = [
   'Protean',
   'Magic',
   'Uncapturable',
+  'Patrol',
   'FrischAuf',
   'Anda',
   'AndaInverse',

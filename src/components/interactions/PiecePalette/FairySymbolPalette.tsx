@@ -1,5 +1,5 @@
 import { memo, useId } from 'react';
-import { ArrowLeft } from '@/assets/icons';
+import { ArrowLeft, ArrowUp } from '@/assets/icons';
 import {
   FAIRY_ROTATIONS,
   type FairyColor,
@@ -16,6 +16,7 @@ import { FairyCatalogue } from '../FairySetup/FairyCatalogue';
 import { Segmented } from '../FairySetup/Segmented';
 import { PiecePalette, type PaletteGroup } from './PiecePalette';
 import styles from '../FairySetup/styles/fairy-catalogue.module.scss';
+import palette from './styles/fairy-palette.module.scss';
 
 interface FairySymbolPaletteProps {
   pieceStyle: string;
@@ -40,10 +41,17 @@ const TABS = [
   { id: 'named', label: 'Named pieces' }
 ] as const;
 type PaletteTab = (typeof TABS)[number]['id'];
+const ROTATION_LABELS: Record<FairyRotation, string> = {
+  0: 'Up, upright (0°)',
+  90: 'Right, clockwise (90°)',
+  180: 'Down, upside down (180°)',
+  270: 'Left, clockwise (270°)'
+};
 const ROTATION_OPTIONS = FAIRY_ROTATIONS.map((value) => ({
   value: String(value) as `${FairyRotation}`,
-  label: `${value}°`,
-  title: value ? `Turned ${value}° clockwise` : 'Upright'
+  label: <ArrowUp className={styles.orientationArrow} data-rotation={value} />,
+  title: ROTATION_LABELS[value],
+  ariaLabel: ROTATION_LABELS[value]
 }));
 
 function entry(
@@ -59,9 +67,9 @@ const asColor = (value: unknown): FairyColor =>
   value === 'b' || value === 'n' ? value : 'w';
 
 const DOTS: Record<FairyColor, string> = {
-  w: 'bg-white',
-  b: 'bg-black',
-  n: 'bg-linear-to-r from-white from-50% to-black to-50%'
+  w: palette.dotWhite,
+  b: palette.dotBlack,
+  n: palette.dotNeutral
 };
 
 function pieceGroups(rotation: FairyRotation): PaletteGroup[] {
@@ -106,16 +114,13 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
       entries: MARKERS.map((type) => entry(markerColor, type, rotation)),
       trail: (
         <>
-          <span
-            className="grid min-w-0 place-items-center text-accent"
-            aria-hidden="true"
-          >
-            <ArrowLeft className="size-1/2" />
+          <span className={palette.markerArrow} aria-hidden="true">
+            <ArrowLeft className={palette.markerArrowIcon} />
           </span>
           <div
             role="group"
             aria-label="Marker colour"
-            className="flex aspect-square min-w-0 flex-col items-stretch justify-evenly rounded-md border border-border/50 bg-surface-elevated px-[18%]"
+            className={palette.markerColors}
           >
             {COLORS.map(({ color, label }) => (
               <button
@@ -125,11 +130,9 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
                 aria-label={`${label} markers`}
                 aria-pressed={markerColor === color}
                 onClick={() => restyle(color, rotation)}
-                className="h-[26%] min-h-0! min-w-0! cursor-pointer rounded-full border border-border p-px opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:border-accent aria-pressed:border-2 aria-pressed:border-accent aria-pressed:opacity-100"
+                className={palette.markerDot}
               >
-                <span
-                  className={`block size-full rounded-full ${DOTS[color]}`}
-                />
+                <span className={`${palette.dot} ${DOTS[color]}`} />
               </button>
             ))}
           </div>
@@ -160,21 +163,15 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
 
   return (
     <div
-      className={tab === 'named' ? styles.named : 'min-w-0'}
+      className={tab === 'named' ? styles.named : palette.root}
       onClick={(event) => event.stopPropagation()}
     >
       <div className={tab === 'named' ? styles.namedLayout : undefined}>
-        <div
-          className={
-            tab === 'named'
-              ? 'contents'
-              : 'mb-2 flex flex-wrap items-center justify-between gap-2'
-          }
-        >
+        <div className={tab === 'named' ? palette.contents : palette.header}>
           <div
             role="tablist"
             aria-label="Fairy pieces"
-            className={`flex gap-4 ${tab === 'named' ? styles.tabs : ''}`}
+            className={`${palette.tablist} ${tab === 'named' ? styles.tabs : ''}`}
           >
             {TABS.map((item, index) => (
               <button
@@ -185,7 +182,7 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
                 aria-controls={`${id}-${item.id}-panel`}
                 aria-selected={tab === item.id}
                 tabIndex={tab === item.id ? 0 : -1}
-                className="flex h-8 cursor-pointer items-center gap-1.5 border-b-2 border-transparent text-xs font-semibold tracking-[0.075em] text-text-secondary uppercase hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent aria-selected:border-accent aria-selected:text-text-primary"
+                className={palette.tab}
                 onClick={() => setTab(item.id)}
                 onKeyDown={(event) => {
                   if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft')
@@ -209,7 +206,7 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
               onChange={(value) =>
                 restyle(markerColor, Number(value) as FairyRotation)
               }
-              className="ml-auto font-mono"
+              className={styles.orientation}
             />
           ) : (
             <Segmented
@@ -229,6 +226,7 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
         >
           <PiecePalette
             adaptive
+            pairedGroups
             pieceImages={pieceImages}
             groups={groups}
             selectedPiece={selectedPiece}
@@ -236,7 +234,7 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
             onKeyboardPick={onKeyboardPick}
           />
           {error && (
-            <p role="alert" className="mt-2 text-xs text-error">
+            <p role="alert" className={palette.error}>
               {error}. Reload to try again.
             </p>
           )}
@@ -246,7 +244,7 @@ export const FairySymbolPalette = memo(function FairySymbolPalette({
           id={`${id}-named-panel`}
           aria-labelledby={`${id}-named-tab`}
           hidden={tab !== 'named'}
-          className={tab === 'named' ? 'contents' : undefined}
+          className={tab === 'named' ? palette.contents : undefined}
         >
           <FairyCatalogue
             color={namedColor}

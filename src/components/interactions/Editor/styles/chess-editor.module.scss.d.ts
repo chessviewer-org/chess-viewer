@@ -1,7 +1,11 @@
 declare const styles: {
   readonly editorRoot: string;
+  readonly editorMovePending: string;
+  readonly editorAnalysisLoading: string;
   readonly editorCommandbarTop: string;
   readonly editorCommandbarSeparator: string;
+  readonly editorCommandbarRow: string;
+  readonly editorPieceError: string;
   readonly editorCommandbarPanel: string;
   readonly editorMainRow: string;
   readonly editorBoardCol: string;
@@ -9,7 +13,15 @@ declare const styles: {
   readonly editorBoardInner: string;
   readonly editorBoardContainer: string;
   readonly editorCoordsOverlay: string;
+  readonly editorBoardSquare: string;
+  readonly editorBoardFrame: string;
+  readonly editorRanks: string;
+  readonly editorFiles: string;
+  readonly editorCoord: string;
+  readonly editorRank: string;
+  readonly editorFile: string;
   readonly editorPanel: string;
+  readonly editorPanelBody: string;
   readonly editorPaletteCard: string;
   readonly editorDisplayOpts: string;
   readonly editorDisplayOptsLabel: string;

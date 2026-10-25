@@ -9,6 +9,10 @@
   Cross-Origin-Resource-Policy: same-origin
   Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://cloudflareinsights.com https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
 
+# Cross-origin isolation lets the editor use multi-threaded Stockfish (SharedArrayBuffer).
+/
+  Cross-Origin-Embedder-Policy: credentialless
+
 /sw.js
   Cache-Control: no-cache, no-store, must-revalidate
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
@@ -60,3 +64,22 @@
 
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Dedicated engine context only. The document CSP above stays unchanged.
+/wasm/popeye/worker.js
+  ! Content-Security-Policy
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; worker-src 'none'; base-uri 'none'; form-action 'none'
+
+/wasm/stockfish/*.js
+  ! Content-Security-Policy
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'
+  Cross-Origin-Embedder-Policy: credentialless
+
+/wasm/stockfish/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/wasm/popeye/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/licenses/*
+  Cache-Control: public, max-age=86400

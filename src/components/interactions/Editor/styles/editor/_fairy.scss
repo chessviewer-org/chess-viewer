@@ -1,0 +1,15 @@
+.editorRoot[data-palette-mode='fairy'] {
+  .editorDbSearch {
+    display: none;
+  }
+
+  .editorDbRow {
+    display: block;
+    margin-top: 0.5rem;
+  }
+
+  .editorPaletteCard {
+    justify-content: flex-start;
+    overflow-y: auto;
+  }
+}

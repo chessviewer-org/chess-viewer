@@ -1,0 +1,15 @@
+Stockfish.js 19 (lite, single-threaded)
+https://github.com/nmrugg/stockfish.js
+npm package: stockfish@19.0.1
+
+Stockfish.js is a WebAssembly build of Stockfish by Nathan Rugg for Chess.com.
+Stockfish is by T. Romstad, M. Costalba, J. Kiiski, G. Linscott and other
+contributors: https://github.com/official-stockfish/Stockfish
+Network by Chris Bao (sscg13).
+
+Licensed under the GNU General Public License v3. The full text is in
+Copying.txt. The complete corresponding source code is available from the
+repositories above. The files here are the unmodified npm release:
+stockfish-19-lite-single.js and stockfish-19-lite-single.wasm.
+The application code that talks to the engine is ChessViewer code.
+Stockfish.js 18 files (stockfish-18-lite-single.*) are the unmodified npm release stockfish@18.0.8; nets by Linmiao Xu (linrock).

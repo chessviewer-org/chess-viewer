@@ -1,0 +1,32 @@
+.mark {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.selected {
+  z-index: 10;
+  border: 2px solid var(--color-text-primary);
+}
+
+.cursor {
+  z-index: 10;
+  border: 2px solid var(--color-accent);
+}
+
+.destination {
+  z-index: 5;
+  background: radial-gradient(
+    color-mix(in srgb, var(--hint-color, #f5c400) 85%, transparent) 22%,
+    transparent 23%
+  );
+}
+
+.capture {
+  z-index: 5;
+  background: radial-gradient(
+    transparent 0%,
+    transparent 78%,
+    color-mix(in srgb, var(--hint-color, #f5c400) 85%, transparent) 80%
+  );
+}

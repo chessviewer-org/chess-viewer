@@ -115,6 +115,35 @@ describe('Popeye composition notation', () => {
     const neutral = parseFEN('BeginProblem\nForsyth =.li63\nEndProblem');
     assert.equal(neutral[0]?.[0], 'n@LI');
   });
+  test('Popeye option values are not split into standalone commands', () => {
+    const source =
+      'BeginProblem\nStipulation #1\nOption HalfDuplex NoCastling h1a1h8a8\nPieces White Kf7 Qg6\nPieces Black Kh8\nEndProblem';
+    const document = parsePopeye(source);
+    assert.deepEqual(
+      document.commands.find((command) => command.keyword === 'option'),
+      { keyword: 'option', value: 'HalfDuplex NoCastling h1a1h8a8' }
+    );
+    assert.match(
+      serializePopeye(document.board, document),
+      /option HalfDuplex NoCastling h1a1h8a8/
+    );
+    assert.equal(
+      document.commands.some((command) => command.keyword === 'halfduplex'),
+      false
+    );
+  });
+  test('the initial board is written before twin and zero-position changes', () => {
+    for (const command of ['Twin Move g6 g5', 'ZeroPosition Move g6 g5']) {
+      const source = `BeginProblem\nStipulation #1\nPieces White Kf7 Qg6\nPieces Black Kh8\n${command}\nEndProblem`;
+      const doc = parsePopeye(source);
+      const output = serializePopeye(doc.board, doc);
+      assert.ok(
+        output.indexOf('Pieces Black Kh8') <
+          output.indexOf(command.toLowerCase().split(' ')[0]!)
+      );
+      assert.deepEqual(parsePopeye(output).board, doc.board);
+    }
+  });
   test('mixing visual symbols and real walks preserves both and FEN fields', () => {
     const board = parseFEN(SOURCE);
     board[2]![2] = 'nB90';

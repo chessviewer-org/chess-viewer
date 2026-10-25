@@ -41,6 +41,11 @@ export const ArrowLeft = createLucideIcon('arrow-left', [
   ['path', { d: 'M19 12H5', key: 'x3x0zl' }]
 ]);
 
+export const ArrowUp = createLucideIcon('arrow-up', [
+  ['path', { d: 'm5 12 7-7 7 7', key: 'up-head' }],
+  ['path', { d: 'M12 19V5', key: 'up-shaft' }]
+]);
+
 export const ArrowUpRight = createLucideIcon('arrow-up-right', [
   ['path', { d: 'M7 7h10v10', key: '1tivn9' }],
   ['path', { d: 'M7 17 17 7', key: '1vkiza' }]
@@ -702,6 +707,31 @@ export const MessageSquare = createLucideIcon('message-square', [
       key: '18887p'
     }
   ]
+]);
+
+export const Target = createLucideIcon('target', [
+  ['circle', { cx: '12', cy: '12', r: '10' }],
+  ['circle', { cx: '12', cy: '12', r: '6' }],
+  ['circle', { cx: '12', cy: '12', r: '2' }]
+]);
+
+export const Cpu = createLucideIcon('cpu', [
+  [
+    'rect',
+    { width: '16', height: '16', x: '4', y: '4', rx: '2', key: 'cpu-body' }
+  ],
+  [
+    'rect',
+    { width: '6', height: '6', x: '9', y: '9', rx: '1', key: 'cpu-core' }
+  ],
+  ['path', { d: 'M15 2v2', key: 'cpu-t2' }],
+  ['path', { d: 'M9 2v2', key: 'cpu-t1' }],
+  ['path', { d: 'M15 20v2', key: 'cpu-b2' }],
+  ['path', { d: 'M9 20v2', key: 'cpu-b1' }],
+  ['path', { d: 'M2 15h2', key: 'cpu-l2' }],
+  ['path', { d: 'M2 9h2', key: 'cpu-l1' }],
+  ['path', { d: 'M20 15h2', key: 'cpu-r2' }],
+  ['path', { d: 'M20 9h2', key: 'cpu-r1' }]
 ]);
 
 export const Monitor = createLucideIcon('monitor', [

@@ -38,3 +38,8 @@ coverage
 # Other
 *.min.js
 *.min.css
+
+# Generated upstream WebAssembly runtime and unmodified manual
+public/wasm/popeye/py.mjs
+public/licenses/popeye/py-engl.txt
+public/wasm/stockfish/*.js

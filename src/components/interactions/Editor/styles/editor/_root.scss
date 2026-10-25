@@ -1,0 +1,66 @@
+@use '../../../../../styles/variables' as v;
+@use '../../../../../styles/mixins' as m;
+@use 'metrics' as g;
+
+.editorRoot {
+  --board-top-inset: #{g.$top-inset};
+  display: flex;
+  flex-direction: column;
+  gap: v.$gap-sm;
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.editorMainRow {
+  display: flex;
+  flex-direction: column;
+  gap: v.$gap-sm;
+  align-items: center;
+  width: 100%;
+  min-height: 0;
+
+  @include m.editor-side-by-side {
+    --board-col-width: #{g.$side-column};
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  @include m.editor-desktop {
+    --board-col-width: #{g.$desk-column};
+  }
+}
+
+.editorCommandbarTop {
+  display: block;
+  width: 100%;
+  flex-shrink: 0;
+  margin-bottom: 0.25rem;
+  padding-inline: 0.25rem;
+
+  @include m.editor-cmd-in-panel {
+    display: none;
+  }
+}
+
+.editorCommandbarPanel {
+  display: none;
+  flex-shrink: 0;
+
+  @include m.editor-cmd-in-panel {
+    display: block;
+  }
+}
+
+.editorCommandbarSeparator {
+  height: 1px;
+  background: rgb(var(--val-border) / 0.6);
+  margin-top: 0.5rem;
+}
+
+.editorCommandbarRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+}

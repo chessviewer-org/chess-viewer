@@ -1,6 +1,4 @@
 import {
-  HATCH_DIVISIONS,
-  HATCH_LINE_RATIO,
   hatchLineWidth,
   hatchSegments,
   isSquarePattern,
@@ -109,15 +107,4 @@ export function drawBoardPiece(
     shape.width = shape.height = 0;
   }
   ctx.drawImage(img, x, y, size, size);
-}
-
-export function hatchBackgroundCss(light: string): string {
-  const period = 100 / (HATCH_DIVISIONS * 2);
-  const half = (period * HATCH_LINE_RATIO) / 2;
-  const a = half.toFixed(4);
-  const b = (period - half).toFixed(4);
-  return (
-    `repeating-linear-gradient(135deg, transparent 0 ${a}%, ` +
-    `${light} ${a}% ${b}%, transparent ${b}% ${period}%)`
-  );
 }

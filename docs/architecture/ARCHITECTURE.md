@@ -101,8 +101,10 @@ src/
 │   │   ├── Fen/                   # FENInputField, FENInputToolbar, FenToolbar
 │   │   └── History/               # HistoryFilters, StatusBadge, ConfirmationModal
 │   ├── interactions/
+│   │   ├── Analysis/              # Computer analysis panels (components/, hooks/, styles/)
 │   │   ├── Board/                 # InteractiveBoard, BoardRank, DroppableSquare,
-│   │   │                          #   DraggablePiece, TrashZone, useBoardKeyboard
+│   │   │                          #   DraggablePiece, MoveArrows, TrashZone, useBoardKeyboard,
+│   │   │                          #   styles/board.module.scss
 │   │   ├── Editor/                # DiagramWorkspace, ChessEditor, CommandBar,
 │   │   │                          #   DatabaseSearchPanel, ShareDialog, DragProvider
 │   │   ├── FairySetup/            # FairyCatalogue, FairyProblem (Popeye card),
@@ -111,6 +113,12 @@ src/
 │   └── layout/
 │       ├── Navbar/                # Navbar, NavbarMenu, visibility and menu state
 │       └── Sidebar/               # PageSidebarLayout, PageTabs
+│
+├── engines/                       # Analysis domain logic, no UI (see engines/README.md)
+│   ├── core/                      # Shared types, search limits, board arrows
+│   ├── rules/                     # Chess rules: piece tables, moves, legality, editor glue
+│   ├── popeye/                    # Fairy solver client, input, output, settings
+│   └── stockfish/                 # UCI client, output parser, models, settings
 │
 ├── pages/
 │   ├── HomePage/                  # Standard workspace
@@ -162,6 +170,8 @@ Notable utilities in `src/shared/utils/`:
 | `analytics.ts`                                              | Optional Web Analytics loader (`VITE_CF_BEACON_TOKEN`) |
 | `humanVerification.ts`, `databaseSearch.ts`                 | Turnstile token and Lichess/ChessDB lookups            |
 | `archiveManager.ts`                                         | History archive (not ZIP export)                       |
+
+Outside `src/`: `public/wasm/<engine>/` holds engine binaries and workers only, `public/licenses/<engine>/` their licenses and source offers, and `native/<engine>/` the sources and build script for engines compiled in this repository. Board, editor and analysis styling is written in SCSS modules, not Tailwind utility strings. Each large module is an entry file that `@use`s partials (`styles/editor/`, `styles/analysis/`, `styles/board/`); layout geometry is documented in [LAYOUT.md](../reference/LAYOUT.md).
 
 ---
 

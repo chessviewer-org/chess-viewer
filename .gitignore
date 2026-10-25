@@ -41,3 +41,11 @@ yarn-error.log*
 # Supabase CLI local artifacts (link state, temp files) — never committed
 supabase/.temp/
 supabase/.branches/
+
+# Engine build output and upstream source archives
+native/**/build/
+native/**/*.o
+native/**/*.a
+*.tar.gz
+*.tgz
+*.zip

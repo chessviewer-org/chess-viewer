@@ -12,8 +12,13 @@ import type { BoardCell } from '@app-types';
 
 import { useSquarePatternSetting } from '@/shared/hooks/useSquarePattern';
 import { describeBoardPosition } from '@/shared/utils/boardCells';
-import { hatchBackgroundCss } from '@/shared/utils/boardPattern';
+import type { BoardArrow } from '@/engines/core/arrows';
+import { BoardBackdrop } from './BoardBackdrop';
 import { BoardRank } from './BoardRank';
+import { BoardShapes } from './BoardShapes';
+import { useBoardDrawing } from '../hooks/useBoardDrawing';
+import { hintColor, threatColor } from '@/shared/utils/color/accent';
+import styles from '../styles/board.module.scss';
 import { useBoardKeyboard } from '../hooks/useBoardKeyboard';
 
 const BOARD_INDICES = [0, 1, 2, 3, 4, 5, 6, 7] as const;
@@ -41,10 +46,15 @@ interface InteractiveBoardProps {
   ) => void;
   onSquareSelect?: ((row: number, col: number) => void) | undefined;
   selectedSquare?: readonly [number, number] | null | undefined;
+  arrows?: readonly BoardArrow[] | undefined;
+  destinations?:
+    ReadonlyArray<{ to: [number, number]; capture: boolean }> | undefined;
   onPieceRemove?: ((row: number, col: number) => void) | undefined;
   onKeyboardApi?: ((api: BoardKeyboardApi) => void) | undefined;
   onKeyboardInteraction?: (() => void) | undefined;
 }
+
+const NO_ARROWS: readonly BoardArrow[] = [];
 
 export const InteractiveBoard = memo(function InteractiveBoard({
   board,
@@ -55,6 +65,8 @@ export const InteractiveBoard = memo(function InteractiveBoard({
   onPieceDrop,
   onSquareSelect,
   selectedSquare,
+  arrows,
+  destinations,
   onPieceRemove,
   onKeyboardApi,
   onKeyboardInteraction
@@ -96,6 +108,13 @@ export const InteractiveBoard = memo(function InteractiveBoard({
     });
   }, [onKeyboardApi, pickUpFromPalette, clearHeld]);
 
+  const destinationsByRow = useMemo(() => {
+    const rows = new Map<number, Map<number, boolean>>();
+    for (const { to, capture } of destinations ?? [])
+      rows.set(to[0], (rows.get(to[0]) ?? new Map()).set(to[1], capture));
+    return rows;
+  }, [destinations]);
+
   const ranks = useMemo(
     () =>
       BOARD_INDICES.map((displayRow) => {
@@ -106,8 +125,7 @@ export const InteractiveBoard = memo(function InteractiveBoard({
             row={row}
             rank={board[row] ?? EMPTY_RANK}
             flipped={flipped}
-            lightSquare={lightSquare}
-            darkSquare={darkSquare}
+            hatched={squarePattern === 'hatched'}
             pieceImages={pieceImages}
             onSelect={selectSquare}
             selectedCol={
@@ -115,19 +133,20 @@ export const InteractiveBoard = memo(function InteractiveBoard({
             }
             cursorCol={cursor?.row === row ? cursor.col : undefined}
             heldCol={heldFrom?.row === row ? heldFrom.col : undefined}
+            destinations={destinationsByRow.get(row)}
           />
         );
       }),
     [
       board,
-      lightSquare,
-      darkSquare,
+      squarePattern,
       flipped,
       pieceImages,
       selectSquare,
       selectedSquare,
       cursor,
-      heldFrom
+      heldFrom,
+      destinationsByRow
     ]
   );
 
@@ -140,12 +159,37 @@ export const InteractiveBoard = memo(function InteractiveBoard({
     boardRef.current = node;
   }, []);
 
+  const drawing = useBoardDrawing(boardRef, flipped);
+  const { shapes, pending, clear } = drawing;
+  useEffect(clear, [board, clear]);
+  const visibleSquares = useMemo(
+    () =>
+      squarePattern === 'hatched' ? [lightSquare] : [lightSquare, darkSquare],
+    [squarePattern, lightSquare, darkSquare]
+  );
+  const rootStyle = useMemo(
+    () =>
+      ({
+        '--hint-color': hintColor(...visibleSquares),
+        '--threat-color': threatColor(...visibleSquares)
+      }) as CSSProperties,
+    [visibleSquares]
+  );
+
   return (
-    <div className="w-full h-full" style={{ contain: 'layout' }}>
-      <div className="sr-only" aria-live="polite" aria-atomic="true">
+    <div className={styles.root} style={rootStyle} {...drawing.handlers}>
+      <div
+        className={styles.visuallyHidden}
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {boardDescription}
       </div>
-      <div className="sr-only" aria-live="polite" aria-atomic="true">
+      <div
+        className={styles.visuallyHidden}
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {announcement}
       </div>
       <div
@@ -159,23 +203,26 @@ export const InteractiveBoard = memo(function InteractiveBoard({
         data-square-pattern={squarePattern}
         onKeyDown={onKeyDown}
         onBlur={onBlur}
-        className="grid grid-cols-8 grid-rows-8 overflow-hidden w-full h-full"
+        className={styles.grid}
         style={
           {
-            gap: 0,
-            zIndex: 1,
-            borderRadius: 0,
-            contain: 'layout style paint',
-            fontSize: 0,
-            lineHeight: 0,
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-            '--board-light': lightSquare,
-            '--board-hatch': hatchBackgroundCss(lightSquare)
+            '--board-light': lightSquare
           } as CSSProperties
         }
       >
+        <BoardBackdrop
+          light={lightSquare}
+          dark={darkSquare}
+          hatched={squarePattern === 'hatched'}
+        />
         {ranks}
       </div>
+      <BoardShapes
+        arrows={arrows ?? NO_ARROWS}
+        shapes={shapes}
+        pending={pending}
+        flipped={flipped}
+      />
     </div>
   );
 });
