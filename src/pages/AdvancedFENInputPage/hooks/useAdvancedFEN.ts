@@ -6,6 +6,7 @@ import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
 import { useNotifications } from '@/shared/hooks/useNotifications';
 import { usePieceImages } from '@/shared/hooks/usePieceImages';
 import {
+  exportFailureReason,
   isExportCancelled,
   runExportJobs,
   summariseExport
@@ -521,7 +522,7 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
     if (isExportCancelled(error)) notifier.info('Export cancelled');
     else {
       logger.error('Export failed', error);
-      notifier.error('Export failed. Please try again.');
+      notifier.error(`Export failed: ${exportFailureReason(error)}`);
     }
   }
 

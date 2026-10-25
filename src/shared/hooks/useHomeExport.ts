@@ -212,23 +212,24 @@ export function useHomeExport(opts: UseHomeExportOptions) {
     );
 
   const { fen, saveExportFen } = opts;
-  const { success: showSuccess, error: showError } = opts.notify;
-  const handleCopyImage = useCallback(async () => {
+  const { error: showError } = opts.notify;
+  const handleCopyImage = useCallback(async (): Promise<boolean> => {
     if (!validateFEN(fen)) {
-      showError('Invalid FEN — cannot copy');
-      return;
+      showError('Copy failed: the FEN is not a valid position');
+      return false;
     }
 
     try {
       const { copyToClipboard } = await import('@/shared/utils/canvasExporter');
       await copyToClipboard(await prepareExportConfig());
       saveExportFen(fen);
-      showSuccess('Image copied');
+      return true;
     } catch (err) {
       logger.error('Copy failed:', err);
-      showError('Copy failed');
+      showError(`Copy failed: ${exportFailureReason(err)}`);
+      return false;
     }
-  }, [fen, showError, showSuccess, saveExportFen, prepareExportConfig]);
+  }, [fen, showError, saveExportFen, prepareExportConfig]);
 
   const handleBatchExport = async (
     formats: string[],

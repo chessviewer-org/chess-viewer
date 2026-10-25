@@ -1,8 +1,6 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo } from 'react';
 
 import { AlertCircle, CheckCircle, Info, X, XCircle } from '@/assets/icons';
-
-const MAX_NOTIFICATION_DURATION = 5000;
 
 type NotificationType = 'success' | 'error' | 'warning' | 'info';
 
@@ -88,7 +86,7 @@ function NotificationContainer({
 
   return (
     <div
-      className="fixed top-6 right-6 z-100 w-[calc(100%-3rem)] max-w-100 pointer-events-none sm:top-8 sm:right-8"
+      className="fixed top-[calc(var(--navbar-height)+max(0px,env(safe-area-inset-top))+0.75rem)] right-4 z-100 w-[calc(100%-2rem)] max-w-100 pointer-events-none sm:right-6"
       role="region"
       aria-label="Notifications"
       aria-live="polite"
@@ -112,17 +110,8 @@ const Toast = memo(function Toast({
   onRemove: () => void;
 }) {
   const { type, message } = notification;
-  const durationMs = Math.min(
-    Math.max(Number(notification.duration) || 0, 0),
-    MAX_NOTIFICATION_DURATION
-  );
+  const durationMs = Math.max(Number(notification.duration) || 0, 0);
   const style = NOTIFICATION_STYLES[type] ?? NOTIFICATION_STYLES.info;
-
-  useEffect(() => {
-    if (durationMs <= 0) return undefined;
-    const timeoutId = setTimeout(onRemove, durationMs);
-    return () => clearTimeout(timeoutId);
-  }, [durationMs, onRemove]);
 
   return (
     <div
@@ -144,7 +133,7 @@ const Toast = memo(function Toast({
         >
           {style.title}
         </p>
-        <p className="mt-0.5 truncate text-[0.9375rem] font-medium leading-snug text-text-primary/95">
+        <p className="mt-0.5 wrap-break-word text-[0.9375rem] font-medium leading-snug text-text-primary/95">
           {message}
         </p>
       </div>

@@ -35,6 +35,14 @@
 .animate-spin {
   animation: spin 1s linear infinite;
 }
+.animate-draw-check {
+  animation: pop-in 0.2s ease-out both;
+
+  path {
+    stroke-dasharray: 24;
+    animation: draw-check 0.3s ease-out 0.05s both;
+  }
+}
 
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 1rem);

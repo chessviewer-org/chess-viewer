@@ -1,6 +1,16 @@
-import { memo } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 
-import { Copy, Download, Redo2, Repeat2, Share2, Undo2 } from '@/assets/icons';
+import {
+  Check,
+  Copy,
+  Download,
+  Redo2,
+  Repeat2,
+  Share2,
+  Undo2
+} from '@/assets/icons';
+
+const COPIED_FEEDBACK_MS = 1500;
 
 interface CommandBarProps {
   onUndo: () => void;
@@ -8,7 +18,7 @@ interface CommandBarProps {
   canUndo: boolean;
   canRedo: boolean;
   onFlip?: () => void;
-  onCopyImage: () => void;
+  onCopyImage: () => Promise<boolean>;
   onShare: () => void;
   onDownload?: (() => void) | undefined;
 }
@@ -31,6 +41,21 @@ export const CommandBar = memo(function CommandBar({
   onShare,
   onDownload
 }: CommandBarProps) {
+  const [copied, setCopied] = useState(false);
+  const copiedTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => () => clearTimeout(copiedTimer.current), []);
+
+  const handleCopy = useCallback(async () => {
+    if (!(await onCopyImage())) return;
+    clearTimeout(copiedTimer.current);
+    setCopied(true);
+    copiedTimer.current = setTimeout(
+      () => setCopied(false),
+      COPIED_FEEDBACK_MS
+    );
+  }, [onCopyImage]);
+
   return (
     <div className="flex items-center justify-between w-full">
       <div className="flex items-center gap-1">
@@ -71,12 +96,18 @@ export const CommandBar = memo(function CommandBar({
       <div className="flex items-center gap-1">
         <button
           type="button"
-          onClick={onCopyImage}
-          className={`${iconButton} text-text-secondary hover:text-text-primary hover:bg-surface-hover`}
-          title="Copy image"
-          aria-label="Copy board image to clipboard"
+          onClick={handleCopy}
+          className={`${iconButton} ${copied ? 'text-success' : 'text-text-secondary hover:text-text-primary'} hover:bg-surface-hover`}
+          title={copied ? 'Copied' : 'Copy image'}
+          aria-label={
+            copied ? 'Board image copied' : 'Copy board image to clipboard'
+          }
         >
-          <Copy className="w-5 h-5" />
+          {copied ? (
+            <Check className="w-5 h-5 animate-draw-check" strokeWidth={2.5} />
+          ) : (
+            <Copy className="w-5 h-5" />
+          )}
         </button>
         <button
           type="button"
