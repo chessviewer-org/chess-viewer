@@ -26,6 +26,7 @@ export const useHome = (variant: 'standard' | 'fairy' = 'standard') => {
 
   const exportApi = useHomeExport({
     fen: board.fen,
+    pieceStyle: board.pieceStyle,
     fileName: board.fileName,
     boardSize: board.boardSize,
     exportQuality: board.exportQuality,

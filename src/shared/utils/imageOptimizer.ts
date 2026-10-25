@@ -45,6 +45,10 @@ function findQualityPreset(quality: number) {
   return QUALITY_PRESETS.find((preset) => preset.value === quality);
 }
 
+export function normalizeExportQuality(quality: number): number {
+  return findQualityPreset(quality)?.value ?? 2;
+}
+
 export function getExportMode(quality: number): string {
   return findQualityPreset(quality)?.mode ?? 'print';
 }
@@ -64,8 +68,7 @@ function calculateExportSize(
   showCoords: boolean,
   exportQuality: number
 ) {
-  const safeQuality =
-    Number.isFinite(exportQuality) && exportQuality > 0 ? exportQuality : 1;
+  const safeQuality = normalizeExportQuality(exportQuality);
   const mode = getExportMode(safeQuality);
   const maxCanvasSize = getMaxCanvasSize();
   const rawBoardPixels = calculateBoardPixels(boardSizeCm, safeQuality);

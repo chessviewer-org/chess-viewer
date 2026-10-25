@@ -17,15 +17,16 @@ import {
 import { readSquarePattern } from './boardPattern';
 import { shouldForceCoordinateBorder } from './imageOptimizer';
 import {
-  type PieceVector,
   assertBoardArtwork,
-  buildPieceVector,
-  fetchPieceSvgText,
   getPieceKey,
-  imageToEmbeddableDataURL,
-  namespacePieceIds,
   waitForPieceImage
 } from './pieceUtils';
+import {
+  type PieceVector,
+  buildPieceVector,
+  fetchPieceSvgText,
+  namespacePieceIds
+} from './pieceSvg';
 import { saveBlob } from './saveBlob';
 
 // Constants
@@ -113,10 +114,7 @@ export async function generateBoardSVG(
     }
   }
 
-  const targetPiecePx = Math.ceil((boardSize * 1200) / 20.32);
-
   const pieceVectors = new Map<string, PieceVector>();
-  const pieceDataURLs: Record<string, string> = {};
   await Promise.all(
     [...presentKeys].map((key) => {
       const image = pieceImages[key];
@@ -131,15 +129,14 @@ export async function generateBoardSVG(
       const img = pieceImages[key];
       if (!(img && img.complete && img.naturalWidth > 0)) return;
       const src = img.currentSrc || img.src || '';
-      const svgText = src.startsWith('blob:')
-        ? null
-        : await fetchPieceSvgText(src);
+      const svgText = await fetchPieceSvgText(src);
       const vector = svgText ? buildPieceVector(svgText) : null;
-      if (vector) {
-        pieceVectors.set(key, vector);
-      } else {
-        pieceDataURLs[key] = await imageToEmbeddableDataURL(img, targetPiecePx);
+      if (!vector) {
+        throw new Error(
+          `Vector artwork is unavailable for ${key}. Please retry the SVG export.`
+        );
       }
+      pieceVectors.set(key, vector);
     })
   );
 
@@ -246,13 +243,7 @@ export async function generateBoardSVG(
       const y = boardY + visRow * squarePx;
 
       const size = `width="${squarePx}" height="${squarePx}"`;
-      const dataURL = pieceDataURLs[key];
-      const piece = pieceVectors.has(key)
-        ? `<use href="#cv-p-${key}" xlink:href="#cv-p-${key}" x="0" y="0" ${size}/>`
-        : dataURL
-          ? `<image href="${escapeXmlAttr(dataURL)}" x="0" y="0" ${size} image-rendering="optimizeQuality"/>`
-          : null;
-      if (!piece) continue;
+      const piece = `<use href="#cv-p-${key}" xlink:href="#cv-p-${key}" x="0" y="0" ${size}/>`;
 
       const onHatch = hatched && !isLightSquare(row, col);
       parts.push(

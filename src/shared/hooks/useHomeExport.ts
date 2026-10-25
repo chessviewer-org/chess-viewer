@@ -8,6 +8,8 @@ import {
 import { logger } from '@/shared/utils/logger';
 import { shouldForceCoordinateBorder } from '@/shared/utils/imageOptimizer';
 import { validateFEN } from '@/shared/utils/fenParser';
+import { preloadPieceStyle } from '@/shared/utils/pieceUtils';
+import { requestedPieceMap } from '@/shared/utils/pieceRequest';
 
 // Types
 export interface ExportState {
@@ -26,6 +28,7 @@ interface BatchExportOverrides {
 
 interface UseHomeExportOptions {
   fen: string;
+  pieceStyle: string;
   fileName: string;
   boardSize: number;
   exportQuality: number;
@@ -104,6 +107,18 @@ export function useHomeExport(opts: UseHomeExportOptions) {
     ]
   );
 
+  const prepareExportConfig = useCallback(
+    async (overrides?: BatchExportOverrides): Promise<ExportConfig> => {
+      const config = getExportConfig(overrides);
+      const pieceImages = await preloadPieceStyle(
+        opts.pieceStyle,
+        requestedPieceMap({ positions: config.fen })
+      );
+      return { ...config, pieceImages };
+    },
+    [getExportConfig, opts.pieceStyle]
+  );
+
   const finishExport = () => {
     if (completeTimerRef.current) clearTimeout(completeTimerRef.current);
 
@@ -155,7 +170,7 @@ export function useHomeExport(opts: UseHomeExportOptions) {
     opts.saveExportFen(opts.fen);
 
     try {
-      const config = getExportConfig();
+      const config = await prepareExportConfig();
       const bytes = await runner(config, opts.fileName, (progress) => {
         setExportState((prev) => ({ ...prev, exportProgress: progress }));
       });
@@ -197,14 +212,14 @@ export function useHomeExport(opts: UseHomeExportOptions) {
 
     try {
       const { copyToClipboard } = await import('@/shared/utils/canvasExporter');
-      await copyToClipboard(getExportConfig());
+      await copyToClipboard(await prepareExportConfig());
       saveExportFen(fen);
       showSuccess('Image copied');
     } catch (err) {
       logger.error('Copy failed:', err);
       showError('Copy failed');
     }
-  }, [fen, showError, showSuccess, saveExportFen, getExportConfig]);
+  }, [fen, showError, showSuccess, saveExportFen, prepareExportConfig]);
 
   const handleBatchExport = async (
     formats: string[],
@@ -221,6 +236,7 @@ export function useHomeExport(opts: UseHomeExportOptions) {
     try {
       const { runFormatExport } =
         await import('@/pages/AdvancedFENInputPage/utils/advancedExportHelpers');
+      const config = await prepareExportConfig(overrides);
       for (let i = 0; i < formats.length; i++) {
         const format = formats[i];
         if (!format) continue;
@@ -228,8 +244,6 @@ export function useHomeExport(opts: UseHomeExportOptions) {
         const currentFileName = Array.isArray(customFileNames)
           ? customFileNames[i] || opts.fileName
           : customFileNames || opts.fileName;
-
-        const config = getExportConfig(overrides);
 
         await runFormatExport(format, config, currentFileName, (p) => {
           setExportState((prev) => ({

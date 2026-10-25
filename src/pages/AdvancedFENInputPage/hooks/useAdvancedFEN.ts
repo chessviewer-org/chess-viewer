@@ -4,6 +4,8 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useChessBoard } from '@/shared/hooks/useChessBoard';
 import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
 import { usePieceImages } from '@/shared/hooks/usePieceImages';
+import { preloadPieceStyle } from '@/shared/utils/pieceUtils';
+import { requestedPieceMap } from '@/shared/utils/pieceRequest';
 import { useSearchParams } from '@/shared/hooks/useSearchParams';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { ADVANCED_FEN_CONFIG } from '@constants';
@@ -505,16 +507,24 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
     if (!orderedFormats.length) return;
     startExport();
     try {
-      for (let i = 0; i < orderedFormats.length; i++) {
+      const images = await preloadPieceStyle(
+        pieceStyle,
+        requestedPieceMap({ positions: fens })
+      );
+      for (const [i, format] of orderedFormats.entries()) {
         await waitWhilePaused();
         checkCancellation();
-        await runFormat(orderedFormats[i]!, exportConfig, activeFileName, (p) =>
-          setExportState({
-            isExporting: true,
-            currentFormat: orderedFormats[i]!,
-            progress: ((i + p / 100) / orderedFormats.length) * 100,
-            status: `${i + 1}/${orderedFormats.length}`
-          })
+        await runFormat(
+          format,
+          { ...exportConfig, pieceImages: images },
+          activeFileName,
+          (p) =>
+            setExportState({
+              isExporting: true,
+              currentFormat: format,
+              progress: ((i + p / 100) / orderedFormats.length) * 100,
+              status: `${i + 1}/${orderedFormats.length}`
+            })
         );
       }
     } catch (e) {
@@ -563,6 +573,10 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
           chainedSettings,
           pieceImages ?? {},
           isChained
+        );
+        conf.pieceImages = await preloadPieceStyle(
+          conf.pieceStyle,
+          requestedPieceMap({ positions: fens })
         );
         const rawName =
           !isChained && s.fileName
