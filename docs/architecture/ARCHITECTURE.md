@@ -120,6 +120,7 @@ src/
 │   ├── AdvancedFENInputPage/      # Batch export of up to 10 positions
 │   ├── FENHistoryPage/            # History with filters, favourites and archive
 │   ├── SettingsPage/              # Account, appearance, board, accessibility, data
+│   ├── DocsPage/                  # User documentation (/docs)
 │   ├── AboutPage/                 # About, FAQ, privacy, changelog, donate
 │   ├── AuthPages/                 # Sign in, sign up, forgot password, MFA
 │   └── NotFoundPage/
@@ -197,6 +198,7 @@ All routes live in `src/routes/Router.tsx`; `src/routes/pages.ts` resolves each 
 | `/advanced-fen`         | `AdvancedFENInputPage` | yes         | yes     |
 | `/export`               | `ExportPage`           | yes         | yes     |
 | `/fen-history`          | `FENHistoryPage`       | yes         | yes     |
+| `/docs`                 | `DocsPage`             | yes         | yes     |
 | `/about`                | `AboutPage`            | yes         | yes     |
 | `/settings`             | `SettingsPage`         | yes         | no      |
 | `/auth/sign-in`         | `SignInPage`           | yes         | no      |
