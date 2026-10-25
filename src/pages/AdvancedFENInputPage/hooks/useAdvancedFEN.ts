@@ -3,8 +3,14 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { useChessBoard } from '@/shared/hooks/useChessBoard';
 import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
+import { useNotifications } from '@/shared/hooks/useNotifications';
 import { usePieceImages } from '@/shared/hooks/usePieceImages';
-import { preloadPieceStyle } from '@/shared/utils/pieceUtils';
+import {
+  isExportCancelled,
+  runExportJobs,
+  summariseExport
+} from '@/shared/utils/exportJobs';
+import { loadExportPieces } from '@/shared/utils/pieceUtils';
 import { requestedPieceMap } from '@/shared/utils/pieceRequest';
 import { useSearchParams } from '@/shared/hooks/useSearchParams';
 import { useTheme } from '@/shared/hooks/useTheme';
@@ -175,6 +181,7 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { batchList, removeFromBatch, updateBatchItem, addToBatch } =
     useFENBatch();
+  const notifier = useNotifications();
 
   const init = useRef(props);
 
@@ -503,32 +510,55 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
     setExportState((p) => ({ ...p, isExporting: false, progress: 100 }));
   }
 
+  function reportFailures(
+    failed: readonly { label: string; reason: string }[]
+  ) {
+    for (const { label, reason } of failed)
+      logger.error(`${label} export failed:`, reason);
+  }
+
+  function notifyExportError(error: unknown) {
+    if (isExportCancelled(error)) notifier.info('Export cancelled');
+    else {
+      logger.error('Export failed', error);
+      notifier.error('Export failed. Please try again.');
+    }
+  }
+
   async function handleExportActive() {
     if (!orderedFormats.length) return;
     startExport();
     try {
-      const images = await preloadPieceStyle(
+      const images = await loadExportPieces(
         pieceStyle,
         requestedPieceMap({ positions: fens })
       );
-      for (const [i, format] of orderedFormats.entries()) {
-        await waitWhilePaused();
-        checkCancellation();
-        await runFormat(
-          format,
-          { ...exportConfig, pieceImages: images },
-          activeFileName,
-          (p) =>
-            setExportState({
-              isExporting: true,
-              currentFormat: format,
-              progress: ((i + p / 100) / orderedFormats.length) * 100,
-              status: `${i + 1}/${orderedFormats.length}`
-            })
-        );
-      }
+      const outcome = await runExportJobs(
+        orderedFormats.map((format, i) => ({
+          label: format.toUpperCase(),
+          run: async () => {
+            await waitWhilePaused();
+            checkCancellation();
+            await runFormat(
+              format,
+              { ...exportConfig, pieceImages: images },
+              activeFileName,
+              (p) =>
+                setExportState({
+                  isExporting: true,
+                  currentFormat: format,
+                  progress: ((i + p / 100) / orderedFormats.length) * 100,
+                  status: `${i + 1}/${orderedFormats.length}`
+                })
+            );
+          }
+        }))
+      );
+      reportFailures(outcome.failed);
+      const summary = summariseExport(outcome);
+      notifier[summary.type](summary.message);
     } catch (e) {
-      logger.error('Export failed', e);
+      notifyExportError(e);
     } finally {
       finishExport();
     }
@@ -539,6 +569,8 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
     startExport();
     try {
       const zipData: Zippable = {};
+      const saved: string[] = [];
+      const failed: { label: string; reason: string }[] = [];
       const usedNames = new Set<string>();
       const chainedSettings = {
         pieceStyle,
@@ -574,7 +606,7 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
           pieceImages ?? {},
           isChained
         );
-        conf.pieceImages = await preloadPieceStyle(
+        conf.pieceImages = await loadExportPieces(
           conf.pieceStyle,
           requestedPieceMap({ positions: fens })
         );
@@ -592,28 +624,42 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
               (s.selectedFormats ?? orderedFormats).includes(x)
             );
 
-        for (const fmt of fmts) {
-          await waitWhilePaused();
-          checkCancellation();
-          const onProg = (p: number) =>
-            setExportState({
-              isExporting: true,
-              currentFormat: fmt,
-              progress: ((done + p / 100) / total) * 100,
-              status: `${i + 1}/${validFens.length}`
-            });
-          const ext = fmt === 'jpeg' ? 'jpg' : fmt;
-          const filePath = `${base}/${base}.${ext}`;
-          const blob =
-            fmt === 'svg'
-              ? await getSVGBlob(conf, onProg)
-              : await getRasterBlob(conf, fmt, onProg);
-          const bytes = new Uint8Array(await blob.arrayBuffer());
-          zipData[filePath] = fmt === 'svg' ? bytes : [bytes, { level: 0 }];
-          done++;
-        }
+        const outcome = await runExportJobs(
+          fmts.map((fmt) => {
+            const ext = fmt === 'jpeg' ? 'jpg' : fmt;
+            return {
+              label: `${base}.${ext}`,
+              run: async () => {
+                await waitWhilePaused();
+                checkCancellation();
+                const onProg = (p: number) =>
+                  setExportState({
+                    isExporting: true,
+                    currentFormat: fmt,
+                    progress: ((done + p / 100) / total) * 100,
+                    status: `${i + 1}/${validFens.length}`
+                  });
+                const blob =
+                  fmt === 'svg'
+                    ? await getSVGBlob(conf, onProg)
+                    : await getRasterBlob(conf, fmt, onProg);
+                const bytes = new Uint8Array(await blob.arrayBuffer());
+                zipData[`${base}/${base}.${ext}`] =
+                  fmt === 'svg' ? bytes : [bytes, { level: 0 }];
+                done++;
+              }
+            };
+          })
+        );
+        saved.push(...outcome.done);
+        failed.push(...outcome.failed);
       }
 
+      reportFailures(failed);
+      if (!saved.length) {
+        notifier.error(summariseExport({ done: saved, failed }).message);
+        return;
+      }
       setExportState({
         isExporting: true,
         progress: 99,
@@ -627,8 +673,20 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
         });
       });
       saveBlob(zippedBlob, 'chess_batch_export', 'zip');
+      const summary = summariseExport(
+        {
+          done: [
+            failed.length
+              ? `${saved.length} of ${saved.length + failed.length} files`
+              : `${saved.length} files`
+          ],
+          failed
+        },
+        'saved to chess_batch_export.zip'
+      );
+      notifier[summary.type](summary.message);
     } catch (e) {
-      logger.error('Batch export failed', e);
+      notifyExportError(e);
     } finally {
       finishExport();
     }
@@ -679,9 +737,11 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
       },
       isChained,
       parsedNames,
-      activeFileName
+      activeFileName,
+      notifications: notifier.notifications
     },
     handlers: {
+      removeNotification: notifier.removeNotification,
       handleBack,
       removeFenInput,
       updateFen,

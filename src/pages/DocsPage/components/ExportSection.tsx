@@ -57,7 +57,8 @@ export default function ExportSection() {
           </li>
           <li>
             Press <Term>Download</Term>. A progress bar shows each file; you can
-            pause or cancel a large export.
+            pause or cancel a large export. If one format cannot be made, the
+            others still download and a message explains what went wrong.
           </li>
         </Steps>
       </InfoCard>

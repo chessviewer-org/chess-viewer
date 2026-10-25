@@ -52,7 +52,9 @@ export default function BatchSection() {
           </li>
           <li>
             On <Term>Export Settings</Term>, choose formats, quality and board
-            size exactly as on the single export page, then download the ZIP.
+            size exactly as on the single export page, then download the ZIP. If
+            a file cannot be made, the ZIP still holds every other file and a
+            message names the one that is missing.
           </li>
         </Steps>
       </InfoCard>

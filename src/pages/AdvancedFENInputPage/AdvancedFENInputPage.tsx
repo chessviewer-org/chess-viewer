@@ -15,6 +15,7 @@ import {
   SOFTWARE_APP_SCHEMA
 } from '@constants';
 
+import { NotificationContainer } from '@/shared/ui/NotificationContainer';
 import { Seo } from '@/shared/ui/Seo';
 import styles from './styles/advanced-fen-layout.module.scss';
 import InteractiveBoardColumn from './components/InteractiveBoardColumn';
@@ -155,6 +156,10 @@ const AdvancedFENInputPage = memo(function AdvancedFENInputPage(
           onCancel={handlers.handleCancelExportProgress}
         />
       )}
+      <NotificationContainer
+        notifications={state.notifications}
+        onRemove={handlers.removeNotification}
+      />
     </div>
   );
 });
