@@ -72,7 +72,7 @@ export const useFENHistoryPage = () => {
     navigate(
       isFairyFEN(fen)
         ? `/fairy-chess#position=${encodeURIComponent(fen)}`
-        : `/?fen=${encodeURIComponent(fen)}`
+        : `/#position=${encodeURIComponent(fen)}`
     );
   }
 
