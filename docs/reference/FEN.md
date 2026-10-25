@@ -209,7 +209,7 @@ Two kings only. No castling. No en passant. 50 halfmoves since last capture/pawn
 
 ## Validation Rules
 
-**Source:** `src/shared/utils/fenParser.ts` and `src/shared/utils/validation.ts`.
+**Source:** `validateFEN` and `parseFEN` in `@chessviewer-org/chess-viewer`, wrapped by `src/shared/utils/fenParser.ts`.
 
 ### Length
 
@@ -269,8 +269,10 @@ Philidor Position:
 
 **Source files:**
 
-- Parse: `src/shared/utils/fenParser.ts`
-- Board-to-FEN: `src/shared/utils/boardUtils.ts`
+- Parse and validate: `@chessviewer-org/chess-viewer`, wrapped by `src/shared/utils/fenParser.ts`
+- Board-to-FEN: `src/shared/utils/boardCells.ts`
+
+Fairy FEN (neutral pieces such as `-B`, rotations such as `*2N`) goes through the same entry points. It has its own length limit, `MAX_FFEN_LENGTH` (93 + 3 characters per square = 285), and is described in [FAIRY_CHESS.md](FAIRY_CHESS.md).
 
 ### FEN to Board Array (`parseFEN`)
 
@@ -361,4 +363,4 @@ e3    ← correct (rank 3 or 6 only)
 
 ---
 
-_Last updated: May 2026 — v6.1.0_
+_Last updated: October 2026_

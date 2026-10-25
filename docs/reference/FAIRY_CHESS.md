@@ -34,45 +34,33 @@ white and black artwork for neutral symbols, and rotates the whole neutral glyph
 
 ## Workspaces and composition settings
 
-The home route is the orthodox editor. `/fairy-chess` is the dedicated diagram
-workspace; `/latex` is the independent LaTeX Studio. The navigation uses a small
-brand, ordinary section links and a mobile section dropdown sized to its links.
-The mobile dropdown contains only Standard, Fairy chess and LaTeX, using the
-same gray surface as the account dropdown. Donate stays beside the logo on
-phones and after the section links on desktop, always in the navigation bar.
-The home link is labeled Standard. Brand text stays neutral and brightens slightly
-on hover or keyboard focus; the horse icon carries the gold accent.
-The shared logo uses a traced SVG of the original horse silhouette, retaining
-its gold color without a raster image embedded inside the vector.
-The navbar pairs the mark at 2rem high, retaining its natural aspect ratio, with
-the brand name at 1.375rem and a compact line height.
-The account dropdown has the same anchored, non-modal behavior on desktop,
-tablet and phone. It begins
-at the bottom edge of the navigation. Its surface matches the square background
-of the expanded account toggle, using the existing surface-hover token. Active sections
-have an accent underline; hover and keyboard focus reveal it from left to right.
-Donate has a heart and a separate pill hover treatment. The account panel is
-anchored with `top: 100%` to its full-height navigation control, so its top edge
-tracks the header bottom directly. Short viewports reduce the scrollable panel
-height rather than shifting it above the header.
-On phones, the account toggle and dropdown share the viewport's right edge.
-Opening either navigation menu blurs and dims the page behind it; tapping the
-backdrop dismisses the open menu. Desktop navigation keeps the page gutters;
-its dropdown aligns with the account toggle, without a page backdrop.
-Navigation hides as soon as the document scrolls below the top. Open
-menus and keyboard access keep their navigation available.
-The standard editor centers its FEN field and board workspace together in the
-viewport height below the navigation. Taller content scrolls normally. The page
-does not reserve an empty scrollbar gutter; scroll locking preserves an existing
-gutter only while an overlay is open.
-Route transitions cross-fade without moving the page. The navbar and shell keep
-the same viewport width when a scrollbar appears, and navigation resets scroll
-before rendering the destination. Menu state is local to the navbar; opening a
-menu does not render the editor. Image loading updates the editor once the piece
-map is complete rather than on every unused progress tick.
+`/` is the orthodox editor, `/fairy-chess` the fairy diagram workspace and
+`/latex` the independent LaTeX Studio. The fairy workspace reuses the standard
+editor (FEN field, board, command bar, board options) and adds two things.
 
-Fairy settings are inline: piece catalogue, color, attributes, stipulation,
-conditions, author, source, title, remarks, twins, board theme and piece set.
+![Fairy chess symbols palette](../assets/screenshot-fairy-chess.png)
+
+**The piece panel** beside the board has two tabs:
+
+- **Symbols** — the six orthodox shapes in white, black and neutral, a rotation
+  switch (0°, 90°, 180°, 270°) and diagram markers. Drag a symbol onto the board or
+  select it and click a square.
+- **Named pieces** — the Popeye catalogue as letter discs, paged in two rows with
+  dots, arrows and swipe. A White / Black / Neutral switch sets the colour; the
+  search field matches names and codes; **Attributes** toggles Popeye attributes
+  such as Royal or Chameleon, and named pieces placed while one is on carry it.
+
+![Named pieces tab](../assets/screenshot-fairy-named-pieces.png)
+
+**The Popeye problem card** below the editor holds the composition: stipulation
+(free text, quick chips such as `#2`, `h#2`, `s#2`, or a structured builder),
+conditions (one per line, with a searchable library of 182 names), and the
+optional author, source, title, remarks and twins. **Apply** writes them to the
+position; the legend under the board then shows the stipulation and conditions.
+**Import** reads a Popeye file and **Save .inp** downloads one.
+
+![Popeye problem card](../assets/screenshot-fairy-popeye.png)
+
 The catalogue contains 163 walks from the official English
 [Popeye manual](https://github.com/thomas-maeder/popeye/blob/develop/py-engl.txt)
 and [piece-name table](https://github.com/thomas-maeder/popeye/blob/develop/piecenam.txt),

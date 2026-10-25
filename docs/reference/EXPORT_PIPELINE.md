@@ -23,9 +23,10 @@ Technical reference for the ChessViewer export system.
 
 The export system converts a chess board configuration into a high-resolution image with precise control over physical size and pixel density.
 
-- Physical board size in centimetres (4, 6, 8 cm) — sets the printed size
+- Physical board size in centimetres (4, 6, 8 cm, or any custom value from 4 to 8) — sets the printed size
 - 4 quality presets from 300 DPI to 1200 DPI
-- Formats: PNG, JPEG, SVG
+- Formats: PNG, JPEG, SVG — several can be selected for one download
+- Fairy positions include a composition legend, conditions and metadata
 - DPI metadata embedded in PNG (`pHYs` chunk) and JPEG (JFIF density fields)
 - SVG pieces embedded as base64 data URLs — fully self-contained output
 - Export can be paused, resumed, or cancelled mid-way
@@ -61,7 +62,7 @@ All four presets are well within the 16,384 px Safari canvas limit.
 
 - Lossless compression
 - Transparent background supported
-- DPI embedded via the `pHYs` chunk (`dpiEncoder.ts`)
+- DPI embedded via the `pHYs` chunk (`changeDPI` from `@chessviewer-org/chess-viewer`)
 - Best for print diagrams and archival
 
 ### JPEG
@@ -74,8 +75,9 @@ All four presets are well within the 16,384 px Safari canvas limit.
 ### SVG
 
 - Resolution-independent vector output
-- Piece images embedded as base64 data URLs (self-contained file — no external dependencies)
+- Piece images embedded as data URLs (self-contained file — no external dependencies)
 - Coordinate labels as `<text>` elements
+- Fairy diagrams also embed the source notation (FFEN or Popeye)
 - File size scales with board complexity, not pixel dimensions
 
 ---
@@ -101,7 +103,7 @@ User triggers export
 ```
 User triggers SVG export
   → generateBoardSVG()            # builds SVG string
-      └─ imageToEmbeddableDataURL()   # per piece: blob URL → canvas → base64 PNG
+      └─ imageToEmbeddableDataURL()   # per piece: same-origin SVG → data:image/svg+xml
   → Blob → URL.createObjectURL()
   → <a download> click
   → URL.revokeObjectURL()
@@ -150,13 +152,14 @@ This is mandatory. Safari does not release canvas GPU backing memory on referenc
 
 ## SVG Piece Embedding
 
-`imageToEmbeddableDataURL()` in `svgPieceLoader.ts` converts each piece image to a data URL for inline SVG embedding:
+`imageToEmbeddableDataURL()` in `pieceUtils.ts` converts each piece image to a data URL for inline SVG embedding:
 
-- **`blob:` URL** (standard path — `pieceImageCache.ts` rasterizes CDN SVGs to blob URLs): draws the already-loaded `HTMLImageElement` to a temporary canvas and returns a `data:image/png;base64,...` string. Canvas is disposed immediately after.
-- **`https://` URL**: fetches the SVG source text and returns `data:image/svg+xml;base64,...` for true vector embedding.
-- **`data:` URL**: returned as-is.
+- **Same-origin SVG** (the normal case — pieces live in `/piece/<set>/` and `/fairypiece/<set>/`): fetches the SVG source, resizes it when a target size is given and returns a `data:image/svg+xml` URL, so pieces stay vectors.
+- **Other `http(s)` images, or an SVG that cannot be fetched**: rasterised through a canvas into a PNG data URL, with a placeholder as the last resort.
+- **`blob:` URL**: draws the loaded `HTMLImageElement` to a temporary canvas and returns a PNG data URL; the canvas is disposed immediately.
+- **`data:` URL**: returned as-is. Any other protocol is rejected.
 
-Results are cached by `img.src` (max 48 entries, FIFO eviction).
+Results are cached by source and target size (at most 48 entries and a character budget, oldest first). Concurrent requests for the same piece share one promise.
 
 ---
 
@@ -164,9 +167,11 @@ Results are cached by `img.src` (max 48 entries, FIFO eviction).
 
 `AdvancedFENInputPage` iterates up to 10 FEN strings through the single-export pipeline:
 
-1. Each position is exported as PNG/JPEG/SVG (or all three)
-2. Files collected by `archiveManager.ts`
-3. ZIP downloaded via a single `<a download>` trigger
+1. Each position is exported in every selected format (PNG, JPEG, SVG)
+2. `useAdvancedFEN.ts` packs the files into a ZIP with fflate
+3. The ZIP is downloaded via a single `<a download>` trigger
+
+The batch preview can also hand every valid position to LaTeX Studio.
 
 Progress is reported per-file and globally across the batch.
 
@@ -187,19 +192,19 @@ Progress is reported per-file and globally across the batch.
 
 ## File Reference
 
-| File                 | Role                                                                                   |
-| -------------------- | -------------------------------------------------------------------------------------- |
-| `canvasExporter.ts`  | Public API: `downloadPNG`, `downloadJPEG`, `copyToClipboard`                           |
-| `exportRaster.ts`    | `createRasterBlob()` — main-thread canvas rasterisation                                |
-| `canvasRenderer.ts`  | `createUltraQualityCanvas()` — main-thread draw                                        |
-| `exportState.ts`     | `cancelExport`, `pauseExport`, `resumeExport`, `validateExportConfig`, `getExportInfo` |
-| `imageOptimizer.ts`  | `calculateRenderSurfaceSize`, `getMaxCanvasSize`, `estimateFileSizes`                  |
-| `svgExporter.ts`     | `generateBoardSVG`, `downloadSVG`                                                      |
-| `svgPieceLoader.ts`  | `imageToEmbeddableDataURL`, `waitForPieceImage`                                        |
-| `dpiEncoder.ts`      | `changeDPI()` — pHYs (PNG) and JFIF (JPEG) metadata injection                          |
-| `archiveManager.ts`  | `compileArchive()` — ZIP from multiple blobs                                           |
-| `pieceImageCache.ts` | `preloadPieceStyle()` — CDN SVG → 256px blob URL cache                                 |
+| File                                        | Role                                                                                   |
+| ------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `canvasExporter.ts`                         | Public API: `downloadPNG`, `downloadJPEG`, `copyToClipboard`                           |
+| `exportRaster.ts`                           | `createRasterBlob()` — main-thread canvas rasterisation                                |
+| `canvasRenderer.ts`                         | `createUltraQualityCanvas()` — main-thread draw                                        |
+| `exportState.ts`                            | `cancelExport`, `pauseExport`, `resumeExport`, `validateExportConfig`, `getExportInfo` |
+| `imageOptimizer.ts`                         | `calculateRenderSurfaceSize`, `getMaxCanvasSize`, `estimateFileSizes`                  |
+| `svgExporter.ts`                            | `generateBoardSVG`, `downloadSVG`                                                      |
+| `pieceUtils.ts`                             | `preloadPieceStyle`, `waitForPieceImage`, `imageToEmbeddableDataURL`                   |
+| `saveBlob.ts`                               | File download via `<a download>`                                                       |
+| `pages/AdvancedFENInputPage/useAdvancedFEN` | Batch export and ZIP packing (fflate)                                                  |
+| `@chessviewer-org/chess-viewer` `changeDPI` | pHYs (PNG) and JFIF (JPEG) DPI metadata                                                |
 
 ---
 
-_Last updated: June 2026 — v6.1.0_
+_Last updated: October 2026_
