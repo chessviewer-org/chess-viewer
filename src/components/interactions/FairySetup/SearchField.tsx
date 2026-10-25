@@ -23,7 +23,7 @@ export function SearchField({
         {label}
       </label>
       <Search
-        className="absolute left-3 top-3 w-4 h-4 text-text-secondary pointer-events-none"
+        className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none"
         aria-hidden="true"
       />
       <input
@@ -40,7 +40,7 @@ export function SearchField({
       {value && (
         <button
           type="button"
-          className="absolute right-0.5 top-0.5 min-w-9 min-h-9 cursor-pointer rounded-md text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="absolute right-0.5 top-1/2 -translate-y-1/2 min-w-9 min-h-9 cursor-pointer rounded-md text-text-secondary hover:bg-surface-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           aria-label={`Clear ${label.toLowerCase()}`}
           onClick={() => {
             onChange('');

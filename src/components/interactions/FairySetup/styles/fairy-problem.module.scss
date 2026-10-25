@@ -1,0 +1,375 @@
+@use '../../../../styles/mixins' as m;
+
+.root {
+  container: problem / inline-size;
+  min-width: 0;
+  border: 1px solid rgb(var(--val-border) / 0.4);
+  border-radius: 0.75rem;
+  background: var(--color-surface);
+
+  button:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid var(--color-accent) !important;
+    outline-offset: 2px;
+  }
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding: 1rem;
+  border-bottom: 1px solid rgb(var(--val-border) / 0.6);
+}
+
+.heading {
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.description {
+  margin-top: 0.25rem;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.fileActions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.5rem;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
+
+  @container problem (min-width: 42rem) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+.field {
+  container-type: inline-size;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.fieldHeading {
+  display: flex;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.notationMode {
+  width: 12rem;
+  max-width: 70%;
+}
+
+.notationInput {
+  min-height: 2.75rem;
+  font-family: var(--font-data);
+  font-size: 1rem;
+}
+
+.conditionsInput {
+  min-height: 5.5rem;
+  field-sizing: content;
+  font-family: var(--font-data);
+}
+
+.hint {
+  color: var(--color-text-muted);
+  font-size: 0.6875rem;
+  line-height: 1.5;
+}
+
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+
+  @container (width < 26rem) {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    > :last-child {
+      grid-column: span 2;
+    }
+  }
+}
+
+.preset {
+  display: inline-flex;
+  min-height: 2rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.625rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+  color: var(--color-text-secondary);
+  font-family: var(--font-data);
+  font-size: 0.75rem;
+  cursor: pointer;
+
+  @include m.hover-capable {
+    &:hover {
+      border-color: var(--color-text-muted);
+      color: var(--color-text-primary);
+    }
+  }
+
+  &[aria-pressed='true'] {
+    border-color: rgb(var(--val-accent) / 0.6);
+    background: rgb(var(--val-accent) / 0.1);
+    color: var(--color-accent);
+  }
+}
+
+.disclosure {
+  min-width: 0;
+  border: 1px solid rgb(var(--val-border) / 0.7);
+  border-radius: 0.5rem;
+
+  &[open] > .summary {
+    border-bottom: 1px solid rgb(var(--val-border) / 0.7);
+    border-radius: 0.5rem 0.5rem 0 0;
+
+    .chevron {
+      transform: rotate(90deg);
+    }
+  }
+}
+
+.summary {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.5rem;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  list-style: none;
+  cursor: pointer;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  @include m.hover-capable {
+    &:hover {
+      background: var(--color-surface-hover);
+      color: var(--color-text-primary);
+    }
+  }
+}
+
+.chevron {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+}
+
+.summaryTitle {
+  flex: 1;
+  min-width: 0;
+  font-weight: 500;
+}
+
+.summaryMeta {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  font-size: 0.6875rem;
+}
+
+.libraryBody {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+}
+
+.libraryToolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.resultCount {
+  color: var(--color-text-muted);
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+
+  @container problem (width < 24rem) {
+    display: none;
+  }
+}
+
+.conditionList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr));
+  height: 14rem;
+  align-content: start;
+  gap: 0.375rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.conditionOption {
+  display: flex;
+  min-width: 0;
+  min-height: 2.25rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+
+  @include m.hover-capable {
+    &:hover {
+      background: var(--color-surface-hover);
+      color: var(--color-text-primary);
+    }
+  }
+
+  &[aria-pressed='true'] {
+    border-color: rgb(var(--val-accent) / 0.4);
+    background: rgb(var(--val-accent) / 0.08);
+    color: var(--color-accent);
+
+    .conditionCheck {
+      border-color: var(--color-accent);
+      background: var(--color-accent);
+      color: var(--color-bg);
+
+      > svg {
+        visibility: visible;
+      }
+    }
+  }
+}
+
+.conditionCheck {
+  display: grid;
+  height: 1rem;
+  flex: 0 0 1rem;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem;
+
+  > svg {
+    visibility: hidden;
+  }
+}
+
+.emptyState {
+  display: grid;
+  min-height: 10rem;
+  grid-column: 1 / -1;
+  place-items: center;
+  padding: 1rem;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.metadata {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  padding: 0.875rem;
+
+  @container problem (min-width: 36rem) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.notes {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  padding-top: 0.875rem;
+  border-top: 1px solid rgb(var(--val-border) / 0.6);
+
+  @container problem (min-width: 36rem) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.metadataInput {
+  min-height: 2.5rem;
+  field-sizing: content;
+}
+
+.notesInput {
+  min-height: 5.5rem;
+  field-sizing: content;
+}
+
+.footer {
+  display: flex;
+  min-height: 4rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid rgb(var(--val-border) / 0.6);
+}
+
+.status {
+  min-width: 0;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+}
+
+.apply {
+  flex-shrink: 0;
+}
+
+@include m.touch {
+  .root input:not([type='file']),
+  .root textarea {
+    font-size: max(16px, 1rem);
+    min-height: 44px;
+  }
+
+  .preset,
+  .conditionOption,
+  .fileActions button,
+  .notationMode button,
+  .libraryToolbar button,
+  .apply {
+    min-height: 44px;
+  }
+
+  .libraryToolbar button {
+    min-width: 44px;
+  }
+}
