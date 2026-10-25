@@ -10,7 +10,7 @@ import {
   type ChangelogYear,
   parseChangelog
 } from '../utils/parseChangelog';
-import { Lead, SectionHeading } from './parts';
+import { Lead, SectionHeading } from '@/components/layout/Sidebar/SectionParts';
 
 // Constants
 const REPO_COMMITS_URL = `${REPO_URL}/commits`;

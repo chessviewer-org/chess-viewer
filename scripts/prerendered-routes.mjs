@@ -4,6 +4,7 @@ export const PRERENDERED_ROUTES = [
   '/advanced-fen',
   '/latex',
   '/about',
+  '/docs',
   '/fen-history',
   '/export',
   '/settings',

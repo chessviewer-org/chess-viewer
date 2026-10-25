@@ -1,6 +1,6 @@
 import { type ReactNode, useState } from 'react';
 import { ChevronDown, type LucideIcon } from '@/assets/icons';
-import styles from '../styles/about-parts.module.scss';
+import styles from './styles/section-parts.module.scss';
 
 export function SectionHeading({
   icon: Icon,

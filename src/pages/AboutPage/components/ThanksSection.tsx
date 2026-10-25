@@ -2,7 +2,7 @@ import { type ReactNode } from 'react';
 
 import { HeartHandshake } from '@/assets/icons';
 
-import { Lead, SectionHeading } from './parts';
+import { Lead, SectionHeading } from '@/components/layout/Sidebar/SectionParts';
 
 function Ext({ href, children }: { href: string; children: ReactNode }) {
   return (

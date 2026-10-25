@@ -11,7 +11,7 @@ import {
   Lead,
   MailButton,
   SectionHeading
-} from './parts';
+} from '@/components/layout/Sidebar/SectionParts';
 
 export default function ContactSection() {
   return (

@@ -13,7 +13,8 @@ import styles from './styles/navbar.module.scss';
 const SECTIONS = [
   ['/', 'Standard'],
   ['/fairy-chess', 'Fairy chess'],
-  ['/latex', 'LaTeX']
+  ['/latex', 'LaTeX'],
+  ['/docs', 'Docs']
 ] as const;
 
 interface NavbarProps {
