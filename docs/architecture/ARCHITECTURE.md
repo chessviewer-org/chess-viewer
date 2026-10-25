@@ -171,7 +171,7 @@ Notable utilities in `src/shared/utils/`:
 | `humanVerification.ts`, `databaseSearch.ts`                 | Turnstile token and Lichess/ChessDB lookups            |
 | `archiveManager.ts`                                         | History archive (not ZIP export)                       |
 
-Outside `src/`: `public/wasm/<engine>/` holds engine binaries and workers only, `public/licenses/<engine>/` their licenses and source offers, and `native/<engine>/` the sources and build script for engines compiled in this repository. Board, editor and analysis styling is written in SCSS modules, not Tailwind utility strings. Each large module is an entry file that `@use`s partials (`styles/editor/`, `styles/analysis/`, `styles/board/`); layout geometry is documented in [LAYOUT.md](../reference/LAYOUT.md).
+Outside `src/`: `public/wasm/<engine>/` holds engine binaries and workers only, `public/licenses/<engine>/` their licenses and source offers, and `native/<engine>/` the sources and build script for engines compiled in this repository. Board, editor and analysis styling is written in SCSS modules, not Tailwind utility strings. Each large module is an entry file that `@use`s partials (`styles/editor/`, `styles/analysis/`, `styles/board/`).
 
 ---
 
