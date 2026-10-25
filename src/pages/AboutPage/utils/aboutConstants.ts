@@ -7,8 +7,20 @@ export const REPO_LICENSE_URL = `${REPO_URL}/blob/master/LICENSE`;
 export const REPO_CONTRIBUTING_URL = `${REPO_URL}/blob/master/CONTRIBUTING.md`;
 export const REPO_CHANGELOG_URL = `${REPO_URL}/blob/master/CHANGELOG.md`;
 
-export const CRYPTO_WALLET_ADDRESS =
-  '0x31eB555dAAC8253FF9835448bFA1542BFA969aDb';
+export const CRYPTO_WALLETS = [
+  {
+    label: 'EVM (USDT / USDC / ETH)',
+    address: '0x31eB555dAAC8253FF9835448bFA1542BFA969aDb'
+  },
+  {
+    label: 'Bitcoin (BTC)',
+    address: 'bc1q4equwznq5fuqhnuwx74t95m8rltnsrhp4dz3g6'
+  },
+  {
+    label: 'TRON',
+    address: 'TYhYgquToAVU5vgdsVxF6i8EPF7jQyW2nB'
+  }
+] as const;
 
 export const APP_VERSION = '6.1.0';
 export const LICENSE_NAME = 'GNU AGPL-3.0';

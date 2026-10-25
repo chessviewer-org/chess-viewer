@@ -5,9 +5,8 @@ import { Code2, Copy, Heart, Megaphone } from '@/assets/icons';
 import { useNotifications } from '@/shared/hooks/useNotifications';
 
 import { NotificationContainer } from '@/shared/ui/NotificationContainer';
-import { CRYPTO_WALLET_ADDRESS, REPO_URL } from '../utils/aboutConstants';
+import { CRYPTO_WALLETS, REPO_URL } from '../utils/aboutConstants';
 import {
-  Callout,
   ExternalLinkButton,
   InfoCard,
   Lead,
@@ -18,12 +17,15 @@ export default function DonateSection() {
   const { notifications, success, error, removeNotification } =
     useNotifications();
 
-  const copyWallet = useCallback(() => {
-    void navigator.clipboard
-      .writeText(CRYPTO_WALLET_ADDRESS)
-      .then(() => success('Wallet address copied'))
-      .catch(() => error('Could not copy address'));
-  }, [success, error]);
+  const copyWallet = useCallback(
+    (address: string) => {
+      void navigator.clipboard
+        .writeText(address)
+        .then(() => success('Wallet address copied'))
+        .catch(() => error('Could not copy address'));
+    },
+    [success, error]
+  );
 
   return (
     <div className="space-y-8 stagger-children">
@@ -49,29 +51,29 @@ export default function DonateSection() {
         </p>
       </InfoCard>
 
-      <InfoCard title="Crypto (USDT / USDC / ETH)">
-        <p>
-          If you would rather support us with crypto, you can send USDT, USDC,
-          or ETH to the single EVM wallet address below — the same address works
-          for all three. Just double-check the address before you send anything.
-        </p>
-        <Callout>
-          <div className="flex items-stretch gap-2">
-            <code className="min-w-0 flex-1 select-all break-all rounded-xl border border-border bg-surface px-4 py-3 font-mono text-base text-text-primary">
-              {CRYPTO_WALLET_ADDRESS}
-            </code>
-            <button
-              type="button"
-              onClick={copyWallet}
-              className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-hover focus-ring"
-              aria-label="Copy crypto wallet address to clipboard"
-              title="Copy wallet address"
-            >
-              <Copy className="h-4 w-4" aria-hidden="true" />
-              <span className="hidden sm:inline">Copy</span>
-            </button>
-          </div>
-        </Callout>
+      <InfoCard title="Donate with crypto">
+        <p>Choose the matching network and check the address before sending.</p>
+        <div className="space-y-4">
+          {CRYPTO_WALLETS.map(({ label, address }) => (
+            <div key={address} className="space-y-2">
+              <h4 className="text-sm font-medium text-text-primary">{label}</h4>
+              <div className="relative">
+                <code className="block select-all break-all rounded-md border border-border bg-surface px-3 py-2 pr-12 font-mono text-sm text-text-primary leading-relaxed">
+                  {address}
+                </code>
+                <button
+                  type="button"
+                  onClick={() => copyWallet(address)}
+                  className="absolute top-1 right-1 inline-flex rounded p-2 text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary focus-ring"
+                  aria-label={`Copy ${label} wallet address to clipboard`}
+                  title={`Copy ${label} wallet address`}
+                >
+                  <Copy className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </InfoCard>
 
       <InfoCard title="Other ways to support, for free">
