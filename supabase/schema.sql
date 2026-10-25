@@ -87,8 +87,6 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     UNIQUE (user_id)
 );
 
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS supporter_until TIMESTAMPTZ;
-
 CREATE INDEX IF NOT EXISTS idx_profiles_user_id ON public.profiles(user_id);
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
@@ -713,34 +711,8 @@ CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
-CREATE OR REPLACE FUNCTION public.set_supporter_status(months INT DEFAULT 1)
-RETURNS TIMESTAMPTZ AS $$
-DECLARE
-    new_until TIMESTAMPTZ;
-BEGIN
-    IF auth.uid() IS NULL THEN
-        RAISE EXCEPTION 'Not authenticated';
-    END IF;
-
-    INSERT INTO public.profiles (user_id, display_name)
-    VALUES (auth.uid(), 'User')
-    ON CONFLICT (user_id) DO NOTHING;
-
-    new_until := CASE
-        WHEN months > 0 THEN NOW() + (months || ' months')::interval
-        ELSE NULL
-    END;
-
-    UPDATE public.profiles
-    SET supporter_until = new_until,
-        updated_at      = NOW()
-    WHERE user_id = auth.uid();
-
-    RETURN new_until;
-END;
-$$ LANGUAGE plpgsql
-   SECURITY DEFINER
-   SET search_path = public, pg_temp;
+-- Donation memberships are retired; archived in archive/membership/database.sql.
+DROP FUNCTION IF EXISTS public.set_supporter_status(INT);
 
 CREATE TABLE IF NOT EXISTS public.db_search_cache (
     fen_board   TEXT        PRIMARY KEY CHECK (char_length(fen_board) <= 100),
@@ -921,7 +893,6 @@ REVOKE EXECUTE ON FUNCTION public.prune_auth_audit_log(INTERVAL)                
 REVOKE EXECUTE ON FUNCTION public.is_mfa_enabled()                                 FROM PUBLIC, anon, authenticated;
 GRANT  EXECUTE ON FUNCTION public.is_mfa_enabled()                                 TO authenticated;
 
-REVOKE EXECUTE ON FUNCTION public.set_supporter_status(INT)                        FROM PUBLIC, anon;
 CREATE OR REPLACE FUNCTION public.delete_own_account()
 RETURNS void AS $$
 DECLARE
@@ -941,8 +912,6 @@ $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = auth, public;
 
 REVOKE EXECUTE ON FUNCTION public.delete_own_account()                          FROM PUBLIC, anon, authenticated;
 GRANT  EXECUTE ON FUNCTION public.delete_own_account()                          TO authenticated;
-
-GRANT  EXECUTE ON FUNCTION public.set_supporter_status(INT)                        TO authenticated;
 
 INSERT INTO public.profiles (user_id, email, display_name)
 SELECT id, NULLIF(email, ''), 'User'

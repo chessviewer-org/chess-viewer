@@ -4,6 +4,7 @@
 @import './styles/components.css';
 @import './styles/animations.css';
 @import './styles/utilities.css';
+@source not '../archive';
 /* inter-cyrillic-ext-wght-normal */
 @font-face {
   font-family: 'Inter Variable';

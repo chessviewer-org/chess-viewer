@@ -11,7 +11,7 @@ import { Bullets, DocTable, PageLink, Term, type DocRow } from './DocsParts';
 const SETTINGS: readonly DocRow[] = [
   {
     id: 'account',
-    cells: ['Account', 'Display name, membership and cloud sync.']
+    cells: ['Account', 'Display name, account details and cloud sync.']
   },
   {
     id: 'appearance',

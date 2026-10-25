@@ -49,22 +49,6 @@ export default function DonateSection() {
         </p>
       </InfoCard>
 
-      <InfoCard title="Sponsor badge">
-        <p>
-          Supporting us financially does not unlock some hidden premium feature
-          — every feature is already completely free for everyone. If you
-          donate, it is simply because you find the project useful.
-        </p>
-        <p>
-          That said, to not leave your support unacknowledged, we add a 1-month
-          Sponsor Badge to your account. There are 4 different badge tiers
-          depending on how much you give. Keep in mind this is not a social
-          platform, so no one but you will ever see this badge — it is just our
-          personal, visual way of saying &quot;thank you&quot; when you log in,
-          for helping keep the project running.
-        </p>
-      </InfoCard>
-
       <InfoCard title="Crypto (USDT / USDC / ETH)">
         <p>
           If you would rather support us with crypto, you can send USDT, USDC,

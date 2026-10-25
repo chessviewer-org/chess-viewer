@@ -7,12 +7,10 @@ import React, {
 } from 'react';
 
 import { supabase, type Session, type User } from './Supabase';
-import { getMembershipTier } from '../profile/membership';
 import { dataMigration } from '../storage/dataMigration';
 import { AuthContext, type AuthContextValue } from './context';
 import {
   DEFAULT_PROFILE,
-  isActiveSupporter,
   profileService,
   readGuestProfile,
   writeGuestProfile,
@@ -88,29 +86,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [session, profile]
   );
 
-  const setSupporter = useCallback(
-    async (months = 1) => {
-      if (session?.user) {
-        const until = await profileService.setSupporter(months);
-        setProfile((prev) => ({ ...prev, supporterUntil: until }));
-        return;
-      }
-
-      const msPerMonth = 30 * 24 * 60 * 60 * 1000;
-      const until =
-        months > 0
-          ? new Date(Date.now() + months * msPerMonth).toISOString()
-          : null;
-
-      setProfile((prev) => {
-        const nextProfile = { ...prev, supporterUntil: until };
-        writeGuestProfile(nextProfile);
-        return nextProfile;
-      });
-    },
-    [session]
-  );
-
   const refreshProfile = useCallback(() => {
     loadProfile(session?.user ?? null);
   }, [loadProfile, session]);
@@ -123,22 +98,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoading,
       isAuthenticated: Boolean(session?.user),
       profile,
-      isSupporter: isActiveSupporter(profile.supporterUntil),
-      membershipTier: getMembershipTier(profile.supporterMonthlyUsd),
       signOut,
       setDisplayName,
-      setSupporter,
       refreshProfile
     }),
-    [
-      session,
-      isLoading,
-      profile,
-      signOut,
-      setDisplayName,
-      setSupporter,
-      refreshProfile
-    ]
+    [session, isLoading, profile, signOut, setDisplayName, refreshProfile]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

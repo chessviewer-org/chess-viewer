@@ -12,9 +12,7 @@ import {
 } from '@/assets/icons';
 
 import { useAuth } from '@/auth/core/useAuth';
-import { type MembershipTier } from '@/auth/profile/membership';
-import { MembershipBadge } from '@/shared/ui/MembershipIdentity/MembershipBadge';
-import { AvatarInitial } from '@/shared/ui/MembershipIdentity/AvatarInitial';
+import { AvatarInitial } from '@/shared/ui/AvatarInitial';
 
 import styles from './styles/navbar.module.scss';
 
@@ -30,12 +28,10 @@ interface NavbarAccountMenuProps {
 // Helpers
 function ProfileHeader({
   displayName,
-  membershipTier,
   isAuthenticated,
   avatarSize
 }: {
   displayName: string;
-  membershipTier: MembershipTier;
   isAuthenticated: boolean;
   avatarSize: 'sm' | 'md';
 }) {
@@ -46,9 +42,6 @@ function ProfileHeader({
         <p className={styles['profileName']}>
           {displayName || (isAuthenticated ? 'ChessViewer user' : 'Local user')}
         </p>
-        {membershipTier.id !== 'none' && (
-          <MembershipBadge tier={membershipTier} variant="plain" />
-        )}
       </div>
     </div>
   );
@@ -171,7 +164,7 @@ export const NavbarAccountMenu = memo(function NavbarAccountMenu({
   accountRef,
   handleSignOut
 }: NavbarAccountMenuProps) {
-  const { profile, membershipTier } = useAuth();
+  const { profile } = useAuth();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const keyboardEntry = useRef<'first' | 'last' | null>(null);
@@ -297,7 +290,6 @@ export const NavbarAccountMenu = memo(function NavbarAccountMenu({
         <div className={styles['accountHeader']} role="presentation">
           <ProfileHeader
             displayName={profile.displayName}
-            membershipTier={membershipTier}
             isAuthenticated={isAuthenticated}
             avatarSize="sm"
           />

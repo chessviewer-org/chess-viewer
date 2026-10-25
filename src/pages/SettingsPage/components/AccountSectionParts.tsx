@@ -5,7 +5,6 @@ import {
   Clock,
   Copy,
   Fingerprint,
-  Heart,
   KeyRound,
   LucideIcon,
   Mail,
@@ -17,12 +16,10 @@ import {
   User as UserIcon
 } from '@/assets/icons';
 
-import { MembershipTier } from '@/auth/profile/membership';
 import { supabase } from '@/auth/core/Supabase';
 import { useAuth } from '@/auth/core/useAuth';
 import { CONTACT_EMAIL } from '@/pages/AboutPage/utils/aboutConstants';
 
-import { MembershipBadge } from '@/shared/ui/MembershipIdentity/MembershipBadge';
 import { Modal } from '@/shared/ui/Modal/Modal';
 
 import { useCopyToClipboard } from '@/shared/hooks/useDOM';
@@ -70,14 +67,12 @@ export function AccountDetails({
   provider,
   createdAt,
   lastSignInAt,
-  tier,
   userId,
   isAuthenticated
 }: {
   provider: string | null;
   createdAt: string | null;
   lastSignInAt: string | null;
-  tier: MembershipTier;
   userId: string | null;
   isAuthenticated: boolean;
 }) {
@@ -87,7 +82,6 @@ export function AccountDetails({
       <h3 className="px-5 pt-5 pb-2 text-xs font-bold uppercase tracking-wider text-text-secondary">
         Account Details
       </h3>
-      <MembershipRow tier={tier} />
       {provider && (
         <InfoRow icon={KeyRound} label="Sign-in method" value={provider} />
       )}
@@ -531,18 +525,6 @@ function InfoRow({
       <span className="min-w-0 wrap-break-word text-right text-sm font-medium text-text-primary">
         {value}
       </span>
-    </div>
-  );
-}
-
-function MembershipRow({ tier }: { tier: MembershipTier }) {
-  return (
-    <div className="flex flex-row items-center justify-between gap-2 px-5 py-3.5">
-      <span className="flex items-center gap-2 text-sm text-text-secondary">
-        <Heart className="h-4 w-4 text-text-muted" aria-hidden="true" />
-        Membership
-      </span>
-      <MembershipBadge tier={tier} />
     </div>
   );
 }

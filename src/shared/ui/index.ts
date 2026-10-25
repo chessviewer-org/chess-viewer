@@ -10,6 +10,5 @@ export type { PaginationProps } from './Pagination/Pagination';
 export { Pagination } from './Pagination/Pagination';
 export { Seo } from './Seo';
 export { Switch } from './Switch';
-export { AvatarInitial } from './MembershipIdentity/AvatarInitial';
-export { MembershipBadge } from './MembershipIdentity/MembershipBadge';
+export { AvatarInitial } from './AvatarInitial';
 export { Logo } from './Logo';

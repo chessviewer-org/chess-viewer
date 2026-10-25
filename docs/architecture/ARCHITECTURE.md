@@ -87,7 +87,7 @@ src/
 ├── auth/                          # Self-contained auth module
 │   ├── core/                      # Supabase.ts client, AuthProvider, context, useAuth
 │   ├── mfa/                       # TOTP API, useMfa, TwoFactor setup components
-│   ├── profile/                   # profile.ts (display name), membership.ts (supporter tier)
+│   ├── profile/                   # profile.ts (display name)
 │   ├── security/                  # securityEvents.ts (recent sign-in events)
 │   ├── storage/                   # syncStorage.ts (user_data KV), dataMigration.ts
 │   └── index.ts
@@ -289,7 +289,6 @@ Authentication is optional; the app is fully functional without an account. All 
 | `storage/dataMigration.ts`   | One-time localStorage → Supabase migration on sign-in |
 | `mfa/`                       | TOTP enrolment, challenge and management              |
 | `profile/profile.ts`         | Display name                                          |
-| `profile/membership.ts`      | Supporter tier                                        |
 | `security/securityEvents.ts` | Recent sign-in events                                 |
 
 `syncStorage.set(key, value)` upserts into `user_data`; RLS enforces `auth.uid() = user_id`, so no user can read another user's rows. It never rejects: network and database errors are logged and returned as `'error'`. Concurrent reads for the same user and key share one in-flight request.

@@ -1,6 +1,5 @@
 import { memo, useState } from 'react';
 import { LogIn, User as UserIcon, UserPlus } from '@/assets/icons';
-import { MEMBERSHIP_TIERS } from '@/auth/profile/membership';
 import { useAuth } from '@/auth/core/useAuth';
 import { useModal } from '@/shared/contexts/ModalContext';
 import { SettingsHeading } from './parts';
@@ -32,12 +31,7 @@ function formatProvider(provider: unknown): string | null {
 
 const AccountSection = memo(function AccountSection() {
   const { user, isAuthenticated, signOut } = useAuth();
-  const {
-    profile,
-    setDisplayName,
-    membershipTier,
-    isLoading: loading
-  } = useAuth();
+  const { profile, setDisplayName, isLoading: loading } = useAuth();
   const displayName = profile.displayName;
   const { openAuthModal, showAlert } = useModal();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -67,7 +61,6 @@ const AccountSection = memo(function AccountSection() {
         provider={provider}
         createdAt={createdAt}
         lastSignInAt={lastSignInAt}
-        tier={isAuthenticated ? membershipTier : MEMBERSHIP_TIERS[0]!}
         userId={user?.id ?? null}
         isAuthenticated={isAuthenticated}
       />

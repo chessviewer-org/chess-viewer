@@ -5,26 +5,16 @@ import { supabase } from '../core/Supabase';
 // Types
 export interface Profile {
   displayName: string;
-  supporterUntil: string | null;
-  supporterMonthlyUsd: number;
 }
 
 // Constants
 export const GUEST_PROFILE_KEY = 'chess_viewer_guest_profile';
 
 export const DEFAULT_PROFILE: Profile = {
-  displayName: 'User',
-  supporterUntil: null,
-  supporterMonthlyUsd: 0
+  displayName: 'User'
 };
 
 // Helpers
-export function isActiveSupporter(supporterUntil: string | null): boolean {
-  if (!supporterUntil) return false;
-  const expirationTime = new Date(supporterUntil).getTime();
-  return !Number.isNaN(expirationTime) && expirationTime > Date.now();
-}
-
 export function readGuestProfile(): Profile {
   try {
     const rawData = localStorage.getItem(GUEST_PROFILE_KEY);
@@ -36,15 +26,7 @@ export function readGuestProfile(): Profile {
       displayName:
         typeof parsedData.displayName === 'string'
           ? parsedData.displayName
-          : DEFAULT_PROFILE.displayName,
-      supporterUntil:
-        typeof parsedData.supporterUntil === 'string'
-          ? parsedData.supporterUntil
-          : null,
-      supporterMonthlyUsd:
-        typeof parsedData.supporterMonthlyUsd === 'number'
-          ? parsedData.supporterMonthlyUsd
-          : 0
+          : DEFAULT_PROFILE.displayName
     };
   } catch (error) {
     logger.error('Failed to read local guest profile:', error);
@@ -65,11 +47,10 @@ export const profileService = {
   async get(userId: string): Promise<Profile | null> {
     const { data, error } = await supabase
       .from('profiles')
-      .select('display_name, supporter_until')
+      .select('display_name')
       .eq('user_id', userId)
       .returns<{
         display_name: string | null;
-        supporter_until: string | null;
       }>()
       .maybeSingle();
 
@@ -89,9 +70,7 @@ export const profileService = {
     }
 
     return {
-      displayName: data.display_name ?? DEFAULT_PROFILE.displayName,
-      supporterUntil: data.supporter_until ?? null,
-      supporterMonthlyUsd: 0
+      displayName: data.display_name ?? DEFAULT_PROFILE.displayName
     };
   },
 
@@ -102,10 +81,5 @@ export const profileService = {
         { user_id: userId, display_name: newName },
         { onConflict: 'user_id' }
       );
-  },
-
-  async setSupporter(months: number): Promise<string | null> {
-    const { data } = await supabase.rpc('set_supporter_status', { months });
-    return typeof data === 'string' ? data : null;
   }
 };

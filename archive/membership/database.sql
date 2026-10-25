@@ -1,0 +1,36 @@
+-- Archived donation membership database code. Inactive.
+-- Original source: supabase/schema.sql
+--
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS supporter_until TIMESTAMPTZ;
+-- REVOKE EXECUTE ON FUNCTION public.set_supporter_status(INT)                        FROM PUBLIC, anon;
+-- GRANT  EXECUTE ON FUNCTION public.set_supporter_status(INT)                        TO authenticated;
+--
+-- CREATE OR REPLACE FUNCTION public.set_supporter_status(months INT DEFAULT 1)
+-- RETURNS TIMESTAMPTZ AS $$
+-- DECLARE
+--     new_until TIMESTAMPTZ;
+-- BEGIN
+--     IF auth.uid() IS NULL THEN
+--         RAISE EXCEPTION 'Not authenticated';
+--     END IF;
+--
+--     INSERT INTO public.profiles (user_id, display_name)
+--     VALUES (auth.uid(), 'User')
+--     ON CONFLICT (user_id) DO NOTHING;
+--
+--     new_until := CASE
+--         WHEN months > 0 THEN NOW() + (months || ' months')::interval
+--         ELSE NULL
+--     END;
+--
+--     UPDATE public.profiles
+--     SET supporter_until = new_until,
+--         updated_at      = NOW()
+--     WHERE user_id = auth.uid();
+--
+--     RETURN new_until;
+-- END;
+-- $$ LANGUAGE plpgsql
+--    SECURITY DEFINER
+--    SET search_path = public, pg_temp;
+--

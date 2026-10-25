@@ -1,17 +1,12 @@
 import { logger } from '@/shared/utils/logger';
 import { safeJSONParse } from '@chessviewer-org/chess-viewer';
-import {
-  isActiveSupporter,
-  profileService,
-  GUEST_PROFILE_KEY
-} from '../profile/profile';
+import { profileService, GUEST_PROFILE_KEY } from '../profile/profile';
 import type { Profile } from '../profile/profile';
 import { syncStorage } from './syncStorage';
 
 // Constants
 const MIGRATION_LOCK_KEY = 'supabase_migration_complete';
 const DEFAULT_USER_NAME = 'User';
-const MS_PER_MONTH = 30 * 24 * 60 * 60 * 1000;
 
 const SETTINGS_KEYS_TO_MIGRATE = [
   'fen-history',
@@ -40,34 +35,13 @@ async function migrateGuestProfileToCloud(userId: string): Promise<void> {
 
   const guestProfile = safeJSONParse<Partial<Profile>>(rawGuestData, {});
   const guestName = guestProfile.displayName?.trim();
-  const guestIsSupporter = isActiveSupporter(
-    guestProfile.supporterUntil ?? null
-  );
-
-  const hasCustomName = guestName && guestName !== DEFAULT_USER_NAME;
-  if (!hasCustomName && !guestIsSupporter) return;
+  if (!guestName || guestName === DEFAULT_USER_NAME) return;
 
   const remoteProfile = await profileService.get(userId);
   if (!remoteProfile) return;
 
-  const isCloudProfileBrandNew =
-    remoteProfile.displayName === DEFAULT_USER_NAME &&
-    !remoteProfile.supporterUntil;
-  if (!isCloudProfileBrandNew) return;
-
-  if (hasCustomName) {
-    await profileService.updateDisplayName(userId, guestName);
-  }
-
-  if (guestIsSupporter && guestProfile.supporterUntil) {
-    const timeRemainingMs =
-      new Date(guestProfile.supporterUntil).getTime() - Date.now();
-    const monthsRemaining = Math.max(
-      1,
-      Math.ceil(timeRemainingMs / MS_PER_MONTH)
-    );
-    await profileService.setSupporter(monthsRemaining);
-  }
+  if (remoteProfile.displayName !== DEFAULT_USER_NAME) return;
+  await profileService.updateDisplayName(userId, guestName);
 }
 
 // Service

@@ -3,7 +3,6 @@ export * from './core/context';
 export * from './core/AuthProvider';
 export * from './core/useAuth';
 
-export * from './profile/membership';
 export * from './profile/profile';
 
 export * from './storage/syncStorage';
