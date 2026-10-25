@@ -1,7 +1,7 @@
 import { type RefObject, useLayoutEffect } from 'react';
 import { useLocation } from 'wouter';
 
-const PINNED_ROUTES = new Set(['/about', '/docs', '/settings']);
+export const NAVBAR_PINNED_CLASS = 'navbar-pinned';
 
 export function useNavbarVisibility(
   menuOpen: boolean,
@@ -17,11 +17,12 @@ export function useNavbarVisibility(
       if (nav.dataset['hidden'] !== value) nav.dataset['hidden'] = value;
     };
     setHidden(false);
-    if (menuOpen || PINNED_ROUTES.has(location)) return;
+    if (menuOpen) return;
 
     const update = () => {
-      if (document.documentElement.classList.contains('modal-open')) return;
-      setHidden(window.scrollY > 0);
+      const { classList } = document.documentElement;
+      if (classList.contains('modal-open')) return;
+      setHidden(!classList.contains(NAVBAR_PINNED_CLASS) && window.scrollY > 0);
     };
     const revealForKeyboard = (event: FocusEvent) => {
       if (

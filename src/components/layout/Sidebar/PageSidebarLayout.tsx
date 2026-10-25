@@ -1,5 +1,6 @@
-import { memo, type ReactNode, type Ref } from 'react';
+import { memo, type ReactNode, type Ref, useLayoutEffect } from 'react';
 
+import { NAVBAR_PINNED_CLASS } from '@/components/layout/Navbar/hooks/useNavbarVisibility';
 import styles from './styles/page-sidebar-layout.module.scss';
 
 interface PageSidebarLayoutProps {
@@ -15,6 +16,12 @@ const PageSidebarLayout = memo(function PageSidebarLayout({
   contentRef,
   contentLabel
 }: PageSidebarLayoutProps) {
+  useLayoutEffect(() => {
+    const { classList } = document.documentElement;
+    classList.add(NAVBAR_PINNED_CLASS);
+    return () => classList.remove(NAVBAR_PINNED_CLASS);
+  }, []);
+
   return (
     <div className={`page-container ${styles['layout']}`}>
       <div className={styles['aside']}>{sidebar}</div>
