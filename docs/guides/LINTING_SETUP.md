@@ -15,7 +15,7 @@ All tools are already installed and configured in the repository. This document 
 | Husky 9      | Git hooks                                       | `.husky/`           |
 | lint-staged  | Run linters only on staged files                | `package.json`      |
 | commitlint   | Enforce Conventional Commits on commit messages | (commitlint config) |
-| TypeScript 6 | Type checking — zero errors required            | `tsconfig.json`     |
+| TypeScript 7 | Type checking — zero errors required            | `tsconfig.json`     |
 
 ---
 
@@ -138,7 +138,7 @@ feat: Add feature.         # uppercase start, trailing period
 
 ## TypeScript
 
-TypeScript 6 strict mode is enforced via `tsconfig.json`:
+TypeScript strict mode is enforced via `tsconfig.json`. `tsc` comes from TypeScript 7; ESLint loads the separate TypeScript 6 API package (`typescript` in `package.json` is aliased to `@typescript/typescript6`), following Microsoft's recommended setup:
 
 ```json
 {
@@ -204,4 +204,4 @@ echo "feat: your description" | npx commitlint
 
 ---
 
-_Last updated: May 2026 — v6.1.0_
+_Last updated: October 2026_

@@ -1,6 +1,56 @@
-# Performance audit — 23 October 2026
+# Performance
 
-## Measurements
+Two audits are recorded here: the PageSpeed audit of 25 October 2026 and the payload audit of 23 October 2026.
+
+## PageSpeed audit — 25 October 2026
+
+PageSpeed Insights (Lighthouse 13.5) reported for chessvision.org:
+
+| Category         | Mobile | Desktop |
+| ---------------- | -----: | ------: |
+| Performance      |     94 |     100 |
+| Accessibility    |     90 |      90 |
+| Best Practices   |    100 |     100 |
+| SEO              |    100 |     100 |
+| Agentic Browsing | 1 of 4 |  1 of 4 |
+
+Mobile FCP was 2.3 s and LCP 2.6 s in the simulated slow-4G run. The real paint
+happened at about 0.46 s; the simulation was dominated by four render-blocking
+route stylesheets competing with about 25 module preloads.
+
+### Changes
+
+- The prerender step inlines each route's stylesheets into its HTML and keeps the
+  original `<link>` with `disabled`, so client navigation never loads a sheet twice.
+- Board ranks and date-picker weeks are wrapped in `role="row"`; the Save and Reset
+  buttons have accessible names that contain their visible text; the logo is
+  decorative next to the brand name.
+- `/llms.txt` and `/.well-known/ai-catalog.json` are real files instead of the SPA
+  fallback HTML.
+- Fonts are cached for a year, and `favicon.ico` keeps only the 16/32/48 px sizes
+  (70 KB → 15 KB).
+- SEO metadata moved from `<body>` into `<head>` (see the `Seo` component).
+
+### Results (local production build, Lighthouse 13.5, mobile)
+
+| Measurement | Before | After |
+| ----------- | -----: | ----: |
+| Performance |     86 |   100 |
+| FCP         |  2.5 s | 1.2 s |
+| LCP         |  3.3 s | 1.6 s |
+
+With all changes, the local build scores 100 in Accessibility, Best Practices,
+SEO and Agentic Browsing as well (the live site had 90 and 25 in the first and
+last of these).
+
+The local server speaks HTTP/1.1, so absolute numbers differ from production;
+the comparison is between builds served the same way. The remaining notes on the
+live site come from Cloudflare's Web Analytics beacon (cache lifetime, legacy
+JavaScript), which do not affect the score.
+
+## Payload audit — 23 October 2026
+
+### Measurements
 
 Production JS totals include the application entry and every static dependency of
 the selected page from Vite's manifest. Dynamic imports that have not been opened
@@ -25,7 +75,7 @@ wall times of **0.585s with TypeScript 7** and **4.770s with the TypeScript 6 AP
 compiler**. Peak child-process RSS was 307,208 KiB versus 559,168 KiB. These are
 local development measurements, not browser runtime timings.
 
-## Changes
+### Changes
 
 - Each route has one cached dynamic import. Initial hydration waits for its page;
   client navigation keeps the current page until destination JS/CSS are ready.
@@ -53,12 +103,13 @@ local development measurements, not browser runtime timings.
 - Selecting a LaTeX diagram does not regenerate document markup. Swipe coordinates
   use a ref instead of rendering twice for each gesture.
 - No active service worker or Workbox precache remains. `public/sw.js` retires
-  legacy workers; `public/init.js` unregisters old registrations once, without
-  reloading an active editor or racing cache deletions in the page.
+  legacy workers; the inline boot script `src/boot/retire-service-worker.js`
+  unregisters old registrations without reloading an active editor or racing
+  cache deletions in the page.
 - The shell and navbar retain their viewport width when a menu locks scrolling,
   including browsers with a visible scrollbar.
 
-## Toolchain
+### Toolchain
 
 Preact 11.0.2, Vite 8.3.5, Tailwind 4.3.3, wouter 3.13.0, pnpm 12.15.0,
 Puppeteer 25.16.0, PostCSS 8.5.31, and the other compatible direct tools were
@@ -76,7 +127,7 @@ Sources: [Preact 11 migration](https://preactjs.com/guide/v11/upgrade-guide/),
 [typescript-eslint supported versions](https://typescript-eslint.io/users/dependency-versions/),
 [pnpm configuration](https://pnpm.io/settings).
 
-## Verification
+### Verification
 
 - Type checking, lint, formatting, and the complete test suite pass. Added tests
   cover page-import sharing/retry, image sharing/failure/cancellation, user-isolated

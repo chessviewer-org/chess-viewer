@@ -4,27 +4,27 @@ Records of key architectural and technical decisions made during ChessViewer's d
 
 ---
 
-## ADR-001: React as UI Framework
+## ADR-001: React API on the Preact Runtime
 
-**Date:** 2025-12-27 | **Status:** Accepted
+**Date:** 2025-12-27 | **Updated:** 2026-10 | **Status:** Accepted
 
-**Decision:** React 19.x with functional components and hooks only.
+**Decision:** Components use the React API (functional components and hooks only). Since the move to Preact 11, `@preact/preset-vite` aliases `react` and `react-dom` to Preact at build time.
 
-**Rationale:** Large ecosystem, strong TypeScript support, efficient updates via hooks and memoization. Team familiarity.
+**Rationale:** The React API keeps the large ecosystem, TypeScript support and team familiarity, while Preact ships a much smaller runtime.
 
-**Trade-offs:** Larger bundle than vanilla JS; runtime overhead compared to compiled frameworks (Svelte).
+**Trade-offs:** A few React-only behaviours differ (for example passive effect cleanup timing), so persistence and drag cleanup run before a new page mounts.
 
 ---
 
-## ADR-002: HTML5 Canvas for Board Rendering
+## ADR-002: DOM Board, Canvas and SVG for Export
 
-**Date:** 2025-12-28 | **Status:** Accepted
+**Date:** 2025-12-28 | **Updated:** 2026-10 | **Status:** Accepted
 
-**Decision:** HTML5 Canvas API for both display rendering and image export.
+**Decision:** The interactive board is a DOM grid of memoized squares with ARIA grid semantics. Raster exports are drawn on an off-screen HTML5 canvas; vector exports are generated as SVG.
 
-**Rationale:** Direct pixel manipulation for high-resolution exports, GPU-accelerated drawing, consistent cross-browser `toBlob` / `toDataURL` API.
+**Rationale:** A DOM board is accessible to screen readers and keyboards and handles pointer input natively. The canvas gives direct pixel control for high-resolution exports with a consistent `toBlob` API.
 
-**Trade-offs:** Canvas content is inaccessible to screen readers. No built-in hover/click detection on pieces — requires manual coordinate math.
+**Trade-offs:** The board and the exporter are two renderers that must stay visually in sync; both read the same piece images and theme values.
 
 **Rejected alternatives:**
 
@@ -44,7 +44,7 @@ Records of key architectural and technical decisions made during ChessViewer's d
 
 **Constraints:**
 
-- All Supabase access through the singleton at `supabaseClient.ts`. No second client.
+- All Supabase access through the singleton in `src/auth/core/Supabase.ts`. No second client.
 - `syncStorage.ts` is the only approved interface for user KV data. Direct `from('user_data')` calls outside this file are forbidden.
 - RLS must be ON for all tables. Default-deny.
 - Privileged writes (e.g., updating `last_verified_at`) go through RPC only — direct UPDATE policy is disabled by design.
@@ -57,7 +57,7 @@ Records of key architectural and technical decisions made during ChessViewer's d
 
 **Date:** 2025-12-28 | **Status:** Accepted (upgraded to Tailwind 4)
 
-**Decision:** Tailwind 4 utility-first CSS. All theme colors are CSS variables defined in `src/index.css` (`--accent`, `--bg-primary`, etc.). No hardcoded hex values in JSX or Tailwind classes.
+**Decision:** Tailwind 4 utility-first CSS, with SCSS modules for larger components. All theme colors are CSS variables defined in `src/styles/theme.css`. No hardcoded hex values in JSX or Tailwind classes.
 
 **Rationale:** Rapid UI development, consistent design system, small production bundle, built-in responsive and dark mode support.
 
@@ -69,9 +69,9 @@ Records of key architectural and technical decisions made during ChessViewer's d
 
 **Date:** 2025-12-28 | **Status:** Accepted
 
-**Decision:** FEN parsing implemented in TypeScript on the client (`fenParser.ts`). `MAX_FEN_LENGTH = 93` enforced before any parse attempt.
+**Decision:** FEN and Fairy FEN parsing run on the client. The parser lives in `@chessviewer-org/chess-viewer`; `src/shared/utils/fenParser.ts` wraps it for the app. `MAX_FEN_LENGTH = 93` is enforced for orthodox FEN before any parse attempt; Fairy FEN has its own bounded limit.
 
-**Rationale:** No server round-trip, instant validation feedback, works offline. Full FEN parser is lightweight (~2 KB). A full chess engine (chess.js: ~80 KB) is unnecessary since we only need position parsing, not move validation.
+**Rationale:** No server round-trip, instant validation feedback, works offline. A full chess engine (chess.js: ~80 KB) is unnecessary since we only need position parsing, not move validation.
 
 ---
 
@@ -91,9 +91,9 @@ Records of key architectural and technical decisions made during ChessViewer's d
 
 **Date:** 2025-12-28 | **Status:** Accepted
 
-**Decision:** SVG piece sets sourced from Lichess (MIT-licensed), stored in `/public/pieces/`, cached in memory via `pieceImageCache.ts` (keyed by SVG URL).
+**Decision:** 20 SVG piece sets sourced from Lichess, self-hosted in `public/piece/` (licenses per set in `public/piece/ATTRIBUTION.md`). Fairy symbols are generated from them into `public/fairypiece/` with `pnpm pieces:fairy`. Images are cached in memory by `pieceUtils.ts`, keyed by source URL.
 
-**Rationale:** Excellent quality at any export size, open-source, community-maintained, small per-piece file size (~2–5 KB each).
+**Rationale:** Excellent quality at any export size, small files, and no runtime dependency on the Lichess CDN.
 
 ---
 
@@ -101,7 +101,7 @@ Records of key architectural and technical decisions made during ChessViewer's d
 
 **Date:** 2025-12-28 | **Status:** Accepted (upgraded to Vite 8)
 
-**Decision:** Vite with manual chunk splitting: `vendor-react`, `vendor-icons`, `vendor-motion`, `vendor-dnd`, `vendor-virtualization`.
+**Decision:** Vite with Rolldown's native code splitting and Oxc minification. One explicit group keeps Preact and wouter together (`preact-router`); every page is its own dynamic chunk.
 
 **Rationale:** Fast HMR, native ES modules in dev, optimized production builds, built-in TypeScript support.
 
@@ -109,25 +109,25 @@ Records of key architectural and technical decisions made during ChessViewer's d
 
 ---
 
-## ADR-009: @dnd-kit for Board Editing
+## ADR-009: Custom Drag and Drop for Board Editing
 
-**Date:** 2025-12-28 | **Status:** Accepted (migrated from `react-dnd`)
+**Date:** 2025-12-28 | **Updated:** 2026-10 | **Status:** Accepted (replaced `@dnd-kit`, which replaced `react-dnd`)
 
-**Decision:** `@dnd-kit/core` with Pointer and Touch sensors. DnD state lives exclusively in `useInteractiveBoard.ts` — never mirrored into React board state.
+**Decision:** Drag and drop uses the in-house `useDragDrop` and `useDragState` hooks with pointer events. Drag state lives outside the React board state.
 
-**Rationale:** Mirroring drag state into React state causes 64-square cascade re-renders on every drag event. `@dnd-kit` sensor events provide efficient, targeted subscriptions without polluting the board matrix. `@dnd-kit` is also better maintained and has first-class TypeScript support compared to `react-dnd`.
+**Rationale:** Mirroring drag state into React state causes 64-square cascade re-renders on every pointer move. The custom hooks give targeted subscriptions, pointer-fast dragging and adjustable touch sensitivity without a library.
 
 **Constraints:** `BoardSquare`, `DraggablePiece`, `DroppableSquare` must stay `memo()`'d. A new prop on any of these must be referentially stable (`useMemo`/`useCallback`) or it re-renders all 64 squares.
 
 ---
 
-## ADR-010: TypeScript 6 Strict Mode
+## ADR-010: TypeScript Strict Mode
 
-**Date:** 2026-05-23 | **Status:** Accepted
+**Date:** 2026-05-23 | **Updated:** 2026-10 | **Status:** Accepted
 
-**Decision:** Full TypeScript 6 strict mode: `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noImplicitAny`. Zero `any`, `@ts-ignore`, or non-null assertions (`!`) in the codebase.
+**Decision:** Full strict mode with `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes` and `noImplicitAny`. Zero `any`, `@ts-ignore`, or non-null assertions (`!`) in the codebase. `tsc` comes from TypeScript 7; ESLint uses the separate TypeScript 6 API package.
 
-**Rationale:** Prevents entire classes of runtime bugs. TypeScript 6 catches issues that TypeScript 4/5 permitted.
+**Rationale:** Prevents entire classes of runtime bugs. TypeScript 7 type-checks the project roughly eight times faster than the TypeScript 6 compiler.
 
 **Constraints:** All canonical types live in `src/shared/types/` and are imported via the `@app-types` alias. No local type redeclarations that duplicate these.
 
@@ -147,25 +147,27 @@ Records of key architectural and technical decisions made during ChessViewer's d
 
 ---
 
-## ADR-012: No Analytics or Tracking
+## ADR-012: No Tracking, Aggregate Visit Counts Only
 
-**Date:** 2025-12-28 | **Status:** Accepted
+**Date:** 2025-12-28 | **Updated:** 2026-10-25 | **Status:** Accepted
 
-**Decision:** No analytics, tracking, or telemetry of any kind.
+**Decision:** No tracking cookies, advertising pixels, fingerprinting or telemetry. Visits are counted in aggregate with Cloudflare Web Analytics, which Cloudflare injects at the edge.
 
-**Rationale:** Privacy-first design. No GDPR/CCPA compliance overhead. Faster page load. Issues are reported through GitHub, not discovered through analytics.
+**Rationale:** Privacy-first design with enough signal to know whether the site is used. Cloudflare Web Analytics sets no cookies, uses no client-side storage and reports only totals, so there is no GDPR/CCPA consent overhead. It counts browsers that run JavaScript, which leaves out most bots. Issues are still reported through GitHub, not discovered through analytics.
+
+**Previously:** no analytics of any kind. Changed because server-side request counts include bots and cannot show real visitors.
 
 ---
 
-## ADR-013: nginx (Docker) for Hosting
+## ADR-013: Cloudflare Pages for Hosting
 
-**Date:** 2025-12-28 | **Updated:** 2026-06-08 | **Status:** Accepted
+**Date:** 2025-12-28 | **Updated:** 2026-10 | **Status:** Accepted
 
-**Decision:** Serve the static `dist/` build from nginx in a Docker container at `chessvision.org`. SPA routing, caching, and all security headers + CSP live in `nginx.conf`.
+**Decision:** GitHub Actions builds every push to `master` and deploys `dist/` to Cloudflare Pages. Security headers, CSP and cache lifetimes live in `public/_headers`; legacy redirects in `public/_redirects`.
 
-**Rationale:** Full control over the served headers/CSP, vendor-neutral and portable, no platform lock-in, and the app is a static bundle that runs anywhere.
+**Rationale:** Edge caching close to every visitor, free TLS, DDoS protection and WAF, and deployment with one `wrangler pages deploy` step. The CSP hashes are written into `_headers` at build time.
 
-**Note:** The app is a static site (`dist/` folder) that can be self-hosted on any host or static CDN. Superseded the earlier Vercel-based hosting (`vercel.json` removed; its headers were ported into `nginx.conf`).
+**Note:** The app stays a static bundle. The `Dockerfile` and `nginx.conf` remain for self-hosting the same `dist/` anywhere. History: Vercel (`vercel.json`), then nginx in Docker, then Cloudflare Pages.
 
 ---
 
@@ -179,6 +181,18 @@ Records of key architectural and technical decisions made during ChessViewer's d
 
 ---
 
+## ADR-015: Build-Time Prerender with Inlined Page Styles
+
+**Date:** 2026-10 | **Status:** Accepted
+
+**Decision:** `scripts/prerender.mjs` renders every public route in headless Chrome after `vite build` and writes static HTML. Each page's stylesheets are inlined into a `<style>` block; the original `<link>` stays with `disabled` so it is not fetched but still counts as loaded for Vite's preload helper. Page metadata is written into `<head>` by the `Seo` component, and a reload snapshot restores the last rendered page before scripts load.
+
+**Rationale:** Crawlers and first-time visitors get complete HTML with metadata in `<head>`, and the first paint no longer waits for render-blocking stylesheet requests. Mobile Lighthouse improved from 86 to 100 on a local build (FCP 2.5 s → 1.2 s).
+
+**Trade-offs:** Each HTML response is about 20 KB larger compressed, and the page CSS is not shared from cache between routes. The prerender step needs Chrome in CI.
+
+---
+
 ## Proposing a New Decision
 
 1. Open a GitHub Discussion with your proposal.
@@ -189,5 +203,5 @@ Records of key architectural and technical decisions made during ChessViewer's d
 
 ---
 
-_Last updated: July 2026_  
+_Last updated: October 2026_  
 _Maintainer: [Khatai Huseynzada](https://github.com/BilgeGates)_
