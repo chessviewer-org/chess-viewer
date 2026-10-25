@@ -267,11 +267,11 @@ export default function ExportSettingsStep({
           </div>
         </div>
 
-        <div className="mt-4 flex gap-2">
+        <div className={`mt-4 grid gap-2 ${showZip ? 'grid-cols-2' : ''}`}>
           <button
             type="button"
             onClick={() => onExport(false)}
-            className="flex-1 rounded-lg bg-accent px-4 py-3 text-sm font-bold text-bg transition-colors hover:bg-accent-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 flex items-center justify-center gap-2"
+            className="rounded-lg bg-accent px-4 py-3 text-sm font-bold text-bg transition-colors hover:bg-accent-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 flex items-center justify-center gap-2"
           >
             <Download
               className="h-4.5 w-4.5"
@@ -293,7 +293,7 @@ export default function ExportSettingsStep({
                 strokeWidth={2.25}
                 aria-hidden="true"
               />
-              ZIP
+              Download ZIP
             </button>
           )}
         </div>
