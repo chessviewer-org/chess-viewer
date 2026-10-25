@@ -58,6 +58,11 @@ A complete keyboard alternative to drag-and-drop, in `useBoardKeyboard`
   grid for placement (`PiecePalette` → `ChessEditor` → `InteractiveBoard`).
 - Every action — cursor move, pickup, placement, removal, cancel — is announced
   through a dedicated polite `aria-live` region.
+- Mouse and touch users can also click/tap a board piece, then a destination
+  square to move it. Clicking the source again cancels selection. Palette
+  selection stays in placement mode, including when replacing an occupied
+  square; choosing a palette piece clears any board selection. Dragging or
+  switching to keyboard editing clears the previous pointer selection.
 - The cursor ring uses the `--color-accent` token and is shown only while the
   grid holds focus; the focus ring is the standard `focus-visible:ring-accent`.
 - The keyboard state is a **single small object** (cursor + held piece) in the
