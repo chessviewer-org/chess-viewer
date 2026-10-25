@@ -52,10 +52,10 @@ export async function fetchPieceSvgText(src: string): Promise<string | null> {
         svgTextCache.size > MAX_SVG_TEXT_CACHE ||
         svgTextCacheChars > MAX_SVG_TEXT_CHARS
       ) {
-        const oldestKey = svgTextCache.keys().next().value;
-        if (oldestKey === undefined) break;
-        svgTextCacheChars -= svgTextCache.get(oldestKey)!.length;
-        svgTextCache.delete(oldestKey);
+        const oldest = svgTextCache.entries().next().value;
+        if (oldest === undefined) break;
+        svgTextCacheChars -= oldest[1].length;
+        svgTextCache.delete(oldest[0]);
       }
     }
     return text;

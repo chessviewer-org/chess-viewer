@@ -16,6 +16,14 @@ let baseUrl = '';
 const requests = new Map<string, number>();
 
 before(async () => {
+  const artwork = new Map(
+    await Promise.all(
+      ['wK.svg', 'bK.svg'].map(
+        async (file) =>
+          [file, await readFile(join(PIECE_DIR, 'cburnett', file))] as const
+      )
+    )
+  );
   const listener = createServer((req, res) => {
     const path = req.url ?? '/';
     const count = (requests.get(path) ?? 0) + 1;
@@ -40,15 +48,14 @@ before(async () => {
       res.end('<html>Artwork unavailable</html>');
       return;
     }
-    readFile(join(PIECE_DIR, set, file))
-      .then((data) => {
-        res.writeHead(200, { 'content-type': 'image/svg+xml' });
-        res.end(data);
-      })
-      .catch(() => {
-        res.writeHead(404);
-        res.end();
-      });
+    const data = set === 'cburnett' ? artwork.get(file) : undefined;
+    if (!data) {
+      res.writeHead(404);
+      res.end();
+      return;
+    }
+    res.writeHead(200, { 'content-type': 'image/svg+xml' });
+    res.end(data);
   });
   server = listener;
   await new Promise<void>((resolve) => {
