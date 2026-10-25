@@ -119,13 +119,27 @@ export function downloadJPEG(
   return downloadRaster(config, fileName, 'jpeg', 'jpg', onProgress);
 }
 
+async function writeClipboardImage(blob: Blob): Promise<void> {
+  if (typeof ClipboardItem === 'undefined' || !navigator.clipboard?.write)
+    throw new Error('this browser cannot copy images to the clipboard');
+  try {
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'NotAllowedError')
+      throw new Error(
+        'the browser blocked clipboard access, click the page and try again'
+      );
+    throw error;
+  }
+}
+
 export async function copyToClipboard(config: ExportConfig): Promise<boolean> {
   resetExportState();
   try {
     validateExportConfig(config);
     const blob = await createRasterBlob(config, 'png');
     checkCancellation();
-    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+    await writeClipboardImage(blob);
     return true;
   } catch (error: unknown) {
     if (error instanceof Error && error.message === 'Export cancelled') {

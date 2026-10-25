@@ -54,7 +54,7 @@ export interface ChessEditorProps {
   flipped: boolean;
   onFlip?: () => void;
   onDownload?: () => void;
-  onCopyImage?: (() => void) | undefined;
+  onCopyImage?: (() => Promise<boolean>) | undefined;
   setShowCoords?: (show: boolean) => void;
   showThinFrame?: boolean;
   setShowThinFrame?: (show: boolean) => void;
@@ -232,7 +232,7 @@ export const ChessEditor = memo(function ChessEditor({
     canUndo,
     canRedo,
     onFlip: onFlip ?? (() => {}),
-    onCopyImage: onCopyImage ?? (() => {}),
+    onCopyImage: onCopyImage ?? (async () => false),
     onShare: handleShare,
     onDownload
   };

@@ -44,8 +44,7 @@ export const useHome = (variant: 'standard' | 'fairy' = 'standard') => {
   const { setFlipped, setFen } = board;
   const handleFlip = useCallback(() => {
     setFlipped((prev) => !prev);
-    success('Board flipped');
-  }, [setFlipped, success]);
+  }, [setFlipped]);
 
   const handleEditorFenChange = useCallback(
     (newFen: string) => {

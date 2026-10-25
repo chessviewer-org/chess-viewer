@@ -171,10 +171,7 @@ export const BoardThemePicker = memo(function BoardThemePicker({
             t.dark.toLowerCase() === normalDark
         );
         if (builtInMatch) {
-          warning(
-            `This color pair already exists: "${builtInMatch.name}"`,
-            5000
-          );
+          warning(`This color pair already exists: "${builtInMatch.name}"`);
           return;
         }
         const customMatch = customPresets.find(
@@ -183,10 +180,7 @@ export const BoardThemePicker = memo(function BoardThemePicker({
             p.dark.toLowerCase() === normalDark
         );
         if (customMatch) {
-          warning(
-            `This color pair already exists: "${customMatch.name}"`,
-            5000
-          );
+          warning(`This color pair already exists: "${customMatch.name}"`);
           return;
         }
       }
