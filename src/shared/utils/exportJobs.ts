@@ -15,7 +15,7 @@ export interface ExportOutcome<T> {
 }
 
 export interface ExportSummary {
-  type: 'success' | 'warning' | 'error';
+  type: 'warning' | 'error';
   message: string;
 }
 
@@ -59,9 +59,8 @@ function groupByReason(failed: readonly ExportFailure[]) {
 export function summariseExport(
   { done, failed }: Pick<ExportOutcome<unknown>, 'done' | 'failed'>,
   savedAs = 'downloaded'
-): ExportSummary {
-  if (!failed.length)
-    return { type: 'success', message: `${done.join(', ')} ${savedAs}` };
+): ExportSummary | null {
+  if (!failed.length) return null;
   const groups = groupByReason(failed);
   const failures = [...groups]
     .map(([reason, labels]) => `${labels.join(', ')} failed: ${reason}`)
@@ -76,4 +75,17 @@ export function summariseExport(
     type: 'warning',
     message: `${done.join(', ')} ${savedAs}. ${failures}`
   };
+}
+
+export const DEFAULT_EXPORT_FILE_NAME = 'chessboard';
+export const DEFAULT_EXPORT_FOLDER_NAME = 'chessboard-export';
+export const FORMAT_EXTENSIONS: Record<string, string> = {
+  jpeg: 'jpg',
+  png: 'png',
+  svg: 'svg'
+};
+
+export interface ExportPackaging {
+  folder?: string;
+  zip: boolean;
 }

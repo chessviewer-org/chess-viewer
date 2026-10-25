@@ -1,4 +1,19 @@
-import { Check } from '@/assets/icons';
+import { useId } from 'react';
+
+import {
+  Archive,
+  Check,
+  Download,
+  FileImage,
+  Folder,
+  type LucideIcon
+} from '@/assets/icons';
+import {
+  DEFAULT_EXPORT_FILE_NAME,
+  DEFAULT_EXPORT_FOLDER_NAME,
+  FORMAT_EXTENSIONS
+} from '@/shared/utils/exportJobs';
+import { FORBIDDEN_NAME_CHARS } from '@/shared/utils/safeFileName';
 
 import type {
   BoardSizePreset,
@@ -16,17 +31,56 @@ const FORMATS: { value: ExportFormat; label: string }[] = [
 
 const RESOLUTIONS: ExportResolution[] = [1, 2, 3, 4];
 const BOARD_PRESETS: BoardSizePreset[] = [4, 6, 8];
+const MAX_INPUT_LENGTH = 240;
+
+// Helpers
+const BlockedCharsNotice = () => (
+  <p role="status" className="text-xs text-warning">
+    {`${FORBIDDEN_NAME_CHARS} can't be used in file or folder names.`}
+  </p>
+);
+
+const OutputRow = ({
+  icon: Icon,
+  name
+}: {
+  icon: LucideIcon;
+  name: string;
+}) => (
+  <span className="flex min-w-0 items-center gap-2">
+    <Icon className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden="true" />
+    <span className="truncate" title={name}>
+      {name}
+    </span>
+  </span>
+);
 
 // Types
 export interface ExportSettingsStepProps {
   wizard: ReturnType<typeof useExportWizard>;
-  onExport: () => void;
+  onExport: (asZip: boolean) => void;
 }
 
 export default function ExportSettingsStep({
   wizard,
   onExport
 }: ExportSettingsStepProps) {
+  const id = useId();
+  const formatList = wizard.selectedFormats
+    .map((format) => format.toUpperCase())
+    .join(', ');
+  const outputFiles = wizard.selectedFormats.map(
+    (format) =>
+      `${wizard.resolvedFileNames[format]}.${FORMAT_EXTENSIONS[format] ?? format}`
+  );
+  const showZip = wizard.multipleFormats || wizard.folderEnabled;
+  const zipName = `${wizard.folderEnabled ? wizard.resolvedFolderName : DEFAULT_EXPORT_FOLDER_NAME}.zip`;
+  const downloadLabel = wizard.folderEnabled
+    ? 'Download folder'
+    : wizard.multipleFormats
+      ? `Download ${outputFiles.length} files`
+      : 'Download';
+
   const inputCls =
     'rounded-lg border border-border/60 bg-surface px-3 py-2 text-sm ' +
     'text-text-primary focus:outline-none transition-colors';
@@ -132,42 +186,116 @@ export default function ExportSettingsStep({
         </div>
 
         <div className="space-y-2.5">
-          <h3 className="section-eyebrow">File Name</h3>
+          <label htmlFor={`${id}-file`} className="section-eyebrow block">
+            File Name
+          </label>
           <input
+            id={`${id}-file`}
             value={wizard.fileNamesInput}
             onChange={(e) => wizard.updateFileNames(e.target.value)}
-            placeholder="e.g. Position1, Tactic2"
+            placeholder={
+              wizard.multipleFormats
+                ? `e.g. ${wizard.selectedFormats.map((_, i) => `diagram-${i + 1}`).join(', ')}`
+                : DEFAULT_EXPORT_FILE_NAME
+            }
+            maxLength={MAX_INPUT_LENGTH}
+            spellCheck={false}
+            autoComplete="off"
+            aria-invalid={wizard.fileNameError ? true : undefined}
+            aria-describedby={`${id}-file-hint`}
             className={`w-full ${inputCls}`}
           />
+          <p id={`${id}-file-hint`} className="text-xs text-text-secondary">
+            {wizard.multipleFormats
+              ? `One name per format, separated by commas, in the order ${formatList}.`
+              : 'Leave empty to use the default name.'}
+          </p>
           {wizard.fileNameError && (
             <p className="text-xs text-error">{wizard.fileNameError}</p>
           )}
-          <div className="mt-2 rounded-lg border border-border/50 bg-surface-elevated/50 p-3">
-            <h4 className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-text-secondary">
-              Pro Tips
-            </h4>
-            <ul className="list-inside list-disc space-y-1 text-[11px] leading-relaxed text-text-muted">
-              <li>
-                Use commas to name multiple formats sequentially (e.g.,{' '}
-                <code>image1, vector1</code> for PNG and SVG).
-              </li>
-              <li>
-                Empty slots will automatically default to{' '}
-                <strong>chess-position</strong>.
-              </li>
+          {wizard.blockedCharsIn === 'file' && <BlockedCharsNotice />}
+        </div>
+
+        <div className="space-y-2.5">
+          <label htmlFor={`${id}-folder`} className="section-eyebrow block">
+            Folder Name
+          </label>
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={wizard.folderEnabled}
+              onChange={(e) => wizard.setFolderEnabled(e.target.checked)}
+              aria-label="Save the files into a folder"
+              className="h-4.5 w-4.5 shrink-0 cursor-pointer accent-accent"
+            />
+            <input
+              id={`${id}-folder`}
+              value={wizard.folderNameInput}
+              onChange={(e) => wizard.updateFolderName(e.target.value)}
+              disabled={!wizard.folderEnabled}
+              placeholder={DEFAULT_EXPORT_FOLDER_NAME}
+              maxLength={MAX_INPUT_LENGTH}
+              spellCheck={false}
+              autoComplete="off"
+              aria-describedby={`${id}-folder-hint`}
+              className={`min-w-0 flex-1 ${inputCls} disabled:cursor-not-allowed disabled:opacity-50`}
+            />
+          </div>
+          <p id={`${id}-folder-hint`} className="text-xs text-text-secondary">
+            {wizard.folderEnabled
+              ? 'Chrome and Edge ask where to create the folder. Other browsers save it as a ZIP archive.'
+              : 'Optional. Until it is enabled, each format downloads as a separate file.'}
+          </p>
+          {wizard.blockedCharsIn === 'folder' && <BlockedCharsNotice />}
+        </div>
+
+        <div className="space-y-2.5">
+          <h3 className="section-eyebrow">Output</h3>
+          <div className="rounded-lg border border-border/60 bg-surface-elevated/40 p-3.5 font-mono text-sm text-text-primary">
+            {wizard.folderEnabled && (
+              <OutputRow icon={Folder} name={`${wizard.resolvedFolderName}/`} />
+            )}
+            <ul
+              className={`space-y-1.5 ${wizard.folderEnabled ? 'mt-1.5 ml-2 border-l border-border/60 pl-3' : ''}`}
+            >
+              {outputFiles.map((file) => (
+                <li key={file}>
+                  <OutputRow icon={FileImage} name={file} />
+                </li>
+              ))}
             </ul>
           </div>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-4 flex gap-2">
           <button
             type="button"
-            onClick={onExport}
-            disabled={wizard.selectedFormats.length === 0}
-            className="w-full rounded-lg bg-accent px-4 py-3 text-sm font-bold text-bg transition-colors hover:bg-accent-hover focus:outline-none focus:bg-accent-hover flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => onExport(false)}
+            className="flex-1 rounded-lg bg-accent px-4 py-3 text-sm font-bold text-bg transition-colors hover:bg-accent-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 flex items-center justify-center gap-2"
           >
-            Download
+            <Download
+              className="h-4.5 w-4.5"
+              strokeWidth={2.25}
+              aria-hidden="true"
+            />
+            {downloadLabel}
           </button>
+          {showZip && (
+            <button
+              type="button"
+              onClick={() => onExport(true)}
+              title={`Download ${zipName}`}
+              aria-label={`Download as ZIP archive ${zipName}`}
+              className="rounded-lg border border-accent/50 px-4 py-3 text-sm font-bold text-accent transition-colors hover:bg-accent/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 flex items-center justify-center gap-2"
+            >
+              <Archive
+                className="h-4.5 w-4.5"
+                strokeWidth={2.25}
+                aria-hidden="true"
+              />
+              ZIP
+            </button>
+          )}
         </div>
       </div>
     </div>

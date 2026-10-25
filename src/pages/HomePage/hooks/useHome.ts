@@ -37,7 +37,7 @@ export const useHome = (variant: 'standard' | 'fairy' = 'standard') => {
     darkSquare: board.darkSquare,
     flipped: board.flipped,
     saveExportFen,
-    notify: { success, error, info, warning }
+    notify: { error, info, warning }
   });
 
   // Handlers

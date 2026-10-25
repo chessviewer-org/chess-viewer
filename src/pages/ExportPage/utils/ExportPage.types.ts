@@ -1,3 +1,5 @@
+import type { ExportPackaging } from '@/shared/utils/exportJobs';
+
 export interface BatchExportOverrides {
   boardSize?: number;
   exportQuality?: number;
@@ -24,7 +26,8 @@ export interface HomeStateForExport {
   flipped: boolean;
   handleBatchExport: (
     formats: string[],
-    names?: string[],
-    overrides?: BatchExportOverrides
+    fileNames: string[],
+    overrides?: BatchExportOverrides,
+    packaging?: ExportPackaging
   ) => Promise<void>;
 }

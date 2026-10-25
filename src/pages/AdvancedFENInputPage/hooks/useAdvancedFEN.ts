@@ -37,10 +37,10 @@ import {
 import { downloadSVG, getSVGBlob } from '@/shared/utils/svgExporter';
 import { isTextEntryTarget } from '@/shared/utils/pageScroll';
 import { logger } from '@/shared/utils/logger';
-import { sanitizeFileName } from '@chessviewer-org/chess-viewer';
 import { saveBlob } from '@/shared/utils/saveBlob';
+import { toSafeName } from '@/shared/utils/safeFileName';
+import { type ZipEntry, zipFiles } from '@/shared/utils/zipFiles';
 import { withViewTransition } from '@/shared/utils/viewTransition';
-import { type Zippable, zip } from 'fflate';
 import { useFENBatch } from '@/shared/contexts/FENBatchContext';
 
 import { parseSmartNaming } from '../utils/parseSmartNaming';
@@ -459,7 +459,7 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
       !isChained && savedFileName
         ? (parseSmartNaming(savedFileName, 1)[0] ?? '')
         : (parsedNames[safeCurrentIndex] ?? `Position-${safeCurrentIndex + 1}`);
-    return sanitizeFileName(name);
+    return toSafeName(name, `Position-${safeCurrentIndex + 1}`);
   }, [isChained, positionSettings, currentFen, parsedNames, safeCurrentIndex]);
 
   const exportConfig = useMemo<ExportConfigLike>(
@@ -557,7 +557,7 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
       );
       reportFailures(outcome.failed);
       const summary = summariseExport(outcome);
-      notifier[summary.type](summary.message);
+      if (summary) notifier[summary.type](summary.message);
     } catch (e) {
       notifyExportError(e);
     } finally {
@@ -569,7 +569,7 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
     if (!orderedFormats.length) return;
     startExport();
     try {
-      const zipData: Zippable = {};
+      const entries: ZipEntry[] = [];
       const saved: string[] = [];
       const failed: { label: string; reason: string }[] = [];
       const usedNames = new Set<string>();
@@ -616,7 +616,7 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
             ? (parseSmartNaming(s.fileName, 1)[0] ?? '')
             : (parsedNames[i] ?? '');
         const base = uniqueName(
-          sanitizeFileName(rawName || `Position-${i + 1}`),
+          toSafeName(rawName, `Position-${i + 1}`),
           usedNames
         );
         const fmts = isChained
@@ -644,9 +644,7 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
                   fmt === 'svg'
                     ? await getSVGBlob(conf, onProg)
                     : await getRasterBlob(conf, fmt, onProg);
-                const bytes = new Uint8Array(await blob.arrayBuffer());
-                zipData[`${base}/${base}.${ext}`] =
-                  fmt === 'svg' ? bytes : [bytes, { level: 0 }];
+                entries.push({ path: `${base}/${base}.${ext}`, blob });
                 done++;
               }
             };
@@ -658,7 +656,8 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
 
       reportFailures(failed);
       if (!saved.length) {
-        notifier.error(summariseExport({ done: saved, failed }).message);
+        const summary = summariseExport({ done: saved, failed });
+        if (summary) notifier.error(summary.message);
         return;
       }
       setExportState({
@@ -667,13 +666,7 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
         currentFormat: 'zip',
         status: 'Zipping...'
       });
-      const zippedBlob = await new Promise<Blob>((resolve, reject) => {
-        zip(zipData, (err, out) => {
-          if (err) reject(err);
-          else resolve(new Blob([out], { type: 'application/zip' }));
-        });
-      });
-      saveBlob(zippedBlob, 'chess_batch_export', 'zip');
+      saveBlob(await zipFiles(entries), 'chess_batch_export', 'zip');
       const summary = summariseExport(
         {
           done: [
@@ -685,7 +678,7 @@ export function useAdvancedFEN(props: AdvancedFENInitialProps = {}) {
         },
         'saved to chess_batch_export.zip'
       );
-      notifier[summary.type](summary.message);
+      if (summary) notifier[summary.type](summary.message);
     } catch (e) {
       notifyExportError(e);
     } finally {
