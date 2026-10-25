@@ -53,11 +53,13 @@ editor (FEN field, board, command bar, board options) and adds two things.
 ![Named pieces tab](../assets/screenshot-fairy-named-pieces.png)
 
 **The Popeye problem card** below the editor holds the composition: stipulation
-(free text, quick chips such as `#2`, `h#2`, `s#2`, or a structured builder),
+(free text, quick presets such as `#2`, `h#2`, `s#2`, or a structured Popeye expression),
 conditions (one per line, with a searchable library of 182 names), and the
-optional author, source, title, remarks and twins. **Apply** writes them to the
+optional author, source, title, remarks and twins. **Apply to position** writes them to the
 position; the legend under the board then shows the stipulation and conditions.
-**Import** reads a Popeye file and **Save .inp** downloads one.
+**Import** reads a Popeye file and **Save .inp** downloads one after pending changes
+have been applied. The condition library opens across the full panel width;
+**Problem details** groups publication fields separately from remarks and twins.
 
 ![Popeye problem card](../assets/screenshot-fairy-popeye.png)
 

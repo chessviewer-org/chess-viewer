@@ -150,8 +150,8 @@ export default function FairyChessSection() {
           <li>
             <Term>Stipulation</Term>: type it, pick a quick chip such as{' '}
             <Code>#2</Code>, <Code>h#2</Code>, <Code>s#2</Code> or{' '}
-            <Code>ser-h#5</Code>, or switch to <Term>Structured</Term> to build
-            it from parts.
+            <Code>ser-h#5</Code>, or switch to <Term>Structured</Term> to enter
+            a Popeye SStipulation expression.
           </li>
           <li>
             <Term>Conditions</Term>: one per line, for example{' '}
@@ -160,12 +160,12 @@ export default function FairyChessSection() {
             search.
           </li>
           <li>
-            <Term>Author, source and twins</Term> (optional): author, source,
-            title, remarks and twin declarations.
+            <Term>Problem details</Term> (optional): author, source, title,
+            remarks and twin declarations.
           </li>
           <li>
-            Press <Term>Apply</Term>. The legend under the board then shows the
-            stipulation, conditions and the named pieces in use.
+            Press <Term>Apply to position</Term>. The legend under the board
+            then shows the stipulation, conditions and the named pieces in use.
           </li>
         </Steps>
       </InfoCard>
@@ -174,7 +174,8 @@ export default function FairyChessSection() {
         <p>
           <Term>Import</Term> reads <Code>.inp</Code>, <Code>.txt</Code> and{' '}
           <Code>.fen</Code> files; <Term>Save .inp</Term> downloads the problem
-          in Popeye&apos;s English input format:
+          in Popeye&apos;s English input format. Apply pending changes before
+          saving:
         </p>
         <pre className="overflow-x-auto rounded-xl border border-border bg-surface-elevated p-4 font-mono text-[0.8125rem] text-text-primary">
           {POPEYE_EXAMPLE}
