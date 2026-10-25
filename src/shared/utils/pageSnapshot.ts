@@ -1,4 +1,5 @@
 import { flushPendingWrites } from './pendingWrites';
+import { fetchPieceSvgText } from './pieceSvg';
 import { inlinePieceSources, inlinedPieceSources } from './pieceSources';
 import { SNAPSHOT_KEY, stateFingerprint } from './stateFingerprint';
 
@@ -40,11 +41,12 @@ function cachePieceSvg(url: string) {
   )
     return;
   observedPieceSvgs.set(pathname, '');
-  fetch(pathname, { cache: 'force-cache' })
-    .then((res) => (res.ok ? res.text() : Promise.reject(new Error(pathname))))
-    .then((svg) =>
-      observedPieceSvgs.set(pathname, SVG_DATA_URI + encodeURIComponent(svg))
-    )
+  fetchPieceSvgText(url)
+    .then((svg) => {
+      if (svg)
+        observedPieceSvgs.set(pathname, SVG_DATA_URI + encodeURIComponent(svg));
+      else observedPieceSvgs.delete(pathname);
+    })
     .catch(() => observedPieceSvgs.delete(pathname));
 }
 

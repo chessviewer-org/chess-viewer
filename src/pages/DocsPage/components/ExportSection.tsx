@@ -68,11 +68,11 @@ export default function ExportSection() {
           rows={[
             {
               id: 'quality-1x',
-              cells: ['1×', '300', '472 px', '708 px', '944 px']
+              cells: ['1×', '300', '472 px', '709 px', '945 px']
             },
             {
               id: 'quality-2x',
-              cells: ['2×', '600', '944 px', '1,417 px', '1,890 px']
+              cells: ['2×', '600', '945 px', '1,417 px', '1,890 px']
             },
             {
               id: 'quality-3x',

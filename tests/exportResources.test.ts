@@ -1,12 +1,11 @@
 import assert from 'node:assert/strict';
+import { fetchPieceSvgText } from '../src/shared/utils/pieceSvg';
 import { afterEach, test } from 'node:test';
 
 import { createUltraQualityCanvas } from '../src/shared/utils/canvasRenderer';
 import { createRasterBlob } from '../src/shared/utils/exportRaster';
 import {
   ensurePieceResolution,
-  fetchPieceSvgText,
-  imageToEmbeddableDataURL,
   waitForPieceImage
 } from '../src/shared/utils/pieceUtils';
 import { generateBoardSVG } from '../src/shared/utils/svgExporter';
@@ -231,6 +230,22 @@ test('inline SVG letter artwork can be upgraded without a network request', asyn
   assert.equal(runtime.revoked.length, 1);
 });
 
+test('dimension-only SVG artwork is rendered at the requested print resolution', async () => {
+  const runtime = resolutionRuntime();
+  const svg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="368" height="368"><path d="M0 0h368v368H0z"/></svg>';
+  const image = readyImage(
+    `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`,
+    368
+  );
+  const upgraded = await ensurePieceResolution(image.element, 473);
+  assert.equal(upgraded.naturalWidth, 473);
+  assert.equal(upgraded.naturalHeight, 473);
+  assert.equal(runtime.created.length, 1);
+  assert.equal(runtime.revoked.length, 1);
+  assert.equal(runtime.blobs.size, 0);
+});
+
 test('image waiting preserves owner handlers and cleans listeners after timeout or load', async () => {
   const image = new TestImage();
   const onload = () => {};
@@ -378,17 +393,4 @@ test('JPEG renders once on an opaque white canvas; PNG keeps transparency', asyn
     canvases[1]!.fills.every((fill) => fill.color !== '#fff'),
     'PNG must not paint transparent margins white'
   );
-});
-
-test('concurrent embedding shares one raster conversion and releases its canvas', async () => {
-  const canvases = canvasRuntime();
-  const image = readyImage('blob:embedded-resource-test');
-  const [first, second] = await Promise.all([
-    imageToEmbeddableDataURL(image.element),
-    imageToEmbeddableDataURL(image.element)
-  ]);
-  assert.equal(first, second);
-  assert.equal(canvases.length, 1);
-  assert.equal(canvases[0]!.width, 0);
-  assert.equal(canvases[0]!.height, 0);
 });

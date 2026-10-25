@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 
 import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
 import { useSyncedBoardColors } from '@/shared/hooks/useTheme';
+import { normalizeExportQuality } from '@/shared/utils/imageOptimizer';
 
 import {
   MAX_POSITION_LENGTH,
@@ -75,10 +76,11 @@ export function useHomeBoardState(variant: 'standard' | 'fairy' = 'standard') {
     'chess-file-name',
     'chess-position'
   );
-  const [exportQuality, setExportQuality] = useLocalStorage<number>(
+  const [storedExportQuality, setExportQuality] = useLocalStorage<number>(
     'chess-export-quality',
-    16
+    2
   );
+  const exportQuality = normalizeExportQuality(storedExportQuality);
 
   return {
     fen:

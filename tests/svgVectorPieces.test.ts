@@ -4,7 +4,7 @@ import { after, before, describe, test } from 'node:test';
 import { createServer, type Server } from 'node:http';
 import { join, resolve, sep } from 'node:path';
 
-import { buildPieceVector, namespacePieceIds } from '@utils/pieceUtils';
+import { buildPieceVector, namespacePieceIds } from '@utils/pieceSvg';
 import { boardOutlineWidth } from '@chessviewer-org/chess-viewer';
 import { generateBoardSVG, SVG_BOARD_PX } from '@utils/svgExporter';
 
@@ -396,6 +396,16 @@ describe('generateBoardSVG end-to-end: icpieces (viewBox-less)', () => {
 });
 
 describe('generateBoardSVG physical size across board sizes', () => {
+  test('raster quality presets do not alter vector artwork or physical SVG size', async () => {
+    const config = baseConfig(pieceImagesFor('cburnett'));
+    const original = await generateBoardSVG({ ...config, exportQuality: 1 });
+    for (const exportQuality of [2, 3, 4]) {
+      assert.equal(
+        await generateBoardSVG({ ...config, exportQuality }),
+        original
+      );
+    }
+  });
   test('4cm and 6cm boards scale with coords + outline', async () => {
     for (const [cm, expected] of [
       [4, physicalCm(4)],

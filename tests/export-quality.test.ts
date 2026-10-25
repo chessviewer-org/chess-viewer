@@ -3,6 +3,7 @@ import { describe, test } from 'node:test';
 
 import {
   calculateRenderSurfaceSize,
+  normalizeExportQuality,
   estimateFileSizes,
   formatFileSize
 } from '@utils/imageOptimizer';
@@ -410,13 +411,14 @@ describe('resizePieceSvg', () => {
     });
   }
 
-  test('icpieces (no viewBox): NOT resized', () => {
+  test('icpieces gains a viewBox and scales its original paths to the target size', () => {
     const icpieces =
-      '<svg xmlns="http://www.w3.org/2000/svg" width="368" height="368">';
+      '<svg xmlns="http://www.w3.org/2000/svg" width="368" height="368"><path d="M0 0h368v368H0z"/></svg>';
     const resized = resizePieceSvg(icpieces, 473);
-    assert.equal(resized, icpieces);
-    assert.ok(resized.includes('width="368"'));
-    assert.ok(!resized.includes('473'));
+    assert.ok(resized.includes('viewBox="0 0 368 368"'));
+    assert.ok(resized.includes('width="473"'));
+    assert.ok(resized.includes('height="473"'));
+    assert.ok(resized.includes('<path d="M0 0h368v368H0z"/>'));
   });
 
   test('viewBox-only SVG: width/height added', () => {
@@ -495,6 +497,16 @@ describe('Format-specific quality invariants', () => {
 });
 
 describe('Boundary conditions', () => {
+  test('unsupported quality values cannot request excessive raster allocations', () => {
+    for (const quality of [0, -1, 16, 100, NaN, Infinity]) {
+      assert.equal(normalizeExportQuality(quality), 2);
+      const surface = calculateRenderSurfaceSize(8, true, quality);
+      assert.equal(surface.effectiveDPI, 600);
+      assert.equal(surface.boardPixels, Math.round((8 / 2.54) * 600));
+    }
+    for (const quality of QUALITIES)
+      assert.equal(normalizeExportQuality(quality), quality);
+  });
   test('minimum board size = 1cm', () => {
     const s = calculateRenderSurfaceSize(1, false, 1);
     assert.ok(s.boardPixels >= 1);
