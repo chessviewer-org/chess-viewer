@@ -90,10 +90,12 @@ Yes. The Advanced FEN Input page lets you enter up to 10 positions and export th
 
 ### Can I use the exported images commercially?
 
-The position and annotations you create are yours, but exported images also contain
-piece artwork licensed by its authors. CC BY 4.0 permits commercial use with
-attribution; some included sets use CC BY-NC-SA 4.0, which does not permit
-commercial use without separate permission. Check the
+ChessViewer and all its features are free to use. The position and annotations
+you create are yours, but exported images also contain piece artwork under its
+authors' terms. CC BY 4.0 permits commercial use with attribution. CC BY-NC-SA
+4.0 permits noncommercial use; commercial use needs separate permission.
+The AGPL license on the application code does not override those artwork terms.
+Check the
 [piece-set attribution and licenses](../../public/piece/ATTRIBUTION.md) before
 publishing an export; use a set whose terms allow your intended use.
 

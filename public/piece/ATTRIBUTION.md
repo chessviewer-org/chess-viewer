@@ -7,29 +7,33 @@ the Lichess CDN at runtime. Each set remains the work of its original author
 under the license listed below.
 
 ChessViewer application code is AGPLv3. Piece artwork has separate terms, and
-some sets restrict commercial use. `companion` and `leipzig` are excluded because
-Lichess lists them under non-free freeware without clear modification rights.
+some sets restrict commercial use. The author names and classifications below
+follow Lichess's `COPYING.md`, except that `kosal` uses its author's explicit
+CC BY 4.0 license. “Freeware” is reproduced as Lichess states it; it is not
+presented as a synonym for GPL, Creative Commons or an unrestricted license.
 
-| Set (id)   | Author                                                            | License                                                            | SVG source                                                                                                                  |
-| ---------- | ----------------------------------------------------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| california | [Jerry S.](https://sites.google.com/view/jerrychess/home)         | [CC BY-NC-SA 4.0](../licenses/piece/CC-BY-NC-SA-4.0.txt)           | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/california) |
-| cardinal   | sadsnake1                                                         | [CC BY-NC-SA 4.0](../licenses/piece/CC-BY-NC-SA-4.0.txt)           | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/cardinal)   |
-| cburnett   | [Colin M.L. Burnett](https://en.wikipedia.org/wiki/User:Cburnett) | [GPLv2+](../licenses/piece/GPL-2.0.txt)                            | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/cburnett)   |
-| dubrovny   | sadsnake1                                                         | [CC BY-NC-SA 4.0](../licenses/piece/CC-BY-NC-SA-4.0.txt)           | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/dubrovny)   |
-| fantasy    | [Maurizio Monge](https://github.com/maurimo/chess-art)            | [MIT](../licenses/chess-art/LICENSE.txt)                           | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/fantasy)    |
-| fresca     | sadsnake1                                                         | [CC BY-NC-SA 4.0](../licenses/piece/CC-BY-NC-SA-4.0.txt)           | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/fresca)     |
-| gioco      | sadsnake1                                                         | [CC BY-NC-SA 4.0](../licenses/piece/CC-BY-NC-SA-4.0.txt)           | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/gioco)      |
-| governor   | Lichess authors                                                   | [AGPLv3+](https://github.com/lichess-org/lila/blob/master/LICENSE) | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/governor)   |
-| horsey     | cham, michael1241                                                 | [CC BY-NC-SA 4.0](../licenses/piece/CC-BY-NC-SA-4.0.txt)           | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/horsey)     |
-| icpieces   | sadsnake1                                                         | [CC BY-NC-SA 4.0](../licenses/piece/CC-BY-NC-SA-4.0.txt)           | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/icpieces)   |
-| kosal      | [philatype](https://github.com/philatype/kosal)                   | [CC BY 4.0](../licenses/piece/CC-BY-4.0.txt)                       | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/kosal)      |
-| maestro    | sadsnake1                                                         | [CC BY-NC-SA 4.0](../licenses/piece/CC-BY-NC-SA-4.0.txt)           | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/maestro)    |
-| merida     | Armando Hernandez Marroquin                                       | [GPLv2+](../licenses/piece/GPL-2.0.txt)                            | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/merida)     |
-| pirouetti  | [pirouetti](https://lichess.org/@/pirouetti)                      | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt)               | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/pirouetti)  |
-| pixel      | therealqtpi                                                       | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt)               | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/pixel)      |
-| spatial    | [Maurizio Monge](https://github.com/maurimo/chess-art)            | [MIT](../licenses/chess-art/LICENSE.txt)                           | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/spatial)    |
-| staunty    | sadsnake1                                                         | [CC BY-NC-SA 4.0](../licenses/piece/CC-BY-NC-SA-4.0.txt)           | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/staunty)    |
-| tatiana    | sadsnake1                                                         | [CC BY-NC-SA 4.0](../licenses/piece/CC-BY-NC-SA-4.0.txt)           | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/tatiana)    |
+| Set (id)   | Author                                                            | License                                                                        | SVG source                                                                                                                  |
+| ---------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| california | [Jerry S.](https://sites.google.com/view/jerrychess/home)         | [CC BY-NC-SA 4.0](../licenses/piece/CC-BY-NC-SA-4.0.txt)                       | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/california) |
+| cardinal   | sadsnake1                                                         | [CC BY-NC-SA 4.0](../licenses/piece/CC-BY-NC-SA-4.0.txt)                       | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/cardinal)   |
+| cburnett   | [Colin M.L. Burnett](https://en.wikipedia.org/wiki/User:Cburnett) | [GPLv2+](../licenses/piece/GPL-2.0.txt)                                        | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/cburnett)   |
+| companion  | David L. Brown                                                    | [Freeware — Good Companion](https://www.enpassant.dk/chess/fonteng.htm#GC)     | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/companion)  |
+| dubrovny   | sadsnake1                                                         | [CC BY-NC-SA 4.0](../licenses/piece/CC-BY-NC-SA-4.0.txt)                       | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/dubrovny)   |
+| fantasy    | [Maurizio Monge](https://github.com/maurimo/chess-art)            | [MIT](../licenses/chess-art/LICENSE.txt)                                       | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/fantasy)    |
+| fresca     | sadsnake1                                                         | [CC BY-NC-SA 4.0](../licenses/piece/CC-BY-NC-SA-4.0.txt)                       | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/fresca)     |
+| gioco      | sadsnake1                                                         | [CC BY-NC-SA 4.0](../licenses/piece/CC-BY-NC-SA-4.0.txt)                       | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/gioco)      |
+| governor   | Lichess authors                                                   | [AGPLv3+](https://github.com/lichess-org/lila/blob/master/LICENSE)             | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/governor)   |
+| horsey     | cham, michael1241                                                 | [CC BY-NC-SA 4.0](../licenses/piece/CC-BY-NC-SA-4.0.txt)                       | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/horsey)     |
+| icpieces   | sadsnake1                                                         | [CC BY-NC-SA 4.0](../licenses/piece/CC-BY-NC-SA-4.0.txt)                       | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/icpieces)   |
+| kosal      | [philatype](https://github.com/philatype/kosal)                   | [CC BY 4.0](../licenses/piece/CC-BY-4.0.txt)                                   | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/kosal)      |
+| leipzig    | Armando Hernandez Marroquin                                       | [Freeware — Chess Leipzig](https://www.enpassant.dk/chess/fonteng.htm#LEIPZIG) | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/leipzig)    |
+| maestro    | sadsnake1                                                         | [CC BY-NC-SA 4.0](../licenses/piece/CC-BY-NC-SA-4.0.txt)                       | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/maestro)    |
+| merida     | Armando Hernandez Marroquin                                       | [GPLv2+](../licenses/piece/GPL-2.0.txt)                                        | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/merida)     |
+| pirouetti  | [pirouetti](https://lichess.org/@/pirouetti)                      | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt)                           | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/pirouetti)  |
+| pixel      | therealqtpi                                                       | [AGPLv3+](https://www.gnu.org/licenses/agpl-3.0.txt)                           | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/pixel)      |
+| spatial    | [Maurizio Monge](https://github.com/maurimo/chess-art)            | [MIT](../licenses/chess-art/LICENSE.txt)                                       | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/spatial)    |
+| staunty    | sadsnake1                                                         | [CC BY-NC-SA 4.0](../licenses/piece/CC-BY-NC-SA-4.0.txt)                       | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/staunty)    |
+| tatiana    | sadsnake1                                                         | [CC BY-NC-SA 4.0](../licenses/piece/CC-BY-NC-SA-4.0.txt)                       | [Lichess source](https://github.com/lichess-org/lila/tree/995e7ccc4a719bf45923202a1e8d55121df78283/public/piece/tatiana)    |
 
 ## Fairy chess variants
 
@@ -48,9 +52,10 @@ Problem diagrams use these by convention for fairy pieces (for example an
 inverted queen for a grasshopper or an inverted knight for a nightrider), with
 the meaning given in the diagram legend. These files modify source artwork by
 rotation and, for neutral pieces, by combining its white and black versions.
-They are distributed under the same license as their source set; this paragraph
-records those changes for the attribution requirements of the Creative Commons
-sets.
+For explicitly licensed sets, the generated artwork retains its source terms;
+this paragraph records those changes for Creative Commons attribution. The
+`companion` and `leipzig` source descriptions say only “freeware”; no broader
+permission should be inferred from that word.
 
 Lichess's [COPYING.md](https://github.com/lichess-org/lila/blob/995e7ccc4a719bf45923202a1e8d55121df78283/COPYING.md)
 identifies the exceptions above; files absent from its exception list, including

@@ -51,7 +51,7 @@ docker compose --profile dev up --build dev   # http://localhost:5173
 - **Computer analysis** — local Stockfish 18/19 Lite analysis in Standard Chess and Popeye 4.103 composition solving in Fairy Chess, with move previews, settings and browser-side WebAssembly workers
 - **Export** — PNG, JPEG, or SVG at four quality presets (300–1200 DPI) and board sizes from 4 to 8 cm; batch export downloads a ZIP; DPI metadata is embedded in the file
 - **LaTeX Studio** — a dedicated page (`/latex`) that turns up to 100 positions into `skak`, `chessboard` or `chess-problem-diagrams` markup, with author, source, award, stipulation, piece count, solutions, highlights and arrows; copy the code or download a `.tex` that compiles with pdfLaTeX, with the exact install command shown
-- **Board customisation** — 18 piece sets, 20 preset themes including a black-and-white print theme, book-style hatched dark squares, custom colour picker, up to 48 saved presets
+- **Board customisation** — 20 piece sets, 20 preset themes including a black-and-white print theme, book-style hatched dark squares, custom colour picker, up to 48 saved presets
 - **Position history** — saved locally with favourites, pinning, freshness indicators, and full-text search
 - **Database search** — look up positions on Lichess and ChessDB, or open them in PDB and YACPDB
 - **Optional account** — sign in to sync your history and settings across devices via Supabase; data is encrypted at rest and owner-scoped by row-level security

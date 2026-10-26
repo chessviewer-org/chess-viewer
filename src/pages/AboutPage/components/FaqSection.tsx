@@ -39,10 +39,11 @@ const FAQS: Array<{ q: string; a: ReactNode }> = [
     q: 'Can I use the images I make for commercial work?',
     a: (
       <>
-        The position and annotations you create are yours. Exported images also
-        contain piece artwork with its own license. CC BY 4.0 permits commercial
-        use with attribution; CC BY-NC-SA 4.0 does not permit commercial use
-        without separate permission. Check the{' '}
+        ChessViewer and all its features are free to use. The position and
+        annotations you create are yours; exported images also contain piece
+        artwork with its own terms. CC BY 4.0 permits commercial use with
+        attribution. CC BY-NC-SA 4.0 permits noncommercial use, but commercial
+        use needs separate permission. Check the{' '}
         <a
           href="/piece/ATTRIBUTION.md"
           className="text-accent underline-offset-2 hover:underline focus-visible:underline"

@@ -19,13 +19,7 @@ import { buildPieceVector, fetchPieceSvgText } from './pieceSvg';
 export type PieceSort = 'popular' | 'name';
 
 // Constants
-const UNAVAILABLE_PIECE_IDS = new Set([
-  'alpha',
-  'companion',
-  'leipzig',
-  'reillycraig',
-  'riohacha'
-]);
+const UNAVAILABLE_PIECE_IDS = new Set(['alpha', 'reillycraig', 'riohacha']);
 
 export const AVAILABLE_PIECE_SETS: PieceSet[] = ALL_PIECE_SETS.filter(
   (set) => !UNAVAILABLE_PIECE_IDS.has(set.id)

@@ -17,4 +17,7 @@ The files below are distributed under their own terms:
 | Runtime package `wouter@3.13.0`                       | [Unlicense notice](dependencies/wouter-Unlicense.txt), [upstream](https://github.com/molefrog/wouter/tree/v3.13.0)                                                                                                    |
 | Runtime package `@chessviewer-org/chess-viewer@1.6.0` | [AGPL-3.0 source](https://github.com/chessviewer-org/chess-viewer-utils)                                                                                                                                              |
 
-Generated fairy pieces retain the license of their source piece set.
+The [piece-set attribution](../piece/ATTRIBUTION.md) also records the authors
+of the two Lichess-classified freeware sets, `companion` and `leipzig`. Their
+source descriptions are linked there; “freeware” is not an open-source license.
+Generated fairy pieces retain the terms of their source artwork.
