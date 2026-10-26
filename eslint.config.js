@@ -10,6 +10,7 @@ export default tseslint.config(
     ignores: [
       'build/',
       'dist/',
+      '.wrangler/',
       'node_modules/',
       '.tmp/',
       'supabase/',
