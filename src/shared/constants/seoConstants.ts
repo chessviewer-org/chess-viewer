@@ -251,7 +251,8 @@ const ROUTE_SEO: Record<string, SeoMeta> = {
     name: 'FEN History',
     path: '/fen-history',
     description:
-      'Browse and reuse your saved FEN positions. Your chess diagram history is stored privately on your device with optional cloud sync — search, filter, and re-export any position.'
+      'Browse and reuse your saved FEN positions. Your chess diagram history is stored privately on your device with optional cloud sync — search, filter, and re-export any position.',
+    noindex: true
   },
   '/settings': {
     name: 'Settings',
@@ -290,4 +291,8 @@ const ROUTE_SEO: Record<string, SeoMeta> = {
 
 // Service
 export const getRouteSeo = (path: string): SeoMeta =>
-  ROUTE_SEO[path] ?? { path, description: DEFAULT_DESCRIPTION };
+  ROUTE_SEO[path] ?? {
+    name: 'Page Not Found',
+    description: 'The requested ChessViewer page could not be found.',
+    noindex: true
+  };

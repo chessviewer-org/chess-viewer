@@ -10,5 +10,7 @@ export const PRERENDERED_ROUTES = [
   '/settings',
   '/auth/sign-in',
   '/auth/sign-up',
-  '/auth/forgot-password'
+  '/auth/forgot-password',
+  '/auth/mfa',
+  '/404'
 ];

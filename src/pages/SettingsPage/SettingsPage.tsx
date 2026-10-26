@@ -18,6 +18,7 @@ import {
 } from '@/components/layout/Sidebar/PageTabs';
 import { PageSidebarLayout } from '@/components/layout/Sidebar/PageSidebarLayout';
 import { useAuth } from '@/auth/core/useAuth';
+import { getRouteSeo } from '@constants';
 
 import { Seo } from '@/shared/ui/Seo';
 import {
@@ -89,7 +90,7 @@ const SettingsPage = memo(function SettingsPage() {
 
   return (
     <div className="flex-1 bg-bg">
-      <Seo name="Settings" noindex />
+      <Seo {...getRouteSeo('/settings')} />
       <PageSidebarLayout
         contentRef={contentRef}
         contentLabel="Settings"

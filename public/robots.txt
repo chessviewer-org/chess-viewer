@@ -4,11 +4,7 @@
 User-agent: *
 Allow: /
 
-# Private, user-specific page — keep out of the index.
-Disallow: /settings
-
-# Optimal crawl delay
-Crawl-delay: 1
+# Private pages use HTML noindex tags. Allow crawling so bots can read them.
 
 # Sitemap location
 Sitemap: https://chessvision.org/sitemap.xml
