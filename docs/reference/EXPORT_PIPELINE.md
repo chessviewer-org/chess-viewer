@@ -28,7 +28,7 @@ The export system converts a chess board configuration into a high-resolution im
 - Formats: PNG, JPEG, SVG — several can be selected for one download
 - Fairy positions include a composition legend, conditions and metadata
 - DPI metadata embedded in PNG (`pHYs` chunk) and JPEG (JFIF density fields)
-- SVG pieces embedded as base64 data URLs — fully self-contained output
+- SVG piece artwork embedded as vector `<symbol>` definitions — fully self-contained output
 - Export can be paused, resumed, or cancelled mid-way
 - Batch export: multiple FEN positions → individual files in a ZIP
 
@@ -75,7 +75,7 @@ All four presets are well within the 16,384 px Safari canvas limit.
 ### SVG
 
 - Resolution-independent vector output
-- Piece images embedded as data URLs (self-contained file — no external dependencies)
+- Piece artwork embedded as vector `<symbol>` definitions, reused with `<use>` (self-contained file with no external image dependencies)
 - Coordinate labels as `<text>` elements
 - Fairy diagrams also embed the source notation (FFEN or Popeye)
 - File size scales with board complexity, not pixel dimensions
@@ -103,7 +103,8 @@ User triggers export
 ```
 User triggers SVG export
   → generateBoardSVG()            # builds SVG string
-      └─ imageToEmbeddableDataURL()   # per piece: same-origin SVG → data:image/svg+xml
+      └─ fetchPieceSvgText()          # local or data-URL SVG source, cached by URL
+      └─ buildPieceVector()           # validates viewBox and retains vector paths
   → Blob → URL.createObjectURL()
   → <a download> click
   → URL.revokeObjectURL()
@@ -152,14 +153,15 @@ This is mandatory. Safari does not release canvas GPU backing memory on referenc
 
 ## SVG Piece Embedding
 
-`imageToEmbeddableDataURL()` in `pieceUtils.ts` converts each piece image to a data URL for inline SVG embedding:
+`fetchPieceSvgText()` in `pieceSvg.ts` reads local SVG artwork or an SVG data
+URL. The parsed source retains its vector paths and viewBox; `svgExporter.ts`
+places each distinct piece in one `<symbol>` and uses `<use>` on board squares.
+The output does not substitute a PNG when vector artwork cannot be read. It
+returns an error for that piece, so an SVG request never silently becomes a
+raster export. Temporary server failures are retried; a missing source is not.
 
-- **Same-origin SVG** (the normal case — pieces live in `/piece/<set>/` and `/fairypiece/<set>/`): fetches the SVG source, resizes it when a target size is given and returns a `data:image/svg+xml` URL, so pieces stay vectors.
-- **Other `http(s)` images, or an SVG that cannot be fetched**: rasterised through a canvas into a PNG data URL, with a placeholder as the last resort.
-- **`blob:` URL**: draws the loaded `HTMLImageElement` to a temporary canvas and returns a PNG data URL; the canvas is disposed immediately.
-- **`data:` URL**: returned as-is. Any other protocol is rejected.
-
-Results are cached by source and target size (at most 48 entries and a character budget, oldest first). Concurrent requests for the same piece share one promise.
+SVG text is cached by source URL within a bounded memory budget. Concurrent
+requests for the same piece share one promise.
 
 ---
 
@@ -200,7 +202,7 @@ Progress is reported per-file and globally across the batch.
 | `exportState.ts`                            | `cancelExport`, `pauseExport`, `resumeExport`, `validateExportConfig`, `getExportInfo` |
 | `imageOptimizer.ts`                         | `calculateRenderSurfaceSize`, `getMaxCanvasSize`, `estimateFileSizes`                  |
 | `svgExporter.ts`                            | `generateBoardSVG`, `downloadSVG`                                                      |
-| `pieceUtils.ts`                             | `preloadPieceStyle`, `waitForPieceImage`, `imageToEmbeddableDataURL`                   |
+| `pieceUtils.ts`, `pieceSvg.ts`              | Piece-image loading, SVG source cache and vector extraction                            |
 | `saveBlob.ts`                               | File download via `<a download>`                                                       |
 | `pages/AdvancedFENInputPage/useAdvancedFEN` | Batch export and ZIP packing (fflate)                                                  |
 | `@chessviewer-org/chess-viewer` `changeDPI` | pHYs (PNG) and JFIF (JPEG) DPI metadata                                                |

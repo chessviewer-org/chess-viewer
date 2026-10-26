@@ -1,0 +1,61 @@
+.shapes {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+  filter: drop-shadow(0 0 1px rgb(0 0 0 / 0.45));
+}
+
+.arrow {
+  fill: currentcolor;
+  stroke: currentcolor;
+  stroke-linecap: butt;
+  stroke-linejoin: round;
+}
+
+.ring {
+  fill: none;
+  stroke: currentcolor;
+}
+
+.hint {
+  color: var(--hint-color, #f5c400);
+}
+
+.threat {
+  color: var(--threat-color, #e53935);
+}
+
+.best {
+  opacity: 0.85;
+}
+
+.alternative {
+  opacity: 0.45;
+}
+
+.green {
+  color: #15781b;
+}
+
+.red {
+  color: #882020;
+}
+
+.blue {
+  color: #003088;
+}
+
+.yellow {
+  color: #e68f00;
+}
+
+.drawn {
+  opacity: 0.8;
+}
+
+.pending {
+  opacity: 0.5;
+}

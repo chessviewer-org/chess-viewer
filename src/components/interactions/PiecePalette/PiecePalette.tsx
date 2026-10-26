@@ -25,6 +25,8 @@ export interface PiecePaletteProps {
   groups?: readonly PaletteGroup[];
   className?: string;
   adaptive?: boolean;
+  fit?: boolean;
+  pairedGroups?: boolean;
   onKeyboardPick?: ((piece: BoardCell) => void) | undefined;
   selectedPiece?: BoardCell | null | undefined;
   onSelect?: ((piece: BoardCell) => void) | undefined;
@@ -44,6 +46,8 @@ export const PiecePalette = memo(function PiecePalette({
   groups = STANDARD_GROUPS,
   className = '',
   adaptive = false,
+  fit = false,
+  pairedGroups = false,
   onKeyboardPick,
   selectedPiece,
   onSelect
@@ -95,7 +99,7 @@ export const PiecePalette = memo(function PiecePalette({
 
   return (
     <div
-      className={`${styles.root} ${adaptive ? styles.adaptive : ''} ${className}`}
+      className={`${styles.root} ${adaptive ? styles.adaptive : ''} ${fit ? styles.fit : ''} ${pairedGroups ? styles.pairedGroups : ''} ${className}`}
     >
       <div className={styles.stacked}>
         {rows.map((row) => (

@@ -1,0 +1,87 @@
+@use 'sass:math';
+@use '../../../../../styles/variables' as v;
+
+$rem: 16px;
+$files: 8;
+
+$board-scale: 0.95;
+$gutter-scale: 1 - $board-scale;
+$square-share: math.percentage(math.div(1, $files));
+$top-inset: 3px;
+
+$frame-gap: 2.5px;
+$frame-line: 2px;
+$frame-hairline: 0.5px;
+
+$side-ratio: 0.52;
+$side-cap: 460px;
+$desk-ratio: 0.54;
+$desk-cap: 520px;
+$single-cap: 520px;
+
+$side-column: min(#{$side-ratio * 100}cqi, #{$side-cap});
+$desk-column: min(#{$desk-ratio * 100}cqi, #{$desk-cap});
+
+$command-buttons: 7;
+$command-dividers: 2;
+$command-gaps: 7;
+$command-gap: 4px;
+$command-pad: 8px;
+$command-divider: 1px;
+$command-min: 28px;
+$command-max: 35px;
+$command-fixed: $command-dividers * $command-divider + $command-gaps *
+  $command-gap + $command-pad;
+
+$label-max: 14px;
+$label-fluid: 3.5vw;
+$min-square: 34px;
+$narrowest-container: 283px;
+
+@function rem($px) {
+  @return math.div($px, $rem) * 1rem;
+}
+
+@function column-width($container, $ratio, $cap) {
+  @return math.min($container * $ratio, $cap);
+}
+
+@function square-size($container, $ratio, $cap) {
+  @return math.div(
+    column-width($container, $ratio, $cap) * $board-scale,
+    $files
+  );
+}
+
+@function command-size($container) {
+  @return math.div($container - $command-fixed, $command-buttons);
+}
+
+@if square-size(v.$editor-breakpoint-side, $side-ratio, $side-cap) < $min-square
+{
+  @error 'Side breakpoint #{v.$editor-breakpoint-side} gives squares below #{$min-square}.';
+}
+
+@if square-size(v.$editor-breakpoint-desk, $desk-ratio, $desk-cap) <
+  square-size(v.$editor-breakpoint-side, $side-ratio, $side-cap)
+{
+  @error 'The desktop board must not be smaller than the side-by-side board.';
+}
+
+@if command-size($narrowest-container) < $command-min {
+  @error 'The command bar does not fit the narrowest container.';
+}
+
+@mixin panel-height {
+  height: calc(
+    var(--board-col-width) * #{$board-scale} + var(--board-frame) +
+      var(--board-top-inset)
+  );
+}
+
+@mixin panel-min-height {
+  min-height: calc(
+    var(--board-col-width) * #{$board-scale} + var(--board-frame) +
+      var(--board-top-inset)
+  );
+}

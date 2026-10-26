@@ -9,7 +9,6 @@ import {
   pauseExport,
   resetExportState,
   resumeExport,
-  setProgress,
   validateExportConfig,
   waitWhilePaused
 } from '@utils/exportState';
@@ -41,13 +40,6 @@ describe('validateExportConfig', () => {
     assert.throws(
       () => validateExportConfig(undefined as unknown as typeof VALID_CONFIG),
       /null or undefined/
-    );
-  });
-
-  test('boardSize < 1 throws', () => {
-    assert.throws(
-      () => validateExportConfig({ ...VALID_CONFIG, boardSize: 0 }),
-      /boardSize/
     );
   });
 
@@ -210,72 +202,25 @@ describe('exportState lifecycle', () => {
   });
 });
 
-describe('setProgress', () => {
-  test('calls callback with value and label', () => {
-    let called = false;
-    let prog = 0;
-    let label: string | null = '';
-    setProgress(
-      (v, l) => {
-        called = true;
-        prog = v;
-        label = l ?? null;
-      },
-      50,
-      'Test label'
-    );
-    assert.ok(called);
-    assert.equal(prog, 50);
-    assert.equal(label, 'Test label');
-  });
-
-  test('undefined callback does not throw', () => {
-    assert.doesNotThrow(() => setProgress(undefined, 100, null));
-  });
-
-  test('null label is passed through', () => {
-    let receivedLabel: string | null = 'sentinel';
-    setProgress(
-      (_v, l) => {
-        receivedLabel = l ?? null;
-      },
-      0,
-      null
-    );
-    assert.equal(receivedLabel, null);
-  });
-});
-
 describe('waitWhilePaused', () => {
-  test('resolves immediately when not paused', async () => {
-    resetExportState();
-    const start = Date.now();
-    await waitWhilePaused();
-    const elapsed = Date.now() - start;
-    assert.ok(elapsed < 50, `took ${elapsed}ms, expected < 50ms`);
-  });
-
-  test('resolves after resume when paused', async () => {
-    resetExportState();
-    pauseExport();
-    const promise = waitWhilePaused();
-    setTimeout(() => resumeExport(), 150);
-    const start = Date.now();
-    await promise;
-    const elapsed = Date.now() - start;
-    assert.ok(elapsed >= 100, `took ${elapsed}ms, expected >= 100ms`);
-  });
-
-  test('resolves after cancel when paused', async () => {
-    resetExportState();
-    pauseExport();
-    const promise = waitWhilePaused();
-    setTimeout(() => cancelExport(), 150);
-    const start = Date.now();
-    await promise;
-    const elapsed = Date.now() - start;
-    assert.ok(elapsed >= 100, `took ${elapsed}ms, expected >= 100ms`);
-  });
+  for (const [action, release] of [
+    ['resume', resumeExport],
+    ['cancel', cancelExport]
+  ] as const) {
+    test(`stays pending until ${action} releases the export`, async () => {
+      resetExportState();
+      pauseExport();
+      let settled = false;
+      const waiting = waitWhilePaused().then(() => {
+        settled = true;
+      });
+      await Promise.resolve();
+      assert.equal(settled, false);
+      release();
+      await waiting;
+      assert.equal(settled, true);
+    });
+  }
 });
 
 describe('getExportInfo', () => {

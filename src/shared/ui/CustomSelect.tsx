@@ -79,7 +79,10 @@ const CustomSelectComponent = <T extends string | number>({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        onKeyDown={onKeyDown}
+        onKeyDown={(event) => {
+          if (isOpen && event.key === 'Escape') event.stopPropagation();
+          onKeyDown(event);
+        }}
         role="combobox"
         aria-haspopup="listbox"
         aria-expanded={isOpen}

@@ -29,6 +29,11 @@ function inlineBootScripts() {
   };
 }
 
+const crossOriginIsolation = {
+  'Cross-Origin-Opener-Policy': 'same-origin',
+  'Cross-Origin-Embedder-Policy': 'credentialless'
+};
+
 export default defineConfig({
   plugins: [inlineBootScripts(), preact()],
 
@@ -52,6 +57,7 @@ export default defineConfig({
     port: 3000,
     open: true,
     strictPort: false,
+    headers: crossOriginIsolation,
     warmup: {
       clientFiles: ['./src/index.tsx', './src/pages/**/*Page.tsx']
     },
@@ -62,7 +68,8 @@ export default defineConfig({
 
   preview: {
     port: 4173,
-    open: true
+    open: true,
+    headers: crossOriginIsolation
   },
 
   build: {

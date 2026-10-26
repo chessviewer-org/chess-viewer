@@ -1,0 +1,23 @@
+@use '../../../../../styles/mixins' as m;
+@use 'metrics' as g;
+
+.editorRoot[data-analysis-open='true'] {
+  .editorPanel {
+    @include m.editor-side-by-side {
+      @include g.panel-height;
+    }
+
+    @include m.editor-single-col {
+      min-height: 0;
+      aspect-ratio: 1 / #{g.$board-scale};
+    }
+  }
+
+  .editorDbRow {
+    @include m.editor-desktop {
+      display: block;
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+  }
+}

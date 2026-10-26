@@ -57,7 +57,7 @@
   width: var(--shell-viewport-width, 100vw);
 }
 .workspace-container {
-  container-type: inline-size;
+  container: workspace / inline-size;
 }
 
 @supports (padding: env(safe-area-inset-bottom)) {
@@ -266,10 +266,6 @@ select:focus-visible {
   &::-webkit-scrollbar {
     display: none;
   }
-}
-
-[data-square-pattern='hatched'] [data-shade='dark'] {
-  background-image: var(--board-hatch);
 }
 
 [data-square-pattern='hatched'] [data-shade='dark'] img {

@@ -78,6 +78,12 @@
   }
 }
 
+@mixin workspace-side {
+  @container workspace (min-width: #{v.$editor-breakpoint-side}) {
+    @content;
+  }
+}
+
 @mixin db-single-col {
   @include container-down(v.$db-breakpoint-2col) {
     @content;

@@ -62,11 +62,22 @@ export default function ContributeSection() {
 
       <InfoCard title="License">
         <p>
-          ChessViewer is licensed under the{' '}
+          ChessViewer application code is licensed under the{' '}
           <strong className="text-text-primary">{LICENSE_NAME}</strong>. In
           short, you are free to use, study, modify, and share it — but if you
           run a modified version, you must make your source available under the
           same license.
+        </p>
+        <p>
+          Bundled engines, fonts, icons and chess piece artwork have separate
+          terms. See the{' '}
+          <a
+            href="/licenses/README.md"
+            className="text-accent underline-offset-2 hover:underline focus-visible:underline"
+          >
+            third-party licenses
+          </a>
+          .
         </p>
         <ExternalLinkButton
           href={REPO_LICENSE_URL}

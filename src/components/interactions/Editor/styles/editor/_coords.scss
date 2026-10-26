@@ -1,0 +1,56 @@
+@use 'sass:math';
+@use 'metrics' as g;
+
+.editorBoardSquare {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.editorBoardFrame {
+  position: absolute;
+  inset: -(g.$frame-gap);
+  z-index: 10;
+  box-sizing: border-box;
+  border: g.$frame-line solid var(--frame-color);
+  box-shadow: inset 0 0 0 g.$frame-hairline rgb(0 0 0 / 0.9);
+  pointer-events: none;
+}
+
+.editorRanks {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  width: math.percentage(g.$gutter-scale);
+  height: math.percentage(g.$board-scale);
+  padding-right: 0.25rem;
+}
+
+.editorFiles {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  width: math.percentage(g.$board-scale);
+  height: math.percentage(g.$gutter-scale);
+  padding-top: 0.25rem;
+}
+
+.editorCoord {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  font-size: min(#{g.$label-max}, #{g.$label-fluid});
+  font-weight: 700;
+}
+
+.editorRank {
+  height: g.$square-share;
+}
+
+.editorFile {
+  flex: 1;
+}

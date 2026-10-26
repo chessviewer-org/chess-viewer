@@ -25,7 +25,7 @@ const ORTHODOX: Record<string, string> = {
   P: 'P'
 };
 const KEYWORDS =
-  'BeginProblem|EndProblem|Pieces|Forsyth|Condition|Stipulation|SStipulation|Option|Author|Origin|Title|Remark|Twin|ZeroPosition|Duplex|HalfDuplex';
+  'BeginProblem|EndProblem|Pieces|Forsyth|Condition|Stipulation|SStipulation|Option|Author|Origin|Title|Remark|Twin|ZeroPosition';
 export const MAX_COMPOSITION_LENGTH = 32768;
 export const DEFAULT_FEN_METADATA = 'w - - 0 1';
 
@@ -268,9 +268,13 @@ export function serializePopeye(
   context?: Pick<PopeyeDocument, 'commands' | 'fenMetadata'>
 ): string {
   const commands = context?.commands ?? [];
+  const isTwin = (command: PopeyeDocument['commands'][number]) =>
+    command.keyword === 'twin' || command.keyword === 'zeroposition';
   const lines = [
     'BeginProblem',
-    ...commands.map((command) => `${command.keyword} ${command.value}`.trim())
+    ...commands
+      .filter((command) => !isTwin(command))
+      .map((command) => `${command.keyword} ${command.value}`.trim())
   ];
   if (context?.fenMetadata && context.fenMetadata !== DEFAULT_FEN_METADATA)
     lines.push(`Remark ChessViewerFEN ${context.fenMetadata}`);
@@ -298,5 +302,11 @@ export function serializePopeye(
     lines.push(`Remark ChessViewerSymbols ${symbols.join(' ')}`);
   for (const [group, pieces] of groups)
     lines.push(`Pieces ${group} ${pieces.join(' ')}`);
-  return [...lines, 'EndProblem'].join('\n');
+  return [
+    ...lines,
+    ...commands
+      .filter(isTwin)
+      .map((command) => `${command.keyword} ${command.value}`.trim()),
+    'EndProblem'
+  ].join('\n');
 }

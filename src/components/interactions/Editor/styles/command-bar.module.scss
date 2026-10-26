@@ -1,0 +1,76 @@
+@use 'editor/metrics' as g;
+
+.bar {
+  --cmd-size: clamp(
+    #{g.rem(g.$command-min)},
+    calc((100cqi - #{g.rem(g.$command-fixed)}) / #{g.$command-buttons}),
+    #{g.rem(g.$command-max)}
+  );
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.group {
+  display: flex;
+  align-items: center;
+  gap: g.rem(g.$command-gap);
+}
+
+.button {
+  display: grid;
+  place-items: center;
+  width: var(--cmd-size);
+  height: var(--cmd-size);
+  flex: none;
+  border-radius: 0.5rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    color 200ms,
+    background-color 200ms;
+
+  &:hover:not(:disabled) {
+    color: var(--color-text-primary);
+    background: var(--color-surface-hover);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-accent);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.active {
+  color: var(--color-accent);
+  background: rgb(var(--val-accent) / 0.1);
+}
+
+.success {
+  color: var(--color-success);
+}
+
+.primary {
+  color: var(--color-accent);
+
+  &:hover:not(:disabled) {
+    background: rgb(var(--val-accent) / 0.1);
+  }
+}
+
+.divider {
+  align-self: stretch;
+  width: g.rem(g.$command-divider);
+  background: rgb(255 255 255 / 0.2);
+}
+
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}

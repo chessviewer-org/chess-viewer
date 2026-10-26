@@ -1,0 +1,71 @@
+.root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  contain: layout;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template: repeat(8, minmax(0, 1fr)) / repeat(8, minmax(0, 1fr));
+  gap: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+  container-type: inline-size;
+  contain: layout style paint;
+  font-size: 0;
+  line-height: 0;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.15);
+}
+
+.rank {
+  display: contents;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.square {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  outline: none;
+  cursor: pointer;
+
+  &[data-drag-over] {
+    z-index: 2;
+    box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.85);
+  }
+}
+
+.halo img {
+  --halo: 0.4375cqw;
+  filter: drop-shadow(var(--halo) 0 0 var(--board-light))
+    drop-shadow(calc(var(--halo) * -1) 0 0 var(--board-light))
+    drop-shadow(0 var(--halo) 0 var(--board-light))
+    drop-shadow(0 calc(var(--halo) * -1) 0 var(--board-light));
+}

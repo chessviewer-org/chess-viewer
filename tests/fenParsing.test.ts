@@ -147,15 +147,6 @@ describe('isLightSquare', () => {
     assert.equal(isLightSquare(7, 7), true);
   });
 
-  test('every square is either light or dark (never both)', () => {
-    for (let r = 0; r < 8; r++) {
-      for (let c = 0; c < 8; c++) {
-        const light = isLightSquare(r, c);
-        assert.ok(light === true || light === false);
-      }
-    }
-  });
-
   test('adjacent squares alternate color', () => {
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 7; c++) {

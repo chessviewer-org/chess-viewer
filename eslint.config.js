@@ -7,7 +7,16 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['build/', 'dist/', 'node_modules/', '.tmp/', 'supabase/']
+    ignores: [
+      'build/',
+      'dist/',
+      '.wrangler/',
+      'node_modules/',
+      '.tmp/',
+      'supabase/',
+      'public/wasm/popeye/py.mjs',
+      'public/wasm/stockfish/'
+    ]
   },
 
   js.configs.recommended,

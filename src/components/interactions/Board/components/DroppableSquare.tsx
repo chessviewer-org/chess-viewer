@@ -5,18 +5,19 @@ import { cellName } from '@/shared/utils/boardCells';
 import { indicesToSquare } from '@chessviewer-org/chess-viewer';
 import { useDroppable } from '@/shared/hooks/useDragDrop';
 import { DraggablePiece } from './DraggablePiece';
+import styles from '../styles/board.module.scss';
 
 interface DroppableSquareProps {
   row: number;
   col: number;
   piece: BoardCell;
-  isLight: boolean;
-  backgroundColor: string;
+  halo: boolean;
   pieceImage: HTMLImageElement | null;
   onSelect?: ((row: number, col: number) => void) | undefined;
   isSelected?: boolean;
   isCursor?: boolean;
   isHeldSource?: boolean;
+  destination?: 'move' | 'capture' | undefined;
 }
 
 export const DroppableSquare = memo(
@@ -24,13 +25,13 @@ export const DroppableSquare = memo(
     row,
     col,
     piece,
-    isLight,
-    backgroundColor,
+    halo,
     pieceImage,
     onSelect,
     isSelected = false,
     isCursor = false,
-    isHeldSource = false
+    isHeldSource = false,
+    destination
   }: DroppableSquareProps) {
     const squareName = indicesToSquare(row, col);
     const ariaLabel = piece
@@ -58,31 +59,27 @@ export const DroppableSquare = memo(
         role="gridcell"
         aria-label={ariaLabel}
         aria-selected={isSelected || isCursor}
-        className="w-full h-full flex items-center justify-center relative cursor-pointer data-drag-over:z-2 data-drag-over:shadow-[inset_0_0_0_2px_rgba(255,255,255,0.85)]"
-        style={{
-          backgroundColor,
-          outline: 'none',
-          minWidth: 0,
-          minHeight: 0
-        }}
+        className={halo ? `${styles.square} ${styles.halo}` : styles.square}
         data-row={row}
         data-col={col}
-        data-shade={isLight ? 'light' : 'dark'}
       >
         {(isSelected || isCursor) && (
           <span
             aria-hidden="true"
-            className={`pointer-events-none absolute inset-0 z-10 border-2 ${isSelected ? 'border-text-primary' : 'border-accent'}`}
+            className={`${styles.mark} ${isSelected ? styles.selected : styles.cursor}`}
+          />
+        )}
+        {destination && (
+          <span
+            aria-hidden="true"
+            className={`${styles.mark} ${destination === 'capture' ? styles.capture : styles.destination}`}
           />
         )}
         {piece && pieceImage && (
           <div
             key={piece}
-            className="w-full h-full flex items-center justify-center"
-            style={{
-              contain: 'layout style',
-              opacity: isHeldSource ? 0.45 : 1
-            }}
+            className={styles.pieceSlot}
+            style={{ opacity: isHeldSource ? 0.45 : 1 }}
           >
             <DraggablePiece
               piece={piece}
@@ -100,14 +97,14 @@ export const DroppableSquare = memo(
   (prevProps, nextProps) => {
     return (
       prevProps.piece === nextProps.piece &&
-      prevProps.isLight === nextProps.isLight &&
-      prevProps.backgroundColor === nextProps.backgroundColor &&
+      prevProps.halo === nextProps.halo &&
       prevProps.row === nextProps.row &&
       prevProps.col === nextProps.col &&
       prevProps.onSelect === nextProps.onSelect &&
       prevProps.isSelected === nextProps.isSelected &&
       prevProps.isCursor === nextProps.isCursor &&
       prevProps.isHeldSource === nextProps.isHeldSource &&
+      prevProps.destination === nextProps.destination &&
       prevProps.pieceImage === nextProps.pieceImage
     );
   }

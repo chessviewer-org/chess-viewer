@@ -11,6 +11,7 @@
 # production
 /build
 /dist
+/.wrangler/
 
 # Vite
 *.local
@@ -41,3 +42,11 @@ yarn-error.log*
 # Supabase CLI local artifacts (link state, temp files) — never committed
 supabase/.temp/
 supabase/.branches/
+
+# Local native engine build workspace; published source archives live below.
+/native/
+*.tar.gz
+!public/licenses/popeye/popeye-4.103-source.tar.gz
+!public/licenses/popeye/popeye-4.103-build-inputs.tar.gz
+*.tgz
+*.zip

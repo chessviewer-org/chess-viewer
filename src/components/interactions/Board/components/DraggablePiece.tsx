@@ -4,6 +4,7 @@ import { type ChessDragData } from '@constants';
 import type { BoardCell } from '@app-types';
 import { useDraggable } from '@/shared/hooks/useDragDrop';
 import { getPieceKey } from '@/shared/utils/pieceUtils';
+import styles from '../styles/board.module.scss';
 
 interface DraggablePieceProps {
   piece: BoardCell;
@@ -50,11 +51,7 @@ export const DraggablePiece = memo(function DraggablePiece({
       ref={touchRef}
       onPointerDown={onPointerDown}
       onContextMenu={(e) => e.preventDefault()}
-      className={`
-        flex items-center justify-center
-        select-none
-        ${disabled ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'}
-      `}
+      className={`${styles.piece} ${disabled ? styles.pieceDisabled : ''}`}
       style={{
         width: size,
         height: size,
@@ -62,25 +59,14 @@ export const DraggablePiece = memo(function DraggablePiece({
         visibility: isDragging ? 'hidden' : 'inherit',
         transition: isDragging
           ? 'none'
-          : 'opacity 150ms cubic-bezier(0.4, 0, 0.2, 1)',
-        contain: 'strict',
-        touchAction: 'manipulation',
-        WebkitTouchCallout: 'none',
-        WebkitUserSelect: 'none',
-        userSelect: 'none'
+          : 'opacity 150ms cubic-bezier(0.4, 0, 0.2, 1)'
       }}
       aria-hidden="true"
     >
       <img
         src={pieceImage.src}
         alt=""
-        className="w-full h-full object-contain"
-        style={{
-          pointerEvents: 'none',
-          userSelect: 'none',
-          WebkitUserSelect: 'none',
-          imageRendering: 'auto'
-        }}
+        className={styles.pieceImage}
         draggable={false}
       />
     </div>

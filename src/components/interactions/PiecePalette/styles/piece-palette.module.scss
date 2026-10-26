@@ -111,3 +111,47 @@
 @container palette (min-width: 26rem) {
   @include paired-groups;
 }
+
+@container palette (min-width: 20rem) {
+  .pairedGroups {
+    @include paired-groups;
+  }
+}
+
+@include m.workspace-side {
+  .fit {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    min-height: 0;
+
+    .stacked {
+      flex: 1 1 0;
+      min-height: 0;
+    }
+
+    .stackedRow {
+      flex: 1 1 0;
+      min-height: 0;
+      align-items: stretch;
+    }
+
+    .stackedGroup {
+      flex-grow: 1;
+      min-height: 0;
+    }
+
+    .stackedPieceRow {
+      flex: 1 1 0;
+      min-height: 0;
+      container-type: size;
+      grid-template-rows: minmax(0, 1fr);
+    }
+
+    .stackedPieceBtn {
+      width: max(1.75rem, min(100%, 100cqb));
+      justify-self: center;
+      align-self: center;
+    }
+  }
+}

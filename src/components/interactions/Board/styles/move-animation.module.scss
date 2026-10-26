@@ -1,0 +1,74 @@
+.layer {
+  --motion-duration: 200ms;
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  overflow: hidden;
+  pointer-events: none;
+  contain: layout style paint;
+}
+.layer[data-stages='2'] {
+  --motion-duration: 280ms;
+}
+.layer[data-stages='3'] {
+  --motion-duration: 340ms;
+}
+.still,
+.segment {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 12.5%;
+  height: 12.5%;
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+.still {
+  transform: translate(var(--x), var(--y));
+}
+.segment {
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: travel calc(var(--motion-duration) / var(--segments)) linear;
+  animation-delay: calc(
+    var(--motion-duration) * var(--segment-index) / var(--segments)
+  );
+  &[data-last='true'] {
+    animation-fill-mode: forwards;
+  }
+  &[data-last='true'][data-removed='true'] {
+    animation-name: captured;
+  }
+}
+@keyframes travel {
+  from {
+    opacity: 1;
+    transform: translate(var(--from-x), var(--from-y));
+  }
+  to {
+    opacity: 1;
+    transform: translate(var(--to-x), var(--to-y));
+  }
+}
+@keyframes captured {
+  from {
+    opacity: 1;
+    transform: translate(var(--from-x), var(--from-y));
+  }
+  to {
+    opacity: 0;
+    transform: translate(var(--to-x), var(--to-y));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .layer,
+  .layer[data-stages] {
+    --motion-duration: 1ms;
+  }
+  .segment {
+    animation-delay: 0ms;
+  }
+}

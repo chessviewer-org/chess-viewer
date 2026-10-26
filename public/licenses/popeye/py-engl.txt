@@ -1,0 +1,1311 @@
+     D E S C R I P T I O N   O F   P O P E Y E
+ 
+
+Some remarks on the distribution of popeye:
+
+Popeye is free software. Everybody may get the source of popeye. We
+believe that this software should be public and does not constitute
+our own personal property - even we have invested a lot of work in
+it. This work cannot be waged by money, and also we devote our time to
+popeye not to earn money.
+
+The only restriction that we impose is that Popeye be distributed in
+its entirety.
+
+
+Providing feedback:
+
+The preferred way of submitting bug reports or feature requests is
+through the tools offered on github.com .
+
+Please direct your browser to
+https://github.com/thomas-maeder/popeye/issues
+
+Use the "Add new" link and fill out the "Summary" and "Description"
+with the information you'd like to submit, then use the "Add Artifact"
+button to submit your bug report or feature request.
+
+
+
+Starting popeye:
+
+Change the name of your preferred executable to py.exe
+To operate it from the terminal:                py
+To solve problems recorded in file XX:          py XX
+
+Commandline parameters:
+-maxmem
+	You can provide for Popeye for example 40960 kilobyte (or 40 megabye)
+	of memory with
+		 -maxmem 40960    resp.    -maxmem 40M
+	to speed up solving.
+	Popeye uses this memory to avoid testing the same intermediate
+	positions repeatedly. You can indicate -maxmem 0 to turn off this
+	optimisation.
+
+-maxtime
+	Indicate the maximum number of seconds that Popeye may spend
+	on each problem. This command line option is
+	equivalent to the option maxtime that can be used in the problem
+	definition (see below).
+	Example:
+		-maxtime 60
+	If a problem hasn't been solved after one minute, solving
+	continues with the next problem in the input file (if any).
+
+-heartbeat
+        MAINLY FOR PARALLELISERS LIKE SPINACH
+	Activation of printing of heartbeat lines on the error channel.
+	If activated, Popeye will print heartbeat lines to the error
+	channel in more or less regular time intervals.
+	If printing such a heartbeat line fails, Popeye terminates
+	immediately.
+	This parameter improves the collaboration between parallelisers
+	and Popeye:
+	- parallelisers can detect that their Popeye slaves are working
+	- (more importantly) Popeye processes can detect that their
+	  paralleliser has been terminated; this avoids long running
+	  Popeye zombie processes
+	After -heartbeat, the rate can be indicated. The default rate
+	is 50000; higher values cause less heartbeat lines to be printed
+	per time interval, and lower values more heartbeat lines.
+
+-regression
+	MAINLY FOR DEVELOPERS
+	Popeye version info and solving times are suppressed from
+	output files.
+
+
+Stopping Popeye:
+
+        press  CTRL + C  key combination
+
+
+
+Description of the input language of popeye:
+
+The input to popeye is not case sensitive. Every input to popeye starts with
+the reserved word `BeginProblem'. After entering this command to popeye,
+following commands may be used:
+
+	remark, author, origin, title, protocol,
+        condition, option, stipulation, sstipulation, forsyth, pieces, twin
+
+The order of these commands is free, and can also occur more times.
+The last of the commands in the second line is relevant. All of these
+commands expect further parameters. Lets start with the simpler commands:
+
+ - remark: this keyword introduces a comment. Everything up to the end of the
+	line will be ignored and has no further effects.
+
+ - author: The parameter to this command is the author of the problem. All
+	Text up to end of line will be put above the diagram in the output.
+	This input is completely optional and has no effect to the other
+	capabilities of the program. All the input of multiple author
+	commands will be placed on the output.
+
+ - origin: All the same as the author command.
+ - title:  All the same as the author command.
+
+ - protocol: The parameter to his command is interpreted as filename, and all
+	further output of popeye on the screen is also placed in the given
+	file. If the file exists already, the output of popeye is appended to
+	the file. The file will not be deleted.
+
+ - condition: All the conditions neccessary for the problem, seperated by
+	blanks or newline, should be given to this command.
+        The following conditions are implemented:
+
+	Circe
+	Madrasi
+	Volage
+	Hypervolage
+	BichromChess
+	MonochromChess
+	GridChess
+	KoeKo
+	BlackEdgemover
+	WhiteEdgemover
+	Leofamily
+	ChineseChess
+	Patrouille
+	NoCapture
+	ImmunChess
+	ContactGridChess
+	Imitator
+	CavalierMajeur
+	HaanerChess
+	Sentinelles
+	Maximummer		(applies to the defending side - don't mix with Black/White...)
+	UltraSchachZwang	(dito)
+	BlackMaximummer
+	WhiteMaximummer
+        WhiteUltraSchachZwang
+        BlackUltraSchachZwang
+	BlackMinimummer
+	WhiteMinimummer
+	MagicSquares
+	Tibet
+	DoubleTibet
+	Hole                    (= a square where you cannot move to)
+	BlackMustCapture
+	WhiteMustCapture
+	TransmutedKings
+	BlackFollowMyLeader
+	WhiteFollowMyLeader
+	DuellistChess
+	NoIProm                 No Promotion to Imitator allowed
+	VogtlaenderChess
+	EinsteinChess
+	Bicolores
+	NewKoeko
+	AntiCirce
+	ReversalEinsteinChess
+	RelegationChess
+	NorskSjakk
+	TraitorChess
+	AndernachChess
+	BlackForcedSquare
+	WhiteForcedSquare
+	BlackConsequentForcedSquare
+	WhiteConsequentForcedSquare
+	ReflectiveKings
+	ChameleonChess
+	FunctionaryChess
+	GlasgowChess
+	AntiAndernachChess
+	Isardam
+	ChecklessChess
+	PromOnly
+	ExclusiveChess
+	Marscirce
+	PhantomChess
+	WhiteTransmutedKing
+	BlackTransmutedKing
+	WhiteReflectiveKing
+	BlackReflectiveKing
+	AntiEinsteinChess
+	BlackRoyalSquare
+	WhiteRoyalSquare
+	PlusChess
+	BrunnerChess
+	CentralChess
+	ExtinctionChess
+	RepublicanChess
+        ActuatedRevolvingBoard
+        MessignyChess
+        Woozles
+        BiWoozles
+        Heffalumps
+        BiHeffalumps
+	WhitePromSquares
+	BlackPromSquares
+	NoWhitePromotion
+	NoBlackPromotion
+	EiffelChess
+	ActuatedRevolvingCentre
+	ShieldedKings
+	NoWhiteCapture
+	NoBlackCapture
+	AlphabeticChess
+	LineChameleonChess
+	AMU
+	SingleBox
+	MAFF
+	OWU
+	WhiteOscillatingKings
+	BlackOscillatingKings
+	AntiKings
+	AntiMarsCirce
+	WhiteSuperTransmutingKing
+	BlackSuperTransmutingKing
+	UltraPatrol
+	SwappingKings
+	RoyalDynasty
+	SAT
+	StrictSAT
+	Take&MakeChess
+	Make&TakeChess
+	BlackSynchronMover
+	WhiteSynchronMover
+	BlackAntiSynchronMover
+	WhiteAntiSynchronMover
+	Masand
+	MasandGeneralised
+	BGL
+	AnnanChess
+	NannaChess
+	NormalPawn
+	BlackChecks
+	GenevaChess
+	VaultingKings
+	WhiteVaultingKing
+	BlackVaultingKing
+	ProteanChess
+	Lortap
+	Antikoeko
+	CastlingChess
+	ChameleonPursuit
+	LosingChess
+	GhostChess
+	Football
+	WhiteAlphabeticChess
+	BlackAlphabeticChess
+	KobulKings
+	SuperGuards
+	Wormholes
+	MarineChess
+	UltramarineChess
+	BackHome
+	FaceToFace
+	BackToBack
+	CheekToCheek
+	Disparate
+	SnekChess
+	SnekCircleChess
+	ArgentinianChess
+	LostPieces
+	PartialParalysis
+	LeseMajeste
+	Rokagogo
+	Breton
+	PointReflection
+	Bolero
+	BoleroInverse
+	Influencer
+	RoleExchange
+	BlackMaxDister
+	BlackMinDister
+	WhiteMaxDister
+	WhiteMinDister
+	SeriesCapture
+	Pepo
+	CASTchess
+	CASTInverse
+	MultiCaptures
+	FuddledMen
+	Bicaptures
+	TransmissionMenace
+	PowerTransfer
+	Anda
+	AndaInverse
+	AllInChess
+	HalfInChess
+	MainlyInChess
+	FrankfurtChess
+	AntiGuards
+	Leffie
+	AliceChess
+	Immobilio (possibly followed by a list of piece walks)
+	DangerCirce
+	PAD
+	#C
+
+	After the conditions Imitator, MagicSquare, Hole,
+	WhitePromSquares, BlackPromSquares or one of
+	the ForcedSquares, list the squares on which the imitators are
+	to be placed, where the special squares are located, where
+	promoted pieces (FrischaufCirce) are located, or where the
+	white or black promotionsquares are located.
+
+	The condition PromOnly must be followed by a list of piece types,
+	separated through blanks. Promotion is only allowed into those
+	piece types.
+
+	The condition ChameleonCirce can be followed by a list of
+	piece types, separated by blanks. The list determines how
+	pieces change their type before being reborn. (Examples:
+		"ChameleonCirce S B R Q S" is ordinary Chameleon-Circe
+			and equivalent to "ChameleonCirce"
+		"ChameleonCirce S Q R B S" gives reverse ChameleonCirce.)
+
+	In the condition ChameleonChess, the same notation can be used
+	to define the piece type sequence of all officers. And the 
+	auxiliary condition ChameleonSequence can be used to define that
+	sequence of the explicitly indicated chameleons.
+
+	After Madrasi, PowerTransfer and Bolero, you can enter "RexInclusive".
+
+	After the Isardam condition, "TypeB" and then "RexInclusive" can be
+	specified.
+
+	After the SingleBox condition, "Type1", "Type2" or "Type3" can
+	be entered.
+
+	After the RepublicanChess condition, "Type1" or "Type2" can
+	be indicated; Type2 is the default.
+
+	After the list of magic square, "Type1" or "Type2" can
+	be indicated; Type1 is the default.
+
+	After the Sentinelles condition "PionAdvers", "PionNeutre",
+	"ParaSentinelles", or "Berolina" can be entered, and also
+	"MaximumWhite", "MaximumBlack" or "MaximumTotal" followed by a
+	number.
+
+	After MessignyChess, (Bi)Woozles, (Bi)Heffalumps and Protean
+	Chess you can enter "RexExclusive".
+
+	After the WhiteOscillatingKings or BlackOscillatingKings
+	condition "TypeB" or or "TypeC" can be entered.
+
+	After GridChess, various variantes can be entered.
+	VerticalShift, HorizontalShift and DiagonalShift produce the
+	normal grid shifted by one rank and/or file. E.g. the cell
+	containing the square a1 consists of:
+		VerticalShift:		a1b1
+		HorizontalShift:	a1a2
+		DiagonalShift:		a1
+	Orthogonal followed by a list of files (to the left of any
+	grid lines) and ranks (below any grid lines) all without
+	spaces between.
+	Irregular followed by space-separated lists of square groups
+	forming the grid cells. N.B. The largest square group can be
+	omitted as all remaining squares not specified will form 
+	another group. 
+	For example the standard grid can be described by any of
+		condition grid
+		condition grid orthogonal bdf246
+		condition grid irregular a8a7b8b7 c8c7d8d7 ...
+	Specifying   
+	   condition grid irregular
+	with no squares listed will make all moves illegal.
+	GridLine followed by a list of lines will add extra lines to
+	the grid. This should be used only to specify partial lines that
+	do not subdivide a grid cell, (i.e. to allow some moves to be
+	legal within a grid cell) as specifying cells is more
+	efficient. The grid lines must be specified in 4 characters e.g.
+		condition grid gridline Ha24 Vc61
+	will draw a horizontal grid line from the bottom-left corner of
+	a2 for 4 squares and a vertical line from the bottom-left corner
+	of c6 for 1 square, on top of the normal grid. 
+	To draw grid lines on a blank board, i.e. with no regular grid, 
+	specify
+		condition grid irregular gridline Ha24 Vc61
+	(N.B. In the context of grid chess, moves go as straight lines
+	from square centre to square centre; pieces that do not move
+	in straight lines may not behave as expected; moves are permitted
+	which merely touch the end of a gridline (e.g with gridline Ve11 
+	and wKd1, the move Kd1-e2 is legal).
+	
+	After any of the VaultingKings conditions, a space-separated
+	list of piece types may be given. The checked king will move
+	additionally as one of the piece types in the list. If the
+	option Transmuting is given, the checked king will move only
+	as one of the pieces in the list (not as king). If no piece
+	type is given, the checked king (additionally) moves as
+	equihopper.
+	
+	After the MustCapture, Maximummer and Minimummer conditions,
+	the keyword "Ultra" indicates that the respective Ultra
+	condition is intended.
+
+	After RoleExchange, the maximum number of RoleExchanges can be indicated.
+	Without this indication, the number is unlimited.
+
+	In AliceChess, all pieces not explicitly declared as AliceB are AliceA.
+	If some pieces are declared AliceA or AliceB, condition AliceChess is
+	automatically active.
+
+	After PAD, the following options can be indicated:
+		Strict
+		RexExclusive (default)
+		RexInclusive
+	
+	After Circe, AntiCirce, MarsCirce, AntiMarsCirce, ImmunChess,
+	PhantomChess and GenevaChess, a number of options can be indicated; the
+	options can be combined in various ways. Not
+	all combinations make sense, and not all options make sense for
+	all base conditions.
+	In addition, options who belong to the same of the following 8 groups
+	are normally mutually exclusive.
+	Inclusion of the kings:
+		RexInclusive	(default for AntiCirce and MarsCirce)
+		RexExclusive	(default otherwise)
+	Relevant move/walk/side:	
+		LastMove
+		WaitCapture
+		Clone		(also defines the walk of the reborn piece)
+		Couscous
+		Mirror		(special meaning for Equipollents - see below)
+	Restrition to piece walk:
+		April		(followed by a list of piece walks)
+	Definition of the rebirth square(s):
+		Equipollents
+		Parrain		(== Equipollents LastMove)
+		ContraParrain	(== Equipollents LastMove Mirror)
+		Rank
+		File
+		Symmetry
+		Diagram
+		PWC
+		Antipodes
+		Super
+		Take&Make
+		Cage
+		CaptureSquare
+	Adaptation of the rebirth square:
+		Diametral
+		VerticalMirror
+		Frischauf
+		(Rank)
+	Adaptation of the reborn piece's walk:
+		Chameleon
+		Turncoat
+		Einstein
+		ReversalEinstein
+	Behaviour in case of occupied rebirth square:
+		Relaxed		(default for Circe)
+		Strict		(default otherwise)
+		Assassin
+		Volcanic
+		Parachute
+	Self-block of the reborn piece:
+		Calvet		(default)
+		Cheylan
+	The following "traditional" condition names can still be used;
+	RexInclusive resp. RexExclusive can be added:
+		traditional:		Indication with option(s):
+		MirrorCirce		Circe Mirror
+		PWC			Circe PWC
+		CouscousCirce		Circe Couscous
+		ChameleonCirce		Circe Chameleon
+		EquipollentsCirce	Circe Equipollents
+		FileCirce		Circe File
+		DiagramCirce		Circe Diagram
+		ParrainCirce		Circe LastMove Equipollents
+		ContraParrain		Circe LastMove Equipollents Mirror
+		SymmetryCirce		Circe Symmetry
+		MirrorFileCirce		Circe File Mirror
+		AntipodeanCirce		Circe Antipodes
+		MirrorCirceClone	Circe Clone Mirror
+		SuperCirce		Circe Super
+		CirceClone		Circe Clone
+		FrischaufCirce		Circe Frischauf
+		DiametralCirce		Circe Diametral
+		MirrorCouscousCirce	Circe Couscous Mirror
+		CirceAssassin		Circe Assassin
+		CirceTurncoats		Circe Turncoat
+		CirceDoubleAgents	Circe Turncoat Mirror
+		CageCirce		Circe Cage
+		CirceTake&Make		Circe Take&Make (also known as Anti-Take&Make)
+		VerticalMirrorCirce	Circe VerticalMirror
+		AprilChess		Circe Super April
+		MirrorAntiCirce		AntiCirce Mirror
+		DiagramAntiCirce	AntiCirce Diagram
+		FileAntiCirce		AntiCirce File
+		SymmetryAntiCirce	AntiCirce Symmetry
+		MirrorFileAnticirce	AntiCirce File Mirror
+		AntipodeanAntiCirce	AntiCirce Antipodes
+		EquipollentsAntiCirce	AntiCirce Equipollents
+		AntiCloneCirce		AntiCirce Clone
+		AntiSuperCirce		AntiCirce Super
+		MarsMirrorCirce		MarsCirce Mirror
+		AntiMarsMirrorCirce	AntiMarsCirce Mirror
+		AntiMarsAntipodeanCirce	AntiMarsCirce Antipodes
+		MirrorImmunChess	ImmunChess Mirror
+		FileImmunChess		ImmunChess File
+		DiagramImmunChess	ImmunChess Diagram
+		MirrorFileImmunChess	ImmunChess File Mirror
+		SymmetryImmunChess	ImmunChess Symmetry
+		AntipodeanImmunChess	ImmunChess Antipodes
+		EquipollentsImmunChess	ImmunChess Equipollents
+
+	After Breton, Adverse or PY can be indicated.
+
+	After Take&Make, Absolute can be indicated.
+
+ - option: Everything which should be in effect should be given here as
+	blank seperated list. The following is recognized:
+
+	Try             calculate if a move is a try.
+	Defence         this option is followed by a number indicating
+			the number of defences which should be taken
+			into consideration. For instance Defence 1 all
+			real tries are calculated.
+	TrivialTriesAvoid	Remove trivial tries from the output.
+			Currently, refuted first moves delivering check
+			are considered trivial.
+	SetPlay         calculate setplay.
+	NullMoves	Allows the moving side to play a null move.
+			Servers for finding tempo tries.
+	Threat          for moremovers: This option must be followed
+			by an integer. The opposit party has defended
+			when there is no threat in less or equal this
+			number of moves.
+	WhiteToPlay     white starts moving in helpplay.
+	Variation       show threats and variations.
+	MoveNumbers     Movenumber, already calculated move and cumulated
+			solving time on output.
+	StartMoveNumber This option is followed by the Movenumber
+			popeye was interrupted at.
+	UpToMoveNumber	This option is followed by the Movenumber
+			Popeye will be interrupted at.
+	NoWk            without white king
+	NoBk            without black king
+	Duplex          calculate stipulation for both sides
+	NoThreat        calculate variations without calculating threats
+	MaxSolutions    This option must be followed by an integer. Popeye
+			stops calculating if this number of solutions 
+			are reached.
+	MaxFlightsquares  for moremovers: This option must be followed
+			by an integer. The opposit party has defended
+			when the number of flightsquares for it's king
+			are more or equal this number.
+	EnPassant       Must be followed by 3-4 squares which indicate the
+			pawn move just played:
+			- departure square
+			- avoided squares
+			- arrival square
+			This information is used for potential en passant
+			keys.
+	CastlingMutuallyExclusive <wrooksquare><brooksquare>
+			Castlings with the rooks that occupy the
+			indicated squares in the game array are
+			mutually exclusive.
+                        Example: CastlingMutuallyExclusive a1h8
+                        For indicating more than one pair of mutually
+                        exclusive castlings, the option can used
+                        multiple times.
+	NoBoard         The chessboard is not printed to screen or into file.
+	NoShortVariations  Short variations are suppressed on output.
+	HalfDuplex      calculate stipulation only for the opponent side.
+	PostKeyPlay     The position entered is considered to be the position
+			after the key. Just the solution play is analysed.
+	NonTrivial m n  A special option to solve/cook/test long self and
+			(semi)reflex problems. The second argument n
+			deter- mines which black moves are considered
+			to be trivial - a move that can be met by a
+			s#n (or r=n resp.). In long problems (more
+			than n moves) black has at every stage at
+			least one nontrivial move. I. e. a move that
+			doesnot lead to a s#n. The first argument m
+			determines how many additional nontrivial
+			moves can be granted to black by white during
+			the whole solving procedure.  Example: nontr 0
+			1. This is the most restrictive option.  White
+			forced to play moves that leave black with
+			only one move not met by a s#1.
+	Intelligent     intelligent (quick) solving of help(stale)mate
+			moremovers.
+			After the intelligent option, the maximum number of 
+			solutions per (stale)mate position can be given.
+			Note: doesn't find stalemates without king!
+	MaxTime         This option must be followed by an integer. Popeye
+			stops calculating if this number of seconds  
+			solving time are reached.
+
+	NoCastling	This option must be followed by the squares of those
+			pieces that cannot castle anymore in the
+			diagram position.
+	Quodlibet       In s# or r# also direct mates are a solution.
+	StopOnShortSolutions  Calculation is terminated after detecting of
+			      short solutions.
+	Beep            This option can be followed by an integer. Each time
+			Popeye has found a solution it beeps a number
+			of times.
+	SuppressGrid    (Grid Chess) Suppress the rendition of grid lines 
+			in text and LaTeX output.
+	WriteGrid	(Grid Chess) Writes an additional board that
+			the partition of the board into grid cells.
+			Useful for irregular grids.
+	KeepMatingPiece	Stop solving when there is no piece left that could
+			deliver mate.
+	LastCapture	Follow by a colour, piece and square as in the piece
+			command. Specifies piece captured on move leading to 
+			the diagram.
+	GoalIsEnd	applicable if the goal doesn't lead to immobility
+			(e.g. z, x): the play ends if the wrong side reaches
+			the goal.
+	MatesIn1	don't suppress mates in 1 in self play if play would
+			allow longer variations)
+
+
+ - stipulation: popeye knows the following stipulations:
+
+	any meaningful combination of
+	
+						{#= }	    {#=  }
+						{!= }	    {!=  }
+						{!# }       {!#  }
+						{00 }	    {00  }
+						{%  }	    {%	 }
+						{~  }	    {~	 }
+						{ep }	    {ep  }
+			   {SER- }   {H }	{#  }	    {#	 }
+			   {PSER-}   {S }	{=  }	    {=	 }
+	{m->} + {EXACT-} + {PHSER-}+ {R } + ( + {== } + ) + {==  } + n
+			   {SEMI-}   {HS}	{+  }	    {+	 }
+			   {RECI-}   {HR}	{Zxy}	    {Zxy }
+						{x  }	    {x	 }
+						{## }	    {##  }
+						{##!}	    {##! }
+						{ct }	    {ct  }
+						{<> }	    {<>  }
+						{ctr}	    {ctr }
+						{<>r}	    {<>r }
+						{c81}	    {c81 }
+							    {Kxy }
+      
+							    {dia } + n{.5}
+			   {SER-}			  + {dia } + n
+							    {a=>b} + n{.5}
+			   {SER-}			  + {a=>b} + n
+
+	(m, n are the number of moves)
+
+	for example:
+
+	#3              mate in three moves
+	HZg74           help-targetsquare-g7 in 4 moves
+	sKa74           self-kiss of the piece on a7 in 5 moves
+	S+2             self-check in 2 moves
+	R==3            reflex-doublestalemate in 3 moves
+	HS#3            helpselfmate in 3 moves      (= help forced selfmate)
+	SER-+7          series-check in 7 moves
+	SEMI-R+4        semi-reflex-check in 4 moves
+	x3              Capture in 3 moves
+	RECI-H#2        reciprocal helpmate in 2        (= Grazer helpmate)
+	RECI-H(=)#2	reciprocal help(stale)mate in 2 moves (black
+				 delivers stalemate or allows being mated)
+	SER-%4          series-Win_a_Piece in 4 moves
+	H##!4           help-"gegenmatt" in 4 moves
+	SER-H##3        series-help-"beidmatt" in 3 moves
+	2->ser-h#4      white makes 2 moves, then ser-h#4
+	h003            help-castling in 3 moves
+	dia6.5          Shortest Proofgame in 13 halfmoves
+					(after the seventh move of white)
+	ser-dia9        Series-Proofgame in 9 moves
+	reci-h(=)#4     helpalternative(stale)mate in 4 moves
+	ser-!=7         Series-AutoStalemate in 7 moves
+	ser-ct10        Series-direct circuit (switchback) in 10 moves
+			(of W piece)
+	h<>3            help exchange place in 3 moves
+			(Bl helps W swap 2 pieces from diagram)
+	ser-sctr2       series self circuit by rebirth in 2 moves
+			(W forces Bl to complete switchback of a W piece)
+	ser-h<>r5       series help exchange place by rebirth in 5 moves
+			(Bl helps W complete by rebirth the exchange 
+			 of two Bl pieces)
+	#=2             mate or stalemate in 2 moves
+	h~1             any helpmove
+	HR#3            helpreflexmate in 3 moves  (= help forced reflexmate)
+	pser-h#6	Parry series helpmate in 6
+	phser-s#6	Parry series selfmate in 6 (parry moves are help moves)
+
+	SEMI is valid only in combination with direct reflex-play.
+
+   All these stipulations must be followed by a number giving the
+   count of moves.
+
+ - sstipulation: The stipulation can also be indicated in "structured form".
+	This form allows all stipulations to be indicated that can also be
+	indicated in traditional form using the command "stipulation". In
+	addition, it allows many more stipulations to be indicated.
+	(Exception: pser stipulations are not supported currently)
+
+	With sstipulation, the play is described as a tree structure. Play 
+	starts at the root, continues through branches that may fork,
+	and ends in one or more leaves. After the keyword sstipulation, 
+	indicate the root by specifying the side to move, then the branches
+	and the leaves in the language as specified below.
+
+
+	Anatomy of a sstipulation
+	-------------------------
+
+	Example: sstipulation white 5s[#]
+
+	In this stipulation, it is White to move. Play consists of a
+	branch that leads into a leaf. The branch consists of 5
+	*s*eries moves. The leaf simply tests whether a mate has been
+	reached.
+
+        The definition of a branch normally consists of:
+	- the maximum length in half-moves (in the example: 5)
+	- the type of the branch           (s for series)
+	- leaves                           (#)
+	- forks                            (don't occur in the example)
+        - constraints                      (don't occur in the example)
+
+	Play ends in one or multiple leaves. Their definition normally
+	consists of the goal (in the example: #) to be reached.
+
+	When changing from a branch to another or to a leaf, the right
+	to move is changed. In the example, it is Black to move in the
+	leaf, i.e. the leaf tests whether Black is mate.
+
+	The example is thus a synonym for
+
+	stipulation ser-#5
+
+
+	Branch types
+	------------
+
+	Type           Notation    Examples        Synonyms as stipulation
+	Series         s           5s[#]           ser-#5
+	"Battle play"  ad          3a[+]d, 4ad[x]  +2, sx2
+	               da          3d[==]a         s==2 option postkeyplay
+	Help play      hh          5h[=]h          h=2.5
+
+	The letters s (series move), a (attacking move), d (defending
+	move) and h (help move) each represent a half-move.
+
+	A fork following a, h or s defines what the respective move is
+	supposed to reach, and a fork following d what the move
+	defends against.
+
+	Note: a da branch is solvable if the side to move DOES NOT have
+	a refutation.
+
+
+	Fork into a branch
+	------------------
+
+	A fork leads into a nested branch.
+
+	Examples        Synonyms as stipulation
+        3a[1a[#]d]d     semi-r#2
+	4hh[1a[#]d]     not supported (Help-Semireflexmate in 2.5)
+	6s[1d[#]a]      ser-s#6
+
+
+	Branches with more than one fork or leaf
+	----------------------------------------
+
+	After each half-move, both a leaf and a fork can be indicated.
+
+	Examples        Synonyms as stipulation
+	4a[#=]d[#=]     s#=2 option quodlibet
+        3a[#][1a[#]d]d  semi-r#2 option quodlibet
+
+
+	Logical expressions
+	-------------------
+
+	The following operators can be applied to leaves and branches
+	to form expressions:
+
+	Operator  Meaning
+	!         Negation
+        |         OR
+	&         AND
+
+	Examples         Meaning  
+	!#               the side to move is not mate
+	!3a[#]d          there is no solution to a direct twomover
+	4ad[#] | 3h[#]h  s#2 or h#1.5
+	1h[#]h & 2hh[#]  #1 and h#1 (i.e. reci-h#1)
+
+	Both operands of the binary operators have to belong to the
+	same of the following groups:
+	- leaf     # = zh1 ...
+	- attack   ad hh s
+	- defense  da
+
+	An expression belongs to the same group as its operand(s) and
+	can therefore be the operand of an expression, e.g. (as
+	alternative to triplets):
+
+	3a[#]d & 4hh[#] & 4ad[#]
+
+	The three partial expressions as well as the & expressions
+	belong to the attack group.
+
+
+	Operators are normally evaluated from left to right. If
+	necessary, use () to define the proper precedence. E.g.
+
+	4hh[#] & ( 4ad[#] | 4hh[=] )
+
+
+	Constraints
+	-----------
+
+	Constraints can be indicated in branches using curly braces
+	({}).
+
+	Example                Synonym as stipulation
+        3a[1a[#]d]d{!1a[#]d}   r#2
+
+	Note: even if the constraint follows the d, it is enforced
+	BEFORE each attacking move (including the first one!). The
+	problem has thus no solution if the constraint is violated in
+	the diagram.
+
+	The two principal differences between nested branches/leaves
+	and restrictions are:
+	- the requirement expressed by the nested branch/leaf only
+	  needs to be fulfilled at the end of play; a restriction,
+	  however, has to be fulfilled each time before the respective
+	  move is played
+	- the moves played for the verification of a constraint don't
+	  appear in the printed solution, with the following 2
+	  exceptions:
+	  * if a constraint is violated in the diagram position
+	  * if the refutation of a try leads to a violated constraint
+	    ("reflex defense")
+
+
+	Branches with minimal length
+	----------------------------
+
+	The syntax m:n can be used to define a branch with minimal
+	length (m=minimal, n=maximal length):
+
+	Examples    synonym as stipulation
+	4:4hh[#]    exact-h#2
+	3:5s[#]     not supported (series mate in 3 to 5 moves)
+
+
+	Special operators at the beginning of a branch
+	----------------------------------------------
+
+	The operators >, / and - can occur in this order at the
+	beginning of branches.
+
+	> at the beginning of the definition of a nested branch ends
+	play in the containing branch in positions where the nested
+	branch has a solution. E.g. a problem with
+
+	sstipulation white 3h[1a[x]d]h
+
+	can have the solutions
+
+	1.g3-g4 h5*g4 x 
+	1.g3-g4 h5*g4   2.h4-h5 g4*f3 x 
+
+	The longer sequence is a solution although the goal has been
+	reached after the first two half-moves already. If play is to
+	end as soon as the goal is reached, write
+
+	sstipulation white 3h[>1a[x]d]h
+
+
+	The operator / at the beginning of a nested branch prevents
+	the moves played in that branch from appearing in the output.
+
+	E.g. the capturing moves forced by Zugzwang in CapZug
+	stipulations are not part of the solution. Help CapZug in 2.5
+	moves is thus defined as
+
+	sstipulation black - 5h[/1d[x]a{!+}]h
+
+
+	The side to move at the beginning of a branch can be changed
+	using the - operator.
+
+	Examples        Synonyms as stipulation
+	- 7h[#]h        h#3.5
+	3h[- 4hh[#]]h   not supported (h#4 without 2nd white move)
+
+
+	Conditional right to move
+	-------------------------
+
+	The right to move can be restrained by a requirement R by prefixing the
+	respective symbol (h resp. d) with ?R?.
+
+	The right to move represented by a symbol decorated in this way is
+	granted only if the requirement is fulfilled at the relevant time.
+
+	Example: sstipulation white 7h[#]?+?h  (synonym of stipulation phser-#4)
+
+	Currently, the only supported requirement R is that the side at the move
+	be in check.
+
+	In addition, ?R? is only applicaple in two contexts:
+	- in ad to the d
+	- in hh to the second h, provided that the maximum length of the branch
+		is not divisible by 2
+
+	Further examples:
+	white 15a[#]?+?d			(pser-#8)
+	white 15a[1d[#]a]?+?d			(pser-s#8)
+	white 15a[>1a[#]d]?+?d			(pser-semi-r#8)
+	white 15a[>1a[#]d]?+?d{!1a[#]d}		(pser-r#8)
+	black 15h[1a[#]d]?+?h			(pser-h#8)
+	white 15h[1d[#]a]?+?h			(phser-s#8)
+
+All these commands up to now are very easy to use (except maybe
+sstipulation). A little bit more elaborate are the commands
+
+ - forsyth: With this command you can enter the position in forsyth notation.
+
+	Examples: 
+		rsbqkbsr/pppppppp/8/8/8/8/PPPPPPPP/RSBQKBSR (game array)
+		rsbqkbsrpppppppp32PPPPPPPPRSBQKBSR          (game array; alternative)
+		48/5gPp/5K1k                                (V.Onitiu, #6 - black grasshopper)
+		1.PA6/8/1Q2.ma3/8/k1.pa.pa4/8/1P1K          (Z.Mach, #2 - chinese pieces)
+
+	Pieces represented by one letter in the "pieces" command are entered using that	
+	same letter in the forsyth command. The squares are registered from a8 to h8, followed
+	by a7 to h7, etc. down to h1. Runs of blank squares are registered by a number which
+	counts the number of blanks, and the "/" character separates each rank.
+
+	Lowercase letters represent black pieces and uppercase letters represent white pieces.
+	The "/" character is optional. Runs of blanks squares of 10 or more can be entered. Blank
+	squares after the last piece can be omitted (e.g. Mach example above, 4/8 has been omitted). 
+
+	The notation is extended to allow input of fairy pieces as follows:
+ 
+	 - a piece can begin with an optional colour specification character (which overrides use of a 
+	 	lowercase/uppercase letter)
+		+ 	White
+		- 	Black
+		= 	Neutral
+		Examples:
+		+g  White grasshopper (or +G)
+		=p  Neutral pawn (or =P)
+
+	 - a piece which is represented by two letters or digits in the "pieces" command can be entered
+	   with the "forsyth" command by commencing with a ".". The first of the two following letters
+	   determines whether it is white or black, unless a colour specifier is used. Examples:
+	   .PA 	White Pao 
+	   .ma  Black Mao  
+	   .g2  Black Grasshopper-2
+	   +.15 White (1,5)-leaper
+	   -.15 Black (1,5)-leaper
+	   =.li Neutral Lion
+
+	   Note only the first of the two letters is checked for lowercase/uppercase to determine the colour.
+	   It is only necessary to use a colour specifier +/-/= for neutral pieces, or for pieces whose  
+	   representation is two digits. 
+	   At present pieces with other attributes (paralysing, royal etc.) cannot be entered with this command. It
+	   is possible to enter additional pieces with the "pieces" command, either before or after the "forsyth"
+	   command (blank squares in the forsyth command will not be cleared)
+
+ - pieces: This command specifies all the pieces belonging to the problem.
+	After this keyword, the color of the following pieces must be given:
+	This is one of:
+
+	White
+	Black
+	Neutral
+
+	After the color specification 
+
+	Chameleon
+	Jigger
+	Kamikaze
+	Paralysing
+	Royal
+	Volage
+	Functionary
+	HalfNeutral
+	HurdleColourChanging          (only for hoppers !)
+	Protean
+	Magic
+	Uncapturable
+	FrischAuf
+	Anda
+	AndaInverse
+	Bul
+	Dob
+	AliceA
+	AliceB
+
+	may be given. All the pieces given after this will have these
+	attributes. After this specification follows the list of
+	pieces: First the walk of the piece followed by the list of
+	squares where pieces should be placed on. By giving a new color
+	specifiation pieces of another color may be entered without
+	repeating the pieces command.
+
+	If a piece is placed on an occupied square, the previous piece
+	is transfered below the square to the top of the underworld. In the
+	fairy conditions Circe Volcanic, Circe Parachute, GhostChess and
+	HauntedChess, moves from that square cause pieces from the underworld
+	to be transfered back into the real world. Otherwise, pieces in the
+	underworld allow promoting pawns into their walk.
+
+	Popeye supports the following piece walks:
+
+	15      1,5-leaper
+	16      1,6-leaper
+	24      2,4-leaper
+	25      2,5-leaper
+	35      3,5-leaper
+	36      3,6-leaper
+	37      3,7-leaper
+	ah	MAoHopper
+	al      alfil   
+	am      amazon   
+	an      antelope   
+	ao      maorider
+	ar      archbishop   
+	b       bishop
+	b1	bouncer
+	b2	rook bouncer
+	b3	bishop bouncer
+	be      bishop eagle
+	bh      bishop hopper
+	bi      bison                           1,3+2,3 leaper
+	bk      bouncy knight
+	bl      bishop-lion
+	bm      bishop moose
+        bn      bouncy nightrider (continues ride by bouncing in any direction from board edge)
+	bo	bob
+	bp      berolina pawn   
+	br      bishop/rook hunter		absolute B/R hunter
+	bs      berolina superpawn
+	bt      boyscout
+	bu      root-25-leaper (bucephale)   
+	bw      bishop sparrow
+	c       cardinal
+	ca      camel
+	cg      contra grasshopper
+	ch      camelrider hopper
+	cp      chinese pawn
+	cr      camelrider
+	ct      CAT (cavalier trojan)
+	cy      charybdis
+	da      dabbaba
+	db      doublebishopper
+	dg      doublegrasshopper
+	dk      doublerookhopper
+	do      dolphin                        grasshopper + kangaroo
+	dr      dragon
+	ds      ("Diagonalspiralspringer")
+	du      dummy
+	ea      eagle
+	ee	eagle equihopper
+	eh      edgehog
+	ek      erlking
+	em      empress
+	en	eagle nonstop equihopper
+	eq      equihopper
+	et      elephant			0,1+1,1+1,2 rider
+	f       friend
+	fa	faro				Argentinien Rook
+	fe      fers
+	fr      fersrider           like bishop, but different rebirth square
+	g       grasshopper
+	g2      grasshopper-2
+	g3      grasshopper-3
+	ge      greater treehopper
+	gf      greater leafhopper
+	gh      gnurider hopper
+	gi      giraffe
+	gl      gral                           alfil + rookhopper
+	gn      gnu
+	gr      gnurider
+	gt      girlscout
+	ha      hamster
+	hc      ContraHamster
+	k       king
+	ka      kangaroo
+	kh      kinghopper
+	kl      kangaroo lion
+	ko      kao
+	kp      knight hopper
+	l       locust
+	lb      bishop locust
+	le      leo
+	lh      leaf hopper
+	li      lion
+	ln      nightrider locust
+	lo	loco				Argentinian Bishop
+	lr      rook locust
+        ls      rose locust
+	m       moose
+	ma      mao
+	mg      marguerite                      g+sw+ea+m+ha
+	mh      marine ship
+	ml      maorider lion
+	mm      moarider lion
+	mo      moa
+	mp      marine pawn
+	ms      marine knight
+	n       nightrider
+	na      nao				chinese nightrider
+	nd      nereide
+	ne      nonstop equihopper
+	nh      nightrider hopper
+	nl      nightrider lion
+	o       orphan
+	oa      moarider
+	oh	MOaHopper
+	ok      okapi                           knight + zebra
+	or      Orix                        English equihopper on queen lines
+	p       pawn
+	pa      pao 
+	po      poseidon  
+	pp      reverse pawn       moves opposite to normal p and promotes at opp end of board
+	pr      princess   
+	q       queen   
+	qe      equistopper			stoppable
+	qf      non-stop equistopper  		not stoppable
+        qn      quintessence = (3,1)-Zigzag Nightrider (e.g. a1-b3-d2-e4-g3...)
+	qq      querquisite
+	r       rook   
+	ra      rao                             chinese rose
+	rb      reflecting bishop   
+	re      rook eagle
+	rf      root-50-leaper
+	rh      rook hopper
+	rk      radial leaper (aka radial knight)
+	rl      rook-lion
+	rm      rook moose
+	rn      rose-lion
+	rp      rose-hopper
+	ro      rose   
+	rr      rook/bishop hunter		absolute R/B hunter
+	rt	rabbit
+	rw      rook sparrow
+	s       knight   
+        s1      (1,1)-Zigzag Nightrider (e.g. b1-a3-c2-b4-d3...)
+        s2      (2,0)-Zigzag Nightrider (e.g. a1-b3-c1-d3-e1...)
+        s3      (3,3)-Zigzag Nightrider (e.g. a1-b3-d4-e6-g7...)
+        s4      (4,0)-Zigzag Nightrider (e.g. a1-c2-e1-g2...)
+	sa	saltador		Argentinian Knight
+	sc	scarabeus
+	se	senora			Argentinian Queen
+	sh      ship
+	si      sirene
+	sk      skylla
+	so      scorpion
+	sp      superpawn
+	sq      squirrel   
+	ss      ("Spiralspringer")
+	st      sting (king + royal grasshopper)
+	sw      sparrow
+	th      tree hopper
+	tr      triton
+	uu      ubiubi
+	va      vao   
+	wa      waran   
+	we      wazir   
+	wr      wazirrider            like rook, but different rebirth square
+	z       zebra   
+	ze      Zebu                  1,3+1,4 knight
+	zh      zebrarider hopper
+	zr      zebrarider
+        X/Y     X/Y hunter            generalized hunter:
+                                      away from the homebase like a n X,
+                                      in direction of the homebase like an Y;
+                                      horizontal moves not allowed
+
+	The "pseudo color" TotalInvisible followed by a positive number
+	may be used to indicate the number of TotalInvisible pieces.
+
+
+ - Twin: Solving/testing of positions obtained by small changes of the
+	initial position. The following specifications are supported:
+    Stipulation ...: The stipulation is changed. See the repective basic
+	command.
+    Condition ...: Cange of fairy conditions. The old conditions are
+	subsituted by those put in.
+    Move <square1> <square2>: Move the piece from square1 to square2. A
+	piece accidentally standing on square2 will be removed. Example:
+	twin move a3 b4.
+    Exchange <square1> <square2>: The pieces on <square1> and <square2>
+	exchange places. Example: twin exchange a3 b4.
+    Remove <square>: The piece located on the square specified is removed.
+	Example: twin remove e5.
+    Substitute <piece1> <piece2>: All pieces of type <piece1> are replaced
+	by pieces of type <piece2>. Colour and further piece specifications
+	(like paralysing etc.) are not affected. Example: twin
+	substitute R B.  All rooks are replaced by bishops.
+    Add <colour> <piecespecs> <type><squarelist>: Add pieces - present pieces
+	are replaced.
+	Example: twin add black para NHa6 - a black paralysing NightriderHopper is
+	added on a6. See the basic command "pieces".
+	The "pseudo color" TotalInvisible followed by a positive number can
+	be used to indicate twinning by modification of the number of TotalInvisible
+	pieces.
+    Rotate n: Turns the board by n degrees to the left (n=90, 180, 270).
+	Example: twin rotate 180.
+    Mirror a1<-->h1: Mirrors the position on the vertical middle line.
+    Mirror a1<-->a8: Mirrors the position on the horizontal middle line.
+    Mirror a1<-->h8: Mirrors the position on the diagonal a8-h1.
+    Mirror a8<-->h1: Mirrors the position on the diagonal a1-h8.
+	So, not the mirror line is given, but square into which a1 (or h1)
+	is turned into.
+    Shift <square1> <square2>: Shift the whole position into the direction
+	determined by the two squares entered. Example: twin shift a1 a2 -
+	all pieces are moved one square up.
+    PolishType: All pieces change colour.
+	More than one change may be specified, for example twin rem e7
+	add white qe8. As you can see the twinning commands can abreviated.
+	By default the changes refer to the position initially set.
+	Alternatively the changes can be applied to the position solved most
+	recently. Just enter "continued" (or "cont") immediately after
+	"twin". Example twin cont rem a1.
+
+ - ZeroPosition: This command can be used alternatively to the command
+	"twin". It indicates that the initial position is not for solving.
+	The command must be followed by the changes for the first position
+	to be solved. Example: zero move b4 d5
+			       twin move c5 b5.
+
+When all data have been entered to describe completely the problem,
+the solving may be started by giving the keyword `endproblem' to
+popeye.
+Immediately after reading this, provided no input errors were discovered,
+popeye starts to solve the problem.
+
+Here comes a sample:
+
+BeginProblem
+Author          Unknown
+Origin          Also Unkown
+Stipulation     #2
+Pieces          White   Ka3 Ra8
+		Black   Kb1
+Option          MoveNumbers Try Set Variation
+EndProblem
+
+
+This input seems long and cumbersome. But Popeye recognizes the keywords
+as long as the shortage is unique. The above input may also be written
+like this:
+
+
+Begi
+Auth    Unknown
+Orig    Also Unkown
+Stie    #2
+Piec    Whit Ka3 Ra8
+	Blac Kb1
+Opti    Move Try Set Vari
+Endp
+
+In the future the minimum length of unique shortages changes, when popeyes
+capabilities are increased. But we try to keep all keywords uniq within the
+first four characters. If they are now uniq with less than four, its not
+guaranteed for the future.
+
+If there are more problems to be solved in one run, you can replace the
+`EndProblem' directive with `NextProblem'. After this, popeye expects
+an new problem specification, after he has solved the previous one.
+The last problem specification should be finished with `EndProblem'.
+
+Special things depending on your operating system:
+
+
+UNIX, SINIX, XENIX, ULTRIX, MUNIX, SUNOS, SOLARIS, AIX, HPUX, IRIX, LINUX, BSD:
+
+	1) Maximum depth of calculation:        999 half-moves.
+	2) Solving can be interrupted anytime with the CTRL-C key.
+
+
+Windows-95/-98/-ME:
+
+	1) Maximum depth of calculation:        699 half-moves.
+	2) Solving can be interrupted anytime with the CTRL-C key.
+	3) Maximum amount of usable memory:     768 MB
+
+
+Windows-NT/-2000/-XP:
+MS-DOS (32 Bit), DR-DOS (32 Bit):
+
+	1) Maximum depth of calculation:        699 half-moves.
+	2) Solving can be interrupted anytime with the CTRL-C key.
+
+
+
+Thomas Maeder, Stephen Emmerson, Norbert Geissler, Torsten Linss, Elmar Bartel, Joshua Green, Mu-Tsun Tsai
+
+ 

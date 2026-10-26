@@ -1,150 +1,42 @@
-# ChessViewer — Roadmap
+# ChessViewer — roadmap
 
-What is built, what is next, and what is not planned. Milestone targets below are planning estimates, not hard commitments.
+This is the current feature map. See [CHANGELOG.md](CHANGELOG.md) for release
+history and [open issues](https://github.com/chessviewer-org/chess-viewer/issues)
+for work in progress.
 
----
+## Available now
 
-## Implemented
+- Standard and Fairy Chess diagram editors with FEN input, board editing,
+  history, piece palettes, keyboard controls and board styling.
+- Local computer analysis: Stockfish 18/19 Lite for standard positions and
+  Popeye 4.103 for fairy compositions. Both run in browser Web Workers; their
+  notation and rules stay separate. See [engine documentation](docs/reference/ENGINES.md).
+- PNG, JPEG and vector SVG export, four 300–1200 DPI raster quality presets,
+  physical board sizing, batch ZIP export and LaTeX Studio.
+- 18 self-hosted piece sets with attribution, including generated fairy
+  variants. Some artwork licenses restrict commercial use; see
+  [piece-set attribution](public/piece/ATTRIBUTION.md).
+- Board arrows and square marks for on-screen analysis. Exporting these marks
+  is tracked separately in [#161](https://github.com/chessviewer-org/chess-viewer/issues/161).
+- Position search through Lichess, ChessDB, PDB and YACPDB; optional Supabase
+  account and cloud sync.
 
-### Core Editor
+## Open work
 
-- FEN notation parsing and validation (93-character cap, real-time feedback)
-- Drag-and-drop board editor powered by `@dnd-kit` (pointer and touch sensors)
-- Board flip and coordinate label toggle
-- Undo/redo for interactive board edits
-- 23 piece sets (Lichess CDN, rasterized to 256px blob URLs for crisp rendering)
-- 20 preset board themes
-- Custom colour picker (HSV/RGB/HEX)
-- Piece palette for off-board placement
-- Trash zone for piece removal by drag
+- Exportable board annotations and their full interaction contract:
+  [#161](https://github.com/chessviewer-org/chess-viewer/issues/161),
+  [#188](https://github.com/chessviewer-org/chess-viewer/issues/188),
+  [#189](https://github.com/chessviewer-org/chess-viewer/issues/189).
+- Image-to-position import:
+  [#163](https://github.com/chessviewer-org/chess-viewer/issues/163).
+- PGN and direct game import require their own scoped design and issue before
+  implementation.
 
-### Export
+## Current limits
 
-- PNG and JPEG raster export with DPI metadata (pHYs chunk / JFIF fields)
-- SVG vector export with piece images embedded as base64
-- 4 quality presets: 1× (300 DPI), 2× (600 DPI), 3× (900 DPI), 4× (1200 DPI)
-- Board size selection in centimetres (4, 6, 8 cm) for physical print accuracy
-- Export pause, resume, and cancel
-- Full-screen Export Studio (board style + export settings in one view)
-- Batch export (Advanced FEN Input) — multiple positions → ZIP download
-- LaTeX Studio (`/latex`) — up to 100 positions → `skak`, `chessboard` or `chess-problem-diagrams`, with problem metadata, solutions, marks, live preview and `.tex` download
-- Book-style hatched dark squares and a black-and-white print theme in every export
-- Copy board to clipboard (PNG)
-
-### Pages
-
-- Home page (`/`) — main board editor + controls
-- Export page (`/export`) — full-screen export studio
-- About page (`/about`) — FAQ, privacy, contribute, donate sections
-- Settings page (`/settings`) — appearance, board, account, security, data
-- FEN History page (`/fen-history`) — browsable history with filters and search
-- Advanced FEN Input page (`/advanced-fen`) — batch position editor
-- LaTeX Studio page (`/latex`) — LaTeX documents and problem collections
-- 404 page
-- All pages lazy-loaded with code splitting and hover-prefetch
-
-### State and Persistence
-
-- FEN history with localStorage persistence (debounced 300ms)
-- History freshness badges (Fresh / Aging / Stale) with timestamps
-- History filtering, sorting, favouriting, and pinning
-- Recent colours list (up to 12)
-- Theme and settings persistence across sessions
-- FEN batch list persistence
-
-### Account and Cloud Sync (Optional)
-
-- Email/password authentication via Supabase
-- TOTP-based two-factor authentication
-- Cloud sync of settings and history (row-level security, owner-scoped)
-- 90-day re-verification gate for privileged operations
-- Data migration from localStorage on first sign-in
-- Supporter/membership tiers via direct donation
-
-### Performance
-
-- Code splitting for all pages (React.lazy + Suspense)
-- Hover-prefetch for likely next routes
-- Piece image caching (`pieceImageCache.ts`, max 36 images)
-- Memoized board components (`DroppableSquare`, `DraggablePiece` — render ×64)
-- SVG → raster export through Web Worker (OffscreenCanvas) when pieces are CDN URLs
-- Virtualised FEN history grid with `react-window`
-- Debounced localStorage writes
-- Deferred cloud hydration for accessibility preferences (requestIdleCallback)
-- Service Worker (Workbox) for offline use and hard-refresh performance
-
-### App
-
-- Light/dark theme with `prefers-color-scheme` fallback and animated transition
-- Neutral focus ring on inputs (1px, not accent-coloured)
-- Toast notification system
-- Global modal system (alert / confirm)
-- Skip-to-main-content link
-- PWA manifest and installability
-- Position database search (Lichess, ChessDB) on demand
-- Share board via URL or image
-
-### Code Quality
-
-- TypeScript 6 strict mode (no `any`, no `!`, no `@ts-ignore`)
-- ESLint zero-warnings in CI
-- Conventional Commits enforced via commitlint + Husky
-- Atomic commit validator (one logical domain per commit)
-- Prettier formatting with pre-commit hook via lint-staged
-- FEN parser unit tests (node:test, co-located)
-
----
-
-## Not Yet Implemented
-
-### Priority Items
-
-1. **Full keyboard control of the board** — arrow keys to move pieces, no mouse required
-2. **Annotations** — right-click square highlighting (red/yellow/green/blue) and arrow overlays ([#161](https://github.com/chessviewer-org/chess-viewer/issues/161))
-3. **AI position import** — Open Folder picks a board image and a vision model extracts the FEN directly onto the board ([#163](https://github.com/chessviewer-org/chess-viewer/issues/163))
-4. **PGN import** — paste a PGN and step through positions
-5. **Direct game import** — paste a Lichess URL and extract positions
-
-### Lower Priority
-
-- [ ] URL-based position sharing (`?fen=...`)
-- [ ] Custom & fairy piece sets — hybrid pieces, themed sets, user upload ([#162](https://github.com/chessviewer-org/chess-viewer/issues/162))
-- [ ] i18n / multi-language support
-- [ ] Full WCAG 2.1 AA compliance — canvas still has no DOM alternative for screen readers
-- [ ] Lichess browser extension (Phase 3 on the roadmap)
-- [ ] npm package release (`@chessviewer-org/core`) for headless board rendering
-
----
-
-## Known Technical Debt
-
-- Canvas board is not accessible to screen readers — no DOM alternative for the 64-square position
-- Automated test coverage is limited to the FEN parser — no component tests or E2E suite
-- No Lighthouse CI or bundle-size tracking in the pipeline (vite-bundle-visualizer available on demand via `pnpm build:analyze`)
-
----
-
-## Not Planned
-
-- Chess engine integration or position analysis
-- Move animation or game playback
-- Native mobile apps
-- Multi-player or real-time features
-
----
-
-## Upcoming Work
-
-Active milestones tracked on the [project board](https://github.com/orgs/chessviewer-org/projects/1):
-
-| Milestone                  | Focus                                                       | Target   |
-| -------------------------- | ----------------------------------------------------------- | -------- |
-| Mobile layout              | Mobile layout fixes across all pages                        | Jul 2026 |
-| Export bugs                | File size estimate, style leak, torn blob, coordinate shift | Aug 2026 |
-| Runtime & memory           | Race conditions, blob URL leaks, promise rejections         | Aug 2026 |
-| Annotations & new features | Square highlighting, arrows, click-to-place, PGN, embed     | Oct 2026 |
-| AI & Import                | Open Folder — FEN extraction from board images              | Nov 2026 |
-
----
-
-**Last updated:** July 2026
+- Popeye search limits can produce partial solution lists; the analysis panel
+  reports this explicitly. Fairy piece movement is determined by Popeye's named
+  walks and conditions, not by rotating an arbitrary diagram symbol.
+- The browser's canvas size and memory limit affect very large raster exports.
+  SVG export uses actual vector piece artwork and does not have a DPI setting.
+- Browser tests and accessibility checks continue to grow alongside the product.

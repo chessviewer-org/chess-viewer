@@ -1,0 +1,39 @@
+.group {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 0.5rem;
+  background: rgb(var(--val-bg) / 0.5);
+  box-shadow: 0 0 0 1px rgb(var(--val-border) / 0.7);
+}
+.option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  height: 2rem;
+  min-width: 0;
+  padding-inline: 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  &:hover {
+    color: var(--color-text-primary);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+  }
+  &[aria-checked='true'] {
+    color: var(--color-text-primary);
+    background: var(--color-surface-hover);
+    box-shadow:
+      0 0 0 1px var(--color-border),
+      var(--shadow-sm);
+  }
+}

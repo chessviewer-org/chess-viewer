@@ -1,0 +1,94 @@
+.settings {
+  position: absolute;
+  inset: 100% 0 auto;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-top: 2px solid var(--color-accent);
+  background: var(--color-surface-elevated);
+  box-shadow: var(--shadow-md);
+  > a {
+    font-size: 0.75rem;
+    color: var(--color-accent);
+  }
+}
+
+.setting {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  white-space: nowrap;
+  > span {
+    flex: 0 0 3.5rem;
+    color: var(--color-text-secondary);
+  }
+  input[type='range'] {
+    flex: 1;
+    min-width: 0;
+    height: 1.25rem;
+    margin: 0;
+  }
+  output {
+    flex: 0 0 3rem;
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text-secondary);
+  }
+}
+
+.hint {
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+@mixin range-track {
+  height: 0.875rem;
+  border-radius: 0.5rem;
+  background: rgb(var(--val-border) / 0.7);
+  cursor: pointer;
+}
+
+@mixin range-thumb {
+  box-sizing: border-box;
+  width: 1.375rem;
+  height: 0.875rem;
+  border: 1px solid var(--color-accent);
+  border-radius: 0.5rem;
+  background: var(--color-surface-elevated);
+  cursor: pointer;
+}
+
+.setting input[type='range'] {
+  appearance: none;
+  background: none;
+  border: 0;
+  &::-webkit-slider-runnable-track {
+    @include range-track;
+  }
+  &::-webkit-slider-thumb {
+    @include range-thumb;
+    appearance: none;
+  }
+  &::-moz-range-track {
+    @include range-track;
+  }
+  &::-moz-range-thumb {
+    @include range-thumb;
+  }
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  &:disabled {
+    opacity: 0.4;
+    &::-webkit-slider-runnable-track,
+    &::-webkit-slider-thumb {
+      cursor: not-allowed;
+    }
+  }
+}

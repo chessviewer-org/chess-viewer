@@ -1,5 +1,7 @@
 declare const styles: {
   readonly grid: string;
+  readonly orientation: string;
+  readonly orientationArrow: string;
   readonly tile: string;
   readonly badge: string;
   readonly named: string;

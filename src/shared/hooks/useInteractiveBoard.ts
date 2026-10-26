@@ -57,6 +57,7 @@ export interface UseInteractiveBoardResult {
     isFromPalette: boolean
   ) => void;
   handlePieceRemove: (row: number, col: number) => void;
+  commitPosition: (board: ChessBoard, fenMetadata: string) => void;
   clearBoard: () => void;
   resetBoard: () => void;
   setPiece: (row: number, col: number, piece: BoardCell) => void;
@@ -139,6 +140,12 @@ export function useInteractiveBoard(
     [board, commitMove]
   );
 
+  const commitPosition = useCallback(
+    (nextBoard: ChessBoard, fenMetadata: string) =>
+      commitMove(nextBoard, { ...metadata, fenMetadata }),
+    [commitMove, metadata]
+  );
+
   const setPiece = useCallback(
     (row: number, col: number, piece: BoardCell) => {
       if (board[row]?.[col] === piece) return;
@@ -193,6 +200,7 @@ export function useInteractiveBoard(
     currentFen,
     handlePieceDrop,
     handlePieceRemove,
+    commitPosition,
     clearBoard,
     resetBoard,
     setPiece,
