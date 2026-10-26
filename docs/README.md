@@ -15,6 +15,7 @@ Technical documentation for ChessViewer. ChessViewer is a rolling release: `mast
 
 ## Reference
 
+- [Computer analysis](reference/ENGINES.md) — Stockfish and Popeye workflows, worker delivery, settings, licenses and matching source
 - [Fairy Chess](reference/FAIRY_CHESS.md) — Fairy FEN, neutral and rotated symbols, named Popeye walks, Popeye files
 - [LaTeX Studio](reference/LATEX_EXPORT.md) — the `/latex` page, `skak` / `chessboard` / `diagram` markup, document settings, TeX installation, safety gates
 - [Export Pipeline](reference/EXPORT_PIPELINE.md) — quality presets, resolution tables, pipeline flow, browser limits, file reference

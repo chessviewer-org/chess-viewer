@@ -19,10 +19,16 @@ import { buildPieceVector, fetchPieceSvgText } from './pieceSvg';
 export type PieceSort = 'popular' | 'name';
 
 // Constants
-const MISSING_ARTWORK_IDS = new Set(['alpha', 'reillycraig', 'riohacha']);
+const UNAVAILABLE_PIECE_IDS = new Set([
+  'alpha',
+  'companion',
+  'leipzig',
+  'reillycraig',
+  'riohacha'
+]);
 
 export const AVAILABLE_PIECE_SETS: PieceSet[] = ALL_PIECE_SETS.filter(
-  (set) => !MISSING_ARTWORK_IDS.has(set.id)
+  (set) => !UNAVAILABLE_PIECE_IDS.has(set.id)
 );
 
 const POPULARITY_RANK = new Map(

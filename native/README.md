@@ -7,5 +7,7 @@ Build inputs for the engines shipped in `public/wasm/`. Nothing here is served.
   `public/licenses/popeye/`.
 - `popeye/patches/` and `popeye/position-preview.h` are ChessViewer's modifications to
   upstream.
+- The complete matching upstream source archive is distributed at
+  `public/licenses/popeye/popeye-4.103-source.tar.gz`.
 - Stockfish is consumed as the unmodified `stockfish` npm release; see
   `public/licenses/stockfish/NOTICE.txt`.

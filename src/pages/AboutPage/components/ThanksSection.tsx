@@ -55,7 +55,7 @@ export default function ThanksSection() {
           , the icons around the site come from{' '}
           <Ext href="https://lucide.dev">Lucide</Ext>, and the QR codes for
           Two-Factor Authentication (2FA) are rendered with{' '}
-          <Ext href="https://github.com/nuintun/uqr">uqr</Ext>. All account
+          <Ext href="https://github.com/unjs/uqr">uqr</Ext>. All account
           handling, auth, and cloud sync are entrusted to{' '}
           <Ext href="https://supabase.com">Supabase</Ext>.
         </p>
@@ -69,6 +69,24 @@ export default function ThanksSection() {
           the problem collections at{' '}
           <Ext href="https://pdb.dieschwalbe.de">PDB (Problemdatenbank)</Ext>{' '}
           and <Ext href="https://www.yacpdb.org">YACPDB</Ext>.
+        </p>
+
+        <p>
+          Computer analysis is possible thanks to{' '}
+          <Ext href="https://github.com/official-stockfish/Stockfish">
+            Stockfish
+          </Ext>
+          ,{' '}
+          <Ext href="https://github.com/nmrugg/stockfish.js">Stockfish.js</Ext>,
+          the <Ext href="https://github.com/thomas-maeder/popeye">Popeye</Ext>{' '}
+          authors, and <Ext href="https://emscripten.org">Emscripten</Ext>. The
+          board art comes from the{' '}
+          <Ext href="https://github.com/lichess-org/lila">Lichess</Ext> piece
+          collection and its individual artists. The interface uses the{' '}
+          <Ext href="https://github.com/rsms/inter">Inter</Ext> font. Their
+          credits, licenses and source links are listed in the{' '}
+          <Ext href="/licenses/README.md">third-party notices</Ext> and{' '}
+          <Ext href="/piece/ATTRIBUTION.md">piece-set attribution</Ext>.
         </p>
 
         <p>

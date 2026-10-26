@@ -8,7 +8,7 @@ Common questions about ChessViewer.
 
 ### What is ChessViewer for?
 
-It is a diagram editor. You set up a chess position, choose how the board and pieces look, and export a clean image. No engine, no analysis, no opponent — just a fast way to turn a position into a picture you can use anywhere.
+It is a diagram editor with optional local computer analysis. Set up an orthodox or fairy position, style the board, analyse with Stockfish or solve a composition with Popeye, then export a clean image. The engines run in your browser.
 
 ### Do I need to install anything?
 
@@ -61,7 +61,7 @@ No. Only the piece placement field is required. ChessViewer accepts partial FEN 
 
 - **PNG** — lossless, transparent background. Best for print and archival.
 - **JPEG** — smaller file, no transparency. Best for web sharing.
-- **SVG** — vector, infinitely scalable. Pieces embedded as base64 so the file is self-contained.
+- **SVG** — vector, infinitely scalable. Piece paths are embedded as vector symbols, so the file is self-contained.
 
 ### What do the quality presets mean?
 
@@ -90,7 +90,12 @@ Yes. The Advanced FEN Input page lets you enter up to 10 positions and export th
 
 ### Can I use the exported images commercially?
 
-Yes. The images you generate are yours. Use them in books, articles, courses, video thumbnails, client work — there are no licensing restrictions on the output.
+The position and annotations you create are yours, but exported images also contain
+piece artwork licensed by its authors. CC BY 4.0 permits commercial use with
+attribution; some included sets use CC BY-NC-SA 4.0, which does not permit
+commercial use without separate permission. Check the
+[piece-set attribution and licenses](../../public/piece/ATTRIBUTION.md) before
+publishing an export; use a set whose terms allow your intended use.
 
 ### The export seems stuck or slow.
 

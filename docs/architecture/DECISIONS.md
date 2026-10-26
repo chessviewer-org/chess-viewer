@@ -91,7 +91,7 @@ Records of key architectural and technical decisions made during ChessViewer's d
 
 **Date:** 2025-12-28 | **Status:** Accepted
 
-**Decision:** 20 SVG piece sets sourced from Lichess, self-hosted in `public/piece/` (licenses per set in `public/piece/ATTRIBUTION.md`). Fairy symbols are generated from them into `public/fairypiece/` with `pnpm pieces:fairy`. Images are cached in memory by `pieceUtils.ts`, keyed by source URL.
+**Decision:** 18 SVG piece sets sourced from Lichess, self-hosted in `public/piece/` (licenses per set in `public/piece/ATTRIBUTION.md`). The `companion` and `leipzig` sets are excluded because Lichess lists them as non-free freeware without a clear redistribution and modification license. Fairy symbols are generated from the included sets into `public/fairypiece/` with `pnpm pieces:fairy`. Images are cached in memory by `pieceUtils.ts`, keyed by source URL.
 
 **Rationale:** Excellent quality at any export size, small files, and no runtime dependency on the Lichess CDN.
 

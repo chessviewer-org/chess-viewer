@@ -67,8 +67,22 @@ The catalogue contains 163 walks from the official English
 [Popeye manual](https://github.com/thomas-maeder/popeye/blob/develop/py-engl.txt)
 and [piece-name table](https://github.com/thomas-maeder/popeye/blob/develop/piecenam.txt),
 including the six orthodox walks. The condition picker contains 182 names and the
-attribute picker contains 19 attributes. These are diagram declarations; choosing
-a condition does not run its rules or validate its parameters with a solver.
+attribute picker contains 19 attributes. Choosing a condition stores it in the
+problem; opening computer analysis asks Popeye to solve it under that condition.
+An unsupported or malformed declaration produces an engine error rather than a
+fabricated solution.
+
+## Computer analysis
+
+The computer icon opens Popeye 4.103 in the side panel. Its stipulation display
+shows the problem's goal, while the solution rows show actual variations. The
+settings control time, memory, maximum solutions, threats and defensive
+variations. Hover over a move for a position preview; select it to inspect the
+position on the main board. Search limits can leave more solutions undiscovered.
+
+Popeye is distinct from Stockfish on the Standard page: it reads Popeye problem
+notation and fairy movement rules, and it does not produce a centipawn score.
+See [computer analysis](ENGINES.md) for worker delivery and license/source links.
 
 Named pieces preserve their identity independently of artwork. Conventional
 Popeye diagram glyphs are used where available. Walks without an assigned glyph

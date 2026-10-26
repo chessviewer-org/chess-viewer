@@ -48,9 +48,10 @@ docker compose --profile dev up --build dev   # http://localhost:5173
 - **Board editor** — drag pieces onto any square or pick one and click, with adjustable touch sensitivity and undo across drops; flip the board, toggle coordinates and border frame; full keyboard editing for screen-reader users
 - **FEN input** — paste any FEN string with real-time validation; batch input supports up to 10 positions at once
 - **Fairy chess** — a dedicated page (`/fairy-chess`) with neutral and rotated symbols, 163 named Popeye walks, stipulations, a library of 182 conditions, and Popeye `.inp` import/export
+- **Computer analysis** — local Stockfish 18/19 Lite analysis in Standard Chess and Popeye 4.103 composition solving in Fairy Chess, with move previews, settings and browser-side WebAssembly workers
 - **Export** — PNG, JPEG, or SVG at four quality presets (300–1200 DPI) and board sizes from 4 to 8 cm; batch export downloads a ZIP; DPI metadata is embedded in the file
 - **LaTeX Studio** — a dedicated page (`/latex`) that turns up to 100 positions into `skak`, `chessboard` or `chess-problem-diagrams` markup, with author, source, award, stipulation, piece count, solutions, highlights and arrows; copy the code or download a `.tex` that compiles with pdfLaTeX, with the exact install command shown
-- **Board customisation** — 20 piece sets, 20 preset themes including a black-and-white print theme, book-style hatched dark squares, custom colour picker, up to 48 saved presets
+- **Board customisation** — 18 piece sets, 20 preset themes including a black-and-white print theme, book-style hatched dark squares, custom colour picker, up to 48 saved presets
 - **Position history** — saved locally with favourites, pinning, freshness indicators, and full-text search
 - **Database search** — look up positions on Lichess and ChessDB, or open them in PDB and YACPDB
 - **Optional account** — sign in to sync your history and settings across devices via Supabase; data is encrypted at rest and owner-scoped by row-level security
@@ -59,7 +60,7 @@ docker compose --profile dev up --build dev   # http://localhost:5173
 
 ## Documentation
 
-Technical documentation lives in [`docs/`](docs/README.md): architecture, design decisions, the fairy chess and LaTeX references, the export pipeline, accessibility and performance audits.
+Technical documentation lives in [`docs/`](docs/README.md): architecture, design decisions, [engine integration](docs/reference/ENGINES.md), the fairy chess and LaTeX references, the export pipeline, accessibility and performance audits.
 
 ---
 
@@ -81,7 +82,7 @@ Every PR must reference an open issue (`Closes #N`) and pass CI before it can be
 
 ## Security and privacy
 
-Board rendering and export run entirely client-side — positions never leave your device. There are no ads or tracking cookies; visits are counted in aggregate with cookieless Cloudflare Web Analytics.
+Board rendering, engine analysis and export run entirely client-side. Database searches and optional cloud sync send data only when used. There are no ads or tracking cookies; visits are counted in aggregate with cookieless Cloudflare Web Analytics.
 
 Optional cloud sync stores data in Supabase with row-level security: only the authenticated user can read or write their own rows.
 
@@ -93,10 +94,13 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
 Preact 11, TypeScript 7, Vite 8.3 (Rolldown/Oxc), Tailwind CSS 4.3, wouter, fflate. Public routes are prerendered at build time with Puppeteer and hosted on Cloudflare Pages. TypeScript 6’s API package is used only by ESLint, following Microsoft’s recommended setup for TypeScript 7. No active service worker.
 
-Supabase is used for auth and cloud sync via a custom hand-written client (`src/auth/core/Supabase.ts`) — the `@supabase/supabase-js` SDK is not installed. Icons are Lucide SVG paths embedded directly in `src/assets/icons/` (ISC License) — `lucide-react` is not installed. Page transition animations are CSS-based — `framer-motion` is not installed.
+Supabase is used for auth and cloud sync via a custom hand-written client (`src/auth/core/Supabase.ts`) — the `@supabase/supabase-js` SDK is not installed. Icons are Lucide SVG paths embedded directly in `src/assets/icons/` under the [Lucide and Feather notices](public/licenses/lucide/LICENSE.txt) — `lucide-react` is not installed. Page transition animations are CSS-based — `framer-motion` is not installed.
 
 ---
 
 ## License
 
-[AGPL-3.0](LICENSE). &copy; 2026 Khatai Huseynzada.
+ChessViewer application code is [AGPL-3.0](LICENSE). &copy; 2026 Khatai Huseynzada.
+Bundled engines, icons, fonts and chess piece artwork retain their own licenses;
+see [third-party notices](public/licenses/README.md) and
+[piece-set attribution](public/piece/ATTRIBUTION.md).

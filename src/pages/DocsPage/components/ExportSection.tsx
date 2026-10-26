@@ -30,7 +30,7 @@ export default function ExportSection() {
             lines, the classic look of printed problem books.
           </li>
           <li>
-            <Term>Piece set</Term> switches between 20 piece designs. The choice
+            <Term>Piece set</Term> switches between 18 piece designs. The choice
             applies to the board, previews and every export.
           </li>
         </Bullets>

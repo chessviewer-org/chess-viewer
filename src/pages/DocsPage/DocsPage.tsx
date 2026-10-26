@@ -10,6 +10,7 @@ import { useLocation } from 'wouter';
 import {
   BookOpen,
   Code2,
+  Cpu,
   Download,
   History,
   Layers,
@@ -30,6 +31,7 @@ import { Seo } from '@/shared/ui/Seo';
 
 import BatchSection from './components/BatchSection';
 import EditorSection from './components/EditorSection';
+import EnginesSection from './components/EnginesSection';
 import ExportSection from './components/ExportSection';
 import FairyChessSection from './components/FairyChessSection';
 import HistorySection from './components/HistorySection';
@@ -44,6 +46,7 @@ const GROUPS: readonly PageTabGroup[] = [
     items: [
       { id: 'overview', label: 'Overview', icon: BookOpen },
       { id: 'editor', label: 'Standard editor', icon: MousePointer },
+      { id: 'engines', label: 'Computer analysis', icon: Cpu },
       { id: 'export', label: 'Export images', icon: Download },
       { id: 'batch', label: 'Batch export', icon: Layers }
     ]
@@ -68,6 +71,7 @@ const GROUPS: readonly PageTabGroup[] = [
 const SECTIONS = new Map<string, ComponentType>([
   ['overview', OverviewSection],
   ['editor', EditorSection],
+  ['engines', EnginesSection],
   ['export', ExportSection],
   ['batch', BatchSection],
   ['fairy-chess', FairyChessSection],

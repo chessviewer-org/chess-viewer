@@ -63,7 +63,7 @@ Optional sign-in syncs history and settings through a hand-written Supabase clie
 
 > **Chess domain package** — `@chessviewer-org/chess-viewer` provides FEN and Fairy FEN parsing and validation, board types, SVG diagram generation, DPI metadata (`changeDPI`) and all LaTeX markup. It is published on npm and developed in [chess-viewer-utils](https://github.com/chessviewer-org/chess-viewer-utils).
 
-> **Icon system** — `lucide-react` is not installed. The SVG path data for the icons in use lives in `src/assets/icons/index.tsx`, and `createLucideIcon` in `src/assets/icons/createIcon.tsx` turns each path list into a component with the Lucide API. Icon paths come from [Lucide](https://lucide.dev) (ISC License).
+> **Icon system** — `lucide-react` is not installed. The SVG path data for the icons in use lives in `src/assets/icons/index.tsx`, and `createLucideIcon` in `src/assets/icons/createIcon.tsx` turns each path list into a component with the Lucide API. Icon paths come from [Lucide](https://lucide.dev); the bundled [notice](../../public/licenses/lucide/LICENSE.txt) covers Lucide ISC and Feather-derived MIT icons.
 
 > **Supabase client** — `@supabase/supabase-js` is not installed. `src/auth/core/Supabase.ts` is a hand-written HTTP client that covers only the APIs in use: Auth (sign-in, sign-up, MFA, sessions), PostgREST queries and RPC calls. The exported `supabase` singleton is the only approved entry point.
 

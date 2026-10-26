@@ -13,8 +13,12 @@ The browser worker and application integration are ChessViewer code.
 Popeye's distribution terms are in the included original py-engl.txt, headed
 "Some remarks on the distribution of popeye". In particular, upstream requires
 distribution in its entirety. The complete upstream repository contents at the
-commit above, including manuals, examples and tests, are available from
+commit above, including manuals, examples and tests, are distributed here as
+popeye-4.103-source.tar.gz (SHA-256:
+34eaa1c5d465462553367c0331d46e3a268029eb990f151bee5e4764477b0929).
+The same revision is available at
 https://github.com/thomas-maeder/popeye/tree/8bf65b054482cae04fc36e07c6b880fb4f93c673
+ChessViewer's changes are the patches and header in native/popeye/.
 These are upstream's terms; Popeye is not relicensed under ChessViewer's AGPL.
 
 The historical GPL notice on SourceForge does not describe the current terms:

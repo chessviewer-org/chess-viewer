@@ -13,7 +13,7 @@ import {
 const FAQS: Array<{ q: string; a: ReactNode }> = [
   {
     q: 'What does ChessViewer actually do?',
-    a: "It's simply a diagram editor. You build a chess position, style it how you like, and download it as a high-quality image for print or screen. That means there's no opponent to play against, no AI suggesting moves, no analysis engine inside. It's purely built to turn chess positions into clean, sharp images."
+    a: 'Build a chess position, style it, and export it for print or screen. You can also analyse standard positions with Stockfish or solve fairy chess compositions with Popeye, directly in your browser.'
   },
   {
     q: 'Do I need to sign up to use it?',
@@ -37,7 +37,21 @@ const FAQS: Array<{ q: string; a: ReactNode }> = [
   },
   {
     q: 'Can I use the images I make for commercial work?',
-    a: 'Of course. Those images are entirely yours. Use them freely in your book, your article, a paid course, YouTube videos, or client work. We place no license or copyright restriction on the output whatsoever.'
+    a: (
+      <>
+        The position and annotations you create are yours. Exported images also
+        contain piece artwork with its own license. CC BY 4.0 permits commercial
+        use with attribution; CC BY-NC-SA 4.0 does not permit commercial use
+        without separate permission. Check the{' '}
+        <a
+          href="/piece/ATTRIBUTION.md"
+          className="text-accent underline-offset-2 hover:underline focus-visible:underline"
+        >
+          piece-set licenses
+        </a>{' '}
+        before publishing.
+      </>
+    )
   },
   {
     q: 'Why does the site slow down on very large images?',

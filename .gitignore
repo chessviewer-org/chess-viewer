@@ -47,5 +47,6 @@ native/**/build/
 native/**/*.o
 native/**/*.a
 *.tar.gz
+!public/licenses/popeye/popeye-4.103-source.tar.gz
 *.tgz
 *.zip
