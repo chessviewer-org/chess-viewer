@@ -11,12 +11,12 @@ Each directory owns one concern; nothing is shared by copy.
 
 Related locations outside `src/engines/`:
 
-| Path                                   | Concern                                                              |
-| -------------------------------------- | -------------------------------------------------------------------- |
-| `src/components/interactions/Analysis` | Panel UI shared by both engines (`components/`, `hooks/`, `styles/`) |
-| `public/wasm/<engine>/`                | Runtime binaries and workers only                                    |
-| `public/licenses/<engine>/`            | Licenses, notices, manuals and source offers                         |
-| `native/<engine>/`                     | Native sources: patches and the build script                         |
+| Path                                          | Concern                                                                      |
+| --------------------------------------------- | ---------------------------------------------------------------------------- |
+| `src/components/interactions/Analysis`        | Panel UI shared by both engines (`components/`, `hooks/`, `styles/`)         |
+| `public/wasm/<engine>/`                       | Runtime binaries and workers only                                            |
+| `public/licenses/<engine>/`                   | Licenses, notices, manuals and source offers                                 |
+| `public/licenses/popeye/*build-inputs.tar.gz` | Published patches and build script; extract into a local `native/` workspace |
 
 ## Rules
 

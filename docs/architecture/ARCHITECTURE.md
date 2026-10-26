@@ -171,7 +171,7 @@ Notable utilities in `src/shared/utils/`:
 | `humanVerification.ts`, `databaseSearch.ts`                 | Turnstile token and Lichess/ChessDB lookups            |
 | `archiveManager.ts`                                         | History archive (not ZIP export)                       |
 
-Outside `src/`: `public/wasm/<engine>/` holds engine binaries and workers only, `public/licenses/<engine>/` their licenses and source offers, and `native/<engine>/` the sources and build script for engines compiled in this repository. Board, editor and analysis styling is written in SCSS modules, not Tailwind utility strings. Each large module is an entry file that `@use`s partials (`styles/editor/`, `styles/analysis/`, `styles/board/`).
+Outside `src/`: `public/wasm/<engine>/` holds engine binaries and workers only, while `public/licenses/<engine>/` holds licenses and matching source/build-input archives. The `native/` build workspace is local and ignored by Git; its Popeye build inputs are published as an archive under `public/licenses/popeye/`. Board, editor and analysis styling is written in SCSS modules, not Tailwind utility strings. Each large module is an entry file that `@use`s partials (`styles/editor/`, `styles/analysis/`, `styles/board/`).
 
 ---
 

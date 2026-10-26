@@ -3,8 +3,8 @@ https://github.com/thomas-maeder/popeye
 Upstream commit: 8bf65b054482cae04fc36e07c6b880fb4f93c673 (v4.103)
 
 Built from the complete upstream C sources with Emscripten 6.0.13.
-The patches and position-preview.h in native/popeye/ of the ChessViewer
-repository add board snapshots and move history to the output for interactive
+The patches and position-preview.h in the included
+popeye-4.103-build-inputs.tar.gz add board snapshots and move history to the output for interactive
 previews. history-context.patch also supplies the preceding played move vector
 to the native SynchronMover and AntiSynchronMover root checks when a new
 interactive diagram is submitted. Native search and movement rules are retained.
@@ -18,13 +18,19 @@ popeye-4.103-source.tar.gz (SHA-256:
 34eaa1c5d465462553367c0331d46e3a268029eb990f151bee5e4764477b0929).
 The same revision is available at
 https://github.com/thomas-maeder/popeye/tree/8bf65b054482cae04fc36e07c6b880fb4f93c673
-ChessViewer's changes are the patches and header in native/popeye/.
+ChessViewer's patches, header, and build recipe are in
+popeye-4.103-build-inputs.tar.gz (SHA-256:
+b95fb824157ea090e5ffb523fc68b1cf479b37aa478d5bf6e028a95cf8a6a204).
+Extract it at the ChessViewer repository root to recreate the local native/
+workspace. The native/ folder itself is intentionally not tracked in Git.
 These are upstream's terms; Popeye is not relicensed under ChessViewer's AGPL.
 
 The historical GPL notice on SourceForge does not describe the current terms:
 https://github.com/thomas-maeder/popeye/issues/204
 
-Rebuild instructions and the exact compiler flags are in native/popeye/build.sh
-in the ChessViewer repository.
+Rebuild instructions and the exact compiler flags are in
+native/popeye/build.sh inside the build-inputs archive. The script accepts
+either a checkout of the upstream revision or the extracted upstream source
+archive beside it.
 
 The Emscripten runtime license is included in EMSCRIPTEN-LICENSE.txt.

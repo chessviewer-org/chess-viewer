@@ -59,10 +59,12 @@ Stockfish uses its single-threaded build.
 - Popeye 4.103: [upstream distribution terms and build notice](../../public/licenses/popeye/NOTICE.txt),
   [complete source archive](../../public/licenses/popeye/popeye-4.103-source.tar.gz)
   at commit `8bf65b054482cae04fc36e07c6b880fb4f93c673`, and ChessViewer's
-  [patches and build recipe](../../native/popeye/). Popeye retains its own
+  [patches and build recipe](../../public/licenses/popeye/popeye-4.103-build-inputs.tar.gz).
+  Popeye retains its own
   terms rather than being relicensed under the application's AGPL.
 - Emscripten: [runtime license](../../public/licenses/popeye/EMSCRIPTEN-LICENSE.txt).
 
 The [third-party notices](../../public/licenses/README.md) list the other
-bundled art, font and icon licenses. The `native/` build inputs are in the Git
-repository; `public/` files are served with the site.
+bundled art, font and icon licenses. The `native/` build workspace stays local;
+the corresponding source and build-input archives under `public/licenses/` are
+served with the site.
