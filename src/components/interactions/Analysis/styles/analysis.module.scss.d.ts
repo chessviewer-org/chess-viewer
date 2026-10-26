@@ -11,7 +11,6 @@ declare const styles: {
   readonly threatButton: string;
   readonly settings: string;
   readonly setting: string;
-  readonly select: string;
   readonly solutions: string;
   readonly results: string;
   readonly solution: string;

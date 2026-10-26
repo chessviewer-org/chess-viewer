@@ -86,6 +86,11 @@ export function EnginePanel({
       onClick={(event) => event.stopPropagation()}
       onKeyDownCapture={(event) => {
         if (event.key !== 'Escape') return;
+        if (
+          event.target instanceof HTMLElement &&
+          event.target.closest('[role="combobox"][aria-expanded="true"]')
+        )
+          return;
         event.preventDefault();
         event.stopPropagation();
         if (settingsOpen) {

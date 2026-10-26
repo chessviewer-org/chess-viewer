@@ -159,12 +159,15 @@ class FakeWorker {
 const created: StockfishClient[] = [];
 afterEach(() => created.splice(0).forEach((client) => client.destroy()));
 
-function harness() {
+function harness(onUpdate?: (state: AnalysisState) => void) {
   const workers: FakeWorker[] = [];
   const files: string[] = [];
   const states: AnalysisState[] = [];
   const client = new StockfishClient(
-    (state) => states.push(state),
+    (state) => {
+      states.push(state);
+      onUpdate?.(state);
+    },
     (file) => {
       const worker = new FakeWorker();
       workers.push(worker);
@@ -477,13 +480,23 @@ test('hash follows the device: cores and a sixteenth of memory', () => {
   assert.equal(recommendedHash(sizes, 1, 0.25), 16);
 });
 
-test('engine download progress reaches the state while loading', async () => {
-  const { client, workers, states } = harness();
-  client.start(STARTING_FEN, DEFAULT_ANALYSIS_SETTINGS);
-  const port = workers[0]!.progressPort!;
-  port.postMessage({ percent: 0.4 });
-  await new Promise((resolve) => setTimeout(resolve, 20));
-  assert.equal(states.at(-1)?.status, 'loading');
-  assert.equal(states.at(-1)?.download, 0.4);
-  port.close();
-});
+test(
+  'engine download progress reaches the state while loading',
+  { timeout: 5000 },
+  async () => {
+    let resolveProgress: (state: AnalysisState) => void = () => {};
+    const progress = new Promise<AnalysisState>((resolve) => {
+      resolveProgress = resolve;
+    });
+    const { client, workers } = harness((state) => {
+      if (state.download > 0) resolveProgress(state);
+    });
+    client.start(STARTING_FEN, DEFAULT_ANALYSIS_SETTINGS);
+    const port = workers[0]!.progressPort!;
+    port.postMessage({ percent: 0.4 });
+    const state = await progress;
+    assert.equal(state.status, 'loading');
+    assert.equal(state.download, 0.4);
+    port.close();
+  }
+);

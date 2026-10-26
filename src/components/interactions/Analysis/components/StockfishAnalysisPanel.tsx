@@ -1,16 +1,10 @@
-import {
-  memo,
-  useEffect,
-  useId,
-  useLayoutEffect,
-  useMemo,
-  useState
-} from 'react';
+import { memo, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { lineArrows, type BoardArrow } from '@/engines/core/arrows';
 import { flipTurn, mustAnswerCheck } from '@/engines/rules/position';
 import { Target } from '@/assets/icons';
 import { parseFEN } from '@/shared/utils/fenParser';
 import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
+import { CustomSelect } from '@/shared/ui/CustomSelect';
 import { SEARCH_DEBOUNCE_MS, SEARCH_TIMES } from '@/engines/core/limits';
 import type { Notify, PreviewMove } from '@/engines/core/types';
 import {
@@ -22,8 +16,7 @@ import {
   threadedEngine,
   MODELS,
   modelById,
-  type AnalysisSettings,
-  type ModelId
+  type AnalysisSettings
 } from '@/engines/stockfish/settings';
 import { EMPTY_ANALYSIS, StockfishClient } from '@/engines/stockfish/client';
 import { EnginePanel } from './EnginePanel';
@@ -86,7 +79,6 @@ export default memo(function StockfishAnalysisPanel({
     [threat, fen]
   );
   const [elapsed, setElapsed] = useState(0);
-  const modelId = useId();
   const startError = useStartError(onNotify);
   const model = modelById(settings.model);
   const {
@@ -247,23 +239,15 @@ export default memo(function StockfishAnalysisPanel({
           rules={settings.rules}
           onRulesChange={(value) => changeSetting('rules', value)}
           header={
-            <label className={styles.setting} htmlFor={modelId}>
-              <span>Engine</span>
-              <select
-                id={modelId}
-                className={styles.select}
-                value={settings.model}
-                onChange={(event) =>
-                  changeSetting('model', event.currentTarget.value as ModelId)
-                }
-              >
-                {MODELS.map((entry) => (
-                  <option key={entry.id} value={entry.id}>
-                    {entry.label} · {entry.detail}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <CustomSelect
+              label="Engine"
+              value={settings.model}
+              options={MODELS.map((entry) => ({
+                value: entry.id,
+                label: `${entry.label} · ${entry.detail}`
+              }))}
+              onChange={(value) => changeSetting('model', value)}
+            />
           }
           seconds={settings.seconds}
           memoryMb={settings.memoryMb}
