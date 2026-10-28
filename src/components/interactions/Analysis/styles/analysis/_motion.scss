@@ -34,4 +34,11 @@
   .chevron {
     transition: none;
   }
+  html:not([data-reduced-motion='full']) .settingsPopover {
+    transition: none;
+  }
+}
+
+html[data-reduced-motion='reduce'] .settingsPopover {
+  transition: none;
 }

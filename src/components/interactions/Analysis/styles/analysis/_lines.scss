@@ -81,6 +81,7 @@ summary.solutionHeader {
   border-radius: 0.125rem;
   cursor: pointer;
   &:hover,
+  &[data-preview-active='true'],
   &[aria-pressed='true'] {
     color: var(--color-accent);
   }

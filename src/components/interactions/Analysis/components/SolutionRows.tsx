@@ -1,7 +1,7 @@
 import {
-  type CSSProperties,
   memo,
   useEffect,
+  useLayoutEffect,
   useId,
   useMemo,
   useCallback,
@@ -17,6 +17,7 @@ import { getPieceKey } from '@/shared/utils/pieceUtils';
 import { useSquarePatternSetting } from '@/shared/hooks/useSquarePattern';
 import { BoardBackdrop } from '../../Board/components/BoardBackdrop';
 import type { PreviewMove, SolutionLine } from '@/engines/core/types';
+import { moveAt, moveTokens, type MoveLocation } from '../solutionMoves';
 import styles from '../styles/analysis.module.scss';
 
 const PREVIEW_SIZE = 224;
@@ -51,16 +52,12 @@ function MiniBoard({
   const { pieceImages } = usePieceImages(pieceStyle, { board: move.board });
   const [squarePattern] = useSquarePatternSetting();
   return (
-    <div
+    <svg
       className={styles.miniBoard}
+      viewBox="0 0 8 8"
+      shapeRendering="geometricPrecision"
       role="img"
       aria-label={describeBoardPosition(move.board, flipped)}
-      data-square-pattern={squarePattern}
-      style={
-        {
-          '--board-light': lightSquare
-        } as CSSProperties
-      }
     >
       <BoardBackdrop
         light={lightSquare}
@@ -77,62 +74,59 @@ function MiniBoard({
         const key = getPieceKey(cell);
         const image = key ? pieceImages[key] : undefined;
         return (
-          <span
+          <image
             key={`${actualRow}-${col}`}
-            data-shade={(actualRow + col) % 2 === 0 ? 'light' : 'dark'}
-          >
-            {image && <img src={image.src} alt="" draggable={false} />}
-          </span>
+            x={index % 8}
+            y={Math.floor(index / 8)}
+            width="1"
+            height="1"
+            href={image?.src}
+          />
         );
       })}
-    </div>
+    </svg>
   );
 }
 
-function tokens(text: string, moves: readonly PreviewMove[]) {
-  const parts: Array<{ key: number; text: string; move?: PreviewMove }> = [];
-  let offset = 0;
-  for (const move of moves) {
-    const index = text.indexOf(move.text, offset);
-    if (index < 0) continue;
-    if (index > offset)
-      parts.push({ key: offset, text: text.slice(offset, index) });
-    parts.push({ key: index, text: move.text, move });
-    offset = index + move.text.length;
-  }
-  if (offset < text.length)
-    parts.push({ key: offset, text: text.slice(offset) });
-  return parts;
-}
-
 interface MoveLineProps {
+  solutionId: number;
+  variationId?: number;
   text: string;
   moves: PreviewMove[];
   selected: PreviewMove | null;
   hovered: PreviewMove | null;
   previewId: string;
-  show: (move: PreviewMove, element: HTMLElement) => void;
-  hidePointer: () => void;
+  show: (
+    location: MoveLocation,
+    element: HTMLElement,
+    origin: 'pointer' | 'focus'
+  ) => void;
   hideFocus: () => void;
   select: (move: PreviewMove) => void;
 }
 
 const MoveLine = memo(function MoveLine({
+  solutionId,
+  variationId,
   text,
   moves,
   selected,
   hovered,
   previewId,
   show,
-  hidePointer,
   hideFocus,
   select
 }: MoveLineProps) {
-  const parts = useMemo(() => tokens(text, moves), [text, moves]);
+  const parts = useMemo(() => moveTokens(text, moves), [text, moves]);
   return (
     <span className={styles.lineText}>
       {parts.map((part) => {
         const move = part.move;
+        const location = {
+          solutionId,
+          ...(variationId !== undefined ? { variationId } : {}),
+          moveIndex: part.moveIndex!
+        };
         return move ? (
           <button
             key={part.key}
@@ -141,9 +135,12 @@ const MoveLine = memo(function MoveLine({
             aria-label={`Show ${part.text} on the board`}
             aria-describedby={hovered === move ? previewId : undefined}
             aria-pressed={selected === move}
-            onMouseEnter={(event) => show(move, event.currentTarget)}
-            onMouseLeave={hidePointer}
-            onFocus={(event) => show(move, event.currentTarget)}
+            data-preview-move=""
+            data-preview-active={hovered === move}
+            onMouseEnter={(event) =>
+              show(location, event.currentTarget, 'pointer')
+            }
+            onFocus={(event) => show(location, event.currentTarget, 'focus')}
             onBlur={hideFocus}
             onClick={(event) => {
               event.preventDefault();
@@ -174,17 +171,23 @@ export const SolutionRows = memo(function SolutionRows({
   flipped
 }: Props) {
   const previewId = useId();
+  const solutionsRef = useRef<HTMLDivElement>(null);
+  const [target, setTarget] = useState<{
+    location: MoveLocation;
+    element: HTMLElement;
+    origin: 'pointer' | 'focus';
+  } | null>(null);
   const [hover, setHover] = useState<{
-    move: PreviewMove;
     left: number;
     top: number;
     size: number;
   } | null>(null);
   const [selected, setSelected] = useState<PreviewMove | null>(null);
-  const previewRequest = useRef(0);
   const scrollingForPreview = useRef(false);
   const autoScrollPending = useRef(false);
-  const previewSource = useRef<HTMLElement | null>(null);
+  const hoveredMove = target
+    ? moveAt(solutions.slice(0, limit), target.location)
+    : undefined;
   const availableMoves = useMemo(
     () =>
       new Set(
@@ -201,42 +204,53 @@ export const SolutionRows = memo(function SolutionRows({
       setSelected(null);
       onPreview(null);
     }
-    if (hover && !availableMoves.has(hover.move)) setHover(null);
-  }, [availableMoves, selected, hover, onPreview]);
+  }, [availableMoves, selected, onPreview]);
 
-  useEffect(() => {
-    if (!hover) return;
-    const hide = () => {
-      if (autoScrollPending.current) return;
-      scrollingForPreview.current = false;
-      setHover(null);
-    };
-    window.addEventListener('scroll', hide, true);
-    window.addEventListener('resize', hide);
-    return () => {
-      window.removeEventListener('scroll', hide, true);
-      window.removeEventListener('resize', hide);
-    };
-  }, [hover]);
-
-  useEffect(() => {
-    if (!hover || !scrollingForPreview.current) return;
-    const release = (event: PointerEvent) => {
-      scrollingForPreview.current = false;
-      if (!previewSource.current?.contains(event.target as Node))
-        setHover(null);
-    };
-    window.addEventListener('pointermove', release, { once: true });
-    return () => window.removeEventListener('pointermove', release);
-  }, [hover]);
-
-  const show = useCallback((move: PreviewMove, element: HTMLElement) => {
-    const request = ++previewRequest.current;
+  const hideFocus = useCallback(() => {
     scrollingForPreview.current = false;
     autoScrollPending.current = false;
-    previewSource.current = element;
+    setTarget(null);
+    setHover(null);
+  }, []);
+
+  useEffect(() => {
+    if (!target || target.origin !== 'pointer') return;
+    const followPointer = (event: PointerEvent) => {
+      if (autoScrollPending.current) return;
+      scrollingForPreview.current = false;
+      const move =
+        event.target instanceof Element
+          ? event.target.closest('[data-preview-move]')
+          : null;
+      if (!move || !solutionsRef.current?.contains(move)) hideFocus();
+    };
+    window.addEventListener('pointermove', followPointer);
+    return () => window.removeEventListener('pointermove', followPointer);
+  }, [target, hideFocus]);
+
+  const show = useCallback(
+    (
+      location: MoveLocation,
+      element: HTMLElement,
+      origin: 'pointer' | 'focus'
+    ) => {
+      scrollingForPreview.current = false;
+      autoScrollPending.current = false;
+      setTarget({ location, element, origin });
+    },
+    []
+  );
+
+  useLayoutEffect(() => {
+    if (!target) return;
+    if (!hoveredMove || !target.element.isConnected) {
+      hideFocus();
+      return;
+    }
+    const { element } = target;
+    let cancelled = false;
     const place = () => {
-      if (request !== previewRequest.current) return;
+      if (cancelled) return;
       const moveRect = element.getBoundingClientRect();
       const rowRect =
         element.closest('[data-solution-row]')?.getBoundingClientRect() ??
@@ -244,7 +258,9 @@ export const SolutionRows = memo(function SolutionRows({
       const bounds =
         element.closest('[data-analysis-panel]')?.getBoundingClientRect() ??
         new DOMRect(0, 0, window.innerWidth, window.innerHeight);
-      const top = rowRect.bottom + PREVIEW_GAP;
+      const pixelRatio = window.devicePixelRatio;
+      const top =
+        Math.round((rowRect.bottom + PREVIEW_GAP) * pixelRatio) / pixelRatio;
       const available = window.innerHeight - top - PREVIEW_GAP;
       const scrollRemaining =
         document.documentElement.scrollHeight -
@@ -263,43 +279,45 @@ export const SolutionRows = memo(function SolutionRows({
         );
         requestAnimationFrame(() =>
           requestAnimationFrame(() => {
+            if (cancelled) return;
             place();
             autoScrollPending.current = false;
           })
         );
         return;
       }
-      const size = Math.max(
+      const availableSize = Math.max(
         0,
         Math.min(PREVIEW_SIZE, bounds.width - 2 * PREVIEW_GAP, available)
       );
+      // Align the board and each of its eight squares to device pixels.
+      const size =
+        (Math.floor((availableSize * pixelRatio) / 8) * 8) / pixelRatio;
       if (size < 1) {
-        setHover(null);
+        hideFocus();
         return;
       }
       setHover({
-        move,
         size,
-        left: Math.max(
-          bounds.left + PREVIEW_GAP,
-          Math.min(moveRect.left, bounds.right - size - PREVIEW_GAP)
-        ),
+        left:
+          Math.round(
+            Math.max(
+              bounds.left + PREVIEW_GAP,
+              Math.min(moveRect.left, bounds.right - size - PREVIEW_GAP)
+            ) * pixelRatio
+          ) / pixelRatio,
         top
       });
     };
     place();
-  }, []);
-  const hidePointer = useCallback(() => {
-    if (scrollingForPreview.current) return;
-    ++previewRequest.current;
-    setHover(null);
-  }, []);
-  const hideFocus = useCallback(() => {
-    scrollingForPreview.current = false;
-    autoScrollPending.current = false;
-    ++previewRequest.current;
-    setHover(null);
-  }, []);
+    window.addEventListener('scroll', place, true);
+    window.addEventListener('resize', place);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('scroll', place, true);
+      window.removeEventListener('resize', place);
+    };
+  }, [target, hoveredMove, hideFocus]);
   const select = useCallback(
     (move: PreviewMove) => {
       hideFocus();
@@ -316,18 +334,18 @@ export const SolutionRows = memo(function SolutionRows({
 
   return (
     <>
-      <div className={styles.solutions} aria-label={label}>
+      <div ref={solutionsRef} className={styles.solutions} aria-label={label}>
         {solutions.slice(0, limit).map((solution, index) => {
           const header = (
             <>
               <MoveLine
+                solutionId={solution.id}
                 text={solution.key}
                 moves={solution.moves}
                 selected={selected}
-                hovered={hover?.move ?? null}
+                hovered={hoveredMove ?? null}
                 previewId={previewId}
                 show={show}
-                hidePointer={hidePointer}
                 hideFocus={hideFocus}
                 select={select}
               />
@@ -354,13 +372,14 @@ export const SolutionRows = memo(function SolutionRows({
                     data-solution-row=""
                   >
                     <MoveLine
+                      solutionId={solution.id}
+                      variationId={variation.id}
                       text={variation.text}
                       moves={variation.moves}
                       selected={selected}
-                      hovered={hover?.move ?? null}
+                      hovered={hoveredMove ?? null}
                       previewId={previewId}
                       show={show}
-                      hidePointer={hidePointer}
                       hideFocus={hideFocus}
                       select={select}
                     />
@@ -379,6 +398,7 @@ export const SolutionRows = memo(function SolutionRows({
         {solutions.length === 0 && <p className={styles.empty}>{emptyText}</p>}
       </div>
       {hover &&
+        hoveredMove &&
         createPortal(
           <div
             id={previewId}
@@ -391,7 +411,7 @@ export const SolutionRows = memo(function SolutionRows({
             }}
           >
             <MiniBoard
-              move={hover.move}
+              move={hoveredMove}
               pieceStyle={pieceStyle}
               lightSquare={lightSquare}
               darkSquare={darkSquare}

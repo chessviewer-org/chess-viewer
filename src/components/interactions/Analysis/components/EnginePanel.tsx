@@ -145,7 +145,15 @@ export function EnginePanel({
             <Settings className={styles.controlIcon} />
           </button>
         </div>
-        {settingsOpen && <div id={settingsId}>{settings}</div>}
+        <div
+          id={settingsId}
+          className={styles.settingsPopover}
+          data-open={settingsOpen}
+          aria-hidden={!settingsOpen}
+          inert={!settingsOpen}
+        >
+          {settings}
+        </div>
       </div>
       <div className={styles.results}>{children}</div>
     </section>

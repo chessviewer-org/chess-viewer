@@ -9,6 +9,7 @@ declare const styles: {
   readonly iconButton: string;
   readonly active: string;
   readonly threatButton: string;
+  readonly settingsPopover: string;
   readonly settings: string;
   readonly setting: string;
   readonly solutions: string;

@@ -1,7 +1,7 @@
 import { readDevice, recommendedHash } from '../core/device';
 import { SEARCH_TIMES } from '../core/limits';
 
-export const MAX_LINES = 5;
+export const MAX_LINES = 3;
 export const HASH_SIZES = [16, 32, 64, 128, 256] as const;
 const MAX_THREADS = 8;
 

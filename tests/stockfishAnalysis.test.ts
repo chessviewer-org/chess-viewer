@@ -128,11 +128,12 @@ test('positions Stockfish cannot search are rejected before the worker starts', 
 
 test('saved settings are clamped to supported values', () => {
   assert.deepEqual(analysisSettings(null), DEFAULT_ANALYSIS_SETTINGS);
-  assert.equal(
-    analysisSettings({ lines: 9 }).lines,
-    DEFAULT_ANALYSIS_SETTINGS.lines
-  );
-  assert.equal(analysisSettings({ seconds: 30, lines: 5 }).seconds, 30);
+  assert.equal(DEFAULT_ANALYSIS_SETTINGS.lines, 3);
+  for (const lines of [1, 2, 3])
+    assert.equal(analysisSettings({ lines }).lines, lines);
+  for (const lines of [0, 4, 5, 9, 1.5])
+    assert.equal(analysisSettings({ lines }).lines, 3);
+  assert.equal(analysisSettings({ seconds: 30, lines: 2 }).seconds, 30);
 });
 
 class FakeWorker {
